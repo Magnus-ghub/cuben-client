@@ -5,10 +5,11 @@ import HaederFilter from "../homepage/HeadFilter";
 
 const withLayoutMain = (Component: any) => {
   return (props: any) => {
+  
     return (
       <>
         <Head>
-          <title>Nestar</title>
+          <title>Cuben</title>
         </Head>
         <Stack id="pc-wrap">
           <Stack id={"top"}>
