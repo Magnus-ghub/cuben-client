@@ -6,7 +6,7 @@ const withLayoutBasic = (Component: any) => {
         return(
          <>
             <Head>
-                <title>Nestar</title>
+                <title>Cuben</title>
             </Head>
             <Stack id={"pc-wrap"}>
                 <Stack sx={{ background: "#81c784"}}>Header Basic</Stack>
