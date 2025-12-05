@@ -3,7 +3,7 @@ import { Box, Menu, MenuItem, Stack } from "@mui/material";
 import Link from "next/link";
 import useDeviceDetect from "../hooks/useDeviceDetect";
 
-const Top = () => {
+const LeftSidebar = () => {
   const device = useDeviceDetect();
 
   if (device === "mobile") {
@@ -78,4 +78,4 @@ const Top = () => {
   );
 };
 
-export default Top;
+export default LeftSidebar;

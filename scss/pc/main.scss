@@ -1,0 +1,318 @@
+//** IMPORTS **//
+@import "/scss/variables.scss";
+
+@import "/scss/pc/homepage/homepage.scss";
+@import "/scss/pc/product/product.scss";
+@import "/scss/pc/product/detail.scss";
+
+#pc-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #0f1014; // yoki sizning asosiy bg coloringiz
+
+  #top {
+    .navbar {
+      .navbar-main {
+        position: fixed;
+        padding: 22px 0px;
+        width: 100%;
+        height: 87px;
+        display: flex;
+        flex-direction: row;
+        box-sizing: border-box;
+        z-index: 99;
+        align-items: center;
+        background-color: red;
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        &.transparent {
+          background-color: #181a209e;
+        }
+        .container {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          .logo-box {
+            img {
+              width: 150px;
+              cursor: pointer;
+            }
+          }
+          .router-box {
+            position: relative;
+            width: 617px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            div {
+              position: relative;
+              color: #eeeeeeed;
+              font-family: $font;
+              font-size: 15px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              cursor: pointer;
+            }
+          }
+          .user-box {
+            width: 270px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            .join-box {
+              width: 184px;
+              height: 47px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 60px;
+              border: 1px solid #ffffff;
+              cursor: pointer;
+              svg {
+                color: #ffffff;
+                margin-right: 10px;
+              }
+              span {
+                font-family: $font;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+                color: #ffffff;
+              }
+            }
+            .login-user {
+              img {
+                width: 42px;
+                height: 42px;
+                border-radius: 50px;
+                object-fit: cover;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  #layout-body {
+    margin-top: 87px; // navbar height
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1920px; // yoki kerakli max width
+    margin-left: auto;
+    margin-right: auto;
+
+    #left-sidebar {
+      position: sticky;
+      top: 87px; // navbar height
+      width: 280px;
+      height: calc(100vh - 87px);
+      background-color: #181a20;
+      border-right: 1px solid #212329;
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      // Scrollbar styling
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #2a2d35;
+        border-radius: 3px;
+        &:hover {
+          background: #353842;
+        }
+      }
+
+      .sidebar-content {
+        padding: 20px 15px;
+
+        .sidebar-section {
+          margin-bottom: 30px;
+
+          .section-title {
+            color: #bebdbd;
+            font-family: $font;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+          }
+
+          .sidebar-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+
+            svg {
+              width: 20px;
+              height: 20px;
+              color: #bebdbd;
+            }
+
+            span {
+              color: #eeeeeeed;
+              font-family: $font;
+              font-size: 14px;
+              font-weight: 500;
+            }
+
+            &:hover {
+              background-color: #212329;
+
+              svg,
+              span {
+                color: #ffffff;
+              }
+            }
+
+            &.active {
+              background-color: #2a2d35;
+
+              svg,
+              span {
+                color: #ffffff;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0; // flex item uchun muhim
+
+      #main-section {
+        flex: 1;
+        padding: 40px;
+        background-color: #0f1014;
+        min-height: calc(
+          100vh - 87px - 200px
+        ); // navbar va footer heightini hisobga olib
+
+        .container {
+          max-width: 1300px;
+          margin: 0 auto;
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  #footer {
+    position: relative;
+    padding: 60px 0px 18px 0px;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    background: #181a20;
+    margin-top: auto; // footerni pastga itaradi
+
+    .footer-container {
+      width: 1300px;
+      height: auto;
+      margin: 0 auto;
+
+      .second {
+        margin-top: 60px;
+        height: 45px;
+        border-top: 1px solid #212329;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+
+        span {
+          color: #bebdbd;
+          font-family: $font;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+        }
+      }
+    }
+  }
+}
+
+// Mobile version
+// #mobile-wrap {
+//   min-height: 100vh;
+//   display: flex;
+//   flex-direction: column;
+
+//   #top {
+//     // Mobile navbar stillari
+//   }
+
+//   #layout-body {
+//     flex: 1;
+//     margin-top: 60px; // mobile navbar height
+
+//     #left-sidebar {
+//       position: fixed;
+//       top: 60px;
+//       left: -280px; // default yopiq holat
+//       width: 280px;
+//       height: calc(100vh - 60px);
+//       background-color: #181a20;
+//       z-index: 98;
+//       transition: left 0.3s ease;
+//       overflow-y: auto;
+
+//       &.open {
+//         left: 0;
+//       }
+
+//       // Overlay
+//       &::before {
+//         content: "";
+//         position: fixed;
+//         top: 60px;
+//         left: 0;
+//         right: 0;
+//         bottom: 0;
+//         background-color: rgba(0, 0, 0, 0.5);
+//         opacity: 0;
+//         visibility: hidden;
+//         transition: all 0.3s ease;
+//       }
+
+//       &.open::before {
+//         opacity: 1;
+//         visibility: visible;
+//       }
+//     }
+
+//     #main {
+//       flex: 1;
+
+//       #main-section {
+//         padding: 20px;
+//         min-height: calc(100vh - 60px - 150px);
+//       }
+//     }
+//   }
+
+//   #footer {
+//     // Mobile footer stillari
+//   }
+// }
