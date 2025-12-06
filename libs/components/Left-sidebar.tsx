@@ -2,76 +2,98 @@ import { Logout } from "@mui/icons-material";
 import { Box, Menu, MenuItem, Stack } from "@mui/material";
 import Link from "next/link";
 import useDeviceDetect from "../hooks/useDeviceDetect";
+import { Settings, HelpCircle, Icon } from "lucide-react";
 
 const LeftSidebar = () => {
   const device = useDeviceDetect();
 
   if (device === "mobile") {
-    return (
-      <Stack className={"navbar"}>
-        <Link href={"/"}>
-          <div>Home</div>
-        </Link>
-        <Link href={"/property"}>
-          <div>Properties</div>
-        </Link>
-        <Link href={"/agent"}>
-          <div>Agents</div>
-        </Link>
-        <Link href={"/community"}>
-          <div>Community</div>
-        </Link>
-
-        <Link href={"/cs"}>
-          <div>CS</div>
-        </Link>
-      </Stack>
-    );
+    return <Stack className={"navbar"}></Stack>;
   }
   return (
     <Stack className={"navbar"}>
       <Stack className={"navbar-main"}>
         <Stack className={"container"}>
-          <Box component={"div"} className={"logo-box"}>
-            <Link href={"/"}>
-              <img src="/img/logo/logoWhite.svg" alt="" />
-            </Link>
-          </Box>
-          <Box component={"div"} className={"router-box"}>
-            <Link href={"/"}>
-              <div>Home</div>
-            </Link>
-            <Link href={"/property"}>
-              <div>Properties</div>
-            </Link>
-            <Link href={"/agent"}>
-              <div>Agents</div>
-            </Link>
-            <Link href={"/community"}>
-              <div>Community</div>
-            </Link>
+          <Link href="/profile">
+            <Stack className="profile-card">
+              <Stack className="profile-header">
+                <Box className="profile-avatar">
+                  <img src="/img/profile/defaultUser.svg" alt="Profile" />
+                </Box>
+                <Stack className="profile-info">
+                  <Box className="profile-name">Kim Student</Box>
+                  <Box className="profile-username">@kimstudent</Box>
+                </Stack>
+              </Stack>
 
-            <Link href={"/cs"}>
-              <div>CS</div>
-            </Link>
-          </Box>
-          <Box component={"div"} className={"user-box"}>
-            <>
-              <div className={"logo-user"}>
-                <img src={"/img/profile/default.svg"} alt="" />
-              </div>
+              <Stack className="profile-stats">
+                <Stack className="stat-item">
+                  <Box className="stat-number">125</Box>
+                  <Box className="stat-label">Followers</Box>
+                </Stack>
+                <Stack className="stat-item">
+                  <Box className="stat-number">89</Box>
+                  <Box className="stat-label">Following</Box>
+                </Stack>
+              </Stack>
+            </Stack>
+          </Link>
 
-              <Menu id="basic-menu" sx={{ mt: "5px" }} open={false}>
-                <MenuItem>
-                  <Logout
-                    fontSize="small"
-                    style={{ color: "blue", marginRight: "10px" }}
-                  />
-                  Logout
-                </MenuItem>
-              </Menu>
-            </>
-          </Box>
+          {/* Sidebar Content */}
+          <Stack className="sidebar-content">
+            {/* HOME Section */}
+            <Stack className="sidebar-section">
+              <Box className="section-title">🏠 HOME</Box>
+
+              <Link href={"/product"}>
+                <Stack className={`menu-item `}>
+                  <Icon className="menu-icon" size={20} iconNode={[]} />
+                  <Box className="menu-text"></Box>
+                  <Box className="menu-badge"></Box>
+                </Stack>
+              </Link>
+            </Stack>
+
+            {/* MY ACTIVITY Section */}
+            <Stack className="sidebar-section">
+              <Box className="section-title">❤️ MY ACTIVITY</Box>
+
+              <Link href={"/product"}>
+                <Stack className={`menu-item`}>
+                  <Icon className="menu-icon" size={20} iconNode={[]} />
+                  <Box className="menu-text"></Box>
+                </Stack>
+              </Link>
+            </Stack>
+
+            {/* CATEGORIES Section */}
+            <Stack className="sidebar-section">
+              <Box className="section-title">🏷️ CATEGORIES</Box>
+              <Link href={"/home"}>
+                <Stack className={`menu-item`}>
+                  <Icon className="menu-icon" size={20} iconNode={[]} />
+                  <Box className="menu-text">{}</Box>
+                  <Box className="menu-count">{}</Box>
+                </Stack>
+              </Link>
+            </Stack>
+          </Stack>
+
+          {/* Bottom Section */}
+          <Stack className="sidebar-bottom">
+            <Link href="/settings">
+              <Stack className="bottom-item">
+                <Settings size={18} />
+                <Box>Settings</Box>
+              </Stack>
+            </Link>
+            <Link href="/help">
+              <Stack className="bottom-item">
+                <HelpCircle size={18} />
+                <Box>Help & Support</Box>
+              </Stack>
+            </Link>
+          </Stack>
         </Stack>
       </Stack>
     </Stack>

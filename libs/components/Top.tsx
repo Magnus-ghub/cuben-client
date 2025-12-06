@@ -1,7 +1,9 @@
-import { Logout } from "@mui/icons-material";
-import { Box, Menu, MenuItem, Stack } from "@mui/material";
+import { Box, Stack, SvgIcon } from "@mui/material";
 import Link from "next/link";
 import useDeviceDetect from "../hooks/useDeviceDetect";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import ChatIcon from '@mui/icons-material/Chat';
+import PersonIcon from '@mui/icons-material/Person';
 
 const Top = () => {
   const device = useDeviceDetect();
@@ -33,44 +35,15 @@ const Top = () => {
       <Stack className={"navbar-main"}>
         <Stack className={"container"}>
           <Box component={"div"} className={"logo-box"}>
-            <Link href={"/"}>
-              <img src="/img/logo/logoWhite.svg" alt="" />
-            </Link>
+              <img src="/img/logo/cuben.logo.png" alt="" />
           </Box>
-          <Box component={"div"} className={"router-box"}>
-            <Link href={"/"}>
-              <div>Home</div>
-            </Link>
-            <Link href={"/property"}>
-              <div>Properties</div>
-            </Link>
-            <Link href={"/agent"}>
-              <div>Agents</div>
-            </Link>
-            <Link href={"/community"}>
-              <div>Community</div>
-            </Link>
-
-            <Link href={"/cs"}>
-              <div>CS</div>
-            </Link>
+          <Box component={"div"} className={"search-box"}>
+            <input type="" placeholder="search cuben" />
           </Box>
-          <Box component={"div"} className={"user-box"}>
-            <>
-              <div className={"logo-user"}>
-                <img src={"/img/profile/default.svg"} alt="" />
-              </div>
-
-              <Menu id="basic-menu" sx={{ mt: "5px" }} open={false}>
-                <MenuItem>
-                  <Logout
-                    fontSize="small"
-                    style={{ color: "blue", marginRight: "10px" }}
-                  />
-                  Logout
-                </MenuItem>
-              </Menu>
-            </>
+          <Box component={"div"} className={"icon-box"}>
+              <SvgIcon component={NotificationsIcon} inheritViewBox />
+              <SvgIcon component={ChatIcon} inheritViewBox />
+              <SvgIcon component={PersonIcon} inheritViewBox />
           </Box>
         </Stack>
       </Stack>

@@ -2,7 +2,6 @@ import { Stack } from "@mui/material";
 import Head from "next/head";
 import Top from "../Top";
 import useDeviceDetect from "../../hooks/useDeviceDetect";
-import Footer from "../Footer";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
@@ -32,10 +31,6 @@ const withLayoutMain = (Component: any) => {
                 <Stack id={"main-section"}>
                   <Component {...props} />
                 </Stack>
-
-                <Stack id={"footer"}>
-                  <Footer />
-                </Stack>
               </Stack>
             </Stack>
           </Stack>
@@ -43,7 +38,7 @@ const withLayoutMain = (Component: any) => {
       );
     }
 
-    // DESKTOP
+    // PC
     return (
       <>
         <Head>
@@ -59,14 +54,9 @@ const withLayoutMain = (Component: any) => {
             <Stack id="left-sidebar">
               <LeftSidebar />
             </Stack>
-
             <Stack id="main">
               <Stack id={"main-section"}>
                 <Component {...props} />
-              </Stack>
-
-              <Stack id={"footer"}>
-                <Footer />
               </Stack>
             </Stack>
           </Stack>

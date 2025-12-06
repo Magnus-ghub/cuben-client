@@ -6,9 +6,6 @@ const Home: NextPage = () => {
   return (
     <Container>
       <Stack flexDirection={"column"}>
-        <Box>Popular product</Box>
-        <Box>Top Agents</Box>
-        <Box>Events</Box>
       </Stack>
     </Container>
   );
