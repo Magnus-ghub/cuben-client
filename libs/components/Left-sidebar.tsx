@@ -1,8 +1,21 @@
-import { Logout } from "@mui/icons-material";
-import { Box, Menu, MenuItem, Stack } from "@mui/material";
+import { FoodBank, Logout } from "@mui/icons-material";
+import { Box, Breadcrumbs, Menu, MenuItem, Stack } from "@mui/material";
 import Link from "next/link";
 import useDeviceDetect from "../hooks/useDeviceDetect";
-import { Settings, HelpCircle, Icon } from "lucide-react";
+import {
+  Settings,
+  Star,
+  HelpCircle,
+  Icon,
+  Heart,
+  Eye,
+  ScrollText,
+  Monitor,
+  Book,
+  Pizza,
+  House,
+  TrendingUp,
+} from "lucide-react";
 
 const LeftSidebar = () => {
   const device = useDeviceDetect();
@@ -21,8 +34,8 @@ const LeftSidebar = () => {
                   <img src="/img/profile/defaultUser.svg" alt="Profile" />
                 </Box>
                 <Stack className="profile-info">
-                  <Box className="profile-name">Kim Student</Box>
-                  <Box className="profile-username">@kimstudent</Box>
+                  <Box className="profile-name">Magnus</Box>
+                  <Box className="profile-username">@magnuskordev</Box>
                 </Stack>
               </Stack>
 
@@ -44,11 +57,24 @@ const LeftSidebar = () => {
             {/* HOME Section */}
             <Stack className="sidebar-section">
               <Box className="section-title">🏠 HOME</Box>
-
               <Link href={"/product"}>
                 <Stack className={`menu-item `}>
-                  <Icon className="menu-icon" size={20} iconNode={[]} />
-                  <Box className="menu-text"></Box>
+                  <House size={20} className="menu-icon" />
+                  <Box className="menu-text">Home</Box>
+                  <Box className="menu-badge"></Box>
+                </Stack>
+              </Link>
+              <Link href={"/product"}>
+                <Stack className={`menu-item `}>
+                  <TrendingUp size={20} className="menu-icon" />
+                  <Box className="menu-text">Tranding</Box>
+                  <Box className="menu-badge"></Box>
+                </Stack>
+              </Link>
+              <Link href={"/product"}>
+                <Stack className={`menu-item `}>
+                  <Heart size={20} className="menu-icon" />
+                  <Box className="menu-text">My transictions</Box>
                   <Box className="menu-badge"></Box>
                 </Stack>
               </Link>
@@ -60,8 +86,20 @@ const LeftSidebar = () => {
 
               <Link href={"/product"}>
                 <Stack className={`menu-item`}>
-                  <Icon className="menu-icon" size={20} iconNode={[]} />
-                  <Box className="menu-text"></Box>
+                  <Heart size={20} className="menu-icon" />
+                  <Box className="menu-text">Favorites</Box>
+                </Stack>
+              </Link>
+              <Link href={"/product"}>
+                <Stack className={`menu-item`}>
+                  <Eye size={20} className="menu-icon" />
+                  <Box className="menu-text">Recently Viewed</Box>
+                </Stack>
+              </Link>
+              <Link href={"/product"}>
+                <Stack className={`menu-item`}>
+                  <ScrollText size={20} className="menu-icon" />
+                  <Box className="menu-text">My Products</Box>
                 </Stack>
               </Link>
             </Stack>
@@ -71,9 +109,30 @@ const LeftSidebar = () => {
               <Box className="section-title">🏷️ CATEGORIES</Box>
               <Link href={"/home"}>
                 <Stack className={`menu-item`}>
-                  <Icon className="menu-icon" size={20} iconNode={[]} />
-                  <Box className="menu-text">{}</Box>
-                  <Box className="menu-count">{}</Box>
+                  <Monitor size={20} className="menu-icon" />
+                  <Box className="menu-text">Electronics</Box>
+                  <Box className="menu-count">34</Box>
+                </Stack>
+              </Link>
+              <Link href={"/home"}>
+                <Stack className={`menu-item`}>
+                  <Book size={20} className="menu-icon" />
+                  <Box className="menu-text">Books</Box>
+                  <Box className="menu-count">45</Box>
+                </Stack>
+              </Link>
+              <Link href={"/home"}>
+                <Stack className={`menu-item`}>
+                  <Pizza size={20} className="menu-icon" />
+                  <Box className="menu-text">Food Share</Box>
+                  <Box className="menu-count">65</Box>
+                </Stack>
+              </Link>
+              <Link href={"/home"}>
+                <Stack className={`menu-item`}>
+                  <ScrollText size={20} className="menu-icon" />
+                  <Box className="menu-text">Others</Box>
+                  <Box className="menu-count">78</Box>
                 </Stack>
               </Link>
             </Stack>
@@ -83,13 +142,13 @@ const LeftSidebar = () => {
           <Stack className="sidebar-bottom">
             <Link href="/settings">
               <Stack className="bottom-item">
-                <Settings size={18} />
+                <Settings size={20} className="menu-icon" />
                 <Box>Settings</Box>
               </Stack>
             </Link>
             <Link href="/help">
               <Stack className="bottom-item">
-                <HelpCircle size={18} />
+                <HelpCircle size={20} className="menu-icon" />
                 <Box>Help & Support</Box>
               </Stack>
             </Link>
