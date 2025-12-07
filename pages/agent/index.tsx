@@ -1,5 +1,8 @@
-const Agent = () => {
-    return <div>Agent Page</div>
-};
+import withLayoutMain from "../../libs/components/layout/LayoutHome";
 
-export default Agent;
+
+function AgentPage() {
+  return <div>Agent Page</div>;
+}
+
+export default withLayoutMain(AgentPage);

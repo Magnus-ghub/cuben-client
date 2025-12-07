@@ -1,5 +1,8 @@
-const Member = () => {
-    return <div>Member Page</div>
-};
+import withLayoutMain from "../../libs/components/layout/LayoutHome";
 
-export default Member;
+
+function MemberPage() {
+  return <div>Member Page</div>;
+}
+
+export default withLayoutMain(MemberPage);

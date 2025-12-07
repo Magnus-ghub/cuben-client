@@ -1,5 +1,8 @@
-const Product = () => {
-    return <div>Product page</div>
-};
+import withLayoutMain from "../../libs/components/layout/LayoutHome";
 
-export default Product;
+
+function ProductPage() {
+  return <div>Product Page</div>;
+}
+
+export default withLayoutMain(ProductPage);

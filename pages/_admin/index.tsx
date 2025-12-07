@@ -1,5 +1,8 @@
-const Admin = () => {
-    return <div>Admin Page</div>
-};
+import withLayoutMain from "../../libs/components/layout/LayoutHome";
 
-export default Admin;
+
+function AdminPage() {
+  return <div>Admin Page</div>;
+}
+
+export default withLayoutMain(AdminPage);

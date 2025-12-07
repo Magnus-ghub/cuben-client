@@ -1,5 +1,8 @@
-const Cs = () => {
-    return <div>Cs Center</div>
-};
+import withLayoutMain from "../../libs/components/layout/LayoutHome";
 
-export default Cs;
+
+function CS() {
+  return <div>CS Center </div>;
+}
+
+export default withLayoutMain(CS);

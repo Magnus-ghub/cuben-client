@@ -1,5 +1,8 @@
-const MyPage = () => {
-    return <div>My Page</div>
-};
+import withLayoutMain from "../../libs/components/layout/LayoutHome";
 
-export default MyPage;
+
+function MyPage() {
+  return <div>My Page</div>;
+}
+
+export default withLayoutMain(MyPage);

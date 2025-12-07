@@ -1,5 +1,8 @@
-const Community = () => {
-    return <div>Community</div>
-};
+import withLayoutMain from "../../libs/components/layout/LayoutHome";
 
-export default Community;
+
+function CommunityPage() {
+  return <div>Community Page</div>;
+}
+
+export default withLayoutMain(CommunityPage);

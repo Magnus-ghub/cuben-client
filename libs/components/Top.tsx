@@ -14,8 +14,8 @@ const Top = () => {
         <Link href={"/"}>
           <div>Home</div>
         </Link>
-        <Link href={"/property"}>
-          <div>Properties</div>
+        <Link href={"/product"}>
+          <div>Products</div>
         </Link>
         <Link href={"/agent"}>
           <div>Agents</div>
