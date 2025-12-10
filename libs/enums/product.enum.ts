@@ -1,23 +1,36 @@
 export enum ProductType {
-	APARTMENT = 'APARTMENT',
-	VILLA = 'VILLA',
-	HOUSE = 'HOUSE',
+	BOOK = 'BOOK',
+	NOTE = 'NOTE',
+	ELECTRONIC = 'ELECTRONIC',
+	FASHION = 'FASHION',
+	ACCESSORY = 'ACCESSORY',
+	HOME = 'HOME',
+	SERVICE = 'SERVICE',
+	OTHER = 'OTHER',
 }
 
 export enum ProductStatus {
 	ACTIVE = 'ACTIVE',
+	RESERVED = 'RESERVED',
 	SOLD = 'SOLD',
 	DELETE = 'DELETE',
 }
 
+export enum ProductCondition {
+    NEW = "NEW",
+    LIKE_NEW = "LIKE_NEW",
+    GOOD = "GOOD",
+    USED = "USED",
+    BAD = "BAD",
+}
+
 export enum ProductLocation {
-	SEOUL = 'SEOUL',
-	BUSAN = 'BUSAN',
-	INCHEON = 'INCHEON',
-	DAEGU = 'DAEGU',
-	GYEONGJU = 'GYEONGJU',
-	GWANGJU = 'GWANGJU',
-	CHONJU = 'CHONJU',
-	DAEJON = 'DAEJON',
-	JEJU = 'JEJU',
+	DORMITORY = 'DORMITORY', 
+	MAIN_GATE = 'MAIN_GATE', 
+	LIBRARY = 'LIBRARY', 
+	CAFETERIA = 'CAFETERIA', 
+	SPORT_CENTER = 'SPORT_CENTER',
+	STUDENT_CENTER = 'STUDENT_CENTER', 
+	BUS_STOP = 'BUS_STOP', 
+	OTHER = 'OTHER',
 }

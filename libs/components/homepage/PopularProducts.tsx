@@ -9,7 +9,6 @@ import EastIcon from '@mui/icons-material/East';
 import Link from 'next/link';
 import PopularProductCard from './PopularProductCard';
 import { Product } from '../../types/product/product';
-import product from '../../../pages/product';
 import { ProductsInquiry } from '../../types/product/product.input';
 
 
