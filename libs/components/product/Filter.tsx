@@ -38,8 +38,8 @@ const Filter = (props: FilterType) => {
 	const { searchFilter, setSearchFilter, initialInput } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const [propertyLocation, setPropertyLocation] = useState<ProductLocation[]>(Object.values(PropertyLocation));
-	const [propertyType, setPropertyType] = useState<ProductType[]>(Object.values(PropertyType));
+	const [propertyLocation, setProductLocation] = useState<ProductLocation[]>(Object.values(ProductLocation));
+	const [propertyType, setProductType] = useState<ProductType[]>(Object.values(ProductType));
 	const [searchText, setSearchText] = useState<string>('');
 	const [showMore, setShowMore] = useState<boolean>(false);
 
@@ -63,18 +63,8 @@ const Filter = (props: FilterType) => {
 			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
 		}
 
-		if (searchFilter?.search?.roomsList?.length == 0) {
-			delete searchFilter.search.roomsList;
-			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
-		}
-
 		if (searchFilter?.search?.options?.length == 0) {
 			delete searchFilter.search.options;
-			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
-		}
-
-		if (searchFilter?.search?.bedsList?.length == 0) {
-			delete searchFilter.search.bedsList;
 			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
 		}
 
@@ -180,69 +170,6 @@ const Filter = (props: FilterType) => {
 		[searchFilter],
 	);
 
-	const propertyRoomSelectHandler = useCallback(
-		async (number: Number) => {
-			try {
-				if (number != 0) {
-					if (searchFilter?.search?.roomsList?.includes(number)) {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									roomsList: searchFilter?.search?.roomsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									roomsList: searchFilter?.search?.roomsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							{ scroll: false },
-						);
-					} else {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, roomsList: [...(searchFilter?.search?.roomsList || []), number] },
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, roomsList: [...(searchFilter?.search?.roomsList || []), number] },
-							})}`,
-							{ scroll: false },
-						);
-					}
-				} else {
-					delete searchFilter?.search.roomsList;
-					setSearchFilter({ ...searchFilter });
-					await router.push(
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						{ scroll: false },
-					);
-				}
-
-				console.log('propertyRoomSelectHandler:', number);
-			} catch (err: any) {
-				console.log('ERROR, propertyRoomSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
 	const propertyOptionSelectHandler = useCallback(
 		async (e: any) => {
 			try {
@@ -283,114 +210,6 @@ const Filter = (props: FilterType) => {
 				console.log('propertyOptionSelectHandler:', e.target.value);
 			} catch (err: any) {
 				console.log('ERROR, propertyOptionSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertyBedSelectHandler = useCallback(
-		async (number: Number) => {
-			try {
-				if (number != 0) {
-					if (searchFilter?.search?.bedsList?.includes(number)) {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							{ scroll: false },
-						);
-					} else {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
-							})}`,
-							{ scroll: false },
-						);
-					}
-				} else {
-					delete searchFilter?.search.bedsList;
-					setSearchFilter({ ...searchFilter });
-					await router.push(
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						{ scroll: false },
-					);
-				}
-
-				console.log('propertyBedSelectHandler:', number);
-			} catch (err: any) {
-				console.log('ERROR, propertyBedSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertySquareHandler = useCallback(
-		async (e: any, type: string) => {
-			const value = e.target.value;
-
-			if (type == 'start') {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, start: value },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, start: value },
-						},
-					})}`,
-					{ scroll: false },
-				);
-			} else {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, end: value },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, end: value },
-						},
-					})}`,
-					{ scroll: false },
-				);
 			}
 		},
 		[searchFilter],
@@ -519,7 +338,7 @@ const Filter = (props: FilterType) => {
 										color="default"
 										size="small"
 										value={location}
-										checked={(searchFilter?.search?.locationList || []).includes(location as PropertyLocation)}
+										checked={(searchFilter?.search?.locationList || []).includes(location as ProductLocation)}
 										onChange={propertyLocationSelectHandler}
 									/>
 									<label htmlFor={location} style={{ cursor: 'pointer' }}>
@@ -541,7 +360,7 @@ const Filter = (props: FilterType) => {
 								size="small"
 								value={type}
 								onChange={propertyTypeSelectHandler}
-								checked={(searchFilter?.search?.typeList || []).includes(type as PropertyType)}
+								checked={(searchFilter?.search?.typeList || []).includes(type as ProductType)}
 							/>
 							<label style={{ cursor: 'pointer' }}>
 								<Typography className="property_type">{type}</Typography>
@@ -552,130 +371,12 @@ const Filter = (props: FilterType) => {
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<Typography className={'title'}>Rooms</Typography>
 					<Stack className="button-group">
-						<Button
-							sx={{
-								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.roomsList ? '2px solid #181A20' : '1px solid #b9b9b9',
-							}}
-							onClick={() => propertyRoomSelectHandler(0)}
-						>
-							Any
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(1) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(1) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(1)}
-						>
-							1
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(2) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(2) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(2)}
-						>
-							2
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(3) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(3) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(3)}
-						>
-							3
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(4) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(4) ? undefined : 'none',
-								borderRight: searchFilter?.search?.roomsList?.includes(4) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(4)}
-						>
-							4
-						</Button>
-						<Button
-							sx={{
-								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.roomsList?.includes(5) ? '2px solid #181A20' : '1px solid #b9b9b9',
-							}}
-							onClick={() => propertyRoomSelectHandler(5)}
-						>
-							5+
-						</Button>
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<Typography className={'title'}>Bedrooms</Typography>
 					<Stack className="button-group">
-						<Button
-							sx={{
-								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.bedsList ? '2px solid #181A20' : '1px solid #b9b9b9',
-							}}
-							onClick={() => propertyBedSelectHandler(0)}
-						>
-							Any
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(1) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(1) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(1)}
-						>
-							1
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(2) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(2) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(2)}
-						>
-							2
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(3) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(3) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(3)}
-						>
-							3
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(4) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(4) ? undefined : 'none',
-								// borderRight: false ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(4)}
-						>
-							4
-						</Button>
-						<Button
-							sx={{
-								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.bedsList?.includes(5) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(5) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(5)}
-						>
-							5+
-						</Button>
+				
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
@@ -714,46 +415,12 @@ const Filter = (props: FilterType) => {
 					<Stack className="square-year-input">
 						<FormControl>
 							<InputLabel id="demo-simple-select-label">Min</InputLabel>
-							<Select
-								labelId="demo-simple-select-label"
-								id="demo-simple-select"
-								value={searchFilter?.search?.squaresRange?.start ?? 0}
-								label="Min"
-								onChange={(e: any) => propertySquareHandler(e, 'start')}
-								MenuProps={MenuProps}
-							>
-								{propertySquare.map((square: number) => (
-									<MenuItem
-										value={square}
-										disabled={(searchFilter?.search?.squaresRange?.end || 0) < square}
-										key={square}
-									>
-										{square}
-									</MenuItem>
-								))}
-							</Select>
+						
 						</FormControl>
 						<div className="central-divider"></div>
 						<FormControl>
 							<InputLabel id="demo-simple-select-label">Max</InputLabel>
-							<Select
-								labelId="demo-simple-select-label"
-								id="demo-simple-select"
-								value={searchFilter?.search?.squaresRange?.end ?? 500}
-								label="Max"
-								onChange={(e: any) => propertySquareHandler(e, 'end')}
-								MenuProps={MenuProps}
-							>
-								{propertySquare.map((square: number) => (
-									<MenuItem
-										value={square}
-										disabled={(searchFilter?.search?.squaresRange?.start || 0) > square}
-										key={square}
-									>
-										{square}
-									</MenuItem>
-								))}
-							</Select>
+							
 						</FormControl>
 					</Stack>
 				</Stack>
