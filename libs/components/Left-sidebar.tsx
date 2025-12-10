@@ -17,6 +17,7 @@ import {
   Notebook,
   LogOut,
   Newspaper,
+  BoxIcon,
 } from "lucide-react";
 
 const LeftSidebar = () => {
@@ -65,7 +66,7 @@ const LeftSidebar = () => {
                   <Box className="menu-text">Home</Box>
                 </Stack>
               </Link>
-              <Link href={"/product"}>
+              <Link href={"/mypage"}>
                 <Stack className={`menu-item `}>
                   <TrendingUp size={20} className="menu-icon" />
                   <Box className="menu-text">Tranding</Box>
@@ -123,6 +124,13 @@ const LeftSidebar = () => {
             {/* CATEGORIES Section */}
             <Stack className="sidebar-section">
               <Box className="section-title">🏷️ MARKETPLACE</Box>
+              <Link href={"/product"}>
+                <Stack className={`menu-item`}>
+                  <BoxIcon size={20} className="menu-icon" />
+                  <Box className="menu-text">Explore</Box>
+                  <Box className="menu-count">99</Box>
+                </Stack>
+              </Link>
               <Link href={"/product"}>
                 <Stack className={`menu-item`}>
                   <Monitor size={20} className="menu-icon" />
