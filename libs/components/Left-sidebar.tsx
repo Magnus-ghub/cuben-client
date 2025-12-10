@@ -13,6 +13,10 @@ import {
   House,
   TrendingUp,
   MessageCircle,
+  Calendar,
+  Notebook,
+  LogOut,
+  Newspaper,
 } from "lucide-react";
 
 const LeftSidebar = () => {
@@ -59,21 +63,35 @@ const LeftSidebar = () => {
                 <Stack className={`menu-item `}>
                   <House size={20} className="menu-icon" />
                   <Box className="menu-text">Home</Box>
-                  <Box className="menu-badge"></Box>
                 </Stack>
               </Link>
               <Link href={"/product"}>
                 <Stack className={`menu-item `}>
                   <TrendingUp size={20} className="menu-icon" />
                   <Box className="menu-text">Tranding</Box>
-                  <Box className="menu-badge"></Box>
                 </Stack>
               </Link>
               <Link href={"/product"}>
                 <Stack className={`menu-item `}>
-                  <MessageCircle size={20} className="menu-icon" />
-                  <Box className="menu-text">Messages</Box>
-                  <Box className="menu-badge"></Box>
+                  <Newspaper size={20} className="menu-icon" />
+                  <Box className="menu-text">Announcements</Box>
+                </Stack>
+              </Link>
+            </Stack>
+
+            {/* Schedule Section */}
+            <Stack className="sidebar-section">
+              <Box className="section-title">📅 SCHEDULE</Box>
+              <Link href={"/calendar"}>
+                <Stack className={`menu-item `}>
+                  <Calendar size={20} className="menu-icon" />
+                  <Box className="menu-text">Calendar</Box>
+                </Stack>
+              </Link>
+              <Link href={"/notes"}>
+                <Stack className={`menu-item `}>
+                  <Notebook size={20} className="menu-icon" />
+                  <Box className="menu-text">Notes</Box>
                 </Stack>
               </Link>
             </Stack>
@@ -104,7 +122,7 @@ const LeftSidebar = () => {
 
             {/* CATEGORIES Section */}
             <Stack className="sidebar-section">
-              <Box className="section-title">🏷️ CATEGORIES</Box>
+              <Box className="section-title">🏷️ MARKETPLACE</Box>
               <Link href={"/product"}>
                 <Stack className={`menu-item`}>
                   <Monitor size={20} className="menu-icon" />
@@ -148,6 +166,12 @@ const LeftSidebar = () => {
               <Stack className="bottom-item">
                 <HelpCircle size={20} className="menu-icon" />
                 <Box>Help & Support</Box>
+              </Stack>
+            </Link>
+            <Link href="/cs">
+              <Stack className="bottom-item">
+                <LogOut size={20} className="menu-icon" />
+                <Box>Logout</Box>
               </Stack>
             </Link>
           </Stack>
