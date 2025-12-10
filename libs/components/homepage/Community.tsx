@@ -3,6 +3,7 @@ import Link from 'next/link';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Stack, Typography } from '@mui/material';
 import CommunityCard from './CommunityCard';
+import { BoardArticle } from '../../types/board-article/board-article';
 
 
 const CommunityBoards = () => {
