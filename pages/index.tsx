@@ -6,28 +6,36 @@ import PopularProducts from "../libs/components/homepage/PopularProducts";
 import useDeviceDetect from "../libs/hooks/useDeviceDetect";
 import CommunityBoards from "../libs/components/homepage/Community";
 import Events from "../libs/components/homepage/Event";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+// export const getStaticProps = async ({ locale }: any) => ({
+//   props: {
+//     ...(await serverSideTranslations(locale, ["common"])),
+//   },
+// });
 
 const Home: NextPage = () => {
   const device = useDeviceDetect();
 
-  if (device === 'mobile') {
+  if (device === "mobile") {
     return (
-      <Stack className={'home-page'}>
+      <Stack className={"home-page"}>
         <PopularProducts />
+        <Advertisement />
+        <CommunityBoards />
+        <Events />
       </Stack>
-    )
+    );
+  } else {
+    return (
+        <Stack className={'home-page'}>
+          <PopularProducts />
+          <Advertisement />
+          <CommunityBoards />
+          <Events />
+        </Stack>
+    );
   }
-  return (
-    <Container>
-      <Stack flexDirection={"column"}>
-         <PopularProducts />
-         <Advertisement />
-         <CommunityBoards />
-         <Events />
-        <div>HomePage</div>
-      </Stack>
-    </Container>
-  );
-}
+};
 
 export default withLayoutMain(Home);
