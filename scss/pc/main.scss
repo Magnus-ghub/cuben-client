@@ -1,9 +1,6 @@
 //** IMPORTS **//
 @import "/scss/variables.scss";
 
-@import "/scss/pc/product/product";
-@import "/scss/pc/product/detail.scss";
-
 @import "/scss/pc/homepage/homepage.scss";
 @import "/scss/pc/product/product.scss";
 @import "/scss/pc/product/detail.scss";
@@ -52,7 +49,6 @@
           justify-content: space-between;
           gap: 16px;
           height: 100%;
-
           // Logo Section - Reddit style (compact)
           .logo-section {
             display: flex;
@@ -63,11 +59,9 @@
             transition: all 0.2s ease;
             padding: 4px 8px;
             border-radius: 4px;
-
             &:hover {
               background-color: #f6f7f8;
             }
-
             .logo-box {
               width: 32px;
               height: 32px;
@@ -77,18 +71,15 @@
               align-items: center;
               justify-content: center;
               flex-shrink: 0;
-
               svg {
                 width: 24px;
                 height: 24px;
               }
             }
-
             .brand-name {
               display: flex;
               flex-direction: column;
               gap: 0;
-
               .brand-text {
                 font-size: 20px;
                 font-weight: 700;
@@ -96,7 +87,6 @@
                 line-height: 1;
                 letter-spacing: -0.3px;
               }
-
               .univ-text {
                 font-size: 11px;
                 font-weight: 500;
@@ -114,7 +104,6 @@
             display: flex;
             align-items: center;
             margin: 0 auto;
-
             .search-icon {
               position: absolute;
               left: 12px;
@@ -133,7 +122,6 @@
               color: #1c1c1c;
               transition: all 0.2s ease;
               outline: none;
-
               &::placeholder {
                 color: #878a8c;
               }
@@ -190,19 +178,15 @@
                 justify-content: center;
                 border: 2px solid white;
               }
-
               &.profile {
                 background-color: transparent;
                 border: 1px solid #edeff1;
                 border-radius: 4px;
-
                 svg {
                   color: #878a8c;
                 }
-
                 &:hover {
                   border-color: #0079d3;
-
                   svg {
                     color: #0079d3;
                   }
@@ -220,7 +204,6 @@
               cursor: pointer;
               transition: all 0.2s ease;
               margin-left: 4px;
-
               &:hover {
                 border-color: #0079d3;
               }
@@ -242,22 +225,80 @@
                 flex-direction: column;
                 align-items: flex-start;
                 line-height: 1.2;
-
                 .username {
                   font-size: 12px;
                   font-weight: 600;
                   color: #1c1c1c;
                 }
-
                 .karma {
                   font-size: 10px;
                   color: #787c7e;
                 }
               }
-
               .dropdown-icon {
                 font-size: 16px;
                 color: #787c7e;
+              }
+            }
+          }
+          .user-box {
+            width: 270px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            .join-box {
+              width: 184px;
+              height: 47px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 60px;
+              border: 1px solid #ecbcbc;
+              cursor: pointer;
+              svg {
+                color: #673535;
+                margin-right: 10px;
+              }
+              span {
+                font-family: $font;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+                color: #6d6767;
+              }
+            }
+            .login-user {
+              img {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                object-fit: cover;
+              }
+            }
+            .lan-box {
+              margin-left: 28px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              .notification-icon {
+                color: #1c1c1c;
+                font-size: 20px;
+                cursor: pointer;
+              }
+              .btn-lang {
+                border-radius: 4px;
+                img {
+                  width: 24px;
+                  height: 17px;
+                  border-radius: 2px;
+                }
+              }
+              .img-flag {
+                width: 24px;
+                height: 17px;
+                border-radius: 2px;
+                margin-right: 8px;
               }
             }
           }
@@ -280,7 +321,7 @@
       top: 57px; // navbar height
       width: 280px;
       height: calc(100vh - 87px);
-      background-color: f9fafb;
+      background-color: #f9fafb;
       border-right: 1px solid rgb(222, 220, 209);
       overflow-y: auto;
       overflow-x: hidden;
@@ -292,7 +333,7 @@
         // Profile Mini Card
         .profile-card {
           padding: 20px;
-          background: f9fafb;
+          background: #f9fafb;
           cursor: pointer;
           transition: transform 0.2s ease;
           border: 1px solid rgb(222, 220, 209);
@@ -556,7 +597,7 @@
   #main-section {
     flex: 1;
     padding: 40px;
-    background-color: f9fafb;
+    background-color: #f9fafb;
     min-height: calc(
       100vh - 87px - 200px
     ); // navbar va footer heightini hisobga olib
