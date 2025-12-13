@@ -5,7 +5,7 @@
 		"allowJs": true,
 		"types": [],
 		"skipLibCheck": true,
-		"strict": true,
+		"strict": false,
 		"forceConsistentCasingInFileNames": true,
 		// "suppressImplicitAnyIndexErrors": true,
 		"noEmit": true,

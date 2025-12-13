@@ -15,7 +15,8 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: hsl(210, 20%, 98%); // yoki sizning asosiy bg coloringiz
+  background-color: hsl(210, 20%, 98%);
+  
   #top {
     .navbar {
       .navbar-main {
@@ -49,6 +50,7 @@
           justify-content: space-between;
           gap: 16px;
           height: 100%;
+          
           // Logo Section - Reddit style (compact)
           .logo-section {
             display: flex;
@@ -59,9 +61,11 @@
             transition: all 0.2s ease;
             padding: 4px 8px;
             border-radius: 4px;
+            
             &:hover {
               background-color: #f6f7f8;
             }
+            
             .logo-box {
               width: 32px;
               height: 32px;
@@ -71,15 +75,18 @@
               align-items: center;
               justify-content: center;
               flex-shrink: 0;
+              
               svg {
                 width: 24px;
                 height: 24px;
               }
             }
+            
             .brand-name {
               display: flex;
               flex-direction: column;
               gap: 0;
+              
               .brand-text {
                 font-size: 20px;
                 font-weight: 700;
@@ -87,6 +94,7 @@
                 line-height: 1;
                 letter-spacing: -0.3px;
               }
+              
               .univ-text {
                 font-size: 11px;
                 font-weight: 500;
@@ -96,6 +104,7 @@
               }
             }
           }
+          
           // Search Box - Reddit style
           .search-box {
             flex: 1;
@@ -104,6 +113,7 @@
             display: flex;
             align-items: center;
             margin: 0 auto;
+            
             .search-icon {
               position: absolute;
               left: 12px;
@@ -111,6 +121,7 @@
               font-size: 18px;
               pointer-events: none;
             }
+            
             input {
               width: 100%;
               height: 40px;
@@ -122,13 +133,16 @@
               color: #1c1c1c;
               transition: all 0.2s ease;
               outline: none;
+              
               &::placeholder {
                 color: #878a8c;
               }
+              
               &:hover {
                 background-color: #ffffff;
                 border-color: #0079d3;
               }
+              
               &:focus {
                 background-color: #ffffff;
                 border-color: #0079d3;
@@ -136,6 +150,7 @@
               }
             }
           }
+          
           // Icon Box
           .icon-box {
             display: flex;
@@ -143,6 +158,7 @@
             align-items: center;
             gap: 4px;
             margin-left: auto;
+            
             .icon-wrapper {
               position: relative;
               width: 45px;
@@ -157,10 +173,12 @@
               &:hover {
                 background-color: #f6f7f8;
               }
+              
               svg {
                 font-size: 20px;
                 color: #1c1c1c;
               }
+              
               .notification-badge {
                 position: absolute;
                 top: 6px;
@@ -178,21 +196,26 @@
                 justify-content: center;
                 border: 2px solid white;
               }
+              
               &.profile {
                 background-color: transparent;
                 border: 1px solid #edeff1;
                 border-radius: 4px;
+                
                 svg {
                   color: #878a8c;
                 }
+                
                 &:hover {
                   border-color: #0079d3;
+                  
                   svg {
                     color: #0079d3;
                   }
                 }
               }
             }
+            
             // User Profile Button - Reddit style
             .user-profile {
               display: flex;
@@ -204,9 +227,11 @@
               cursor: pointer;
               transition: all 0.2s ease;
               margin-left: 4px;
+              
               &:hover {
                 border-color: #0079d3;
               }
+              
               .user-avatar {
                 width: 24px;
                 height: 24px;
@@ -215,37 +240,46 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                
                 svg {
                   font-size: 16px;
                   color: white;
                 }
               }
+              
               .user-info {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
                 line-height: 1.2;
+                
                 .username {
                   font-size: 12px;
                   font-weight: 600;
                   color: #1c1c1c;
                 }
+                
                 .karma {
                   font-size: 10px;
                   color: #787c7e;
                 }
               }
+              
               .dropdown-icon {
                 font-size: 16px;
                 color: #787c7e;
               }
             }
           }
+          
+          // User Box - TO'LIQ YANGILANGAN
           .user-box {
             width: 270px;
             display: flex;
             flex-direction: row;
             justify-content: flex-end;
+            align-items: center;
+            
             .join-box {
               width: 184px;
               height: 47px;
@@ -255,10 +289,18 @@
               border-radius: 60px;
               border: 1px solid #ecbcbc;
               cursor: pointer;
+              transition: all 0.2s ease;
+
+              &:hover {
+                background-color: #f6f7f8;
+                border-color: #d4a5a5;
+              }
+              
               svg {
                 color: #673535;
                 margin-right: 10px;
               }
+              
               span {
                 font-family: $font;
                 font-size: 14px;
@@ -268,37 +310,103 @@
                 color: #6d6767;
               }
             }
+            
             .login-user {
+              cursor: pointer;
+              border-radius: 50%;
+              transition: all 0.2s ease;
+
+              &:hover {
+                opacity: 0.8;
+              }
+              
               img {
                 width: 42px;
                 height: 42px;
                 border-radius: 50%;
                 object-fit: cover;
+                border: 2px solid #edeff1;
               }
             }
+            
+            // LAN-BOX - FLAG UCHUN TO'LIQ STILLAR
             .lan-box {
               margin-left: 28px;
               display: flex;
               align-items: center;
               gap: 8px;
+              
               .notification-icon {
                 color: #1c1c1c;
                 font-size: 20px;
                 cursor: pointer;
-              }
-              .btn-lang {
+                padding: 8px;
                 border-radius: 4px;
-                img {
-                  width: 24px;
-                  height: 17px;
-                  border-radius: 2px;
+                transition: all 0.2s ease;
+
+                &:hover {
+                  background-color: #f6f7f8;
                 }
               }
+              
+              // MUI Button - FLAG BUTTON
+              .btn-lang {
+                min-width: auto !important;
+                width: auto !important;
+                height: auto !important;
+                padding: 6px 12px !important;
+                border-radius: 4px !important;
+                background-color: transparent !important;
+                border: 1px solid #edeff1 !important;
+                cursor: pointer !important;
+                transition: all 0.2s ease !important;
+                text-transform: none !important;
+                box-shadow: none !important;
+
+                &:hover {
+                  background-color: #f6f7f8 !important;
+                  border-color: #d4d4d4 !important;
+                  box-shadow: none !important;
+                }
+
+                &:active,
+                &:focus {
+                  box-shadow: none !important;
+                }
+
+                // MUI Button endIcon
+                .MuiButton-endIcon {
+                  margin-left: 6px !important;
+                  margin-right: 0 !important;
+                }
+
+                // Flag container
+                .flag {
+                  display: flex !important;
+                  align-items: center !important;
+                  justify-content: center !important;
+                  width: 24px !important;
+                  height: 17px !important;
+
+                  img {
+                    width: 100% !important;
+                    height: 100% !important;
+                    object-fit: cover !important;
+                    border-radius: 2px !important;
+                    display: block !important;
+                  }
+                }
+              }
+              
+              // Menu ichidagi flag
               .img-flag {
                 width: 24px;
                 height: 17px;
                 border-radius: 2px;
                 margin-right: 8px;
+                object-fit: cover;
+                display: inline-block;
+                vertical-align: middle;
               }
             }
           }
@@ -308,29 +416,31 @@
   }
 
   #layout-body {
-    margin-top: 57px; // navbar height
+    margin-top: 57px;
     flex: 1;
     display: flex;
     flex-direction: row;
     width: 100%;
-    max-width: 1920px; // yoki kerakli max width
+    max-width: 1920px;
     margin-left: auto;
     margin-right: auto;
+    
     #left-sidebar {
       position: sticky;
-      top: 57px; // navbar height
+      top: 57px;
       width: 280px;
       height: calc(100vh - 87px);
       background-color: #f9fafb;
       border-right: 1px solid rgb(222, 220, 209);
       overflow-y: auto;
       overflow-x: hidden;
+      
       .container {
         width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
-        // Profile Mini Card
+        
         .profile-card {
           padding: 20px;
           background: #f9fafb;
@@ -338,9 +448,11 @@
           transition: transform 0.2s ease;
           border: 1px solid rgb(222, 220, 209);
           text-decoration: none;
+          
           &:hover {
             transform: translateY(-2px);
           }
+          
           .profile-header {
             display: flex;
             flex-direction: row;
@@ -353,12 +465,14 @@
               height: 50px;
               border-radius: 50%;
               border: 2px solid #fff;
+              
               img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
               }
             }
+            
             .profile-info {
               flex: 1;
 
@@ -411,13 +525,11 @@
           }
         }
 
-        // Sidebar Content
         .sidebar-content {
           flex: 1;
           overflow-y: auto;
           overflow-x: hidden;
 
-          // Custom scrollbar
           &::-webkit-scrollbar {
             width: 6px;
           }
@@ -435,7 +547,6 @@
             }
           }
 
-          // Sidebar Section
           .sidebar-section {
             padding: 20px 0;
             border: 1px solid rgb(222, 220, 209);
@@ -454,7 +565,6 @@
               letter-spacing: 0.5px;
             }
 
-            // Menu Item
             a {
               text-decoration: none;
               display: block;
@@ -530,11 +640,11 @@
           }
         }
 
-        // Bottom Section
         .sidebar-bottom {
           padding: 15px 20px;
           background: #f9fafb;
           border: 1px solid rgb(222, 220, 209);
+          
           a {
             text-decoration: none;
             display: block;
@@ -570,16 +680,18 @@
         }
       }
 
-      // Scrollbar styling
       &::-webkit-scrollbar {
         width: 3px;
       }
+      
       &::-webkit-scrollbar-track {
         background: transparent;
       }
+      
       &::-webkit-scrollbar-thumb {
         background: #515154;
         border-radius: 3px;
+        
         &:hover {
           background: #56575d;
         }
@@ -592,20 +704,42 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; // flex item uchun muhim
+  min-width: 0;
 
   #main-section {
     flex: 1;
     padding: 40px;
     background-color: #f9fafb;
-    min-height: calc(
-      100vh - 87px - 200px
-    ); // navbar va footer heightini hisobga olib
+    min-height: calc(100vh - 87px - 200px);
 
     .container {
       max-width: 1300px;
       margin: 0 auto;
       width: 100%;
+    }
+  }
+}
+
+// MUI Menu global override
+.MuiMenu-paper {
+  .MuiMenuItem-root {
+    display: flex !important;
+    align-items: center !important;
+    padding: 10px 16px !important;
+    font-family: $font !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+
+    &:hover {
+      background-color: #f6f7f8 !important;
+    }
+
+    .img-flag {
+      width: 24px !important;
+      height: 17px !important;
+      border-radius: 2px !important;
+      margin-right: 8px !important;
+      object-fit: cover !important;
     }
   }
 }
@@ -675,7 +809,7 @@
       }
 
       .search-box {
-        display: none; // Hide on mobile, can add hamburger menu
+        display: none;
       }
 
       .icon-box {
@@ -690,7 +824,7 @@
   }
 }
 
-// Dark mode support (optional)
+// Dark mode support
 @media (prefers-color-scheme: dark) {
   #top .navbar .navbar-main {
     background-color: #1a1a1b;

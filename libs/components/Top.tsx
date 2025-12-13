@@ -20,8 +20,8 @@ import { REACT_APP_API_URL } from "../config";
 import { Logout } from "@mui/icons-material";
 import { logOut } from "../auth";
 
-// Cuben Logo SVG Component
-const CubenLogo = () => (
+// Cuben Logo SVG Component - TypeScript to'g'rilangan
+const CubenLogo: React.FC = () => (
   <svg
     width="56"
     height="56"
@@ -69,13 +69,58 @@ const CubenLogo = () => (
   </svg>
 );
 
-const Top = () => {
+// StyledMenu - komponent tashqarida e'lon qilingan
+const StyledMenu = styled((props: MenuProps) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: "bottom",
+      horizontal: "right",
+    }}
+    transformOrigin={{
+      vertical: "top",
+      horizontal: "right",
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  "& .MuiPaper-root": {
+    top: "109px",
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 160,
+    color:
+      theme.palette.mode === "light"
+        ? "rgb(55, 65, 81)"
+        : theme.palette.grey[300],
+    boxShadow:
+      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    "& .MuiMenu-list": {
+      padding: "4px 0",
+    },
+    "& .MuiMenuItem-root": {
+      "& .MuiSvgIcon-root": {
+        fontSize: 18,
+        color: theme.palette.text.secondary,
+        marginRight: theme.spacing(1.5),
+      },
+      "&:active": {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          theme.palette.action.selectedOpacity
+        ),
+      },
+    },
+  },
+}));
+
+const Top: React.FC = () => {
   const device = useDeviceDetect();
   const user = useReactiveVar(userVar);
   const { t, i18n } = useTranslation("common");
   const router = useRouter();
   const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
-  const [lang, setLang] = useState<string | null>("en");
+  const [lang, setLang] = useState<string>("en");
   const drop = Boolean(anchorEl2);
   const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(
     null
@@ -84,16 +129,17 @@ const Top = () => {
 
   /** LIFECYCLES **/
   useEffect(() => {
-    if (localStorage.getItem("locale") === null) {
+    const storedLocale = localStorage.getItem("locale");
+    if (storedLocale === null) {
       localStorage.setItem("locale", "en");
       setLang("en");
     } else {
-      setLang(localStorage.getItem("locale"));
+      setLang(storedLocale);
     }
   }, [router]);
 
   /** HANDLERS **/
-  const langClick = (e: any) => {
+  const langClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl2(e.currentTarget);
   };
 
@@ -102,58 +148,16 @@ const Top = () => {
   };
 
   const langChoice = useCallback(
-    async (e: any) => {
-      setLang(e.target.id);
-      localStorage.setItem("locale", e.target.id);
+    async (e: React.MouseEvent<HTMLLIElement>) => {
+      const target = e.currentTarget;
+      const newLang = target.id;
+      setLang(newLang);
+      localStorage.setItem("locale", newLang);
       setAnchorEl2(null);
-      await router.push(router.asPath, router.asPath, { locale: e.target.id });
+      await router.push(router.asPath, router.asPath, { locale: newLang });
     },
     [router]
   );
-
-  const StyledMenu = styled((props: MenuProps) => (
-    <Menu
-      elevation={0}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    "& .MuiPaper-root": {
-      top: "109px",
-      borderRadius: 6,
-      marginTop: theme.spacing(1),
-      minWidth: 160,
-      color:
-        theme.palette.mode === "light"
-          ? "rgb(55, 65, 81)"
-          : theme.palette.grey[300],
-      boxShadow:
-        "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-      "& .MuiMenu-list": {
-        padding: "4px 0",
-      },
-      "& .MuiMenuItem-root": {
-        "& .MuiSvgIcon-root": {
-          fontSize: 18,
-          color: theme.palette.text.secondary,
-          marginRight: theme.spacing(1.5),
-        },
-        "&:active": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-  }));
 
   if (device === "mobile") {
     return (
@@ -211,12 +215,15 @@ const Top = () => {
               <span className="notification-badge">2</span>
             </div>
           </Box>
+          
           <Box component={"div"} className={"user-box"}>
             {user?._id ? (
               <>
                 <div
                   className={"login-user"}
-                  onClick={(event: any) => setLogoutAnchor(event.currentTarget)}
+                  onClick={(event: React.MouseEvent<HTMLDivElement>) =>
+                    setLogoutAnchor(event.currentTarget)
+                  }
                 >
                   <img
                     src={
@@ -224,7 +231,7 @@ const Top = () => {
                         ? `${REACT_APP_API_URL}/${user?.memberImage}`
                         : "/img/profile/defaultUser.svg"
                     }
-                    alt=""
+                    alt="user profile"
                   />
                 </div>
 
@@ -268,11 +275,13 @@ const Top = () => {
                 endIcon={<CaretDown size={14} color="#616161" weight="fill" />}
               >
                 <Box component={"div"} className={"flag"}>
-                  {lang !== null ? (
-                    <img src={`/img/flag/lang${lang}.png`} alt={"flag"} />
-                  ) : (
-                    <img src={`/img/flag/langen.png`} alt={"flag"} />
-                  )}
+                  <img
+                    src={`/img/flag/lang${lang}.png`}
+                    alt={`${lang} flag`}
+                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                      e.currentTarget.src = "/img/flag/langen.png";
+                    }}
+                  />
                 </Box>
               </Button>
 
@@ -286,7 +295,7 @@ const Top = () => {
                   <img
                     className="img-flag"
                     src={"/img/flag/langen.png"}
-                    alt={"usaFlag"}
+                    alt={"USA Flag"}
                   />
                   {t("English")}
                 </MenuItem>
@@ -294,7 +303,7 @@ const Top = () => {
                   <img
                     className="img-flag"
                     src={"/img/flag/langkr.png"}
-                    alt={"koreanFlag"}
+                    alt={"Korean Flag"}
                   />
                   {t("Korean")}
                 </MenuItem>
@@ -302,7 +311,7 @@ const Top = () => {
                   <img
                     className="img-flag"
                     src={"/img/flag/langru.png"}
-                    alt={"russiaFlag"}
+                    alt={"Russian Flag"}
                   />
                   {t("Russian")}
                 </MenuItem>
