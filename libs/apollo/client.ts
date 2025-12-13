@@ -27,6 +27,10 @@ const tokenRefreshLink = new TokenRefreshLink({
 		// execute refresh token
 		return null;
 	},
+	handleFetch: () => {
+    // intentionally empty
+    // eski loyihadagi kabi ishlaydi
+  },
 });
 
 // Custom WebSocket client

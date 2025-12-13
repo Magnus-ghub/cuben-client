@@ -20,7 +20,7 @@ export const GET_AGENTS = gql`
 				memberDesc
 				memberWarnings
 				memberBlocks
-				memberProperties
+				memberProducts
 				memberRank
 				memberPoints
 				memberLikes
@@ -55,7 +55,7 @@ export const GET_MEMBER = gql(`
         memberImage
         memberAddress
         memberDesc
-        memberProperties
+        memberProducts
         memberArticles
         memberPoints
         memberLikes

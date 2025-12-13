@@ -3,7 +3,7 @@
 		"target": "es5",
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"allowJs": true,
-		"types": [],
+		"types": ["react", "react-dom"],
 		"skipLibCheck": true,
 		"strict": false,
 		"forceConsistentCasingInFileNames": true,

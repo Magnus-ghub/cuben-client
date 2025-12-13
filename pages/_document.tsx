@@ -2,7 +2,7 @@ import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="en">@types/react@18.2.0
       <Head>
         <meta name="robots" content="index,follow" />
         <link rel="icon" type="image/png" href="/img/logo/favicon.svg" />
