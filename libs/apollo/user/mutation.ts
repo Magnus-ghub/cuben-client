@@ -122,7 +122,7 @@ export const LIKE_TARGET_MEMBER = gql`
  *        PROPERTY        *
  *************************/
 
-export const CREATE_PROPERTY = gql`
+export const CREATE_PRODUCT = gql`
 	mutation CreateProperty($input: PropertyInput!) {
 		createProperty(input: $input) {
 			_id
@@ -177,7 +177,7 @@ export const UPDATE_PROPERTY = gql`
 	}
 `;
 
-export const LIKE_TARGET_PROPERTY = gql`
+export const LIKE_TARGET_PRODUCT = gql`
 	mutation LikeTargetProperty($input: String!) {
 		likeTargetProperty(propertyId: $input) {
 			_id

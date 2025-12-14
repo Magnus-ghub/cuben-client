@@ -9,12 +9,26 @@
 @import '/scss/pc/community/detail.scss';
 @import '/scss/pc/community/write.scss';
 
+@import '/scss/pc/mypage/mypage.scss';
+@import '/scss/pc/mypage/addNewProduct.scss';
+@import '/scss/pc/mypage/myProducts.scss';
+@import '/scss/pc/mypage/myFavorites.scss';
+@import '/scss/pc/mypage/mySaved.scss';
+@import '/scss/pc/mypage/myProfile.scss';
+@import '/scss/pc/mypage/myArticles.scss';
+@import '/scss/pc/mypage/writeArticle.scss';
+
 @import '/scss/pc/cs/cs.scss';
 
 @import '/scss/pc/account/join.scss';
 
 @import '/scss/pc/calendar/calendar.scss';
 @import '/scss/pc/notes/notes.scss';
+
+@import '/scss/pc/about/about.scss';
+
+@import '/scss/pc/mypage/mypage.scss';
+
 
 #pc-wrap {
 	min-height: 100vh;

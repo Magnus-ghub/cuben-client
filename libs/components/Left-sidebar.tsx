@@ -17,6 +17,7 @@ import {
 	LogOut,
 	Newspaper,
 	BoxIcon,
+	InfoIcon,
 } from 'lucide-react';
 import { logOut } from '../auth';
 import React from 'react';
@@ -38,7 +39,7 @@ const LeftSidebar = () => {
 			<Stack className={'navbar-main'}>
 				<Stack className={'container'}>
 					{user?._id && (
-						<Link href="/profile">
+						<Link href="/mypage">
 							<Stack className="profile-card">
 								<Stack className="profile-header">
 									<Box className="profile-avatar">
@@ -184,6 +185,12 @@ const LeftSidebar = () => {
 							<Stack className="bottom-item">
 								<HelpCircle size={20} className="menu-icon" />
 								<Box>Help & Support</Box>
+							</Stack>
+						</Link>
+						<Link href="/about">
+							<Stack className="bottom-item">
+								<InfoIcon size={20} className="menu-icon" />
+								<Box>About</Box>
 							</Stack>
 						</Link>
 						{user?._id && (
