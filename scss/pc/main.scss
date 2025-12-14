@@ -13,6 +13,9 @@
 
 @import '/scss/pc/account/join.scss';
 
+@import '/scss/pc/calendar/calendar.scss';
+@import '/scss/pc/notes/notes.scss';
+
 #pc-wrap {
 	min-height: 100vh;
 	display: flex;
@@ -526,10 +529,7 @@
 		}
 	}
 
-	// ===============================
-	// MODERN REDDIT-STYLE CHAT
-	// ===============================
-
+  //chatting
 	.modern-chat-container {
 		position: fixed;
 		bottom: 20px;

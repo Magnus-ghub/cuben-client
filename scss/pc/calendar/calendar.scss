@@ -1,0 +1,548 @@
+// ===============================
+// KOREAN HOLIDAYS CALENDAR PAGE
+// ===============================
+
+.calendar-page-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+
+  // Header Section
+  .calendar-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 32px 40px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .header-icon {
+          width: 48px;
+          height: 48px;
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 10px;
+        }
+
+        .header-title {
+          font-size: 28px;
+          font-weight: 700;
+          color: #ffffff;
+          margin-bottom: 4px;
+          letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+          font-size: 14px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.9);
+        }
+      }
+
+      .holiday-legend {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.15);
+          padding: 8px 16px;
+          border-radius: 8px;
+          backdrop-filter: blur(10px);
+
+          .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+
+            &.red {
+              background: #ef4444;
+            }
+
+            &.orange {
+              background: #f59e0b;
+            }
+
+            &.gray {
+              background: #6b7280;
+            }
+          }
+
+          span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+          }
+        }
+      }
+    }
+  }
+
+  // Main Content
+  .calendar-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    // Calendar Wrapper
+    .calendar-wrapper {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+
+      // FullCalendar Custom Styles
+      .fc {
+        // Header
+        .fc-toolbar {
+          margin-bottom: 24px;
+          padding-bottom: 16px;
+          border-bottom: 2px solid #f3f4f6;
+
+          .fc-toolbar-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+          }
+
+          .fc-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+
+            &:active {
+              transform: translateY(0);
+            }
+
+            &.fc-button-active {
+              background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+              box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+            }
+          }
+        }
+
+        // Day Headers
+        .fc-col-header {
+          .fc-col-header-cell {
+            padding: 12px 0;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f9fafb;
+            border: none;
+
+            &.fc-day-sun {
+              .fc-col-header-cell-cushion {
+                color: #ef4444;
+              }
+            }
+
+            &.fc-day-sat {
+              .fc-col-header-cell-cushion {
+                color: #3b82f6;
+              }
+            }
+          }
+        }
+
+        // Calendar Body
+        .fc-daygrid-body {
+          .fc-scrollgrid-sync-table {
+            .fc-daygrid-day {
+              border-color: #e5e7eb;
+              transition: all 0.2s ease;
+
+              &:hover {
+                background: #f9fafb;
+              }
+
+              // Day Numbers
+              .fc-daygrid-day-top {
+                padding: 8px;
+
+                .fc-daygrid-day-number {
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: #374151;
+                  padding: 4px 8px;
+                  border-radius: 6px;
+                  transition: all 0.2s ease;
+                }
+              }
+
+              // Sunday
+              &.fc-day-sun {
+                .fc-daygrid-day-number {
+                  color: #ef4444;
+                }
+
+                background: #fef2f2;
+              }
+
+              // Saturday
+              &.fc-day-sat {
+                .fc-daygrid-day-number {
+                  color: #3b82f6;
+                }
+              }
+
+              // Today
+              &.fc-day-today {
+                background: #eff6ff !important;
+
+                .fc-daygrid-day-number {
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: #ffffff;
+                  font-weight: 700;
+                }
+              }
+
+              // Other Month Days
+              &.fc-day-other {
+                background: #fafafa;
+
+                .fc-daygrid-day-number {
+                  color: #9ca3af;
+                }
+              }
+            }
+          }
+        }
+
+        // Events
+        .fc-event {
+          border: none;
+          padding: 4px 8px;
+          margin: 2px 4px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          }
+
+          .fc-event-main {
+            color: #ffffff;
+          }
+
+          .fc-event-title {
+            font-weight: 600;
+          }
+        }
+
+        // More Events Link
+        .fc-daygrid-more-link {
+          color: #667eea;
+          font-weight: 600;
+          padding: 4px 8px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: #eff6ff;
+            color: #764ba2;
+          }
+        }
+      }
+    }
+
+    // Event Detail Card
+    .event-detail-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+      animation: slideInRight 0.3s ease-out;
+
+      .event-icon {
+        width: 40px;
+        height: 40px;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 8px;
+      }
+
+      .event-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 4px;
+      }
+
+      .event-date {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+
+    // Holiday Info Section
+    .holiday-info-section {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+
+      .info-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+
+        .info-card {
+          background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+          border: 2px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 20px;
+          transition: all 0.3s ease;
+
+          &:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+            transform: translateY(-4px);
+          }
+
+          .info-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+          }
+
+          .info-card-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #6b7280;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .calendar-page-container {
+    .calendar-header {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .holiday-legend {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-page-container {
+    .calendar-header {
+      padding: 24px 20px;
+
+      .header-content {
+        .header-left {
+          .header-icon {
+            width: 40px;
+            height: 40px;
+          }
+
+          .header-title {
+            font-size: 22px;
+          }
+
+          .header-subtitle {
+            font-size: 12px;
+          }
+        }
+
+        .holiday-legend {
+          flex-direction: column;
+          gap: 12px;
+
+          .legend-item {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    .calendar-main-content {
+      .calendar-wrapper {
+        padding: 16px;
+
+        .fc {
+          .fc-toolbar {
+            flex-direction: column;
+            gap: 12px;
+
+            .fc-toolbar-title {
+              font-size: 18px;
+            }
+
+            .fc-toolbar-chunk {
+              width: 100%;
+              display: flex;
+              justify-content: center;
+            }
+          }
+
+          .fc-daygrid-body {
+            .fc-daygrid-day {
+              .fc-daygrid-day-top {
+                padding: 4px;
+
+                .fc-daygrid-day-number {
+                  font-size: 12px;
+                  padding: 2px 6px;
+                }
+              }
+            }
+          }
+
+          .fc-event {
+            font-size: 10px;
+            padding: 2px 6px;
+            margin: 1px 2px;
+          }
+        }
+      }
+
+      .holiday-info-section {
+        padding: 20px;
+
+        .info-title {
+          font-size: 18px;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .calendar-page-container {
+    .calendar-wrapper {
+      background: #1a1a1b;
+      border-color: #343536;
+
+      .fc {
+        .fc-toolbar-title {
+          color: #d7dadc;
+        }
+
+        .fc-col-header {
+          .fc-col-header-cell {
+            background: #272729;
+          }
+        }
+
+        .fc-daygrid-body {
+          .fc-daygrid-day {
+            border-color: #343536;
+
+            &:hover {
+              background: #272729;
+            }
+
+            .fc-daygrid-day-number {
+              color: #d7dadc;
+            }
+
+            &.fc-day-today {
+              background: #1e3a5f !important;
+            }
+
+            &.fc-day-other {
+              background: #0f0f10;
+            }
+          }
+        }
+      }
+    }
+
+    .holiday-info-section {
+      background: #1a1a1b;
+      border-color: #343536;
+
+      .info-title {
+        color: #d7dadc;
+      }
+
+      .info-grid {
+        .info-card {
+          background: #272729;
+          border-color: #343536;
+
+          .info-card-text {
+            color: #818384;
+          }
+        }
+      }
+    }
+  }
+}

@@ -12,7 +12,6 @@ import {
 	Pizza,
 	House,
 	TrendingUp,
-	MessageCircle,
 	Calendar,
 	Notebook,
 	LogOut,
@@ -21,9 +20,12 @@ import {
 } from 'lucide-react';
 import { logOut } from '../auth';
 import React from 'react';
+import { userVar } from '../apollo/store';
+import { useReactiveVar } from '@apollo/client';
 
 const LeftSidebar = () => {
 	const device = useDeviceDetect();
+	const user = useReactiveVar(userVar);
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
 	const logoutOpen = Boolean(logoutAnchor);
@@ -35,31 +37,32 @@ const LeftSidebar = () => {
 		<Stack className={'navbar'}>
 			<Stack className={'navbar-main'}>
 				<Stack className={'container'}>
-					<Link href="/profile">
-						<Stack className="profile-card">
-							<Stack className="profile-header">
-								<Box className="profile-avatar">
-									<img src="/img/profile/defaultUser.svg" alt="Profile" />
-								</Box>
-								<Stack className="profile-info">
-									<Box className="profile-name">Magnus</Box>
-									<Box className="profile-username">@magnuskordev</Box>
+					{user?._id && (
+						<Link href="/profile">
+							<Stack className="profile-card">
+								<Stack className="profile-header">
+									<Box className="profile-avatar">
+										<img src="/img/profile/defaultUser.svg" alt="Profile" />
+									</Box>
+									<Stack className="profile-info">
+										<Box className="profile-name">Magnus</Box>
+										<Box className="profile-username">@magnuskordev</Box>
+									</Stack>
+								</Stack>
+
+								<Stack className="profile-stats">
+									<Stack className="stat-item">
+										<Box className="stat-number">125</Box>
+										<Box className="stat-label">Followers</Box>
+									</Stack>
+									<Stack className="stat-item">
+										<Box className="stat-number">89</Box>
+										<Box className="stat-label">Following</Box>
+									</Stack>
 								</Stack>
 							</Stack>
-
-							<Stack className="profile-stats">
-								<Stack className="stat-item">
-									<Box className="stat-number">125</Box>
-									<Box className="stat-label">Followers</Box>
-								</Stack>
-								<Stack className="stat-item">
-									<Box className="stat-number">89</Box>
-									<Box className="stat-label">Following</Box>
-								</Stack>
-							</Stack>
-						</Stack>
-					</Link>
-
+						</Link>
+					)}
 					{/* Sidebar Content */}
 					<Stack className="sidebar-content">
 						{/* HOME Section */}
@@ -103,28 +106,30 @@ const LeftSidebar = () => {
 						</Stack>
 
 						{/* MY ACTIVITY Section */}
-						<Stack className="sidebar-section">
-							<Box className="section-title">❤️ MY ACTIVITY</Box>
+						{user?._id && (
+							<Stack className="sidebar-section">
+								<Box className="section-title">❤️ MY ACTIVITY</Box>
 
-							<Link href={'/product'}>
-								<Stack className={`menu-item`}>
-									<Heart size={20} className="menu-icon" />
-									<Box className="menu-text">Favorites</Box>
-								</Stack>
-							</Link>
-							<Link href={'/product'}>
-								<Stack className={`menu-item`}>
-									<Eye size={20} className="menu-icon" />
-									<Box className="menu-text">Recently Viewed</Box>
-								</Stack>
-							</Link>
-							<Link href={'/product'}>
-								<Stack className={`menu-item`}>
-									<ScrollText size={20} className="menu-icon" />
-									<Box className="menu-text">My Products</Box>
-								</Stack>
-							</Link>
-						</Stack>
+								<Link href={'/product'}>
+									<Stack className={`menu-item`}>
+										<Heart size={20} className="menu-icon" />
+										<Box className="menu-text">Favorites</Box>
+									</Stack>
+								</Link>
+								<Link href={'/product'}>
+									<Stack className={`menu-item`}>
+										<Eye size={20} className="menu-icon" />
+										<Box className="menu-text">Recently Viewed</Box>
+									</Stack>
+								</Link>
+								<Link href={'/product'}>
+									<Stack className={`menu-item`}>
+										<ScrollText size={20} className="menu-icon" />
+										<Box className="menu-text">My Products</Box>
+									</Stack>
+								</Link>
+							</Stack>
+						)}
 
 						{/* CATEGORIES Section */}
 						<Stack className="sidebar-section">
@@ -181,12 +186,14 @@ const LeftSidebar = () => {
 								<Box>Help & Support</Box>
 							</Stack>
 						</Link>
-						<Link href="">
-							<Stack className="bottom-item" onClick={logOut} sx={{ cursor: 'pointer' }}>
-								<LogOut size={20} className="menu-icon" />
-								<Box>Logout</Box>
-							</Stack>
-						</Link>
+						{user?._id && (
+							<Link href="">
+								<Stack className="bottom-item" onClick={logOut} sx={{ cursor: 'pointer' }}>
+									<LogOut size={20} className="menu-icon" />
+									<Box>Logout</Box>
+								</Stack>
+							</Link>
+						)}
 					</Stack>
 				</Stack>
 			</Stack>
