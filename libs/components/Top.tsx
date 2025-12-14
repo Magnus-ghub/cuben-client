@@ -1,4 +1,4 @@
-import { Box, MenuItem, Stack, Badge } from '@mui/material';
+import { Box, MenuItem, Stack, Badge, Menu as MuiMenu } from '@mui/material';
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import Menu, { MenuProps } from '@mui/material/Menu';
@@ -46,11 +46,12 @@ const Top: React.FC = () => {
 	const { t, i18n } = useTranslation('common');
 	const router = useRouter();
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
+	const [createMenuAnchor, setCreateMenuAnchor] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
 	const drop = Boolean(anchorEl2);
-	const [colorChange, setColorChange] = useState(false);
+	const createMenuOpen = Boolean(createMenuAnchor);
 	const chatOpen = useReactiveVar(chatOpenVar);
-	const [notificationCount] = useState(3); // Mock notification count
+	const [notificationCount] = useState(3);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -91,6 +92,14 @@ const Top: React.FC = () => {
 		chatOpenVar(!chatOpenVar());
 	};
 
+	const handleCreateMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
+		setCreateMenuAnchor(e.currentTarget);
+	};
+
+	const handleCreateMenuClose = () => {
+		setCreateMenuAnchor(null);
+	};
+
 	const StyledMenu = styled((props: MenuProps) => (
 		<Menu
 			elevation={0}
@@ -109,8 +118,7 @@ const Top: React.FC = () => {
 			borderRadius: 12,
 			marginTop: theme.spacing(1),
 			minWidth: 180,
-			boxShadow:
-				'0 4px 20px rgba(0,0,0,0.08), 0 0 2px rgba(0,0,0,0.05)',
+			boxShadow: '0 4px 20px rgba(0,0,0,0.08), 0 0 2px rgba(0,0,0,0.05)',
 			'& .MuiMenu-list': {
 				padding: '8px',
 			},
@@ -153,18 +161,19 @@ const Top: React.FC = () => {
 					{/* Search Box */}
 					<Box component={'div'} className={'search-box'}>
 						<SearchIcon className="search-icon" />
-						<input type="text" placeholder="Mahsulotlar, kategoriyalar yoki foydalanuvchilarni qidiring..." />
+						<input type="text" placeholder="Search posts, jobs, items, or students..." />
 					</Box>
 
 					{/* Right Section */}
 					<Box component={'div'} className={'actions-box'}>
-						{/* Create Listing Button - Faqat login qilgan userlar uchun */}
+						{/* Create Button with Dropdown - Faqat login qilgan userlar uchun */}
 						{user?._id && (
-							<Link href="/mypage/add-product" style={{ textDecoration: 'none' }}>
+							<>
 								<Button
 									variant="contained"
-									className="create-listing-btn"
+									className="create-btn"
 									startIcon={<AddCircleOutlineIcon />}
+									onClick={handleCreateMenuOpen}
 									sx={{
 										background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 										color: '#fff',
@@ -180,9 +189,48 @@ const Top: React.FC = () => {
 										},
 									}}
 								>
-									Create Listing
+									Create
 								</Button>
-							</Link>
+
+								<StyledMenu
+									anchorEl={createMenuAnchor}
+									open={createMenuOpen}
+									onClose={handleCreateMenuClose}
+								>
+									<MenuItem
+										onClick={() => {
+											router.push('/community/write');
+											handleCreateMenuClose();
+										}}
+									>
+										📝 Write a Post
+									</MenuItem>
+									<MenuItem
+										onClick={() => {
+											router.push('/mypage/add-product');
+											handleCreateMenuClose();
+										}}
+									>
+										🛒 List an Item
+									</MenuItem>
+									<MenuItem
+										onClick={() => {
+											router.push('/jobs/create');
+											handleCreateMenuClose();
+										}}
+									>
+										💼 Post a Job
+									</MenuItem>
+									<MenuItem
+										onClick={() => {
+											router.push('/events/create');
+											handleCreateMenuClose();
+										}}
+									>
+										📅 Create Event
+									</MenuItem>
+								</StyledMenu>
+							</>
 						)}
 
 						{/* Icons Section */}
@@ -204,9 +252,11 @@ const Top: React.FC = () => {
 
 							{/* Notification Icon - Faqat login qilgan userlar uchun */}
 							{user?._id && (
-								<Badge badgeContent={notificationCount} color="error" className="icon-wrapper">
-									<NotificationsOutlinedIcon sx={{ fontSize: 24, color: '#6b7280' }} />
-								</Badge>
+								<Link href="/notifications" style={{ textDecoration: 'none' }}>
+									<Badge badgeContent={notificationCount} color="error" className="icon-wrapper">
+										<NotificationsOutlinedIcon sx={{ fontSize: 24, color: '#6b7280' }} />
+									</Badge>
+								</Link>
 							)}
 
 							{/* Language Selector */}
