@@ -1,6 +1,6 @@
-import { Box, Stack } from '@mui/material';
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
+import { Box, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import {
 	Settings,
 	HelpCircle,
@@ -23,13 +23,24 @@ import { logOut } from '../auth';
 import React from 'react';
 import { userVar } from '../apollo/store';
 import { useReactiveVar } from '@apollo/client';
+import { Logout } from '@mui/icons-material';
 
 const LeftSidebar = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
-	const logoutOpen = Boolean(logoutAnchor);
+	const [logoutOpen, setLogoutOpen] = React.useState(false);
+
+	const handleLogout = async () => {
+		try {
+			await logOut(); // token clear, backend
+			userVar(null); // apollo reactive var
+			window.location.href = '/'; // redirect
+		} catch (e) {
+			console.error(e);
+		}
+	};
 
 	if (device === 'mobile') {
 		return <Stack className={'navbar'}></Stack>;
@@ -46,7 +57,7 @@ const LeftSidebar = () => {
 										<img src="/img/profile/defaultUser.svg" alt="Profile" />
 									</Box>
 									<Stack className="profile-info">
-										<Box className="profile-name">Magnus</Box>
+										<Box className="profile-name">{user.memberNick}</Box>
 										<Box className="profile-username">@magnuskordev</Box>
 									</Stack>
 								</Stack>
@@ -194,12 +205,32 @@ const LeftSidebar = () => {
 							</Stack>
 						</Link>
 						{user?._id && (
-							<Link href="">
-								<Stack className="bottom-item" onClick={logOut} sx={{ cursor: 'pointer' }}>
-									<LogOut size={20} className="menu-icon" />
-									<Box>Logout</Box>
-								</Stack>
-							</Link>
+							<>
+								<Link href="#" onClick={(e) => e.preventDefault()}>
+									<Stack
+										className="bottom-item"
+										direction="row"
+										gap="10px"
+										sx={{ cursor: 'pointer' }}
+										onClick={() => setLogoutOpen(true)}
+									>
+										<LogOut size={20} className="menu-icon" />
+										<Box>Logout</Box>
+									</Stack>
+								</Link>
+								<Dialog open={logoutOpen} onClose={() => setLogoutOpen(false)} maxWidth="xs" fullWidth>
+									<DialogTitle>Confirm Logout</DialogTitle>
+
+									<DialogContent>Are you sure you want to log out?</DialogContent>
+
+									<DialogActions>
+										<Button onClick={() => setLogoutOpen(false)}>Cancel</Button>
+										<Button color="error" variant="contained" onClick={handleLogout}>
+											Logout
+										</Button>
+									</DialogActions>
+								</Dialog>
+							</>
 						)}
 					</Stack>
 				</Stack>

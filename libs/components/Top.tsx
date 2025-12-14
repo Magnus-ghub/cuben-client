@@ -12,11 +12,10 @@ import { CaretDown } from 'phosphor-react';
 import { useTranslation } from 'react-i18next';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { userVar, chatOpenVar } from '../apollo/store'; // ✅ chatOpenVar import
+import { userVar, chatOpenVar } from '../apollo/store'; 
 import { useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
-import { Logout } from '@mui/icons-material';
-import { getJwtToken, logOut, updateUserInfo } from '../auth';
+import { getJwtToken, updateUserInfo } from '../auth';
 
 // Cuben Logo SVG Component
 const CubenLogo: React.FC = () => (
@@ -57,8 +56,7 @@ const Top: React.FC = () => {
 	const [colorChange, setColorChange] = useState(false);
 	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
 	const [bgColor, setBgColor] = useState<boolean>(false);
-	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
-	const logoutOpen = Boolean(logoutAnchor);
+	
 
 	// ✅ YANGI: Global chat state
 	const chatOpen = useReactiveVar(chatOpenVar);
@@ -278,7 +276,6 @@ const Top: React.FC = () => {
 							<>
 								<div
 									className={'login-user'}
-									onClick={(event: React.MouseEvent<HTMLDivElement>) => setLogoutAnchor(event.currentTarget)}
 								>
 									<img
 										src={
@@ -287,21 +284,6 @@ const Top: React.FC = () => {
 										alt="user profile"
 									/>
 								</div>
-
-								<Menu
-									id="basic-menu"
-									anchorEl={logoutAnchor}
-									open={logoutOpen}
-									onClose={() => {
-										setLogoutAnchor(null);
-									}}
-									sx={{ mt: '5px' }}
-								>
-									<MenuItem onClick={() => logOut()}>
-										<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
-										Logout
-									</MenuItem>
-								</Menu>
 							</>
 						) : (
 							<Link href={'/account/join'}>
