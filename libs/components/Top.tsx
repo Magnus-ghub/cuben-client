@@ -1,25 +1,24 @@
-import { Box, MenuItem, Stack, SvgIcon } from '@mui/material';
+import { Box, MenuItem, Stack } from '@mui/material';
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import ChatIcon from '@mui/icons-material/Chat';
 import Menu, { MenuProps } from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
+import MarkUnreadChatAltIcon from '@mui/icons-material/MarkUnreadChatAlt';
 import SearchIcon from '@mui/icons-material/Search';
 import { alpha, styled } from '@mui/material/styles';
 import { CaretDown } from 'phosphor-react';
 import { useTranslation } from 'react-i18next';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { userVar } from '../apollo/store';
+import { userVar, chatOpenVar } from '../apollo/store'; // ✅ chatOpenVar import
 import { useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
 import { Logout } from '@mui/icons-material';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
 
-// Cuben Logo SVG Component - TypeScript to'g'rilangan
+// Cuben Logo SVG Component
 const CubenLogo: React.FC = () => (
 	<svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<defs>
@@ -57,10 +56,12 @@ const Top: React.FC = () => {
 	const drop = Boolean(anchorEl2);
 	const [colorChange, setColorChange] = useState(false);
 	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
-	let open = Boolean(anchorEl);
 	const [bgColor, setBgColor] = useState<boolean>(false);
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const logoutOpen = Boolean(logoutAnchor);
+
+	// ✅ YANGI: Global chat state
+	const chatOpen = useReactiveVar(chatOpenVar);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -115,6 +116,14 @@ const Top: React.FC = () => {
 		}
 	};
 
+	// ✅ ASOSIY O'ZGARISH: Chat ni ochish/yopish
+	const handleOpenChat = () => {
+		console.log('🔥 Chat button bosildi!');
+		console.log('📊 Hozirgi chatOpen holati:', chatOpenVar());
+		chatOpenVar(!chatOpenVar());
+		console.log('✅ Yangi chatOpen holati:', chatOpenVar());
+	};
+
 	const handleClose = () => {
 		setAnchorEl(null);
 	};
@@ -126,6 +135,7 @@ const Top: React.FC = () => {
 			setAnchorEl(null);
 		}
 	};
+
 	const StyledMenu = styled((props: MenuProps) => (
 		<Menu
 			elevation={0}
@@ -213,19 +223,57 @@ const Top: React.FC = () => {
 						<input type="text" placeholder="Cuben에서 검색..." />
 					</Box>
 
-					{/* Icon Box */}
-					<Box component={'div'} className={'icon-box'}>
-						<div className="icon-wrapper">
-							<SvgIcon component={NotificationsIcon} />
-							<span className="notification-badge">3</span>
-						</div>
-						<div className="icon-wrapper">
-							<SvgIcon component={ChatIcon} />
-							<span className="notification-badge">2</span>
-						</div>
-					</Box>
-
 					<Box component={'div'} className={'user-box'}>
+						<div className={'lan-box'}>
+							{/* ✅ CHAT BUTTON - Global state bilan ishlaydi */}
+							<Box 
+								component="div" 
+								onClick={handleOpenChat}
+								sx={{ 
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									'&:hover': {
+										opacity: 0.7
+									}
+								}}
+							>
+								<MarkUnreadChatAltIcon className={'notification-icon'} />
+							</Box>
+							
+							{user?._id && <NotificationsOutlinedIcon className={'notification-icon'} />}
+							<Button
+								disableRipple
+								className="btn-lang"
+								onClick={langClick}
+								endIcon={<CaretDown size={14} color="#616161" weight="fill" />}
+							>
+								<Box component={'div'} className={'flag'}>
+									<img
+										src={`/img/flag/lang${lang}.png`}
+										alt={`${lang} flag`}
+										onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+											e.currentTarget.src = '/img/flag/langen.png';
+										}}
+									/>
+								</Box>
+							</Button>
+
+							<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose} sx={{ position: 'absolute' }}>
+								<MenuItem disableRipple onClick={langChoice} id="en">
+									<img className="img-flag" src={'/img/flag/langen.png'} alt={'USA Flag'} />
+									{t('English')}
+								</MenuItem>
+								<MenuItem disableRipple onClick={langChoice} id="kr">
+									<img className="img-flag" src={'/img/flag/langkr.png'} alt={'Korean Flag'} />
+									{t('Korean')}
+								</MenuItem>
+								<MenuItem disableRipple onClick={langChoice} id="ru">
+									<img className="img-flag" src={'/img/flag/langru.png'} alt={'Russian Flag'} />
+									{t('Russian')}
+								</MenuItem>
+							</StyledMenu>
+						</div>
 						{user?._id ? (
 							<>
 								<div
@@ -265,41 +313,6 @@ const Top: React.FC = () => {
 								</div>
 							</Link>
 						)}
-
-						<div className={'lan-box'}>
-							{user?._id && <NotificationsOutlinedIcon className={'notification-icon'} />}
-							<Button
-								disableRipple
-								className="btn-lang"
-								onClick={langClick}
-								endIcon={<CaretDown size={14} color="#616161" weight="fill" />}
-							>
-								<Box component={'div'} className={'flag'}>
-									<img
-										src={`/img/flag/lang${lang}.png`}
-										alt={`${lang} flag`}
-										onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-											e.currentTarget.src = '/img/flag/langen.png';
-										}}
-									/>
-								</Box>
-							</Button>
-
-							<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose} sx={{ position: 'absolute' }}>
-								<MenuItem disableRipple onClick={langChoice} id="en">
-									<img className="img-flag" src={'/img/flag/langen.png'} alt={'USA Flag'} />
-									{t('English')}
-								</MenuItem>
-								<MenuItem disableRipple onClick={langChoice} id="kr">
-									<img className="img-flag" src={'/img/flag/langkr.png'} alt={'Korean Flag'} />
-									{t('Korean')}
-								</MenuItem>
-								<MenuItem disableRipple onClick={langChoice} id="ru">
-									<img className="img-flag" src={'/img/flag/langru.png'} alt={'Russian Flag'} />
-									{t('Russian')}
-								</MenuItem>
-							</StyledMenu>
-						</div>
 					</Box>
 				</Stack>
 			</Stack>

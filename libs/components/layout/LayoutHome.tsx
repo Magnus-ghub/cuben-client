@@ -6,6 +6,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import LeftSidebar from "../Left-sidebar";
+import Chat from "../Chat";
 
 const withLayoutMain = (Component: any) => {
   return (props: any) => {
@@ -30,9 +31,12 @@ const withLayoutMain = (Component: any) => {
               <Stack id="main">
                 <Stack id={"main-section"}>
                   <Component {...props} />
-                </Stack>
+                </Stack>          
               </Stack>
             </Stack>
+
+            <Chat />
+            
           </Stack>
         </>
       );
@@ -60,6 +64,9 @@ const withLayoutMain = (Component: any) => {
               </Stack>
             </Stack>
           </Stack>
+
+          <Chat />
+
         </Stack>
       </>
     );

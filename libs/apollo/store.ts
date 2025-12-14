@@ -26,3 +26,6 @@ export const userVar = makeVar<CustomJwtPayload>({
 
 // @ts-ignore
 export const socketVar = makeVar<WebSocket>();
+
+// ✅ YANGI: Chat open state
+export const chatOpenVar = makeVar<boolean>(false);
