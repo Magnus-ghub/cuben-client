@@ -33,6 +33,7 @@ import React from 'react';
 import { userVar } from '../apollo/store';
 import { useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
+import { REACT_APP_API_URL } from '../config';
 
 const LeftSidebar = () => {
 	const device = useDeviceDetect();
@@ -69,7 +70,12 @@ const LeftSidebar = () => {
 							<Stack className="profile-card">
 								<Stack className="profile-header">
 									<Box className="profile-avatar">
-										<img src={user?.memberImage || '/img/profile/defaultUser.svg'} alt="Profile" />
+										<img
+											src={
+												user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+											}
+											alt="user profile"
+										/>
 									</Box>
 									<Stack className="profile-info">
 										<Box className="profile-name">{user.memberNick}</Box>
@@ -120,7 +126,7 @@ const LeftSidebar = () => {
 						{/* COMMUNITY Section */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">👥 COMMUNITY</Box>
-							
+
 							<Link href={'/community?articleCategory=NOTICE'}>
 								<Stack className={`menu-item ${router.query.articleCategory === 'NOTICE' ? 'active' : ''}`}>
 									<Newspaper size={20} className="menu-icon" />
@@ -128,7 +134,7 @@ const LeftSidebar = () => {
 									<Box className="menu-count">24</Box>
 								</Stack>
 							</Link>
-							
+
 							<Link href={'/community?articleCategory=FREE'}>
 								<Stack className={`menu-item ${router.query.articleCategory === 'FREE' ? 'active' : ''}`}>
 									<MessageSquare size={20} className="menu-icon" />
@@ -165,7 +171,7 @@ const LeftSidebar = () => {
 						{/* MARKETPLACE Section */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">🛒 MARKETPLACE</Box>
-							
+
 							<Link href={'/product'}>
 								<Stack className={`menu-item ${isActive('/product') && !router.query.category ? 'active' : ''}`}>
 									<Store size={20} className="menu-icon" />
@@ -260,14 +266,14 @@ const LeftSidebar = () => {
 						{/* TOOLS Section */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">🛠️ TOOLS</Box>
-							
+
 							<Link href={'/calendar'}>
 								<Stack className={`menu-item ${isActive('/calendar') ? 'active' : ''}`}>
 									<Calendar size={20} className="menu-icon" />
 									<Box className="menu-text">Calendar</Box>
 								</Stack>
 							</Link>
-							
+
 							<Link href={'/notes'}>
 								<Stack className={`menu-item ${isActive('/notes') ? 'active' : ''}`}>
 									<Notebook size={20} className="menu-icon" />

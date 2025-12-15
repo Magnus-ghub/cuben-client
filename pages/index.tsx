@@ -7,6 +7,7 @@ import useDeviceDetect from "../libs/hooks/useDeviceDetect";
 import CommunityBoards from "../libs/components/homepage/Community";
 import Events from "../libs/components/homepage/Event";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import HeroSection from "../libs/components/homepage/HeroSection";
 
 export const getStaticProps = async ({ locale }: any) => ({
   props: {
@@ -20,6 +21,7 @@ const Home: NextPage = () => {
   if (device === "mobile") {
     return (
       <Stack className={"home-page"}>
+         <HeroSection />
         <PopularProducts />
         <Advertisement />
         <CommunityBoards />
@@ -29,6 +31,7 @@ const Home: NextPage = () => {
   } else {
     return (
         <Stack className={'home-page'}>
+          <HeroSection />
           <PopularProducts />
           <Advertisement />
           <CommunityBoards />
