@@ -25,7 +25,7 @@ import {
 	LayoutList,
 } from 'lucide-react';
 import { logOut } from '../auth';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { userVar } from '../apollo/store';
 import { useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
@@ -35,7 +35,13 @@ const LeftSidebar = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const [logoutOpen, setLogoutOpen] = React.useState(false);
+	const [logoutOpen, setLogoutOpen] = useState(false);
+	const [imageError, setImageError] = useState(false);
+
+	// Reset image error when user changes
+	useEffect(() => {
+		setImageError(false);
+	}, [user?.memberImage]);
 
 	const handleLogout = async () => {
 		try {
@@ -50,6 +56,21 @@ const LeftSidebar = () => {
 	// Helper function to check if route is active
 	const isActive = (path: string) => {
 		return router.pathname === path;
+	};
+
+	// Helper function to get user image with fallback
+	const getUserImageSrc = () => {
+		if (imageError) {
+			return '/img/profile/defaultUser.svg';
+		}
+		if (user?.memberImage) {
+			return `${REACT_APP_API_URL}/${user.memberImage}`;
+		}
+		return '/img/profile/defaultUser.svg';
+	};
+
+	const handleImageError = () => {
+		setImageError(true);
 	};
 
 	if (device === 'mobile') {
@@ -67,10 +88,9 @@ const LeftSidebar = () => {
 								<Stack className="profile-header">
 									<Box className="profile-avatar">
 										<img
-											src={
-												user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
-											}
-											alt="user profile"
+											src={getUserImageSrc()}
+											alt={user.memberNick || 'User profile'}
+											onError={handleImageError}
 										/>
 									</Box>
 									<Stack className="profile-info">

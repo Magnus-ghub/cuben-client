@@ -52,6 +52,7 @@ const Top: React.FC = () => {
 	const createMenuOpen = Boolean(createMenuAnchor);
 	const chatOpen = useReactiveVar(chatOpenVar);
 	const [notificationCount] = useState(3);
+	const [imageError, setImageError] = useState(false);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -68,6 +69,11 @@ const Top: React.FC = () => {
 		const jwt = getJwtToken();
 		if (jwt) updateUserInfo(jwt);
 	}, []);
+
+	// Reset image error when user changes
+	useEffect(() => {
+		setImageError(false);
+	}, [user?.memberImage]);
 
 	/** HANDLERS **/
 	const langClick = (e: any) => {
@@ -98,6 +104,20 @@ const Top: React.FC = () => {
 
 	const handleCreateMenuClose = () => {
 		setCreateMenuAnchor(null);
+	};
+
+	const handleImageError = () => {
+		setImageError(true);
+	};
+
+	const getUserImageSrc = () => {
+		if (imageError) {
+			return '/img/profile/defaultUser.svg';
+		}
+		if (user?.memberImage) {
+			return `${REACT_APP_API_URL}/${user.memberImage}`;
+		}
+		return '/img/profile/defaultUser.svg';
 	};
 
 	const StyledMenu = styled((props: MenuProps) => (
@@ -307,12 +327,9 @@ const Top: React.FC = () => {
 							<Link href="/mypage" style={{ textDecoration: 'none' }}>
 								<Box className={'login-user'}>
 									<img
-										src={
-											user?.memberImage
-												? `${REACT_APP_API_URL}/${user?.memberImage}`
-												: '/img/profile/defaultUser.svg'
-										}
+										src={getUserImageSrc()}
 										alt="user profile"
+										onError={handleImageError}
 									/>
 								</Box>
 							</Link>
