@@ -118,7 +118,7 @@ const LeftSidebar = () => {
 						{/* HOME Section */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">🏠 HOME</Box>
-							<Link href={'/trending'}>
+							<Link href={'/'}>
 								<Stack className={`menu-item ${isActive('/') ? 'active' : ''}`}>
 									<LayoutList size={20} className="menu-icon" />
 									<Box className="menu-text">Feed</Box>
@@ -138,7 +138,7 @@ const LeftSidebar = () => {
 									<Box className="menu-count">245</Box>
 								</Stack>
 							</Link>
-							<Link href={'/mypage/messages'}>
+							<Link href={'/trending'}>
 								<Stack className={`menu-item ${isActive('/mypage/messages') ? 'active' : ''}`}>
 									<MessageSquare size={20} className="menu-icon" />
 									<Box className="menu-text">Messages</Box>

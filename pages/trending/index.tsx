@@ -9,21 +9,17 @@ import {
 	Users,
 	Heart,
 	MessageCircle,
-	Share2,
 	Bookmark,
 	MoreHorizontal,
 	Image as ImageIcon,
 	Video,
 	Smile,
-	Send,
-	Eye,
 	Clock,
 	MapPin,
 	DollarSign,
 	ShoppingBag,
 	Zap,
 	Award,
-	Star,
 } from 'lucide-react';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 
@@ -134,7 +130,6 @@ const Homepage = () => {
 			timestamp: '2 hours ago',
 			likes: 234,
 			comments: 45,
-			shares: 12,
 			images: ['/img/posts/finalexam.webp'],
 			category: 'Campus Life',
 		},
@@ -151,7 +146,6 @@ const Homepage = () => {
 			timestamp: '4 hours ago',
 			likes: 567,
 			comments: 89,
-			shares: 34,
 			images: ['/img/posts/pizzaclub.jpeg'],
 			category: 'Food',
 		},
@@ -168,7 +162,6 @@ const Homepage = () => {
 			timestamp: '4 hours ago',
 			likes: 567,
 			comments: 89,
-			shares: 34,
 			images: ['/img/posts/pizzaclub.jpeg'],
 			category: 'Food',
 		},
@@ -185,7 +178,6 @@ const Homepage = () => {
 			timestamp: '4 hours ago',
 			likes: 567,
 			comments: 89,
-			shares: 34,
 			images: ['/img/posts/pizzaclub.jpeg'],
 			category: 'Food',
 		},
@@ -202,7 +194,6 @@ const Homepage = () => {
 			timestamp: '4 hours ago',
 			likes: 567,
 			comments: 89,
-			shares: 34,
 			images: ['/img/posts/pizzaclub.jpeg'],
 			category: 'Food',
 		},
@@ -219,7 +210,6 @@ const Homepage = () => {
 			timestamp: '4 hours ago',
 			likes: 567,
 			comments: 89,
-			shares: 34,
 			images: ['/img/posts/pizzaclub.jpeg'],
 			category: 'Food',
 		},
@@ -236,7 +226,6 @@ const Homepage = () => {
 			timestamp: '6 hours ago',
 			likes: 123,
 			comments: 34,
-			shares: 8,
 			images: [],
 			category: 'Study',
 		},
@@ -304,7 +293,7 @@ const Homepage = () => {
 						<Box className="card-header">
 							<Calendar size={20} className="header-icon" />
 							<h3>Upcoming Events</h3>
-							<Link href="/events" className="view-all-link">
+							<Link href="/community" className="view-all-link">
 								View All
 							</Link>
 						</Box>
@@ -429,9 +418,6 @@ const Homepage = () => {
 									<span>
 										<MessageCircle size={16} /> {post.comments} comments
 									</span>
-									<span>
-										<Share2 size={16} /> {post.shares} shares
-									</span>
 								</Box>
 
 								{/* Post Actions */}
@@ -443,10 +429,6 @@ const Homepage = () => {
 									<Button className="action-btn">
 										<MessageCircle size={20} />
 										Comment
-									</Button>
-									<Button className="action-btn">
-										<Share2 size={20} />
-										Share
 									</Button>
 									<Button className="action-btn">
 										<Bookmark size={20} />
@@ -465,7 +447,7 @@ const Homepage = () => {
 						<Box className="card-header">
 							<Briefcase size={20} className="header-icon" />
 							<h3>Featured Jobs</h3>
-							<Link href="/jobs" className="view-all-link">
+							<Link href="/community" className="view-all-link">
 								View All
 							</Link>
 						</Box>
