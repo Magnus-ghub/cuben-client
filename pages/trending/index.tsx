@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Stack, Box, Button, Avatar, Chip, CircularProgress } from '@mui/material';
+import React, { useState } from 'react';
+import { Stack, Box, Button, Avatar, Chip } from '@mui/material';
 import Link from 'next/link';
 import {
 	TrendingUp,
 	Flame,
+	Calendar,
+	Briefcase,
 	Users,
 	Heart,
 	MessageCircle,
@@ -13,22 +15,112 @@ import {
 	Image as ImageIcon,
 	Video,
 	Smile,
-	Award,
-	Briefcase,
+	Send,
+	Eye,
+	Clock,
+	MapPin,
+	DollarSign,
 	ShoppingBag,
-	ArrowRight,
 	Zap,
+	Award,
+	Star,
 } from 'lucide-react';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 
 const Homepage = () => {
 	const [activeTab, setActiveTab] = useState('all');
-	const [posts, setPosts] = useState<any[]>([]);
-	const [loading, setLoading] = useState(false);
-	const [page, setPage] = useState(1);
 
-	// Initial posts data
-	const initialPosts = [
+	// Mock Data - Keyinchalik API dan keladi
+	const trendingTopics = [
+		{ id: 1, name: 'Campus Life', count: 1234, icon: '🎓' },
+		{ id: 2, name: 'Study Tips', count: 892, icon: '📚' },
+		{ id: 3, name: 'Part-time Jobs', count: 654, icon: '💼' },
+		{ id: 4, name: 'Food Deals', count: 543, icon: '🍕' },
+		{ id: 5, name: 'Tech Sales', count: 432, icon: '💻' },
+	];
+
+	const quickActions = [
+		{ id: 1, label: 'Write Post', icon: '📝', link: '/community/write', color: '#667eea' },
+		{ id: 2, label: 'Sell Item', icon: '🛒', link: '/mypage/add-product', color: '#10b981' },
+		{ id: 3, label: 'Post Job', icon: '💼', link: '/jobs/create', color: '#f59e0b' },
+		{ id: 4, label: 'New Event', icon: '📅', link: '/events/create', color: '#ec4899' },
+	];
+
+	const upcomingEvents = [
+		{
+			id: 1,
+			title: 'Tech Career Fair 2025',
+			date: 'Jan 25, 2025',
+			time: '10:00 AM',
+			location: 'Main Hall',
+			attendees: 234,
+			image: '/img/banner/techcareer.webp',
+		},
+		{
+			id: 2,
+			title: 'Winter Festival',
+			date: 'Jan 28, 2025',
+			time: '2:00 PM',
+			location: 'Campus Garden',
+			attendees: 456,
+			image: '/img/banner/winterfes.jpg',
+		},
+	];
+
+	const featuredJobs = [
+		{
+			id: 1,
+			title: 'Frontend Developer Intern',
+			company: 'Apple Company',
+			location: 'Seoul, Korea',
+			salary: '₩2,500,000/month',
+			type: 'Internship',
+			logo: '/img/logo/apple.gif',
+			posted: '2 days ago',
+		},
+		{
+			id: 2,
+			title: 'Marketing Assistant',
+			company: 'Naver Corporation',
+			location: 'Busan, Korea',
+			salary: '₩2,000,000/month',
+			type: 'Part-time',
+			logo: '/img/logo/naver.png',
+			posted: '5 days ago',
+		},
+	];
+
+	const featuredProducts = [
+		{
+			id: 1,
+			title: 'MacBook Pro M3 2023',
+			price: '₩1,500,000',
+			condition: 'Like New',
+			seller: 'John Kim',
+			image: '/img/product/macbookpro.jpeg',
+			category: 'Electronics',
+		},
+		{
+			id: 2,
+			title: 'Calculus Textbook Bundle',
+			price: '₩45,000',
+			condition: 'Good',
+			seller: 'Sarah Lee',
+			image: '/img/product/textbook.webp',
+			category: 'Books',
+		},
+		{
+			id: 3,
+			title: 'Gaming Keyboard & Mouse',
+			price: '₩80,000',
+			condition: 'Excellent',
+			seller: 'Mike Park',
+			image: '/img/product/gamingkey.webp',
+			category: 'Electronics',
+		},
+	];
+
+	const posts = [
 		{
 			id: 1,
 			author: {
@@ -43,7 +135,7 @@ const Homepage = () => {
 			likes: 234,
 			comments: 45,
 			shares: 12,
-			images: ['/img/posts/exam.jpg'],
+			images: ['/img/posts/finalexam.webp'],
 			category: 'Campus Life',
 		},
 		{
@@ -60,7 +152,75 @@ const Homepage = () => {
 			likes: 567,
 			comments: 89,
 			shares: 34,
-			images: ['/img/posts/pizza.jpg'],
+			images: ['/img/posts/pizzaclub.jpeg'],
+			category: 'Food',
+		},
+		{
+			id: 2,
+			author: {
+				name: 'David Chen',
+				username: '@davidchen',
+				avatar: '/img/profile/magnus.png',
+				verified: false,
+			},
+			content:
+				'🍕 PIZZA PARTY AT MY DORM! Room 304, Building A. First 20 people get free pizza! Starting at 7 PM tonight. Bring your own drinks! 🎉',
+			timestamp: '4 hours ago',
+			likes: 567,
+			comments: 89,
+			shares: 34,
+			images: ['/img/posts/pizzaclub.jpeg'],
+			category: 'Food',
+		},
+		{
+			id: 2,
+			author: {
+				name: 'David Chen',
+				username: '@davidchen',
+				avatar: '/img/profile/magnus.png',
+				verified: false,
+			},
+			content:
+				'🍕 PIZZA PARTY AT MY DORM! Room 304, Building A. First 20 people get free pizza! Starting at 7 PM tonight. Bring your own drinks! 🎉',
+			timestamp: '4 hours ago',
+			likes: 567,
+			comments: 89,
+			shares: 34,
+			images: ['/img/posts/pizzaclub.jpeg'],
+			category: 'Food',
+		},
+		{
+			id: 2,
+			author: {
+				name: 'David Chen',
+				username: '@davidchen',
+				avatar: '/img/profile/magnus.png',
+				verified: false,
+			},
+			content:
+				'🍕 PIZZA PARTY AT MY DORM! Room 304, Building A. First 20 people get free pizza! Starting at 7 PM tonight. Bring your own drinks! 🎉',
+			timestamp: '4 hours ago',
+			likes: 567,
+			comments: 89,
+			shares: 34,
+			images: ['/img/posts/pizzaclub.jpeg'],
+			category: 'Food',
+		},
+		{
+			id: 2,
+			author: {
+				name: 'David Chen',
+				username: '@davidchen',
+				avatar: '/img/profile/magnus.png',
+				verified: false,
+			},
+			content:
+				'🍕 PIZZA PARTY AT MY DORM! Room 304, Building A. First 20 people get free pizza! Starting at 7 PM tonight. Bring your own drinks! 🎉',
+			timestamp: '4 hours ago',
+			likes: 567,
+			comments: 89,
+			shares: 34,
+			images: ['/img/posts/pizzaclub.jpeg'],
 			category: 'Food',
 		},
 		{
@@ -80,93 +240,6 @@ const Homepage = () => {
 			images: [],
 			category: 'Study',
 		},
-		{
-			id: 4,
-			author: {
-				name: 'Michael Park',
-				username: '@mikepark',
-				avatar: '/img/profile/user4.jpg',
-				verified: false,
-			},
-			content:
-				'Found a lost wallet near the library! It has a BUFS student ID. If its yours, please DM me with details to claim it. 🆔',
-			timestamp: '8 hours ago',
-			likes: 89,
-			comments: 12,
-			shares: 45,
-			images: [],
-			category: 'Campus Life',
-		},
-		{
-			id: 5,
-			author: {
-				name: 'Jessica Lee',
-				username: '@jessicalee',
-				avatar: '/img/profile/user5.jpg',
-				verified: true,
-			},
-			content:
-				'Selling my MacBook Pro 2022 M2 chip. Perfect condition, barely used. Comes with original box and charger. Price: ₩1,800,000 negotiable. DM for details! 💻',
-			timestamp: '10 hours ago',
-			likes: 234,
-			comments: 67,
-			shares: 23,
-			images: ['/img/posts/macbook.jpg'],
-			category: 'Marketplace',
-		},
-	];
-
-	// Load initial posts
-	useEffect(() => {
-		setPosts(initialPosts);
-	}, []);
-
-	// Infinite scroll handler
-	useEffect(() => {
-		const handleScroll = () => {
-			if (
-				window.innerHeight + document.documentElement.scrollTop >=
-				document.documentElement.offsetHeight - 500
-			) {
-				if (!loading) {
-					loadMorePosts();
-				}
-			}
-		};
-
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [loading, page]);
-
-	// Load more posts
-	const loadMorePosts = () => {
-		setLoading(true);
-		// Simulate API call
-		setTimeout(() => {
-			const newPosts = initialPosts.map((post) => ({
-				...post,
-				id: post.id + page * 100,
-				timestamp: `${page * 2} hours ago`,
-			}));
-			setPosts((prev) => [...prev, ...newPosts]);
-			setPage((prev) => prev + 1);
-			setLoading(false);
-		}, 1000);
-	};
-
-	const trendingTopics = [
-		{ id: 1, name: 'Campus Life', count: 1234, icon: '🎓' },
-		{ id: 2, name: 'Study Tips', count: 892, icon: '📚' },
-		{ id: 3, name: 'Part-time Jobs', count: 654, icon: '💼' },
-		{ id: 4, name: 'Food Deals', count: 543, icon: '🍕' },
-		{ id: 5, name: 'Tech Sales', count: 432, icon: '💻' },
-	];
-
-	const quickActions = [
-		{ id: 1, label: 'Write Post', icon: '📝', link: '/community/write', color: '#667eea' },
-		{ id: 2, label: 'Sell Item', icon: '🛒', link: '/mypage/add-product', color: '#10b981' },
-		{ id: 3, label: 'Post Job', icon: '💼', link: '/jobs/create', color: '#f59e0b' },
-		{ id: 4, label: 'New Event', icon: '📅', link: '/events/create', color: '#ec4899' },
 	];
 
 	return (
@@ -200,7 +273,7 @@ const Homepage = () => {
 
 			{/* Main Content Area */}
 			<Stack className="main-content">
-				{/* Left Sidebar - Trending */}
+				{/* Left Sidebar - Trending & Events */}
 				<Box className="left-sidebar">
 					{/* Trending Topics */}
 					<Box className="trending-card">
@@ -225,9 +298,45 @@ const Homepage = () => {
 							))}
 						</Stack>
 					</Box>
+
+					{/* Upcoming Events */}
+					<Box className="events-card">
+						<Box className="card-header">
+							<Calendar size={20} className="header-icon" />
+							<h3>Upcoming Events</h3>
+							<Link href="/events" className="view-all-link">
+								View All
+							</Link>
+						</Box>
+						<Stack className="events-list">
+							{upcomingEvents.map((event) => (
+								<Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none' }}>
+									<Box className="event-item">
+										<Box className="event-image">
+											<img src={event.image} alt={event.title} />
+										</Box>
+										<Box className="event-details">
+											<h4>{event.title}</h4>
+											<Box className="event-meta">
+												<span>
+													<Clock size={14} /> {event.date} • {event.time}
+												</span>
+												<span>
+													<MapPin size={14} /> {event.location}
+												</span>
+												<span>
+													<Users size={14} /> {event.attendees} attending
+												</span>
+											</Box>
+										</Box>
+									</Box>
+								</Link>
+							))}
+						</Stack>
+					</Box>
 				</Box>
 
-				{/* Center Feed - Infinite Scroll */}
+				{/* Center Feed */}
 				<Box className="center-feed">
 					{/* Create Post Box */}
 					<Box className="create-post-box">
@@ -276,7 +385,7 @@ const Homepage = () => {
 						</Button>
 					</Box>
 
-					{/* Posts Feed - Infinite */}
+					{/* Posts Feed */}
 					<Stack className="posts-feed">
 						{posts.map((post) => (
 							<Box key={post.id} className="post-card">
@@ -346,84 +455,83 @@ const Homepage = () => {
 								</Box>
 							</Box>
 						))}
-
-						{/* Loading Indicator */}
-						{loading && (
-							<Box className="loading-indicator">
-								<CircularProgress size={40} />
-								<p>Loading more posts...</p>
-							</Box>
-						)}
 					</Stack>
 				</Box>
 
-				{/* Right Sidebar - Compact Info */}
+				{/* Right Sidebar - Jobs & Marketplace */}
 				<Box className="right-sidebar">
-					{/* Quick Stats */}
-					<Box className="stats-card">
+					{/* Featured Jobs */}
+					<Box className="jobs-card">
 						<Box className="card-header">
-							<Zap size={20} className="header-icon" />
-							<h3>Quick Stats</h3>
+							<Briefcase size={20} className="header-icon" />
+							<h3>Featured Jobs</h3>
+							<Link href="/jobs" className="view-all-link">
+								View All
+							</Link>
 						</Box>
-						<Stack className="stats-list">
-							<Box className="stat-item">
-								<Briefcase size={20} className="stat-icon job" />
-								<Box className="stat-content">
-									<h4>500+</h4>
-									<p>Job Opportunities</p>
-								</Box>
-							</Box>
-							<Box className="stat-item">
-								<ShoppingBag size={20} className="stat-icon market" />
-								<Box className="stat-content">
-									<h4>1.2K+</h4>
-									<p>Items for Sale</p>
-								</Box>
-							</Box>
+						<Stack className="jobs-list">
+							{featuredJobs.map((job) => (
+								<Link key={job.id} href={`/jobs/${job.id}`} style={{ textDecoration: 'none' }}>
+									<Box className="job-item">
+										<Box className="job-header">
+											<img src={job.logo} alt={job.company} className="company-logo" />
+											<Chip label={job.type} size="small" className="job-type" />
+										</Box>
+										<h4>{job.title}</h4>
+										<p className="company-name">{job.company}</p>
+										<Box className="job-details">
+											<span>
+												<MapPin size={14} /> {job.location}
+											</span>
+											<span>
+												<DollarSign size={14} /> {job.salary}
+											</span>
+										</Box>
+										<Box className="job-footer">
+											<span className="job-posted">{job.posted}</span>
+											<Button size="small" className="apply-btn">
+												Apply Now
+											</Button>
+										</Box>
+									</Box>
+								</Link>
+							))}
 						</Stack>
 					</Box>
 
-					{/* Jobs CTA */}
-					<Box className="cta-card jobs">
-						<Briefcase size={32} className="cta-icon" />
-						<h3>Find Your Next Opportunity</h3>
-						<p>Browse internships and part-time jobs</p>
-						<Link href="/jobs" style={{ textDecoration: 'none' }}>
-							<Button className="cta-btn">
-								View All Jobs
-								<ArrowRight size={18} />
-							</Button>
-						</Link>
-					</Box>
-
-					{/* Marketplace CTA */}
-					<Box className="cta-card marketplace">
-						<ShoppingBag size={32} className="cta-icon" />
-						<h3>Student Marketplace</h3>
-						<p>Buy and sell items with fellow students</p>
-						<Link href="/product" style={{ textDecoration: 'none' }}>
-							<Button className="cta-btn">
-								Browse Items
-								<ArrowRight size={18} />
-							</Button>
-						</Link>
-					</Box>
-
-					{/* Footer Links */}
-					<Box className="footer-links">
-						<Link href="/about">About</Link>
-						<span>•</span>
-						<Link href="/help">Help</Link>
-						<span>•</span>
-						<Link href="/terms">Terms</Link>
-						<span>•</span>
-						<Link href="/privacy">Privacy</Link>
-						<p className="copyright">© 2025 Cuben. All rights reserved.</p>
+					{/* Featured Marketplace */}
+					<Box className="marketplace-card">
+						<Box className="card-header">
+							<ShoppingBag size={20} className="header-icon" />
+							<h3>Marketplace Picks</h3>
+							<Link href="/product" className="view-all-link">
+								View All
+							</Link>
+						</Box>
+						<Stack className="products-grid">
+							{featuredProducts.map((product) => (
+								<Link key={product.id} href={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+									<Box className="product-item">
+										<Box className="product-image">
+											<img src={product.image} alt={product.title} />
+											<Chip label={product.condition} size="small" className="product-condition" />
+										</Box>
+										<Box className="product-info">
+											<h4>{product.title}</h4>
+											<p className="product-price">{product.price}</p>
+											<Box className="product-meta">
+												<span className="seller-name">{product.seller}</span>
+												<Chip label={product.category} size="small" />
+											</Box>
+										</Box>
+									</Box>
+								</Link>
+							))}
+						</Stack>
 					</Box>
 				</Box>
 			</Stack>
 		</Stack>
 	);
 };
-
 export default withLayoutMain(Homepage);
