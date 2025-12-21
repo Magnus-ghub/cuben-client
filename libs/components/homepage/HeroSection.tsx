@@ -1,6 +1,5 @@
 import React from 'react';
 import { Stack, Box } from '@mui/material';
-import Link from 'next/link';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Zap } from 'lucide-react';
 
@@ -8,10 +7,10 @@ const HeroSection = () => {
 	const device = useDeviceDetect();
 
 	const quickActions = [
-		{ id: 1, label: 'Write Post', icon: '📝', link: '/community/write', color: '#667eea' },
-		{ id: 2, label: 'Sell Item', icon: '🛒', link: '/mypage/add-product', color: '#10b981' },
-		{ id: 3, label: 'Post Job', icon: '💼', link: '/jobs/create', color: '#f59e0b' },
-		{ id: 4, label: 'New Event', icon: '📅', link: '/events/create', color: '#ec4899' },
+		{ id: 1, label: 'Write Post', icon: '📝', color: '#667eea' },
+		{ id: 2, label: 'Sell Item', icon: '🛒', color: '#10b981' },
+		{ id: 3, label: 'Post Job', icon: '💼', color: '#f59e0b' },
+		{ id: 4, label: 'New Event', icon: '📅', color: '#ec4899' },
 	];
 
 	if (device === 'mobile') {
@@ -36,14 +35,14 @@ const HeroSection = () => {
 				{/* Quick Actions */}
 				<Stack className="quick-actions">
 					{quickActions.map((action) => (
-						<Link key={action.id} href={action.link} style={{ textDecoration: 'none' }}>
+						<Box key={action.id}  style={{ textDecoration: 'none' }}>
 							<Box className="quick-action-card" style={{ borderColor: action.color }}>
 								<Box className="action-icon" style={{ background: action.color }}>
 									{action.icon}
 								</Box>
 								<span>{action.label}</span>
 							</Box>
-						</Link>
+						</Box>
 					))}
 				</Stack>
 			</Box>

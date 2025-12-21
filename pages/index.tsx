@@ -42,12 +42,13 @@ const Home: NextPage = () => {
 				<HeroSection />
 				<Box className="content-wrapper">
 					<Box>
-						<TrendTopics />
+						{/* <TrendTopics /> */}
+						<FeatureJobs />
 						<Events />
 					</Box>
 					<MainSection />
 					<Box>
-						<FeatureJobs />
+						{/* <FeatureJobs /> */}
 						<PopularProducts />
 					</Box>
 				</Box>
