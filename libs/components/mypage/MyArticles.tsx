@@ -6,7 +6,6 @@ import { useReactiveVar } from '@apollo/client';
 import { T } from '../../types/common';
 import { BoardArticle } from '../../types/board-article/board-article';
 import { userVar } from '../../apollo/store';
-import CommunityCard from '../homepage/CommunityCard';
 
 const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 	const device = useDeviceDetect();
@@ -36,7 +35,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 						<Typography className="sub-title">We are glad to see you again!</Typography>
 					</Stack>
 				</Stack>
-				<Stack className="article-list-box">
+				{/* <Stack className="article-list-box">
 					{boardArticles?.length > 0 ? (
 						boardArticles?.map((boardArticle: BoardArticle) => {
 							return <CommunityCard boardArticle={boardArticle} key={boardArticle?._id} size={'small'} />;
@@ -47,7 +46,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 							<p>No Articles found!</p>
 						</div>
 					)}
-				</Stack>
+				</Stack> */}
 
 				{boardArticles?.length > 0 && (
 					<Stack className="pagination-conf">

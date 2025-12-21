@@ -246,25 +246,26 @@
 	#layout-body {
 		margin-top: 64px;
 		flex: 1;
-		display: flex;
-		flex-direction: row;
 		width: 100%;
 		max-width: 1920px;
 		margin-left: auto;
 		margin-right: auto;
+		position: relative;
 
 		// ============================================
-		// LEFT SIDEBAR
+		// LEFT SIDEBAR (FIXED POSITION)
 		// ============================================
 		#left-sidebar {
-			position: sticky;
+			position: fixed;
 			top: 64px;
+			left: 0;
 			width: 280px;
 			height: calc(100vh - 64px);
 			background-color: #ffffff;
 			border-right: 1px solid #e5e7eb;
 			overflow-y: auto;
 			overflow-x: hidden;
+			z-index: 998;
 
 			.container {
 				width: 100%;
@@ -273,7 +274,6 @@
 				flex-direction: column;
 
 				// Profile Card
-				// Profile Card Section - LeftSidebar uchun
 				.profile-card {
 					padding: 20px;
 					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -294,7 +294,6 @@
 						gap: 12px;
 						margin-bottom: 16px;
 
-						// Fixed Profile Avatar
 						.profile-avatar {
 							width: 50px;
 							height: 50px;
@@ -319,7 +318,7 @@
 
 						.profile-info {
 							flex: 1;
-							min-width: 0; // Prevents text overflow
+							min-width: 0;
 
 							.profile-name {
 								font-family: $font;
@@ -541,6 +540,17 @@
 				}
 			}
 		}
+
+		// ============================================
+		// MAIN CONTENT WRAPPER (WITH LEFT MARGIN)
+		// ============================================
+		#main-content-wrapper {
+			flex: 1;
+			margin-left: 280px;
+			min-width: 0;
+			display: flex;
+			flex-direction: column;
+		}
 	}
 
 	// ============================================
@@ -551,12 +561,13 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
+		margin-left: 280px;
 
 		#main-section {
 			flex: 1;
 			padding: 32px;
 			background-color: #f9fafb;
-			min-height: calc(100vh - 64px - 100px);
+			min-height: calc(100vh - 64px);
 
 			.container {
 				max-width: 1200px;
@@ -801,8 +812,14 @@
 			}
 		}
 
-		#layout-body #left-sidebar {
-			width: 260px;
+		#layout-body {
+			#left-sidebar {
+				width: 260px;
+			}
+		}
+
+		#main {
+			margin-left: 260px;
 		}
 	}
 }
@@ -823,8 +840,14 @@
 			}
 		}
 
-		#layout-body #left-sidebar {
-			width: 240px;
+		#layout-body {
+			#left-sidebar {
+				width: 240px;
+			}
+		}
+
+		#main {
+			margin-left: 240px;
 		}
 	}
 }
@@ -851,6 +874,10 @@
 			#left-sidebar {
 				display: none;
 			}
+		}
+
+		#main {
+			margin-left: 0;
 		}
 
 		.modern-chat-frame {

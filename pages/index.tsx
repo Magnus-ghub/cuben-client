@@ -5,7 +5,6 @@ import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import HeroSection from '../libs/components/homepage/HeroSection';
 import Events from '../libs/components/homepage/Events';
-import TrendTopics from '../libs/components/homepage/TrendTopics';
 import FeatureJobs from '../libs/components/homepage/FeatureJobs';
 import PopularProducts from '../libs/components/homepage/PopularProducts';
 import MainSection from '../libs/components/homepage/MainSection';
@@ -25,7 +24,6 @@ const Home: NextPage = () => {
 				<HeroSection />
 				<Box className="content-wrapper">
 					<Box>
-						<TrendTopics />
 						<Events />
 					</Box>
 					<MainSection />
@@ -41,15 +39,18 @@ const Home: NextPage = () => {
 			<Stack className={'home-page'}>
 				<HeroSection />
 				<Box className="content-wrapper">
-					<Box>
-						{/* <TrendTopics /> */}
-						<FeatureJobs />
-						<Events />
+					{/* CENTER COLUMN - MAIN FEED (60% width, scrollable) */}
+					<Box className="main-feed-section">
+						<MainSection />
 					</Box>
-					<MainSection />
-					<Box>
-						{/* <FeatureJobs /> */}
-						<PopularProducts />
+
+					{/* RIGHT COLUMN - STICKY MARKETPLACE (30% width, independent scroll) */}
+					<Box className="right-sidebar-section">
+						<Box className="sticky-wrapper">
+							<PopularProducts />
+							<Events />
+							<FeatureJobs />
+						</Box>
 					</Box>
 				</Box>
 			</Stack>
