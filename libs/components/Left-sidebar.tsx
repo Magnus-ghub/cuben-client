@@ -138,7 +138,7 @@ const LeftSidebar = () => {
 									<Box className="menu-count">245</Box>
 								</Stack>
 							</Link>
-							<Link href={'/trending'}>
+							<Link href={'/'}>
 								<Stack className={`menu-item ${isActive('/mypage/messages') ? 'active' : ''}`}>
 									<MessageSquare size={20} className="menu-icon" />
 									<Box className="menu-text">Messages</Box>
