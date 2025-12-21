@@ -39,6 +39,22 @@ const MainSection = () => {
 			category: 'Campus Life',
 		},
 		{
+			id: 4,
+			author: {
+				name: 'Sarah Martinez',
+				username: '@sarahm',
+				avatar: '/img/profile/user3.jpg',
+				verified: true,
+			},
+			content:
+				'Looking for study partners for Data Structures course! We can meet at the library every Tuesday and Thursday. DM me if interested 📚',
+			timestamp: '6 hours ago',
+			likes: 123,
+			comments: 34,
+			images: [],
+			category: 'Study',
+		},
+		{
 			id: 2,
 			author: {
 				name: 'David Chen',
@@ -55,6 +71,22 @@ const MainSection = () => {
 			category: 'Food',
 		},
 		{
+			id: 1,
+			author: {
+				name: 'Emily Johnson',
+				username: '@emilyjohnson',
+				avatar: '/img/profile/user1.jpg',
+				verified: true,
+			},
+			content:
+				'Just finished my final exam! 🎉 Anyone else feeling relieved? Time to enjoy the winter break! What are your plans?',
+			timestamp: '2 hours ago',
+			likes: 234,
+			comments: 45,
+			images: ['/img/posts/finalexam.webp'],
+			category: 'Campus Life',
+		},
+		{
 			id: 3,
 			author: {
 				name: 'Mike Wilson',
@@ -69,6 +101,22 @@ const MainSection = () => {
 			comments: 34,
 			images: [],
 			category: 'Study',
+		},
+		{
+			id: 2,
+			author: {
+				name: 'David Chen',
+				username: '@davidchen',
+				avatar: '/img/profile/user2.jpg',
+				verified: false,
+			},
+			content:
+				'🍕 PIZZA PARTY AT MY DORM! Room 304, Building A. First 20 people get free pizza! Starting at 7 PM tonight. Bring your own drinks! 🎉',
+			timestamp: '4 hours ago',
+			likes: 567,
+			comments: 89,
+			images: ['/img/posts/pizzaclub.jpeg'],
+			category: 'Food',
 		},
 		{
 			id: 4,

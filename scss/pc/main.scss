@@ -21,9 +21,7 @@
 	flex-direction: column;
 	background-color: #f9fafb;
 
-	// ============================================
 	// TOP HEADER SECTION
-	// ============================================
 	#top {
 		.navbar {
 			.navbar-main {
@@ -240,9 +238,7 @@
 		}
 	}
 
-	// ============================================
 	// LAYOUT BODY - BLIND STYLE (FIXED POSITIONING)
-	// ============================================
 	#layout-body {
 		position: fixed;
 		top: 64px;
@@ -252,11 +248,11 @@
 		display: flex;
 		overflow: hidden;
 
-		// ============================================
-		// LEFT SIDEBAR (Fixed Width, NO External Scroll)
-		// ============================================
+		// LEFT SIDEBAR 
 		#left-sidebar {
-			width: 280px;
+			flex: 0 0 22%;
+  			max-width: 270px;
+  			min-width: 200px;
 			flex-shrink: 0;
 			height: 100%;
 			background-color: #ffffff;
@@ -527,13 +523,10 @@
 			}
 		}
 
-		// ============================================
-		// MAIN CONTENT WRAPPER - BLIND STYLE
 		// Takes remaining space, contains center + right columns
-		// ============================================
 		#main-content-wrapper {
 			flex: 1;
-			min-width: 0;
+			width: 80%;;
 			display: flex;
 			flex-direction: row;
 			height: 100%;
@@ -541,9 +534,7 @@
 		}
 	}
 
-	// ============================================
 	// MAIN CONTENT AREA (Center Column)
-	// ============================================
 	#main {
 		flex: 1;
 		display: flex;
@@ -568,9 +559,7 @@
 		}
 	}
 
-	// ============================================
 	// CHAT WIDGET
-	// ============================================
 	.modern-chat-container {
 		position: fixed;
 		bottom: 24px;
@@ -766,9 +755,7 @@
 	}
 }
 
-// ============================================
 // MUI OVERRIDES
-// ============================================
 .MuiMenu-paper {
 	border-radius: 12px !important;
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
@@ -792,9 +779,7 @@
 	}
 }
 
-// ============================================
 // RESPONSIVE DESIGN
-// ============================================
 @media (max-width: 1200px) {
 	#pc-wrap {
 		#top .navbar .navbar-main .container {

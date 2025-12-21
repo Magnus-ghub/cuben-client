@@ -50,24 +50,26 @@ const withLayoutMain = (Component: any) => {
         </Head>
 
         <Stack id="pc-wrap">
-          <Stack id={"top"}>
-            <Top />
-          </Stack>
+					<Stack id={"top"}>
+						<Top />
+					</Stack>
+					<Stack direction="row" id="layout-body">
+						{/* Left Sidebar - Always visible */}
+						<Stack id="left-sidebar">
+							<LeftSidebar />
+						</Stack>
 
-          <Stack direction="row" id="layout-body">
-            <Stack id="left-sidebar">
-              <LeftSidebar />
-            </Stack>
-            <Stack id="main">
-              <Stack id={"main-section"}>
-                <Component {...props} />
-              </Stack>
-            </Stack>
-          </Stack>
-
-          <Chat />
-
-        </Stack>
+						{/* Main Content - Always takes remaining space */}
+						<Stack id="main-content-wrapper">
+							<Stack id="main">
+								<Stack id={"main-section"}>
+									<Component {...props} />
+								</Stack>
+							</Stack>
+						</Stack>
+					</Stack>
+					<Chat />
+				</Stack>
       </>
     );
   };
