@@ -241,40 +241,41 @@
 	}
 
 	// ============================================
-	// LAYOUT BODY - MAIN CONTENT AREA
+	// LAYOUT BODY - BLIND STYLE (FIXED POSITIONING)
 	// ============================================
 	#layout-body {
-		margin-top: 64px;
-		flex: 1;
-		width: 100%;
-		max-width: 1920px;
-		margin-left: auto;
-		margin-right: auto;
-		position: relative;
+		position: fixed;
+		top: 64px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		overflow: hidden;
 
 		// ============================================
-		// LEFT SIDEBAR (FIXED POSITION)
+		// LEFT SIDEBAR (Fixed Width, NO External Scroll)
 		// ============================================
 		#left-sidebar {
-			position: fixed;
-			top: 64px;
-			left: 0;
 			width: 280px;
-			height: calc(100vh - 64px);
+			flex-shrink: 0;
+			height: 100%;
 			background-color: #ffffff;
 			border-right: 1px solid #e5e7eb;
-			overflow-y: auto;
-			overflow-x: hidden;
+			overflow: hidden;
 			z-index: 998;
+			display: flex;
+			flex-direction: column;
 
 			.container {
 				width: 100%;
 				height: 100%;
 				display: flex;
 				flex-direction: column;
+				overflow: hidden;
 
-				// Profile Card
+				// Profile Card - NO SCROLL
 				.profile-card {
+					flex-shrink: 0;
 					padding: 20px;
 					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 					cursor: pointer;
@@ -371,11 +372,12 @@
 					}
 				}
 
-				// Sidebar Content
+				// Sidebar Content - ONLY THIS SCROLLS
 				.sidebar-content {
 					flex: 1;
 					overflow-y: auto;
 					overflow-x: hidden;
+					min-height: 0;
 
 					&::-webkit-scrollbar {
 						width: 6px;
@@ -485,8 +487,9 @@
 					}
 				}
 
-				// Sidebar Bottom
+				// Sidebar Bottom - NO SCROLL
 				.sidebar-bottom {
+					flex-shrink: 0;
 					padding: 16px 20px;
 					background: #f9fafb;
 					border-top: 1px solid #e5e7eb;
@@ -522,57 +525,45 @@
 					}
 				}
 			}
-
-			&::-webkit-scrollbar {
-				width: 6px;
-			}
-
-			&::-webkit-scrollbar-track {
-				background: transparent;
-			}
-
-			&::-webkit-scrollbar-thumb {
-				background: #e5e7eb;
-				border-radius: 3px;
-
-				&:hover {
-					background: #d1d5db;
-				}
-			}
 		}
 
 		// ============================================
-		// MAIN CONTENT WRAPPER (WITH LEFT MARGIN)
+		// MAIN CONTENT WRAPPER - BLIND STYLE
+		// Takes remaining space, contains center + right columns
 		// ============================================
 		#main-content-wrapper {
 			flex: 1;
-			margin-left: 280px;
 			min-width: 0;
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
+			height: 100%;
+			overflow: hidden;
 		}
 	}
 
 	// ============================================
-	// MAIN CONTENT AREA
+	// MAIN CONTENT AREA (Center Column)
 	// ============================================
 	#main {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
-		margin-left: 280px;
+		height: 100%;
+		overflow: hidden;
 
 		#main-section {
 			flex: 1;
-			padding: 32px;
+			padding: 0;
 			background-color: #f9fafb;
-			min-height: calc(100vh - 64px);
+			height: 100%;
+			overflow: hidden;
 
 			.container {
-				max-width: 1200px;
-				margin: 0 auto;
+				max-width: 100%;
+				margin: 0;
 				width: 100%;
+				height: 100%;
 			}
 		}
 	}
@@ -813,13 +804,33 @@
 		}
 
 		#layout-body {
+			position: relative;
+			top: 64px;
+			height: auto;
+			overflow: visible;
+			flex-direction: column;
+
 			#left-sidebar {
 				width: 260px;
+				height: auto;
+				overflow: visible;
+			}
+
+			#main-content-wrapper {
+				height: auto;
+				overflow: visible;
+				flex-direction: column;
 			}
 		}
 
 		#main {
-			margin-left: 260px;
+			height: auto;
+			overflow: visible;
+
+			#main-section {
+				height: auto;
+				overflow: visible;
+			}
 		}
 	}
 }
@@ -844,10 +855,6 @@
 			#left-sidebar {
 				width: 240px;
 			}
-		}
-
-		#main {
-			margin-left: 240px;
 		}
 	}
 }
@@ -874,10 +881,10 @@
 			#left-sidebar {
 				display: none;
 			}
-		}
 
-		#main {
-			margin-left: 0;
+			#main-content-wrapper {
+				margin-left: 0;
+			}
 		}
 
 		.modern-chat-frame {
