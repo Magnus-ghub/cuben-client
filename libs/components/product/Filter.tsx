@@ -1,239 +1,345 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from 'react';
 import {
-  IconButton,
-  OutlinedInput,
-  Typography,
-  Checkbox,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Stack,
-  Tooltip,
-} from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
+	IconButton,
+	OutlinedInput,
+	Typography,
+	Checkbox,
+	Button,
+	Stack,
+	Tooltip,
+	Collapse,
+	Chip,
+} from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import SearchIcon from '@mui/icons-material/Search';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import router from 'next/router';
+import { ProductsInquiry } from '../../types/product/product.input';
+import useDeviceDetect from '../../hooks/useDeviceDetect';
 
-const priceRanges = [0, 5000, 10000, 20000, 50000, 100000, 200000, 500000];
+interface FilterType {
+	searchFilter: ProductsInquiry;
+	setSearchFilter: any;
+	initialInput: ProductsInquiry;
+}
 
-const Filter = () => {
-  const [searchText, setSearchText] = useState("");
-  const [productPrice, setProductPrice] = useState({
-    start: 0,
-    end: 500000,
-  });
-  const [selectedTypes, setSelectedTypes] = useState([]);
-  const [selectedLocations, setSelectedLocations] = useState([]);
-  const [selectedConditions, setSelectedConditions] = useState([]);
-  const [showMoreLocations, setShowMoreLocations] = useState(false);
+const Filter = (props: FilterType) => {
+	const device = useDeviceDetect();
+	const { searchFilter, setSearchFilter, initialInput } = props;
+	const [searchText, setSearchText] = useState('');
+	const [productPrice, setProductPrice] = useState({
+		start: 0,
+		end: 500000,
+	});
+	const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+	const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+	const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+	
+	// Expand/Collapse states
+	const [expandType, setExpandType] = useState(true);
+	const [expandLocation, setExpandLocation] = useState(true);
+	const [expandCondition, setExpandCondition] = useState(true);
+	const [expandPrice, setExpandPrice] = useState(true);
 
-  const handleReset = () => {
-    setSearchText("");
-    setProductPrice({ start: 0, end: 500000 });
-    setSelectedTypes([]);
-    setSelectedLocations([]);
-    setSelectedConditions([]);
-  };
+	// Product types
+	const productTypes = ['BOOK', 'NOTE', 'ELECTRONIC', 'FASHION', 'ACCESSORY', 'HOME', 'SERVICE', 'OTHER'];
+	
+	// Locations
+	const locations = [
+		'DORMITORY',
+		'MAIN_GATE',
+		'LIBRARY',
+		'CAFETERIA',
+		'SPORT_CENTER',
+		'STUDENT_CENTER',
+		'BUS_STOP',
+		'OTHER',
+	];
+	
+	// Conditions
+	const conditions = ['NEW', 'LIKE_NEW', 'GOOD', 'USED', 'BAD'];
 
-  const handleTypeChange = (type) => {
-    setSelectedTypes(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    );
-  };
+	/** HANDLERS **/
+	const handleReset = () => {
+		setSearchText('');
+		setProductPrice({ start: 0, end: 500000 });
+		setSelectedTypes([]);
+		setSelectedLocations([]);
+		setSelectedConditions([]);
+	};
 
-  const handleLocationChange = (location) => {
-    setSelectedLocations(prev => 
-      prev.includes(location) 
-        ? prev.filter(l => l !== location)
-        : [...prev, location]
-    );
-  };
+	const handleTypeChange = (type: string) => {
+		setSelectedTypes((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]));
+	};
 
-  const handleConditionChange = (condition) => {
-    setSelectedConditions(prev => 
-      prev.includes(condition) 
-        ? prev.filter(c => c !== condition)
-        : [...prev, condition]
-    );
-  };
+	const handleLocationChange = (location: string) => {
+		setSelectedLocations((prev) =>
+			prev.includes(location) ? prev.filter((l) => l !== location) : [...prev, location]
+		);
+	};
 
-  return (
-    <Stack className="filter-main" sx={{ gap: '30px' }}>
-      <Stack className="find-your-home">
-        <Typography className="title-main" sx={{ fontSize: '24px', fontWeight: 600, mb: 2 }}>
-          Find Products
-        </Typography>
-        <Stack className="input-box" sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <OutlinedInput
-            value={searchText}
-            type="text"
-            className="search-input"
-            placeholder="What are you looking for?"
-            onChange={(e) => setSearchText(e.target.value)}
-            sx={{ width: '100%', pr: 8 }}
-          />
-          <Stack sx={{ position: 'absolute', right: 8, flexDirection: 'row', gap: 1 }}>
-            <img src="/img/icons/search_icon.png" alt="" style={{ width: 20, height: 20 }} />
-            <Tooltip title="Reset">
-              <IconButton onClick={handleReset} size="small">
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Stack>
-      </Stack>
+	const handleConditionChange = (condition: string) => {
+		setSelectedConditions((prev) =>
+			prev.includes(condition) ? prev.filter((c) => c !== condition) : [...prev, condition]
+		);
+	};
 
-      <Stack className="find-your-home">
-        <Typography className="title" sx={{ fontSize: '18px', fontWeight: 600, mb: 2, textShadow: '0px 3px 4px #b9b9b9' }}>
-          Product Type
-        </Typography>
-        <Stack sx={{ gap: 1 }}>
-          {["BOOK", "NOTE", "ELECTRONIC", "FASHION", "ACCESSORY", "HOME", "SERVICE", "OTHER"].map((type) => (
-            <Stack className="input-box" key={type} sx={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Checkbox
-                id={type}
-                className="property-checkbox"
-                color="default"
-                size="small"
-                checked={selectedTypes.includes(type)}
-                onChange={() => handleTypeChange(type)}
-              />
-              <label htmlFor={type} style={{ cursor: 'pointer' }}>
-                <Typography className="property-type" sx={{ fontSize: '14px' }}>
-                  {type.replace('_', ' ')}
-                </Typography>
-              </label>
-            </Stack>
-          ))}
-        </Stack>
-      </Stack>
+	const propertyPriceHandler = useCallback(
+		async (value: number, type: string) => {
+			if (type === 'start') {
+				await router.push(
+					`/product?input=${JSON.stringify({
+						...searchFilter,
+						search: {
+							...searchFilter.search,
+							pricesRange: { ...searchFilter.search.pricesRange, start: value * 1 },
+						},
+					})}`,
+					`/product?input=${JSON.stringify({
+						...searchFilter,
+						search: {
+							...searchFilter.search,
+							pricesRange: { ...searchFilter.search.pricesRange, start: value * 1 },
+						},
+					})}`,
+					{ scroll: false }
+				);
+			} else {
+				await router.push(
+					`/product?input=${JSON.stringify({
+						...searchFilter,
+						search: {
+							...searchFilter.search,
+							pricesRange: { ...searchFilter.search.pricesRange, end: value * 1 },
+						},
+					})}`,
+					`/product?input=${JSON.stringify({
+						...searchFilter,
+						search: {
+							...searchFilter.search,
+							pricesRange: { ...searchFilter.search.pricesRange, end: value * 1 },
+						},
+					})}`,
+					{ scroll: false }
+				);
+			}
+		},
+		[searchFilter]
+	);
 
-      <Stack className="find-your-home">
-        <Typography className="title" sx={{ fontSize: '18px', fontWeight: 600, mb: 2 }}>
-          Location
-        </Typography>
-        <Stack 
-          className="property-location"
-          sx={{ 
-            gap: 1,
-            height: showMoreLocations ? 'auto' : '120px',
-            overflow: 'hidden',
-            transition: 'height 0.3s ease'
-          }}
-        >
-          {["DORMITORY", "MAIN_GATE", "LIBRARY", "CAFETERIA", "SPORT_CENTER", "STUDENT_CENTER", "BUS_STOP", "OTHER"].map((location) => (
-            <Stack className="input-box" key={location} sx={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Checkbox
-                id={location}
-                className="property-checkbox"
-                color="default"
-                size="small"
-                checked={selectedLocations.includes(location)}
-                onChange={() => handleLocationChange(location)}
-              />
-              <label htmlFor={location} style={{ cursor: 'pointer' }}>
-                <Typography className="property-type" sx={{ fontSize: '14px' }}>
-                  {location.replace(/_/g, ' ')}
-                </Typography>
-              </label>
-            </Stack>
-          ))}
-        </Stack>
-        <Button 
-          onClick={() => setShowMoreLocations(!showMoreLocations)}
-          sx={{ mt: 1, fontSize: '12px' }}
-        >
-          {showMoreLocations ? 'Show Less' : 'Show More'}
-        </Button>
-      </Stack>
+	const formatLabel = (text: string) => {
+		return text.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
+	};
 
-      <Stack className="find-your-home">
-        <Typography className="title" sx={{ fontSize: '18px', fontWeight: 600, mb: 2 }}>
-          Condition
-        </Typography>
-        <Stack sx={{ gap: 1 }}>
-          {["NEW", "LIKE_NEW", "GOOD", "USED", "BAD"].map((condition) => (
-            <Stack className="input-box" key={condition} sx={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Checkbox
-                id={condition}
-                className="property-checkbox"
-                color="default"
-                size="small"
-                checked={selectedConditions.includes(condition)}
-                onChange={() => handleConditionChange(condition)}
-              />
-              <label htmlFor={condition} style={{ cursor: 'pointer' }}>
-                <Typography className="property-type" sx={{ fontSize: '14px' }}>
-                  {condition.replace(/_/g, ' ')}
-                </Typography>
-              </label>
-            </Stack>
-          ))}
-        </Stack>
-      </Stack>
+	const getTotalActiveFilters = () => {
+		return selectedTypes.length + selectedLocations.length + selectedConditions.length;
+	};
 
-      <Stack className="find-your-home">
-        <Typography className="title" sx={{ fontSize: '18px', fontWeight: 600, mb: 2 }}>
-          Price Range
-        </Typography>
-        <Stack className="square-year-input" sx={{ flexDirection: 'row', gap: 2, alignItems: 'center' }}>
-          <input 
-            type="number"
-            placeholder="₩ min"
-            min={0}
-            value={productPrice?.start ?? 0}
-            onChange={(e) => {
-              if (e.target.value >= 0) {
-                setProductPrice({ ...productPrice, start: e.target.value });
-              }
-            }}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #b9b9b9',
-              borderRadius: '8px',
-              fontSize: '14px'
-            }}
-          />
-          <div className="central-divider" style={{ width: '20px', height: '1px', backgroundColor: '#b9b9b9' }}></div>
-          <input 
-            type="number"
-            placeholder="₩ max"
-            value={productPrice?.end ?? 0}
-            onChange={(e) => {
-              if (e.target.value >= 0) {
-                setProductPrice({ ...productPrice, end: e.target.value });
-              }
-            }}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #b9b9b9',
-              borderRadius: '8px',
-              fontSize: '14px'
-            }}
-          />
-        </Stack>
-      </Stack>
+	if (device === 'mobile') {
+		return <div>PROPERTIES FILTER</div>;
+	}
 
-      <Button 
-        variant="contained" 
-        fullWidth
-        sx={{ 
-          mt: 2, 
-          py: 1.5,
-          borderRadius: '12px',
-          textTransform: 'none',
-          fontSize: '16px',
-          fontWeight: 600
-        }}
-      >
-        Apply Filters
-      </Button>
-    </Stack>
-  );
+	return (
+		<Stack className="filter-container">
+			{/* Header */}
+			<Stack className="filter-header">
+				<Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+					<FilterListIcon sx={{ color: '#667eea', fontSize: 24 }} />
+					<Typography className="filter-title">Filters</Typography>
+				</Stack>
+				<Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+					{getTotalActiveFilters() > 0 && (
+						<Chip
+							label={getTotalActiveFilters()}
+							size="small"
+							className="active-filters-chip"
+						/>
+					)}
+					<Tooltip title="Reset all filters" arrow>
+						<IconButton onClick={handleReset} className="reset-btn" size="small">
+							<RefreshIcon />
+						</IconButton>
+					</Tooltip>
+				</Stack>
+			</Stack>
+
+			{/* Search Input */}
+			<Stack className="filter-section">
+				<Stack className="search-wrapper">
+					<SearchIcon className="search-icon" />
+					<input
+						type="text"
+						value={searchText}
+						className="search-input"
+						placeholder="Search products..."
+						onChange={(e) => setSearchText(e.target.value)}
+					/>
+				</Stack>
+			</Stack>
+
+			{/* Product Type Filter */}
+			<Stack className="filter-section">
+				<Button
+					className="section-header"
+					onClick={() => setExpandType(!expandType)}
+					fullWidth
+				>
+					<Typography className="section-title">Product Type</Typography>
+					{selectedTypes.length > 0 && (
+						<Chip label={selectedTypes.length} size="small" className="count-chip" />
+					)}
+					<ExpandMoreIcon
+						sx={{
+							transform: expandType ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.3s ease',
+						}}
+					/>
+				</Button>
+				<Collapse in={expandType}>
+					<Stack className="options-list">
+						{productTypes.map((type) => (
+							<Stack className="option-item" key={type}>
+								<Checkbox
+									id={type}
+									size="small"
+									checked={selectedTypes.includes(type)}
+									onChange={() => handleTypeChange(type)}
+								/>
+								<label htmlFor={type}>
+									<Typography className="option-label">{formatLabel(type)}</Typography>
+								</label>
+							</Stack>
+						))}
+					</Stack>
+				</Collapse>
+			</Stack>
+
+			{/* Location Filter */}
+			<Stack className="filter-section">
+				<Button
+					className="section-header"
+					onClick={() => setExpandLocation(!expandLocation)}
+					fullWidth
+				>
+					<Typography className="section-title">Location</Typography>
+					{selectedLocations.length > 0 && (
+						<Chip label={selectedLocations.length} size="small" className="count-chip" />
+					)}
+					<ExpandMoreIcon
+						sx={{
+							transform: expandLocation ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.3s ease',
+						}}
+					/>
+				</Button>
+				<Collapse in={expandLocation}>
+					<Stack className="options-list">
+						{locations.map((location) => (
+							<Stack className="option-item" key={location}>
+								<Checkbox
+									id={location}
+									size="small"
+									checked={selectedLocations.includes(location)}
+									onChange={() => handleLocationChange(location)}
+								/>
+								<label htmlFor={location}>
+									<Typography className="option-label">{formatLabel(location)}</Typography>
+								</label>
+							</Stack>
+						))}
+					</Stack>
+				</Collapse>
+			</Stack>
+
+			{/* Condition Filter */}
+			<Stack className="filter-section">
+				<Button
+					className="section-header"
+					onClick={() => setExpandCondition(!expandCondition)}
+					fullWidth
+				>
+					<Typography className="section-title">Condition</Typography>
+					{selectedConditions.length > 0 && (
+						<Chip label={selectedConditions.length} size="small" className="count-chip" />
+					)}
+					<ExpandMoreIcon
+						sx={{
+							transform: expandCondition ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.3s ease',
+						}}
+					/>
+				</Button>
+				<Collapse in={expandCondition}>
+					<Stack className="options-list">
+						{conditions.map((condition) => (
+							<Stack className="option-item" key={condition}>
+								<Checkbox
+									id={condition}
+									size="small"
+									checked={selectedConditions.includes(condition)}
+									onChange={() => handleConditionChange(condition)}
+								/>
+								<label htmlFor={condition}>
+									<Typography className="option-label">{formatLabel(condition)}</Typography>
+								</label>
+							</Stack>
+						))}
+					</Stack>
+				</Collapse>
+			</Stack>
+
+			{/* Price Range Filter */}
+			<Stack className="filter-section">
+				<Button
+					className="section-header"
+					onClick={() => setExpandPrice(!expandPrice)}
+					fullWidth
+				>
+					<Typography className="section-title">Price Range</Typography>
+					<ExpandMoreIcon
+						sx={{
+							transform: expandPrice ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.3s ease',
+						}}
+					/>
+				</Button>
+				<Collapse in={expandPrice}>
+					<Stack className="price-inputs">
+						<input
+							type="number"
+							placeholder="₩ Min"
+							min={0}
+							value={searchFilter?.search?.pricesRange?.start ?? 0}
+							onChange={(e: any) => {
+								if (e.target.value >= 0) {
+									propertyPriceHandler(e.target.value, 'start');
+								}
+							}}
+							className="price-input"
+						/>
+						<Typography className="price-divider">—</Typography>
+						<input
+							type="number"
+							placeholder="₩ Max"
+							value={searchFilter?.search?.pricesRange?.end ?? 0}
+							onChange={(e: any) => {
+								if (e.target.value >= 0) {
+									propertyPriceHandler(e.target.value, 'end');
+								}
+							}}
+							className="price-input"
+						/>
+					</Stack>
+				</Collapse>
+			</Stack>
+
+			{/* Apply Button */}
+			<Button variant="contained" fullWidth className="apply-btn">
+				Apply Filters
+			</Button>
+		</Stack>
+	);
 };
 
 export default Filter;

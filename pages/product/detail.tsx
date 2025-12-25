@@ -44,7 +44,6 @@ const MarketplaceDetail = () => {
                                 <Box className="main-image">
                                     <img src={selectedImage} alt="Product" />
                                     <Stack className="image-badges">
-                                        <Chip label="FEATURED" className="featured-chip" />
                                         <Chip label="LIKE NEW" className="condition-chip" />
                                     </Stack>
                                 </Box>
@@ -213,6 +212,25 @@ const MarketplaceDetail = () => {
             </div>
         );
     } 
+};
+
+MarketplaceDetail.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 8,
+		search: {
+			memberId: '',
+		},
+	},
+	initialComment: {
+		page: 1,
+		limit: 5,
+		sort: 'createdAt',
+		direction: 'ASC',
+		search: {
+			commentRefId: '',
+		},
+	},
 };
 
 export default withLayoutMain(MarketplaceDetail);

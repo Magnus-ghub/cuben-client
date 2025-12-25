@@ -3,10 +3,13 @@
 
 // Import other pages
 @import '/scss/pc/homepage/homepage.scss';
-@import '/scss/pc/product/product.scss';
-@import '/scss/pc/product/detail.scss';
+
+@import '/scss/pc/marketplace/product.scss';
+@import '/scss/pc/marketplace/detail.scss';
+
 @import '/scss/pc/community/community.scss';
 @import '/scss/pc/community/detail.scss';
+
 @import '/scss/pc/mypage/mypage.scss';
 @import '/scss/pc/cs/cs.scss';
 @import '/scss/pc/account/join.scss';
@@ -258,7 +261,7 @@
 		right: 0;
 		bottom: 0;
 		display: flex;
-		overflow: hidden;
+		overflow: visible;
 
 		// LEFT SIDEBAR
 		#left-sidebar {
@@ -947,7 +950,7 @@
 	}
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1150px) {
 	#pc-wrap {
 		#layout-body {
 			position: relative;

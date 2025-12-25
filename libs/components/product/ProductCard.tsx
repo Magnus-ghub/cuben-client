@@ -22,9 +22,6 @@ const ProductCard = () => {
           
           {/* Badges */}
           <Stack className="badge-container">
-            <Stack className="featured-badge">
-              <Typography component="p">Featured</Typography>
-            </Stack>
             <Stack className="condition-badge">
               <Typography component="p">Like New</Typography>
             </Stack>
