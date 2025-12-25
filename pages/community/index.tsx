@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Stack, Tab, Typography, Button, Pagination, Chip } from '@mui/material';
+import { Stack, Tab, Typography, Pagination, Chip } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
@@ -16,6 +16,7 @@ import { LIKE_TARGET_BOARD_ARTICLE } from '../../libs/apollo/user/mutation';
 import { GET_BOARD_ARTICLES } from '../../libs/apollo/user/query';
 import OpportunityCard from './detail';
 
+
 const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
@@ -24,6 +25,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 	const [searchOpportunity, setSearchOpportunity] = useState<BoardArticlesInquiry>(initialInput);
 	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
 	const [totalCount, setTotalCount] = useState<number>(0);
+	
 	if (articleCategory) initialInput.search.articleCategory = articleCategory;
 
 	/** APOLLO REQUESTS **/
@@ -52,7 +54,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 			router.push(
 				{
 					pathname: router.pathname,
-					query: { articleCategory: 'COMMUNITY' },
+					query: { articleCategory: 'CAREER' },
 				},
 				router.pathname,
 				{ shallow: true },
@@ -103,6 +105,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 			<div id="opportunities-page">
 				<div className="container">
 					<TabContext value={searchOpportunity.search.articleCategory}>
+						{/* Header Section */}
 						<Stack className="opportunities-header">
 							<Stack className="header-content">
 								<Typography className="main-title">Campus Opportunities</Typography>
@@ -112,7 +115,9 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 							</Stack>
 						</Stack>
 
+						{/* Main Content */}
 						<Stack className="main-content">
+							{/* Categories Sidebar */}
 							<Stack className="categories-sidebar">
 								<Stack className="sidebar-header">
 									<Typography className="sidebar-title">Categories</Typography>
@@ -139,87 +144,34 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 										label={'Career & Jobs'}
 										icon={<span>💼</span>}
 										iconPosition="start"
-										className={`category-tab ${searchOpportunity.search.articleCategory == 'CAREER' ? 'active' : ''}`}
+										className={`category-tab ${searchOpportunity.search.articleCategory === 'CAREER' ? 'active' : ''}`}
 									/>
 									<Tab
 										value={'KNOWLEDGE'}
 										label={'Knowledge Base'}
 										icon={<span>📚</span>}
 										iconPosition="start"
-										className={`category-tab ${searchOpportunity.search.articleCategory == 'KNOWLEDGE' ? 'active' : ''}`}
+										className={`category-tab ${searchOpportunity.search.articleCategory === 'KNOWLEDGE' ? 'active' : ''}`}
 									/>
 									<Tab
 										value={'EVENTS'}
 										label={'Events'}
 										icon={<span>🎉</span>}
 										iconPosition="start"
-										className={`category-tab ${searchOpportunity.search.articleCategory == 'EVENTS' ? 'active' : ''}`}
+										className={`category-tab ${searchOpportunity.search.articleCategory === 'EVENTS' ? 'active' : ''}`}
 									/>
 									<Tab
 										value={'HELP'}
 										label={'Help & Support'}
 										icon={<span>💡</span>}
 										iconPosition="start"
-										className={`category-tab ${searchOpportunity.search.articleCategory == 'HELP' ? 'active' : ''}`}
+										className={`category-tab ${searchOpportunity.search.articleCategory === 'HELP' ? 'active' : ''}`}
 									/>
 								</TabList>
 							</Stack>
 
+							{/* Opportunities Content */}
 							<Stack className="opportunities-content">
-								<TabPanel value="COMMUNITY" className="tab-panel">
-									<Stack className="panel-header">
-										<Typography className="category-title">Community Posts</Typography>
-										<Typography className="category-desc">
-											Connect with your campus community
-										</Typography>
-									</Stack>
-									<Stack className="opportunities-grid">
-										{totalCount ? (
-											boardArticles?.map((boardArticle: BoardArticle) => {
-												return (
-													<OpportunityCard
-														boardArticle={boardArticle}
-														likeArticleHandler={likeArticleHandler}
-														key={boardArticle?._id}
-													/>
-												);
-											})
-										) : (
-											<Stack className="no-data">
-												<img src="/img/icons/empty.svg" alt="" />
-												<Typography>No posts available</Typography>
-											</Stack>
-										)}
-									</Stack>
-								</TabPanel>
-
-								<TabPanel value="MARKET" className="tab-panel">
-									<Stack className="panel-header">
-										<Typography className="category-title">Campus Marketplace</Typography>
-										<Typography className="category-desc">
-											Buy, sell, and trade with fellow students
-										</Typography>
-									</Stack>
-									<Stack className="opportunities-grid">
-										{totalCount ? (
-											boardArticles?.map((boardArticle: BoardArticle) => {
-												return (
-													<OpportunityCard
-														boardArticle={boardArticle}
-														likeArticleHandler={likeArticleHandler}
-														key={boardArticle?._id}
-													/>
-												);
-											})
-										) : (
-											<Stack className="no-data">
-												<img src="/img/icons/empty.svg" alt="" />
-												<Typography>No marketplace posts</Typography>
-											</Stack>
-										)}
-									</Stack>
-								</TabPanel>
-
 								<TabPanel value="CAREER" className="tab-panel">
 									<Stack className="panel-header">
 										<Typography className="category-title">Career Opportunities</Typography>
@@ -241,7 +193,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 										) : (
 											<Stack className="no-data">
 												<img src="/img/icons/empty.svg" alt="" />
-												<Typography>No career opportunities</Typography>
+												<Typography>No career opportunities available</Typography>
 											</Stack>
 										)}
 									</Stack>
@@ -268,7 +220,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 										) : (
 											<Stack className="no-data">
 												<img src="/img/icons/empty.svg" alt="" />
-												<Typography>No knowledge posts</Typography>
+												<Typography>No knowledge posts available</Typography>
 											</Stack>
 										)}
 									</Stack>
@@ -322,7 +274,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 										) : (
 											<Stack className="no-data">
 												<img src="/img/icons/empty.svg" alt="" />
-												<Typography>No help posts</Typography>
+												<Typography>No help posts available</Typography>
 											</Stack>
 										)}
 									</Stack>
@@ -330,6 +282,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 							</Stack>
 						</Stack>
 
+						{/* Pagination */}
 						{totalCount > 0 && (
 							<Stack className="pagination-section">
 								<Pagination
@@ -345,6 +298,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 										},
 										'& .Mui-selected': {
 											background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+											color: '#fff',
 										},
 									}}
 								/>
@@ -367,7 +321,7 @@ Opportunities.defaultProps = {
 		sort: 'createdAt',
 		direction: 'DESC',
 		search: {
-			articleCategory: 'COMMUNITY',
+			articleCategory: 'CAREER',
 		},
 	},
 };

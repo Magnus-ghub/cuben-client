@@ -1,11 +1,14 @@
+// OpportunityCard.tsx
 import React from 'react';
-import { Stack, Typography, Avatar, Chip, IconButton } from '@mui/material';
+import { Stack, Typography, Avatar, IconButton } from '@mui/material';
 import { useRouter } from 'next/router';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Moment from 'react-moment';
 import { useReactiveVar } from '@apollo/client';
@@ -76,234 +79,120 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 		<Stack 
 			className="opportunity-card"
 			onClick={goDetailPage}
-			sx={{
-				background: '#fff',
-				borderRadius: '20px',
-				padding: '24px',
-				boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
-				border: '1px solid #f3f4f6',
-				cursor: 'pointer',
-				transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-				position: 'relative',
-				overflow: 'hidden',
-				'&:hover': {
-					transform: 'translateY(-8px)',
-					boxShadow: '0 20px 40px rgba(102, 126, 234, 0.15)',
-					borderColor: 'rgba(102, 126, 234, 0.3)',
-					'& .read-more-arrow': {
-						transform: 'translateX(4px)',
-					}
-				},
-				'&::before': {
-					content: '""',
-					position: 'absolute',
-					top: 0,
-					left: 0,
-					right: 0,
-					height: '4px',
-					background: categoryStyle.bg,
-				}
-			}}
 		>
-			{/* Card Header */}
-			<Stack 
-				direction="row" 
-				justifyContent="space-between" 
-				alignItems="flex-start"
-				sx={{ mb: 2.5 }}
-			>
-				<Stack direction="row" alignItems="center" spacing={1.5}>
-					<Avatar
-						src={
-							boardArticle?.memberData?.memberImage
-								? `${process.env.REACT_APP_API_URL}/${boardArticle?.memberData?.memberImage}`
-								: '/img/user/default.png'
-						}
-						sx={{ 
-							width: 44, 
-							height: 44,
-							border: '2px solid #f3f4f6',
-							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
-						}}
+			{/* Featured Image/Banner */}
+			{boardArticle?.articleImage && (
+				<Stack className="card-banner">
+					<img 
+						src={`${process.env.REACT_APP_API_URL}/${boardArticle?.articleImage}`}
+						alt={boardArticle?.articleTitle}
 					/>
-					<Stack spacing={0.3}>
-						<Typography 
-							sx={{
-								color: '#1f2937',
-								fontSize: '14px',
-								fontWeight: 700,
-								lineHeight: 1.2
-							}}
+					<Stack className="banner-overlay">
+						<Stack 
+							className="category-badge"
+							sx={{ background: categoryStyle.bg }}
 						>
-							{boardArticle?.memberData?.memberNick || 'Anonymous'}
-						</Typography>
-						<Stack direction="row" alignItems="center" spacing={0.5}>
-							<AccessTimeIcon sx={{ fontSize: 13, color: '#9ca3af' }} />
-							<Typography 
-								sx={{
-									color: '#9ca3af',
-									fontSize: '12px',
-									fontWeight: 500
-								}}
-							>
-								<Moment fromNow>{boardArticle?.createdAt}</Moment>
-							</Typography>
+							<Typography className="category-icon">{categoryStyle.icon}</Typography>
+							<Typography className="category-text">{categoryStyle.label}</Typography>
 						</Stack>
 					</Stack>
 				</Stack>
-				
-				<Chip
-					label={
-						<Stack direction="row" alignItems="center" spacing={0.5}>
-							<span style={{ fontSize: '14px' }}>{categoryStyle.icon}</span>
-							<span>{categoryStyle.label}</span>
-						</Stack>
-					}
-					size="small"
-					sx={{
-						background: categoryStyle.bg,
-						color: '#fff',
-						fontWeight: 700,
-						fontSize: '11px',
-						height: '28px',
-						borderRadius: '8px',
-						boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-						'& .MuiChip-label': {
-							px: 1.5
-						}
-					}}
-				/>
-			</Stack>
+			)}
 
 			{/* Card Content */}
-			<Stack sx={{ mb: 2.5, minHeight: '120px' }}>
-				<Typography 
-					sx={{
-						color: '#1f2937',
-						fontSize: '18px',
-						fontWeight: 800,
-						lineHeight: 1.4,
-						mb: 1.5,
-						display: '-webkit-box',
-						WebkitLineClamp: 2,
-						WebkitBoxOrient: 'vertical',
-						overflow: 'hidden',
-						textOverflow: 'ellipsis'
-					}}
-				>
+			<Stack className="card-content">
+				{/* Category Badge (if no image) */}
+				{!boardArticle?.articleImage && (
+					<Stack 
+						className="category-badge-top"
+						sx={{ background: categoryStyle.bg }}
+					>
+						<Typography className="category-icon">{categoryStyle.icon}</Typography>
+						<Typography className="category-text">{categoryStyle.label}</Typography>
+					</Stack>
+				)}
+
+				{/* Title */}
+				<Typography className="card-title">
 					{boardArticle?.articleTitle}
 				</Typography>
-				<Typography 
-					sx={{
-						color: '#6b7280',
-						fontSize: '14px',
-						fontWeight: 400,
-						lineHeight: 1.7,
-						display: '-webkit-box',
-						WebkitLineClamp: 3,
-						WebkitBoxOrient: 'vertical',
-						overflow: 'hidden',
-						textOverflow: 'ellipsis'
-					}}
-				>
-					{boardArticle?.articleContent?.replace(/<[^>]*>/g, '').substring(0, 150)}...
-				</Typography>
-			</Stack>
 
-			{/* Card Footer */}
-			<Stack 
-				direction="row" 
-				justifyContent="space-between" 
-				alignItems="center"
-				sx={{ 
-					pt: 2,
-					borderTop: '1px solid #f3f4f6'
-				}}
-			>
-				<Stack direction="row" spacing={2}>
-					<Stack 
-						direction="row" 
-						alignItems="center" 
-						spacing={0.5}
-						className="like-button"
-					>
-						<IconButton
-							size="small"
+				{/* Excerpt */}
+				<Typography className="card-excerpt">
+					{boardArticle?.articleContent?.replace(/<[^>]*>/g, '').substring(0, 120)}...
+				</Typography>
+
+				{/* Meta Info */}
+				<Stack className="card-meta">
+					<Stack className="meta-item">
+						<CalendarTodayIcon />
+						<Typography>
+							<Moment fromNow>{boardArticle?.createdAt}</Moment>
+						</Typography>
+					</Stack>
+					{boardArticle?.articleCategory === 'EVENTS' && (
+						<Stack className="meta-item">
+							<LocationOnIcon />
+							<Typography>Campus Center</Typography>
+						</Stack>
+					)}
+					{boardArticle?.articleCategory === 'CAREER' && (
+						<Stack className="meta-item">
+							<WorkOutlineIcon />
+							<Typography>Full-time</Typography>
+						</Stack>
+					)}
+				</Stack>
+
+				{/* Author & Stats */}
+				<Stack className="card-footer">
+					<Stack className="author-section">
+						<Avatar
+							src={
+								boardArticle?.memberData?.memberImage
+									? `${process.env.REACT_APP_API_URL}/${boardArticle?.memberData?.memberImage}`
+									: '/img/user/default.png'
+							}
+							className="author-avatar"
+						/>
+						<Stack className="author-info">
+							<Typography className="author-name">
+								{boardArticle?.memberData?.memberNick || 'Anonymous'}
+							</Typography>
+							<Typography className="author-role">University Admin</Typography>
+						</Stack>
+					</Stack>
+
+					<Stack className="stats-section">
+						<Stack className="stat-item">
+							<VisibilityIcon />
+							<Typography>{boardArticle?.articleViews || 0}</Typography>
+						</Stack>
+						<Stack 
+							className={`stat-item like-button ${isLiked ? 'liked' : ''}`}
 							onClick={(e) => {
 								e.stopPropagation();
 								likeArticleHandler(e, user, boardArticle?._id);
 							}}
-							sx={{ 
-								padding: '6px',
-								'&:hover': {
-									background: 'rgba(102, 126, 234, 0.1)'
-								}
-							}}
 						>
 							{isLiked ? (
-								<ThumbUpAltIcon sx={{ fontSize: 18, color: '#667eea' }} />
+								<ThumbUpAltIcon />
 							) : (
-								<ThumbUpOffAltIcon sx={{ fontSize: 18, color: '#9ca3af' }} />
+								<ThumbUpOffAltIcon />
 							)}
-						</IconButton>
-						<Typography 
-							sx={{
-								color: isLiked ? '#667eea' : '#6b7280',
-								fontSize: '14px',
-								fontWeight: 600
-							}}
-						>
-							{boardArticle?.articleLikes || 0}
-						</Typography>
-					</Stack>
-					
-					<Stack direction="row" alignItems="center" spacing={0.5}>
-						<VisibilityIcon sx={{ fontSize: 18, color: '#9ca3af' }} />
-						<Typography 
-							sx={{
-								color: '#6b7280',
-								fontSize: '14px',
-								fontWeight: 600
-							}}
-						>
-							{boardArticle?.articleViews || 0}
-						</Typography>
-					</Stack>
-					
-					<Stack direction="row" alignItems="center" spacing={0.5}>
-						<ChatBubbleOutlineIcon sx={{ fontSize: 18, color: '#9ca3af' }} />
-						<Typography 
-							sx={{
-								color: '#6b7280',
-								fontSize: '14px',
-								fontWeight: 600
-							}}
-						>
-							{boardArticle?.articleComments || 0}
-						</Typography>
+							<Typography>{boardArticle?.articleLikes || 0}</Typography>
+						</Stack>
+						<Stack className="stat-item">
+							<ChatBubbleOutlineIcon />
+							<Typography>{boardArticle?.articleComments || 0}</Typography>
+						</Stack>
 					</Stack>
 				</Stack>
-				
-				<Stack 
-					direction="row" 
-					alignItems="center" 
-					spacing={0.5}
-					sx={{
-						color: '#667eea',
-						fontSize: '14px',
-						fontWeight: 700,
-					}}
-				>
-					<Typography sx={{ fontSize: '14px', fontWeight: 700 }}>
-						Read more
-					</Typography>
-					<ArrowForwardIcon 
-						className="read-more-arrow"
-						sx={{ 
-							fontSize: 16,
-							transition: 'transform 0.2s ease'
-						}} 
-					/>
+
+				{/* Read More Button */}
+				<Stack className="read-more">
+					<Typography>Read More</Typography>
+					<ArrowForwardIcon className="arrow-icon" />
 				</Stack>
 			</Stack>
 		</Stack>
