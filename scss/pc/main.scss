@@ -5,10 +5,8 @@
 @import '/scss/pc/homepage/homepage.scss';
 @import '/scss/pc/product/product.scss';
 @import '/scss/pc/product/detail.scss';
-
 @import '/scss/pc/community/community.scss';
 @import '/scss/pc/community/detail.scss';
-
 @import '/scss/pc/mypage/mypage.scss';
 @import '/scss/pc/cs/cs.scss';
 @import '/scss/pc/account/join.scss';
@@ -44,12 +42,12 @@
 					width: 100%;
 					max-width: 100%;
 					margin: 0;
-					padding: 0 24px;
+					padding: 0 20px;
 					display: flex;
 					flex-direction: row;
 					align-items: center;
 					justify-content: space-between;
-					gap: 20px;
+					gap: 16px;
 					height: 100%;
 
 					// Logo Section
@@ -57,27 +55,28 @@
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						gap: 12px;
+						gap: 10px;
 						cursor: pointer;
 						transition: all 0.2s ease;
-						padding: 6px 12px;
+						padding: 6px 10px;
 						border-radius: 12px;
+						flex-shrink: 0;
 
 						&:hover {
 							background-color: #f3f4f6;
 						}
 
 						.logo-box {
-							width: 40px;
-							height: 40px;
+							width: 36px;
+							height: 36px;
 							display: flex;
 							align-items: center;
 							justify-content: center;
 							flex-shrink: 0;
 
 							svg {
-								width: 40px;
-								height: 40px;
+								width: 36px;
+								height: 36px;
 							}
 						}
 
@@ -87,7 +86,7 @@
 							gap: 0;
 
 							.brand-text {
-								font-size: 22px;
+								font-size: 20px;
 								font-weight: 700;
 								color: #1f2937;
 								line-height: 1;
@@ -95,7 +94,7 @@
 							}
 
 							.univ-text {
-								font-size: 11px;
+								font-size: 10px;
 								font-weight: 500;
 								color: #9ca3af;
 								line-height: 1.2;
@@ -107,27 +106,28 @@
 					// Search Box
 					.search-box {
 						flex: 1;
-						max-width: 600px;
+						max-width: 450px;
+						min-width: 200px;
 						position: relative;
 						display: flex;
 						align-items: center;
 
 						.search-icon {
 							position: absolute;
-							left: 16px;
+							left: 14px;
 							color: #9ca3af;
-							font-size: 20px;
+							font-size: 18px;
 							pointer-events: none;
 						}
 
 						input {
 							width: 100%;
-							height: 44px;
-							padding: 0 16px 0 48px;
+							height: 40px;
+							padding: 0 14px 0 44px;
 							background-color: #f9fafb;
 							border: 2px solid #e5e7eb;
-							border-radius: 12px;
-							font-size: 14px;
+							border-radius: 10px;
+							font-size: 13px;
 							color: #1f2937;
 							transition: all 0.2s ease;
 							outline: none;
@@ -135,6 +135,7 @@
 
 							&::placeholder {
 								color: #9ca3af;
+								font-size: 13px;
 							}
 
 							&:hover {
@@ -145,7 +146,7 @@
 							&:focus {
 								background-color: #ffffff;
 								border-color: #667eea;
-								box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+								box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 							}
 						}
 					}
@@ -155,27 +156,35 @@
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						gap: 12px;
+						gap: 8px;
+						flex-shrink: 0;
 
 						.create-listing-btn {
 							white-space: nowrap;
+							padding: 8px 16px;
+							font-size: 13px;
 						}
 
 						.icons-section {
 							display: flex;
 							flex-direction: row;
 							align-items: center;
-							gap: 10px;
+							gap: 6px;
 
 							.icon-wrapper {
-								width: 40px;
-								height: 40px;
+								width: 36px;
+								height: 36px;
 								display: flex;
 								align-items: center;
 								justify-content: center;
-								border-radius: 10px;
+								border-radius: 8px;
 								cursor: pointer;
 								transition: all 0.2s ease;
+
+								svg {
+									width: 20px;
+									height: 20px;
+								}
 
 								&:hover {
 									background-color: #f3f4f6;
@@ -184,16 +193,16 @@
 
 							.btn-lang {
 								min-width: auto;
-								padding: 6px 10px;
-								border-radius: 10px;
+								padding: 6px 8px;
+								border-radius: 8px;
 
 								&:hover {
 									background: #f3f4f6;
 								}
 
 								.flag img {
-									width: 24px;
-									height: 17px;
+									width: 22px;
+									height: 16px;
 									border-radius: 3px;
 								}
 							}
@@ -201,8 +210,8 @@
 
 						// Fixed Login User Section
 						.login-user {
-							width: 42px;
-							height: 42px;
+							width: 38px;
+							height: 38px;
 							display: flex;
 							align-items: center;
 							justify-content: center;
@@ -232,6 +241,8 @@
 
 						.join-btn {
 							white-space: nowrap;
+							padding: 8px 16px;
+							font-size: 13px;
 						}
 					}
 				}
@@ -239,7 +250,7 @@
 		}
 	}
 
-	// LAYOUT BODY - BLIND STYLE (FIXED POSITIONING)
+	// LAYOUT BODY
 	#layout-body {
 		position: fixed;
 		top: 64px;
@@ -249,19 +260,43 @@
 		display: flex;
 		overflow: hidden;
 
-		// LEFT SIDEBAR 
+		// LEFT SIDEBAR
 		#left-sidebar {
-			flex: 0 0 22%;
-  			max-width: 270px;
-  			min-width: 200px;
-			flex-shrink: 0;
+			flex: 0 0 auto;
+			width: 250px;
 			height: 100%;
 			background-color: #ffffff;
 			border-right: 1px solid #e5e7eb;
-			overflow: hidden;
+			overflow-y: auto;
+			overflow-x: hidden;
 			z-index: 998;
 			display: flex;
 			flex-direction: column;
+
+			// Custom scrollbar
+			&::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			&::-webkit-scrollbar-track {
+				background: transparent;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background: transparent;
+				border-radius: 3px;
+				transition: background 0.2s ease;
+			}
+
+			&:hover {
+				&::-webkit-scrollbar-thumb {
+					background: #d1d5db;
+
+					&:hover {
+						background: #9ca3af;
+					}
+				}
+			}
 
 			.container {
 				width: 100%;
@@ -270,10 +305,10 @@
 				flex-direction: column;
 				overflow: hidden;
 
-				// Profile Card - NO SCROLL
+				// Profile Card
 				.profile-card {
 					flex-shrink: 0;
-					padding: 20px;
+					padding: 18px;
 					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 					cursor: pointer;
 					transition: all 0.3s ease;
@@ -289,12 +324,12 @@
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						gap: 12px;
-						margin-bottom: 16px;
+						gap: 10px;
+						margin-bottom: 14px;
 
 						.profile-avatar {
-							width: 50px;
-							height: 50px;
+							width: 46px;
+							height: 46px;
 							border-radius: 50%;
 							border: 3px solid rgba(255, 255, 255, 0.3);
 							overflow: hidden;
@@ -320,10 +355,10 @@
 
 							.profile-name {
 								font-family: $font;
-								font-size: 16px;
+								font-size: 15px;
 								font-weight: 700;
 								color: #ffffff;
-								margin-bottom: 4px;
+								margin-bottom: 3px;
 								white-space: nowrap;
 								overflow: hidden;
 								text-overflow: ellipsis;
@@ -331,7 +366,7 @@
 
 							.profile-username {
 								font-family: $font;
-								font-size: 13px;
+								font-size: 12px;
 								color: rgba(255, 255, 255, 0.8);
 								white-space: nowrap;
 								overflow: hidden;
@@ -344,7 +379,7 @@
 						display: flex;
 						flex-direction: row;
 						justify-content: space-around;
-						padding-top: 16px;
+						padding-top: 14px;
 						border-top: 1px solid rgba(255, 255, 255, 0.2);
 
 						.stat-item {
@@ -354,14 +389,14 @@
 
 							.stat-number {
 								font-family: $font;
-								font-size: 18px;
+								font-size: 16px;
 								font-weight: 700;
 								color: #ffffff;
 							}
 
 							.stat-label {
 								font-family: $font;
-								font-size: 12px;
+								font-size: 11px;
 								color: rgba(255, 255, 255, 0.8);
 								margin-top: 2px;
 							}
@@ -369,7 +404,7 @@
 					}
 				}
 
-				// Sidebar Content - ONLY THIS SCROLLS
+				// Sidebar Content - SCROLLABLE
 				.sidebar-content {
 					flex: 1;
 					overflow-y: auto;
@@ -377,7 +412,7 @@
 					min-height: 0;
 
 					&::-webkit-scrollbar {
-						width: 6px;
+						width: 5px;
 					}
 
 					&::-webkit-scrollbar-track {
@@ -394,13 +429,13 @@
 					}
 
 					.sidebar-section {
-						padding: 16px 0;
+						padding: 14px 0;
 						border-bottom: 1px solid #f3f4f6;
 
 						.section-title {
-							padding: 0 20px 12px;
+							padding: 0 18px 10px;
 							font-family: $font;
-							font-size: 11px;
+							font-size: 10px;
 							font-weight: 700;
 							color: #6b7280;
 							text-transform: uppercase;
@@ -412,11 +447,11 @@
 							display: block;
 
 							.menu-item {
-								padding: 10px 20px;
+								padding: 9px 18px;
 								display: flex;
 								flex-direction: row;
 								align-items: center;
-								gap: 12px;
+								gap: 10px;
 								cursor: pointer;
 								transition: all 0.2s ease;
 								color: #4b5563;
@@ -435,7 +470,7 @@
 									background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
 									color: #667eea;
 									border-left: 3px solid #667eea;
-									padding-left: 17px;
+									padding-left: 15px;
 
 									.menu-icon {
 										color: #667eea;
@@ -447,8 +482,8 @@
 								}
 
 								.menu-icon {
-									width: 20px;
-									height: 20px;
+									width: 18px;
+									height: 18px;
 									color: #9ca3af;
 									transition: color 0.2s ease;
 									flex-shrink: 0;
@@ -457,26 +492,26 @@
 								.menu-text {
 									flex: 1;
 									font-family: $font;
-									font-size: 14px;
+									font-size: 13px;
 									font-weight: 500;
 								}
 
 								.menu-badge {
 									background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 									color: #fff;
-									padding: 2px 8px;
+									padding: 2px 7px;
 									border-radius: 10px;
 									font-family: $font;
-									font-size: 11px;
+									font-size: 10px;
 									font-weight: 700;
-									min-width: 20px;
+									min-width: 18px;
 									text-align: center;
 								}
 
 								.menu-count {
 									color: #9ca3af;
 									font-family: $font;
-									font-size: 13px;
+									font-size: 12px;
 									font-weight: 500;
 								}
 							}
@@ -484,29 +519,30 @@
 					}
 				}
 
-				// Sidebar Bottom - NO SCROLL
+				// Sidebar Bottom
 				.sidebar-bottom {
 					flex-shrink: 0;
-					padding: 16px 20px;
+					padding: 14px 18px;
 					background: #f9fafb;
 					border-top: 1px solid #e5e7eb;
 
 					.bottom-item {
-						padding: 10px 0;
+						padding: 8px 10px;
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						gap: 12px;
+						gap: 10px;
 						cursor: pointer;
 						color: #6b7280;
 						font-family: $font;
-						font-size: 14px;
+						font-size: 13px;
 						font-weight: 500;
 						transition: all 0.2s ease;
 						border-radius: 8px;
-						padding: 10px 12px;
 
 						svg {
+							width: 18px;
+							height: 18px;
 							color: #9ca3af;
 							transition: color 0.2s ease;
 						}
@@ -524,14 +560,14 @@
 			}
 		}
 
-		// Takes remaining space, contains center + right columns
+		// Main Content Wrapper
 		#main-content-wrapper {
 			flex: 1;
-			width: 80%;;
 			display: flex;
 			flex-direction: row;
 			height: 100%;
 			overflow: hidden;
+			min-width: 0;
 		}
 	}
 
@@ -549,22 +585,69 @@
 			padding: 0;
 			background-color: #f9fafb;
 			height: 100%;
-			overflow: hidden;
+			overflow-y: auto;
+			overflow-x: hidden;
 
 			.container {
 				max-width: 100%;
 				margin: 0;
 				width: 100%;
-				height: 100%;
+				height: auto;
+				min-height: 100%;
+				padding: 20px;
+				box-sizing: border-box;
 			}
+		}
+
+		// Custom scrollbar for main section
+		#main-section::-webkit-scrollbar {
+			width: 7px;
+		}
+
+		#main-section::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		#main-section::-webkit-scrollbar-thumb {
+			background: #d1d5db;
+			border-radius: 4px;
+
+			&:hover {
+				background: #9ca3af;
+			}
+		}
+	}
+
+	// MARKETPLACE PAGE SPECIFIC
+	#marketplace-page {
+		width: 100%;
+		min-height: 100%;
+		padding-bottom: 30px;
+
+		.container {
+			max-width: 100%;
+			margin: 0;
+			padding: 0;
+		}
+	}
+
+	// MARKETPLACE DETAIL PAGE SPECIFIC
+	#marketplace-detail-page {
+		width: 100%;
+		min-height: 100%;
+
+		.container {
+			max-width: 100%;
+			margin: 0;
+			padding: 0;
 		}
 	}
 
 	// CHAT WIDGET
 	.modern-chat-container {
 		position: fixed;
-		bottom: 24px;
-		right: 24px;
+		bottom: 20px;
+		right: 20px;
 		z-index: 1000;
 		animation: slideInUp 0.3s ease-out;
 	}
@@ -581,10 +664,10 @@
 	}
 
 	.modern-chat-frame {
-		width: 380px;
-		height: 600px;
+		width: 360px;
+		height: 550px;
 		background: #ffffff;
-		border-radius: 16px;
+		border-radius: 14px;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
 		display: flex;
 		flex-direction: column;
@@ -592,25 +675,25 @@
 		border: 1px solid #e5e7eb;
 
 		.modern-chat-header {
-			height: 68px;
+			height: 64px;
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: 0 20px;
+			padding: 0 18px;
 			flex-shrink: 0;
 
 			.header-left {
 				display: flex;
 				align-items: center;
-				gap: 12px;
+				gap: 10px;
 
 				.chat-logo-box {
-					width: 40px;
-					height: 40px;
+					width: 36px;
+					height: 36px;
 					background: rgba(255, 255, 255, 0.2);
 					backdrop-filter: blur(10px);
-					border-radius: 10px;
+					border-radius: 9px;
 					display: flex;
 					align-items: center;
 					justify-content: center;
@@ -618,13 +701,13 @@
 
 				.chat-brand {
 					.chat-brand-name {
-						font-size: 18px;
+						font-size: 16px;
 						font-weight: 700;
 						color: #ffffff;
 					}
 
 					.chat-subtitle {
-						font-size: 12px;
+						font-size: 11px;
 						color: rgba(255, 255, 255, 0.8);
 					}
 				}
@@ -633,39 +716,39 @@
 			.header-right {
 				display: flex;
 				align-items: center;
-				gap: 12px;
+				gap: 10px;
 
 				.online-badge {
 					display: flex;
 					align-items: center;
-					gap: 6px;
+					gap: 5px;
 					background: rgba(34, 197, 94, 0.2);
-					padding: 6px 12px;
-					border-radius: 20px;
+					padding: 5px 10px;
+					border-radius: 18px;
 
 					.online-dot {
-						width: 8px;
-						height: 8px;
+						width: 7px;
+						height: 7px;
 						background: #22c55e;
 						border-radius: 50%;
 						animation: pulse 2s infinite;
 					}
 
 					span {
-						font-size: 12px;
+						font-size: 11px;
 						font-weight: 600;
 						color: #ffffff;
 					}
 				}
 
 				.close-btn {
-					width: 32px;
-					height: 32px;
+					width: 30px;
+					height: 30px;
 					display: flex;
 					align-items: center;
 					justify-content: center;
 					cursor: pointer;
-					border-radius: 8px;
+					border-radius: 7px;
 					transition: all 0.2s ease;
 					color: rgba(255, 255, 255, 0.8);
 
@@ -681,10 +764,10 @@
 			flex: 1;
 			overflow-y: auto;
 			background: #f9fafb;
-			padding: 20px;
+			padding: 18px;
 
 			&::-webkit-scrollbar {
-				width: 6px;
+				width: 5px;
 			}
 
 			&::-webkit-scrollbar-thumb {
@@ -694,35 +777,35 @@
 		}
 
 		.modern-chat-input {
-			height: 68px;
+			height: 64px;
 			background: #ffffff;
 			border-top: 1px solid #e5e7eb;
 			display: flex;
 			align-items: center;
-			gap: 12px;
-			padding: 0 16px;
+			gap: 10px;
+			padding: 0 14px;
 
 			.chat-input-field {
 				flex: 1;
-				height: 44px;
-				padding: 0 16px;
+				height: 40px;
+				padding: 0 14px;
 				background: #f9fafb;
 				border: 2px solid #e5e7eb;
-				border-radius: 22px;
-				font-size: 14px;
+				border-radius: 20px;
+				font-size: 13px;
 				outline: none;
 				transition: all 0.2s ease;
 
 				&:focus {
 					background: #ffffff;
 					border-color: #667eea;
-					box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+					box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 				}
 			}
 
 			.chat-send-btn {
-				width: 44px;
-				height: 44px;
+				width: 40px;
+				height: 40px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -763,32 +846,109 @@
 
 	.MuiMenuItem-root {
 		font-family: $font !important;
-		padding: 10px 16px !important;
+		padding: 9px 14px !important;
 		border-radius: 8px !important;
-		margin: 4px 8px !important;
+		margin: 3px 7px !important;
 
 		&:hover {
 			background-color: #f3f4f6 !important;
 		}
 
 		.img-flag {
-			width: 24px !important;
-			height: 17px !important;
+			width: 22px !important;
+			height: 16px !important;
 			border-radius: 3px !important;
-			margin-right: 12px !important;
+			margin-right: 10px !important;
 		}
 	}
 }
 
-// RESPONSIVE DESIGN
-@media (max-width: 1200px) {
+// RESPONSIVE DESIGN - MacBook Air 13" (1440x900) and similar
+@media (max-width: 1440px) {
 	#pc-wrap {
 		#top .navbar .navbar-main .container {
+			padding: 0 18px;
+			gap: 14px;
+
+			.logo-section {
+				.logo-box svg {
+					width: 34px;
+					height: 34px;
+				}
+
+				.brand-name {
+					.brand-text {
+						font-size: 19px;
+					}
+				}
+			}
+
 			.search-box {
-				max-width: 400px;
+				max-width: 380px;
 			}
 		}
 
+		#layout-body {
+			#left-sidebar {
+				width: 240px;
+			}
+		}
+	}
+}
+
+@media (max-width: 1280px) {
+	#pc-wrap {
+		#top .navbar .navbar-main .container {
+			padding: 0 16px;
+			gap: 12px;
+
+			.search-box {
+				max-width: 320px;
+			}
+
+			.actions-box {
+				gap: 6px;
+
+				.create-listing-btn {
+					padding: 7px 14px;
+					font-size: 12px;
+				}
+			}
+		}
+
+		#layout-body {
+			#left-sidebar {
+				width: 230px;
+
+				.container {
+					.profile-card {
+						padding: 16px;
+					}
+
+					.sidebar-content .sidebar-section {
+						padding: 12px 0;
+
+						a .menu-item {
+							padding: 8px 16px;
+							gap: 9px;
+
+							.menu-text {
+								font-size: 12px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		#main #main-section .container {
+			padding: 18px;
+		}
+	}
+}
+
+@media (max-width: 1200px) {
+	#pc-wrap {
 		#layout-body {
 			position: relative;
 			top: 64px;
@@ -797,9 +957,11 @@
 			flex-direction: column;
 
 			#left-sidebar {
-				width: 260px;
+				width: 100%;
 				height: auto;
 				overflow: visible;
+				border-right: none;
+				border-bottom: 1px solid #e5e7eb;
 			}
 
 			#main-content-wrapper {
@@ -824,22 +986,16 @@
 @media (max-width: 960px) {
 	#pc-wrap {
 		#top .navbar .navbar-main .container {
-			padding: 0 16px;
+			padding: 0 14px;
 
 			.search-box {
-				max-width: 300px;
+				max-width: 280px;
 			}
 
 			.actions-box {
 				.create-listing-btn {
 					display: none;
 				}
-			}
-		}
-
-		#layout-body {
-			#left-sidebar {
-				width: 240px;
 			}
 		}
 	}
@@ -876,99 +1032,6 @@
 		.modern-chat-frame {
 			width: calc(100vw - 32px);
 			height: 500px;
-		}
-	}
-}
-
-// Add this to the #main section in your main.scss file
-// Replace the existing #main styles with this:
-
-#pc-wrap {
-	// MAIN CONTENT AREA (Center Column)
-	#main {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
-		height: 100%;
-		overflow: hidden;
-
-		#main-section {
-			flex: 1;
-			padding: 0;
-			background-color: #f9fafb;
-			height: 100%;
-			overflow-y: auto; // Changed from overflow: hidden
-			overflow-x: hidden;
-
-			.container {
-				max-width: 100%;
-				margin: 0;
-				width: 100%;
-				height: auto; // Changed from height: 100%
-				min-height: 100%; // Added
-			}
-		}
-		
-		// Custom scrollbar for main section
-		#main-section::-webkit-scrollbar {
-			width: 8px;
-		}
-
-		#main-section::-webkit-scrollbar-track {
-			background: transparent;
-		}
-
-		#main-section::-webkit-scrollbar-thumb {
-			background: #d1d5db;
-			border-radius: 4px;
-
-			&:hover {
-				background: #9ca3af;
-			}
-		}
-	}
-
-	// MARKETPLACE PAGE SPECIFIC
-	#marketplace-page {
-		width: 100%;
-		min-height: calc(100vh - 64px);
-		padding-bottom: 40px;
-		
-		.container {
-			max-width: 1300px;
-			margin: 0 auto;
-			padding: 0 20px;
-		}
-	}
-	
-	// MARKETPLACE DETAIL PAGE SPECIFIC
-	#marketplace-detail-page {
-		width: 100%;
-		min-height: calc(100vh - 64px);
-		
-		.container {
-			max-width: 1300px;
-			margin: 0 auto;
-			padding: 0 20px;
-		}
-	}
-}
-
-// RESPONSIVE
-@media (max-width: 1200px) {
-	#pc-wrap {
-		#main {
-			#main-section {
-				overflow-y: auto;
-			}
-		}
-		
-		#marketplace-page,
-		#marketplace-detail-page {
-			.container {
-				padding: 0 16px;
-			}
 		}
 	}
 }
