@@ -1,0 +1,290 @@
+@import '/scss/variables.scss';
+
+#pc-wrap {
+	.writePost-page {
+		width: 100%;
+		background: #f5f5f5;
+		min-height: calc(100vh - 80px);
+		padding: 40px 20px;
+	}
+
+	.writePost-container {
+		max-width: 1200px;
+		margin: 0 auto;
+		display: grid;
+		grid-template-columns: 1fr 300px;
+		gap: 24px;
+
+		@media (max-width: 968px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.writePost-header {
+		grid-column: 1 / -1;
+
+		h2 {
+			font-size: 32px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin-bottom: 8px;
+		}
+
+		p {
+			font-size: 16px;
+			color: #666;
+		}
+	}
+
+	.writePost-content {
+		background: white;
+		border-radius: 16px;
+		padding: 24px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	}
+
+	.writePost-tabs {
+		border-bottom: 2px solid #f0f0f0;
+		margin-bottom: 24px;
+
+		.MuiTab-root {
+			text-transform: none;
+			font-weight: 600;
+			font-size: 15px;
+			color: #666;
+			min-height: 48px;
+
+			&.Mui-selected {
+				color: #6c5ce7;
+			}
+		}
+
+		.MuiTabs-indicator {
+			background-color: #6c5ce7;
+			height: 3px;
+		}
+	}
+
+	.writePost-form {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.post-title-input {
+		.MuiOutlinedInput-root {
+			border-radius: 12px;
+			background: #f8f9fa;
+
+			&:hover fieldset {
+				border-color: #6c5ce7;
+			}
+
+			&.Mui-focused fieldset {
+				border-color: #6c5ce7;
+				border-width: 2px;
+			}
+
+			input {
+				font-size: 18px;
+				font-weight: 600;
+				padding: 16px;
+			}
+		}
+	}
+
+	.post-content-input,
+	.post-link-input {
+		.MuiOutlinedInput-root {
+			border-radius: 12px;
+			background: #f8f9fa;
+
+			&:hover fieldset {
+				border-color: #6c5ce7;
+			}
+
+			&.Mui-focused fieldset {
+				border-color: #6c5ce7;
+				border-width: 2px;
+			}
+
+			textarea,
+			input {
+				font-size: 15px;
+				line-height: 1.6;
+				padding: 16px;
+			}
+		}
+	}
+
+	.image-upload-area {
+		border: 2px dashed #d1d5db;
+		border-radius: 12px;
+		padding: 60px 20px;
+		text-align: center;
+		background: #f8f9fa;
+		transition: all 0.3s ease;
+		cursor: pointer;
+		min-height: 300px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		&:hover {
+			border-color: #6c5ce7;
+			background: #f5f3ff;
+		}
+	}
+
+	.upload-label {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+		cursor: pointer;
+		width: 100%;
+
+		.upload-icon {
+			font-size: 64px;
+			color: #6c5ce7;
+		}
+
+		p {
+			font-size: 16px;
+			color: #666;
+			margin: 0;
+		}
+	}
+
+	.image-preview {
+		position: relative;
+		width: 100%;
+		max-width: 600px;
+		margin: 0 auto;
+
+		img {
+			width: 100%;
+			height: auto;
+			border-radius: 8px;
+			display: block;
+		}
+
+		.remove-image-btn {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+			background: rgba(0, 0, 0, 0.7);
+			color: white;
+
+			&:hover {
+				background: rgba(0, 0, 0, 0.9);
+			}
+
+			svg {
+				font-size: 24px;
+			}
+		}
+	}
+
+	.post-actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-top: 16px;
+		border-top: 1px solid #f0f0f0;
+	}
+
+	.post-tools {
+		display: flex;
+		gap: 8px;
+
+		.tool-button {
+			color: #666;
+			transition: all 0.2s ease;
+
+			&:hover {
+				color: #6c5ce7;
+				background: #f5f3ff;
+			}
+
+			svg {
+				font-size: 24px;
+			}
+		}
+	}
+
+	.post-submit-btn {
+		background: linear-gradient(135deg, #6c5ce7 0%, #5f50d7 100%);
+		color: white;
+		padding: 12px 32px;
+		border-radius: 10px;
+		text-transform: none;
+		font-weight: 600;
+		font-size: 16px;
+		box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+
+		&:hover {
+			background: linear-gradient(135deg, #5f50d7 0%, #5242c7 100%);
+			box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
+		}
+
+		&:disabled {
+			background: #d1d5db;
+			color: #9ca3af;
+			box-shadow: none;
+		}
+	}
+
+	.writePost-sidebar {
+		position: sticky;
+		top: 100px;
+		height: fit-content;
+
+		@media (max-width: 968px) {
+			display: none;
+		}
+	}
+
+	.posting-tips {
+		background: white;
+		border-radius: 16px;
+		padding: 24px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+		h3 {
+			font-size: 18px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin-bottom: 16px;
+		}
+
+		ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+
+			li {
+				padding: 12px 0;
+				color: #666;
+				font-size: 14px;
+				line-height: 1.5;
+				border-bottom: 1px solid #f0f0f0;
+				position: relative;
+				padding-left: 24px;
+
+				&:last-child {
+					border-bottom: none;
+				}
+
+				&:before {
+					content: '•';
+					position: absolute;
+					left: 8px;
+					color: #6c5ce7;
+					font-weight: bold;
+					font-size: 18px;
+				}
+			}
+		}
+	}
+}

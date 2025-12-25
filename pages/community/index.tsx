@@ -135,20 +135,6 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 									onChange={tabChangeHandler}
 								>
 									<Tab
-										value={'COMMUNITY'}
-										label={'Community'}
-										icon={<span>🏘️</span>}
-										iconPosition="start"
-										className={`category-tab ${searchOpportunity.search.articleCategory == 'COMMUNITY' ? 'active' : ''}`}
-									/>
-									<Tab
-										value={'MARKET'}
-										label={'Marketplace'}
-										icon={<span>🛒</span>}
-										iconPosition="start"
-										className={`category-tab ${searchOpportunity.search.articleCategory == 'MARKET' ? 'active' : ''}`}
-									/>
-									<Tab
 										value={'CAREER'}
 										label={'Career & Jobs'}
 										icon={<span>💼</span>}

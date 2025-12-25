@@ -150,7 +150,7 @@ const MainSection = () => {
 				{/* Create Post Box */}
 				<Box className="create-post-box">
 					<Avatar className="user-avatar" src="/img/profile/defaultUser.svg" />
-					<Link href="/community/write" style={{ textDecoration: 'none', flex: 1 }}>
+					<Link href="/create/writePost" style={{ textDecoration: 'none', flex: 1 }}>
 						<Box className="create-input">
 							<span>What's on your mind?</span>
 						</Box>

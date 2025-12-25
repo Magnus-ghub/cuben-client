@@ -13,7 +13,7 @@ const TuiEditor = () => {
 	const editorRef = useRef<Editor>(null),
 		token = getJwtToken(),
 		router = useRouter();
-	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
+	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.KNOWLEDGE);
 
 	/** APOLLO REQUESTS **/
 
@@ -98,12 +98,12 @@ const TuiEditor = () => {
 							displayEmpty
 							inputProps={{ 'aria-label': 'Without label' }}
 						>
-							<MenuItem value={BoardArticleCategory.FREE}>
+							<MenuItem value={BoardArticleCategory.CAREER}>
 								<span>Free</span>
 							</MenuItem>
-							<MenuItem value={BoardArticleCategory.HUMOR}>Humor</MenuItem>
-							<MenuItem value={BoardArticleCategory.NEWS}>News</MenuItem>
-							<MenuItem value={BoardArticleCategory.RECOMMEND}>Recommendation</MenuItem>
+							<MenuItem value={BoardArticleCategory.COMMUNITY}>Humor</MenuItem>
+							<MenuItem value={BoardArticleCategory.EVENTS}>News</MenuItem>
+							<MenuItem value={BoardArticleCategory.HELP}>Recommendation</MenuItem>
 						</Select>
 					</FormControl>
 				</Box>
