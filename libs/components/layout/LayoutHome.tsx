@@ -54,12 +54,9 @@ const withLayoutMain = (Component: any) => {
 						<Top />
 					</Stack>
 					<Stack direction="row" id="layout-body">
-						{/* Left Sidebar - Always visible */}
 						<Stack id="left-sidebar">
 							<LeftSidebar />
 						</Stack>
-
-						{/* Main Content - Always takes remaining space */}
 						<Stack id="main-content-wrapper">
 							<Stack id="main">
 								<Stack id={"main-section"}>

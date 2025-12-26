@@ -1,10 +1,10 @@
 // ============================================
-// OPPORTUNITY CARD COMPONENT STYLES
+// OPPORTUNITY CARD STYLES
 // ============================================
 
 .opportunity-card {
 	background: #fff;
-	border-radius: 24px;
+	border-radius: 20px;
 	overflow: hidden;
 	border: 1px solid #e5e7eb;
 	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -15,25 +15,18 @@
 	height: 100%;
 	position: relative;
 
-	// ============================================
-	// HOVER STATE
-	// ============================================
 	&:hover {
-		transform: translateY(-10px);
-		box-shadow: 0 24px 48px rgba(102, 126, 234, 0.2);
+		transform: translateY(-8px);
+		box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
 		border-color: rgba(102, 126, 234, 0.4);
 
 		.card-image {
-			transform: scale(1.08);
-		}
-
-		.button-icon {
-			transform: translateX(6px);
+			transform: scale(1.06);
 		}
 
 		.view-details-button {
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+			box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
 
 			.button-text {
 				color: #fff;
@@ -41,6 +34,7 @@
 
 			.button-icon {
 				color: #fff;
+				transform: translateX(4px);
 			}
 		}
 	}
@@ -51,18 +45,18 @@
 	.card-image-section {
 		position: relative;
 		width: 100%;
-		height: 220px;
+		height: 200px;
 		overflow: hidden;
 		background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+		flex-shrink: 0;
 
 		.card-image {
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
-			transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+			transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 		}
 
-		// Image Overlay with Category Badge
 		.image-overlay {
 			position: absolute;
 			top: 0;
@@ -72,36 +66,35 @@
 			background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 60%);
 			display: flex;
 			align-items: flex-start;
-			padding: 18px;
+			padding: 16px;
 
 			.category-badge {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				gap: 8px;
-				padding: 10px 18px;
+				gap: 7px;
+				padding: 8px 16px;
 				border-radius: 12px;
-				box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-				backdrop-filter: blur(12px);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+				backdrop-filter: blur(10px);
 
 				.badge-icon {
-					font-size: 18px;
+					font-size: 16px;
 					line-height: 1;
 				}
 
 				.badge-text {
 					color: #fff;
 					font-family: $font;
-					font-size: 13px;
+					font-size: 12px;
 					font-weight: 800;
 					text-transform: uppercase;
-					letter-spacing: 0.8px;
+					letter-spacing: 0.6px;
 					line-height: 1;
 				}
 			}
 		}
 
-		// Placeholder when no image
 		.card-image-placeholder {
 			width: 100%;
 			height: 100%;
@@ -109,103 +102,100 @@
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 12px;
+			gap: 10px;
 
 			.placeholder-icon {
-				font-size: 56px;
+				font-size: 50px;
 				line-height: 1;
-				filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+				filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 			}
 
 			.placeholder-text {
 				color: #fff;
 				font-family: $font;
-				font-size: 20px;
+				font-size: 18px;
 				font-weight: 800;
 				text-transform: uppercase;
-				letter-spacing: 1.2px;
+				letter-spacing: 1px;
 				line-height: 1;
-				text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+				text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 			}
 		}
 	}
 
 	// ============================================
-	// CARD BODY/CONTENT SECTION
+	// CARD BODY
 	// ============================================
 	.card-body {
-		padding: 24px;
+		padding: 20px;
 		display: flex;
 		flex-direction: column;
 		flex: 1;
 		gap: 0;
 
-		// Category Chip (for cards without image)
 		.category-chip {
-			margin-bottom: 12px;
+			margin-bottom: 10px;
 		}
 
-		// Card Title
 		.card-title {
 			color: #1f2937;
 			font-family: $font;
-			font-size: 20px;
+			font-size: 18px;
 			font-weight: 800;
 			line-height: 1.4;
-			margin: 0 0 14px 0;
+			margin: 0 0 12px 0;
 			overflow: hidden;
 			display: -webkit-box;
 			-webkit-line-clamp: 2;
 			line-clamp: 2;
 			-webkit-box-orient: vertical;
-			min-height: 56px;
-			letter-spacing: -0.3px;
+			min-height: 50px;
+			letter-spacing: -0.2px;
 		}
 
-		// Card Description/Excerpt
 		.card-description {
 			color: #6b7280;
 			font-family: $font;
-			font-size: 14px;
+			font-size: 13px;
 			font-weight: 400;
-			line-height: 1.7;
-			margin: 0 0 18px 0;
+			line-height: 1.6;
+			margin: 0 0 16px 0;
 			overflow: hidden;
 			display: -webkit-box;
 			-webkit-line-clamp: 3;
-			line-clamp: 2;
+			line-clamp: 3;
 			-webkit-box-orient: vertical;
 			flex: 1;
 		}
 
 		// ============================================
-		// META INFORMATION
+		// META INFO
 		// ============================================
 		.card-meta-info {
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
-			gap: 14px;
-			margin-bottom: 18px;
-			padding-bottom: 18px;
+			gap: 12px;
+			margin-bottom: 16px;
+			padding-bottom: 16px;
 			border-bottom: 1px solid #f3f4f6;
 
 			.meta-item {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				gap: 6px;
+				gap: 5px;
 
 				.meta-icon {
-					width: 15px;
-					height: 15px;
+					width: 14px;
+					height: 14px;
 					color: #9ca3af;
 				}
 
 				.meta-text {
 					color: #9ca3af;
 					font-family: $font;
-					font-size: 13px;
+					font-size: 12px;
 					font-weight: 600;
 					line-height: 1;
 					margin: 0;
@@ -214,27 +204,26 @@
 		}
 
 		// ============================================
-		// CARD FOOTER (AUTHOR + STATS)
+		// CARD FOOTER
 		// ============================================
 		.card-footer-section {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
-			margin-bottom: 18px;
-			padding-bottom: 18px;
+			margin-bottom: 16px;
+			padding-bottom: 16px;
 			border-bottom: 1px solid #f3f4f6;
 
-			// Author Container
 			.author-container {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				gap: 12px;
+				gap: 10px;
 
 				.author-avatar {
-					width: 38px;
-					height: 38px;
+					width: 36px;
+					height: 36px;
 					border: 2px solid #e5e7eb;
 					transition: border-color 0.2s ease;
 				}
@@ -247,7 +236,7 @@
 					.author-name {
 						color: #1f2937;
 						font-family: $font;
-						font-size: 14px;
+						font-size: 13px;
 						font-weight: 700;
 						margin: 0;
 						line-height: 1.2;
@@ -256,7 +245,7 @@
 					.author-role {
 						color: #9ca3af;
 						font-family: $font;
-						font-size: 12px;
+						font-size: 11px;
 						font-weight: 500;
 						margin: 0;
 						line-height: 1.2;
@@ -264,24 +253,23 @@
 				}
 			}
 
-			// Engagement Stats Container
 			.engagement-stats {
 				display: flex;
 				flex-direction: row;
-				gap: 14px;
+				gap: 12px;
 
 				.stat-item {
 					display: flex;
 					flex-direction: row;
 					align-items: center;
-					gap: 5px;
-					padding: 6px 10px;
-					border-radius: 10px;
+					gap: 4px;
+					padding: 5px 8px;
+					border-radius: 8px;
 					transition: all 0.2s ease;
 
 					.stat-icon {
-						width: 17px;
-						height: 17px;
+						width: 16px;
+						height: 16px;
 						color: #9ca3af;
 						transition: color 0.2s ease;
 
@@ -293,13 +281,12 @@
 					.stat-value {
 						color: #6b7280;
 						font-family: $font;
-						font-size: 13px;
+						font-size: 12px;
 						font-weight: 700;
 						line-height: 1;
 						margin: 0;
 					}
 
-					// Like Button Specific Styles
 					&.like-button {
 						cursor: pointer;
 
@@ -337,24 +324,24 @@
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			gap: 8px;
-			padding: 14px;
+			gap: 7px;
+			padding: 12px;
 			background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
-			border-radius: 14px;
+			border-radius: 12px;
 			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 			.button-text {
 				color: #667eea;
 				font-family: $font;
-				font-size: 14px;
+				font-size: 13px;
 				font-weight: 800;
 				line-height: 1;
 				margin: 0;
 			}
 
 			.button-icon {
-				width: 18px;
-				height: 18px;
+				width: 17px;
+				height: 17px;
 				color: #667eea;
 				transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 			}
@@ -363,74 +350,12 @@
 }
 
 // ============================================
-// RESPONSIVE - TABLET (max-width: 1024px)
+// RESPONSIVE - TABLET
 // ============================================
 @media (max-width: 1024px) {
 	.opportunity-card {
 		.card-image-section {
-			height: 200px;
-
-			.card-image-placeholder {
-				.placeholder-icon {
-					font-size: 48px;
-				}
-
-				.placeholder-text {
-					font-size: 18px;
-				}
-			}
-		}
-
-		.card-body {
-			padding: 20px;
-
-			.card-title {
-				font-size: 18px;
-				min-height: 50px;
-			}
-
-			.card-description {
-				font-size: 13px;
-			}
-		}
-	}
-}
-
-// ============================================
-// RESPONSIVE - MOBILE (max-width: 768px)
-// ============================================
-@media (max-width: 768px) {
-	.opportunity-card {
-		border-radius: 20px;
-
-		.card-image-section {
 			height: 180px;
-
-			.image-overlay {
-				padding: 14px;
-
-				.category-badge {
-					padding: 8px 14px;
-
-					.badge-icon {
-						font-size: 16px;
-					}
-
-					.badge-text {
-						font-size: 12px;
-					}
-				}
-			}
-
-			.card-image-placeholder {
-				.placeholder-icon {
-					font-size: 42px;
-				}
-
-				.placeholder-text {
-					font-size: 16px;
-				}
-			}
 		}
 
 		.card-body {
@@ -442,107 +367,35 @@
 			}
 
 			.card-description {
-				font-size: 13px;
-				-webkit-line-clamp: 2;
-				line-clamp: 2;
-				margin-bottom: 14px;
-			}
-
-			.card-meta-info {
-				gap: 10px;
-				margin-bottom: 14px;
-				padding-bottom: 14px;
-
-				.meta-item {
-					gap: 5px;
-
-					.meta-icon {
-						width: 14px;
-						height: 14px;
-					}
-
-					.meta-text {
-						font-size: 12px;
-					}
-				}
-			}
-
-			.card-footer-section {
-				flex-direction: column;
-				gap: 14px;
-				align-items: flex-start;
-				margin-bottom: 14px;
-				padding-bottom: 14px;
-
-				.author-container {
-					.author-avatar {
-						width: 34px;
-						height: 34px;
-					}
-
-					.author-details {
-						.author-name {
-							font-size: 13px;
-						}
-
-						.author-role {
-							font-size: 11px;
-						}
-					}
-				}
-
-				.engagement-stats {
-					width: 100%;
-					justify-content: space-between;
-
-					.stat-item {
-						padding: 5px 8px;
-
-						.stat-icon {
-							width: 16px;
-							height: 16px;
-						}
-
-						.stat-value {
-							font-size: 12px;
-						}
-					}
-				}
-			}
-
-			.view-details-button {
-				padding: 12px;
-
-				.button-text {
-					font-size: 13px;
-				}
-
-				.button-icon {
-					width: 16px;
-					height: 16px;
-				}
+				font-size: 12px;
 			}
 		}
 	}
 }
 
 // ============================================
-// RESPONSIVE - SMALL MOBILE (max-width: 480px)
+// RESPONSIVE - MOBILE
 // ============================================
-@media (max-width: 480px) {
+@media (max-width: 768px) {
 	.opportunity-card {
 		border-radius: 16px;
 
 		.card-image-section {
 			height: 160px;
 
-			.card-image-placeholder {
-				.placeholder-icon {
-					font-size: 38px;
-				}
+			.image-overlay {
+				padding: 14px;
 
-				.placeholder-text {
-					font-size: 14px;
+				.category-badge {
+					padding: 7px 14px;
+
+					.badge-icon {
+						font-size: 14px;
+					}
+
+					.badge-text {
+						font-size: 11px;
+					}
 				}
 			}
 		}
@@ -557,15 +410,82 @@
 
 			.card-description {
 				font-size: 12px;
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
 			}
 
 			.card-meta-info {
-				gap: 8px;
+				gap: 10px;
+				margin-bottom: 14px;
+				padding-bottom: 14px;
 
 				.meta-item {
+					gap: 4px;
+
+					.meta-icon {
+						width: 13px;
+						height: 13px;
+					}
+
 					.meta-text {
 						font-size: 11px;
 					}
+				}
+			}
+
+			.card-footer-section {
+				flex-direction: column;
+				gap: 12px;
+				align-items: flex-start;
+				margin-bottom: 14px;
+				padding-bottom: 14px;
+
+				.author-container {
+					.author-avatar {
+						width: 32px;
+						height: 32px;
+					}
+
+					.author-details {
+						.author-name {
+							font-size: 12px;
+						}
+
+						.author-role {
+							font-size: 10px;
+						}
+					}
+				}
+
+				.engagement-stats {
+					width: 100%;
+					justify-content: space-between;
+
+					.stat-item {
+						padding: 4px 7px;
+
+						.stat-icon {
+							width: 15px;
+							height: 15px;
+						}
+
+						.stat-value {
+							font-size: 11px;
+						}
+					}
+				}
+			}
+
+			.view-details-button {
+				padding: 11px;
+
+				.button-text {
+					font-size: 12px;
+				}
+
+				.button-icon {
+					width: 16px;
+					height: 16px;
 				}
 			}
 		}
