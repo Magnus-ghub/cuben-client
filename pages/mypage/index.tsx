@@ -138,7 +138,7 @@ const MyPage: NextPage = () => {
 			section: 'account',
 		},
 		{
-			id: 'addProduct',
+			id: 'addNewProduct',
 			label: 'Add Listing',
 			icon: <PenSquare size={20} />,
 			section: 'marketplace',
