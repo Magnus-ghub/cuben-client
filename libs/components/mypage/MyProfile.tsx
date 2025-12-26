@@ -77,7 +77,6 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		}
 	};
 
-	
 	const updatePropertyHandler = useCallback(async () => {
 		try {
 			if (!user._id) throw new Error(Messages.error2);
@@ -116,15 +115,9 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	} else
 		return (
 			<div id="my-profile-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Profile</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
 				<Stack className="top-box">
 					<Stack className="photo-box">
-						<Typography className="title">Photo</Typography>
+						<Typography className="title">Profile Photo</Typography>
 						<Stack className="image-big-box">
 							<Stack className="image-box">
 								<img
@@ -145,41 +138,44 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 									accept="image/jpg, image/jpeg, image/png"
 								/>
 								<label htmlFor="hidden-input" className="labeler">
-									<Typography>Upload Profile Image</Typography>
+									<Typography>Upload New Photo</Typography>
 								</label>
-								<Typography className="upload-text">A photo must be in JPG, JPEG or PNG format!</Typography>
+								<Typography className="upload-text">JPG, JPEG or PNG format. Max 5MB.</Typography>
 							</Stack>
 						</Stack>
 					</Stack>
+
 					<Stack className="small-input-box">
 						<Stack className="input-box">
 							<Typography className="title">Username</Typography>
 							<input
 								type="text"
-								placeholder="Your username"
+								placeholder="Enter your username"
 								value={updateData.memberNick}
 								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
 							/>
 						</Stack>
 						<Stack className="input-box">
-							<Typography className="title">Phone</Typography>
+							<Typography className="title">Phone Number</Typography>
 							<input
 								type="text"
-								placeholder="Your Phone"
+								placeholder="Enter your phone number"
 								value={updateData.memberPhone}
 								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
 							/>
 						</Stack>
 					</Stack>
+
 					<Stack className="address-box">
 						<Typography className="title">Address</Typography>
 						<input
 							type="text"
-							placeholder="Your address"
+							placeholder="Enter your full address"
 							value={updateData.memberAddress}
 							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
 						/>
 					</Stack>
+
 					<Stack className="about-me-box">
 						<Button className="update-button" onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
 							<Typography>Update Profile</Typography>

@@ -198,7 +198,6 @@ const MyPage: NextPage = () => {
 	if (device === 'mobile') {
 		return <div>MY PAGE MOBILE</div>;
 	}
-
 	return (
 		<Stack className={'mypage-container'}>
 			<Stack className={'container'}>
@@ -245,7 +244,7 @@ const MyPage: NextPage = () => {
 								<Stack className={'user-meta'}>
 									<Box className={'meta-item'}>
 										<Mail size={16} />
-										<span>{user?.memberEmail || 'email@example.com'}</span>
+										<span>{user?.memberPhone || 'email@example.com'}</span>
 									</Box>
 									<Box className={'meta-item'}>
 										<Phone size={16} />
@@ -395,7 +394,7 @@ const MyPage: NextPage = () => {
 							<MemberFollowers
 								subscribeHandler={subscribeHandler}
 								unsubscribeHandler={unsubscribeHandler}
-								likeMemberHandler={likeMemberHandler}
+								// likeMemberHandler={likeMemberHandler}
 								redirectToMemberPageHandler={redirectToMemberPageHandler}
 							/>
 						)}
@@ -403,7 +402,7 @@ const MyPage: NextPage = () => {
 							<MemberFollowings
 								subscribeHandler={subscribeHandler}
 								unsubscribeHandler={unsubscribeHandler}
-								likeMemberHandler={likeMemberHandler}
+								// likeMemberHandler={likeMemberHandler}
 								redirectToMemberPageHandler={redirectToMemberPageHandler}
 							/>
 						)}
