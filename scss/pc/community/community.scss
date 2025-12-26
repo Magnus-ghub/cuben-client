@@ -1,181 +1,564 @@
-// OPPORTUNITIES PAGE STYLES
+// ============================================
+// OPPORTUNITIES PAGE STYLES - REDESIGNED LAYOUT
+// ============================================
+
 #pc-wrap {
 	#opportunities-page {
 		position: relative;
-		background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+		background: linear-gradient(180deg, #f9fafb 0%, #ffffff 50%, #faf5ff 100%);
 		min-height: 100vh;
-		padding-bottom: 80px;
+		padding-bottom: 60px;
 
 		.container {
 			max-width: 1400px;
 			margin: 0 auto;
-			padding: 40px 20px;
+			padding: 0 20px;
 
-			// HEADER SECTION
-			.opportunities-header {
+			// ============================================
+			// HERO HEADER SECTION - FULL WIDTH
+			// ============================================
+			.opportunities-hero {
 				width: 100%;
-				padding: 60px 40px;
-				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-				border-radius: 24px;
-				margin-bottom: 40px;
-				box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-
-				.header-content {
-					gap: 12px;
-
-					.main-title {
-						color: #fff;
-						font-family: $font;
-						font-size: 42px;
-						font-weight: 800;
-						line-height: 1.2;
-						letter-spacing: -1px;
-					}
-
-					.subtitle {
-						color: rgba(255, 255, 255, 0.9);
-						font-family: $font;
-						font-size: 18px;
-						font-weight: 400;
-						line-height: 1.6;
-					}
-				}
-			}
-
-			// MAIN CONTENT
-			.main-content {
 				display: flex;
 				flex-direction: row;
-				gap: 30px;
-				align-items: flex-start;
+				gap: 40px;
+				padding: 0;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				border-radius: 24px;
+				margin: 30px 0;
+				box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+				position: relative;
+				overflow: hidden;
+				min-height: 380px;
 
-				// CATEGORIES SIDEBAR
-				.categories-sidebar {
-					width: 280px;
-					flex-shrink: 0;
-					background: #fff;
-					border-radius: 20px;
-					padding: 24px;
-					box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08);
-					border: 1px solid rgba(102, 126, 234, 0.1);
-					position: sticky;
-					top: 100px;
+				// Decorative background
+				&::before {
+					content: '';
+					position: absolute;
+					top: -30%;
+					right: -10%;
+					width: 500px;
+					height: 500px;
+					background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+					border-radius: 50%;
+				}
 
-					.sidebar-header {
-						display: flex;
-						flex-direction: row;
-						justify-content: space-between;
-						align-items: center;
-						margin-bottom: 20px;
-						padding-bottom: 16px;
-						border-bottom: 2px solid #f3f4f6;
+				&::after {
+					content: '';
+					position: absolute;
+					bottom: -20%;
+					left: -5%;
+					width: 400px;
+					height: 400px;
+					background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+					border-radius: 50%;
+				}
 
-						.sidebar-title {
-							color: #1f2937;
-							font-family: $font;
-							font-size: 18px;
-							font-weight: 700;
-						}
+				// LEFT SIDE - Text & Stats
+				.hero-left {
+					flex: 1;
+					padding: 45px 40px;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					gap: 24px;
+					position: relative;
+					z-index: 2;
+
+					.hero-title {
+						color: #fff;
+						font-family: $font;
+						font-size: 48px;
+						font-weight: 900;
+						line-height: 1.15;
+						letter-spacing: -1.5px;
+						margin: 0;
 					}
 
-					.MuiTabs-root {
-						.category-tab {
-							width: 100%;
-							min-height: 48px;
-							padding: 12px 16px;
-							margin-bottom: 8px;
-							border-radius: 12px;
-							text-align: left;
-							justify-content: flex-start;
+					.hero-subtitle {
+						color: rgba(255, 255, 255, 0.95);
+						font-family: $font;
+						font-size: 17px;
+						font-weight: 400;
+						line-height: 1.6;
+						max-width: 500px;
+						margin: 0;
+					}
+
+					// Stats Grid
+					.hero-stats {
+						display: grid;
+						grid-template-columns: repeat(2, 1fr);
+						gap: 14px;
+						margin-top: 10px;
+
+						.stat-item {
+							display: flex;
+							flex-direction: row;
 							align-items: center;
-							color: #6b7280;
-							font-family: $font;
-							font-size: 14px;
-							font-weight: 500;
-							text-transform: none;
-							transition: all 0.2s ease;
-							border: 1px solid transparent;
+							gap: 12px;
+							background: rgba(255, 255, 255, 0.15);
+							backdrop-filter: blur(10px);
+							border: 1px solid rgba(255, 255, 255, 0.2);
+							border-radius: 16px;
+							padding: 16px 18px;
+							transition: all 0.3s ease;
 
 							&:hover {
-								background: rgba(102, 126, 234, 0.05);
-								border-color: rgba(102, 126, 234, 0.1);
+								background: rgba(255, 255, 255, 0.25);
+								transform: translateY(-3px);
 							}
 
-							&.active {
-								background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-								color: #667eea;
-								font-weight: 700;
-								border-color: rgba(102, 126, 234, 0.3);
-								box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+							.stat-icon {
+								font-size: 32px;
+								line-height: 1;
 							}
 
-							.MuiTab-iconWrapper {
-								margin-right: 12px;
-								font-size: 20px;
+							.stat-text {
+								flex: 1;
+								gap: 2px;
+
+								.stat-number {
+									color: #fff;
+									font-family: $font;
+									font-size: 26px;
+									font-weight: 800;
+									line-height: 1;
+									margin: 0;
+								}
+
+								.stat-label {
+									color: rgba(255, 255, 255, 0.9);
+									font-family: $font;
+									font-size: 12px;
+									font-weight: 500;
+									line-height: 1.2;
+									margin: 0;
+								}
 							}
 						}
 					}
 				}
 
-				// OPPORTUNITIES CONTENT
-				.opportunities-content {
-					flex: 1;
-					min-width: 0;
+				// RIGHT SIDE - Category Info Card
+				.hero-right {
+					width: 380px;
+					flex-shrink: 0;
+					position: relative;
+					z-index: 2;
+					display: flex;
+					align-items: center;
+					padding: 30px;
 
-					.tab-panel {
+					.category-info-panel {
 						padding: 0;
+						width: 100%;
 
-						.panel-header {
-							margin-bottom: 30px;
-							padding: 24px;
-							background: #fff;
-							border-radius: 16px;
-							box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-							border-left: 4px solid;
-							border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
+						.category-info-card {
+							background: rgba(255, 255, 255, 0.95);
+							backdrop-filter: blur(10px);
+							border-radius: 20px;
+							padding: 32px 28px;
+							box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+							text-align: center;
+							border: 1px solid rgba(255, 255, 255, 0.5);
+
+							.category-icon {
+								font-size: 56px;
+								margin-bottom: 16px;
+							}
 
 							.category-title {
 								color: #1f2937;
 								font-family: $font;
 								font-size: 24px;
-								font-weight: 700;
-								margin-bottom: 8px;
+								font-weight: 800;
+								margin-bottom: 12px;
+								line-height: 1.3;
 							}
 
 							.category-desc {
 								color: #6b7280;
 								font-family: $font;
-								font-size: 15px;
+								font-size: 14px;
 								font-weight: 400;
+								line-height: 1.6;
+								margin-bottom: 20px;
+							}
+
+							.category-count {
+								display: flex;
+								flex-direction: row;
+								align-items: baseline;
+								justify-content: center;
+								gap: 8px;
+								padding: 16px;
+								background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+								border-radius: 14px;
+								margin-top: 16px;
+
+								.count-number {
+									color: #667eea;
+									font-family: $font;
+									font-size: 36px;
+									font-weight: 900;
+									line-height: 1;
+								}
+
+								.count-label {
+									color: #667eea;
+									font-family: $font;
+									font-size: 16px;
+									font-weight: 700;
+									line-height: 1;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// ============================================
+			// MAIN LAYOUT - Left Sidebar + Right Content
+			// ============================================
+			.main-layout {
+				display: flex;
+				flex-direction: row;
+				gap: 28px;
+				align-items: flex-start;
+				margin-bottom: 50px;
+
+				// ============================================
+				// LEFT SIDEBAR - Categories & Widgets
+				// ============================================
+				.left-sidebar {
+					width: 300px;
+					flex-shrink: 0;
+					position: sticky;
+					top: 100px;
+					display: flex;
+					flex-direction: column;
+					gap: 18px;
+
+					// Sidebar Widget Base Styles
+					.sidebar-widget {
+						background: #fff;
+						border-radius: 18px;
+						padding: 22px;
+						box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08);
+						border: 1px solid rgba(102, 126, 234, 0.08);
+
+						.widget-header {
+							display: flex;
+							flex-direction: row;
+							justify-content: space-between;
+							align-items: center;
+							margin-bottom: 18px;
+							padding-bottom: 16px;
+							border-bottom: 2px solid #f3f4f6;
+
+							.widget-title {
+								color: #1f2937;
+								font-family: $font;
+								font-size: 16px;
+								font-weight: 800;
+							}
+
+							.view-all-link {
+								color: #667eea;
+								font-family: $font;
+								font-size: 12px;
+								font-weight: 700;
+								cursor: pointer;
+								transition: all 0.2s ease;
+
+								&:hover {
+									color: #764ba2;
+									text-decoration: underline;
+								}
 							}
 						}
 
+						.widget-title {
+							color: #1f2937;
+							font-family: $font;
+							font-size: 16px;
+							font-weight: 800;
+							margin-bottom: 16px;
+						}
+					}
+
+					// Categories Widget
+					.categories-widget {
+						.MuiTabs-root {
+							.category-tab {
+								width: 100%;
+								min-height: 46px;
+								padding: 12px 14px;
+								margin-bottom: 8px;
+								border-radius: 12px;
+								text-align: left;
+								justify-content: flex-start;
+								align-items: center;
+								color: #6b7280;
+								font-family: $font;
+								font-size: 14px;
+								font-weight: 600;
+								text-transform: none;
+								transition: all 0.3s ease;
+								border: 2px solid transparent;
+
+								.tab-icon {
+									font-size: 19px;
+									margin-right: 10px;
+								}
+
+								&:hover {
+									background: rgba(102, 126, 234, 0.08);
+									border-color: rgba(102, 126, 234, 0.15);
+									transform: translateX(3px);
+								}
+
+								&.active {
+									background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+									color: #667eea;
+									font-weight: 800;
+									border-color: rgba(102, 126, 234, 0.4);
+									box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+									transform: translateX(5px);
+								}
+							}
+						}
+					}
+
+					// Featured Jobs Widget
+					.featured-widget {
+						.featured-list {
+							gap: 10px;
+
+							.featured-item {
+								display: flex;
+								flex-direction: row;
+								align-items: center;
+								gap: 12px;
+								padding: 12px;
+								background: #f9fafb;
+								border-radius: 12px;
+								border: 1px solid #e5e7eb;
+								cursor: pointer;
+								transition: all 0.3s ease;
+
+								&:hover {
+									background: rgba(102, 126, 234, 0.08);
+									border-color: rgba(102, 126, 234, 0.2);
+									transform: translateX(4px);
+								}
+
+								.featured-icon {
+									font-size: 24px;
+									width: 42px;
+									height: 42px;
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									background: #fff;
+									border-radius: 10px;
+									border: 1px solid #e5e7eb;
+								}
+
+								.featured-info {
+									flex: 1;
+									gap: 3px;
+
+									.featured-title {
+										color: #1f2937;
+										font-family: $font;
+										font-size: 13px;
+										font-weight: 700;
+										line-height: 1.3;
+									}
+
+									.featured-meta {
+										color: #9ca3af;
+										font-family: $font;
+										font-size: 11px;
+										font-weight: 500;
+										line-height: 1.2;
+									}
+								}
+							}
+						}
+					}
+
+					// Upcoming Events Widget
+					.events-widget {
+						.events-list {
+							gap: 12px;
+
+							.event-item {
+								display: flex;
+								flex-direction: row;
+								align-items: center;
+								gap: 12px;
+								padding: 12px;
+								background: #f9fafb;
+								border-radius: 12px;
+								border: 1px solid #e5e7eb;
+								cursor: pointer;
+								transition: all 0.3s ease;
+
+								&:hover {
+									background: rgba(236, 72, 153, 0.08);
+									border-color: rgba(236, 72, 153, 0.2);
+									transform: translateX(4px);
+								}
+
+								.event-date {
+									width: 45px;
+									height: 45px;
+									background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+									border-radius: 10px;
+									display: flex;
+									flex-direction: column;
+									align-items: center;
+									justify-content: center;
+									flex-shrink: 0;
+
+									.date-day {
+										color: #fff;
+										font-family: $font;
+										font-size: 16px;
+										font-weight: 800;
+										line-height: 1;
+									}
+
+									.date-month {
+										color: rgba(255, 255, 255, 0.9);
+										font-family: $font;
+										font-size: 10px;
+										font-weight: 600;
+										line-height: 1;
+										text-transform: uppercase;
+									}
+								}
+
+								.event-info {
+									flex: 1;
+									gap: 3px;
+
+									.event-title {
+										color: #1f2937;
+										font-family: $font;
+										font-size: 13px;
+										font-weight: 700;
+										line-height: 1.3;
+									}
+
+									.event-time {
+										color: #9ca3af;
+										font-family: $font;
+										font-size: 11px;
+										font-weight: 500;
+										line-height: 1.2;
+									}
+								}
+							}
+						}
+					}
+
+					// Quick Links Widget
+					.links-widget {
+						.links-list {
+							gap: 8px;
+
+							.quick-link {
+								display: flex;
+								align-items: center;
+								gap: 10px;
+								padding: 11px 12px;
+								border-radius: 10px;
+								background: #f9fafb;
+								border: 1px solid #e5e7eb;
+								transition: all 0.3s ease;
+								text-decoration: none;
+								cursor: pointer;
+
+								.link-icon {
+									font-size: 17px;
+								}
+
+								p {
+									color: #6b7280;
+									font-family: $font;
+									font-size: 13px;
+									font-weight: 600;
+									margin: 0;
+								}
+
+								&:hover {
+									background: rgba(102, 126, 234, 0.1);
+									border-color: rgba(102, 126, 234, 0.2);
+									transform: translateX(3px);
+
+									p {
+										color: #667eea;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				// ============================================
+				// RIGHT CONTENT AREA - Cards Grid
+				// ============================================
+				.content-area {
+					flex: 1;
+					min-width: 0;
+
+					.tab-content {
+						padding: 0;
+
+						// Opportunities Grid
 						.opportunities-grid {
 							display: grid;
-							grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+							grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
 							gap: 24px;
 							width: 100%;
 
-							.no-data {
+							// Empty State
+							.empty-state {
 								grid-column: 1 / -1;
 								display: flex;
 								flex-direction: column;
 								align-items: center;
 								justify-content: center;
 								padding: 80px 20px;
-								gap: 20px;
+								gap: 14px;
+								background: #fff;
+								border-radius: 18px;
+								border: 2px dashed #e5e7eb;
 
-								img {
-									width: 120px;
-									height: 120px;
-									opacity: 0.5;
+								.empty-icon {
+									font-size: 72px;
+									margin-bottom: 8px;
+									opacity: 0.6;
 								}
 
-								p {
+								.empty-title {
+									color: #4b5563;
+									font-family: $font;
+									font-size: 19px;
+									font-weight: 700;
+								}
+
+								.empty-text {
 									color: #9ca3af;
 									font-family: $font;
-									font-size: 16px;
-									font-weight: 500;
+									font-size: 14px;
+									font-weight: 400;
+									text-align: center;
+									max-width: 400px;
 								}
 							}
 						}
@@ -183,19 +566,21 @@
 				}
 			}
 
+			// ============================================
 			// PAGINATION SECTION
-			.pagination-section {
+			// ============================================
+			.pagination-container {
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				gap: 16px;
-				margin-top: 60px;
+				margin-top: 50px;
 				padding: 30px;
 				background: #fff;
-				border-radius: 16px;
-				box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+				border-radius: 18px;
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 
-				.total-text {
+				.pagination-info {
 					color: #6b7280;
 					font-family: $font;
 					font-size: 14px;
@@ -206,29 +591,100 @@
 	}
 }
 
-// RESPONSIVE - TABLET
+// ============================================
+// RESPONSIVE - LARGE TABLET (max-width: 1200px)
+// ============================================
 @media (max-width: 1200px) {
 	#pc-wrap {
 		#opportunities-page {
 			.container {
-				.main-content {
+				.opportunities-hero {
 					flex-direction: column;
+					min-height: auto;
 
-					.categories-sidebar {
-						width: 100%;
-						position: relative;
-						top: 0;
+					.hero-left {
+						padding: 35px 30px 30px;
 
-						.MuiTabs-root {
-							.category-tab {
-								min-height: 42px;
-								font-size: 13px;
-							}
+						.hero-title {
+							font-size: 38px;
 						}
 					}
 
-					.opportunities-content {
-						.tab-panel {
+					.hero-right {
+						width: 100%;
+						padding: 0 30px 35px;
+
+						.category-info-panel {
+							.category-info-card {
+								padding: 28px 24px;
+							}
+						}
+					}
+				}
+
+				.main-layout {
+					flex-direction: column;
+
+					.left-sidebar {
+						width: 100%;
+						position: relative;
+						top: 0;
+						display: grid;
+						grid-template-columns: repeat(2, 1fr);
+						gap: 18px;
+
+						.categories-widget {
+							grid-column: 1 / -1;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// ============================================
+// RESPONSIVE - TABLET (max-width: 900px)
+// ============================================
+@media (max-width: 900px) {
+	#pc-wrap {
+		#opportunities-page {
+			.container {
+				.opportunities-hero {
+					.hero-left {
+						.hero-title {
+							font-size: 32px;
+						}
+
+						.hero-subtitle {
+							font-size: 15px;
+						}
+
+						.hero-stats {
+							.stat-item {
+								padding: 14px 16px;
+
+								.stat-icon {
+									font-size: 28px;
+								}
+
+								.stat-text {
+									.stat-number {
+										font-size: 22px;
+									}
+
+									.stat-label {
+										font-size: 11px;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				.main-layout {
+					.content-area {
+						.tab-content {
 							.opportunities-grid {
 								grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 							}
@@ -240,66 +696,76 @@
 	}
 }
 
-// RESPONSIVE - MOBILE
+// ============================================
+// RESPONSIVE - MOBILE (max-width: 768px)
+// ============================================
 @media (max-width: 768px) {
 	#pc-wrap {
 		#opportunities-page {
 			.container {
-				padding: 20px 16px;
+				padding: 0 16px;
 
-				.opportunities-header {
-					padding: 40px 24px;
-					border-radius: 20px;
+				.opportunities-hero {
+					margin: 20px 0;
+					border-radius: 18px;
 
-					.header-content {
-						.main-title {
-							font-size: 32px;
+					.hero-left {
+						padding: 28px 24px 24px;
+
+						.hero-title {
+							font-size: 28px;
 						}
 
-						.subtitle {
-							font-size: 16px;
+						.hero-subtitle {
+							font-size: 14px;
 						}
+
+						.hero-stats {
+							gap: 10px;
+
+							.stat-item {
+								padding: 12px 14px;
+
+								.stat-icon {
+									font-size: 24px;
+								}
+
+								.stat-text {
+									.stat-number {
+										font-size: 20px;
+									}
+
+									.stat-label {
+										font-size: 10px;
+									}
+								}
+							}
+						}
+					}
+
+					.hero-right {
+						padding: 0 24px 28px;
 					}
 				}
 
-				.main-content {
-					.categories-sidebar {
-						padding: 20px;
-						border-radius: 16px;
-
-						.sidebar-header {
-							.sidebar-title {
-								font-size: 16px;
-							}
-						}
+				.main-layout {
+					.left-sidebar {
+						grid-template-columns: 1fr;
 					}
 
-					.opportunities-content {
-						.tab-panel {
-							.panel-header {
-								padding: 20px;
-								border-radius: 12px;
-
-								.category-title {
-									font-size: 20px;
-								}
-
-								.category-desc {
-									font-size: 14px;
-								}
-							}
-
+					.content-area {
+						.tab-content {
 							.opportunities-grid {
 								grid-template-columns: 1fr;
-								gap: 20px;
+								gap: 18px;
 							}
 						}
 					}
 				}
 
-				.pagination-section {
-					padding: 24px;
-					border-radius: 12px;
+				.pagination-container {
+					padding: 20px;
+					margin-top: 30px;
 				}
 			}
 		}

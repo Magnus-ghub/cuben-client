@@ -21,8 +21,8 @@ const RightSidebar = () => {
 		<Stack className="right-sidebar-section">
 			<Stack className="sticky-wrapper">
 				<PopularProducts />
-				<Events />
 				<FeatureJobs />
+				<Events />
 			</Stack>
 		</Stack>
 	);

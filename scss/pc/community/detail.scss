@@ -1,178 +1,193 @@
+// ============================================
 // OPPORTUNITY CARD COMPONENT STYLES
+// ============================================
+
 .opportunity-card {
 	background: #fff;
-	border-radius: 20px;
+	border-radius: 24px;
 	overflow: hidden;
 	border: 1px solid #e5e7eb;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 	cursor: pointer;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	position: relative;
 
+	// ============================================
 	// HOVER STATE
+	// ============================================
 	&:hover {
-		transform: translateY(-8px);
-		box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
-		border-color: rgba(102, 126, 234, 0.3);
+		transform: translateY(-10px);
+		box-shadow: 0 24px 48px rgba(102, 126, 234, 0.2);
+		border-color: rgba(102, 126, 234, 0.4);
 
-		.card-banner img {
-			transform: scale(1.05);
+		.card-image {
+			transform: scale(1.08);
 		}
 
-		.arrow-icon {
-			transform: translateX(4px);
+		.button-icon {
+			transform: translateX(6px);
 		}
 
-		.read-more {
+		.view-details-button {
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 
-			p {
+			.button-text {
 				color: #fff;
 			}
 
-			svg {
+			.button-icon {
 				color: #fff;
 			}
 		}
 	}
 
-	// BANNER SECTION WITH IMAGE
-	.card-banner {
+	// ============================================
+	// CARD IMAGE SECTION
+	// ============================================
+	.card-image-section {
 		position: relative;
 		width: 100%;
-		height: 200px;
+		height: 220px;
 		overflow: hidden;
 		background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 
-		img {
+		.card-image {
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
-			transition: transform 0.5s ease;
+			transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		}
 
-		// BANNER OVERLAY
-		.banner-overlay {
+		// Image Overlay with Category Badge
+		.image-overlay {
 			position: absolute;
 			top: 0;
 			left: 0;
 			right: 0;
 			bottom: 0;
-			background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 50%);
+			background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 60%);
 			display: flex;
 			align-items: flex-start;
-			padding: 16px;
+			padding: 18px;
 
 			.category-badge {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				gap: 6px;
-				padding: 8px 16px;
-				border-radius: 10px;
-				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-				backdrop-filter: blur(10px);
+				gap: 8px;
+				padding: 10px 18px;
+				border-radius: 12px;
+				box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+				backdrop-filter: blur(12px);
 
-				.category-icon {
-					font-size: 16px;
+				.badge-icon {
+					font-size: 18px;
 					line-height: 1;
 				}
 
-				.category-text {
+				.badge-text {
 					color: #fff;
 					font-family: $font;
-					font-size: 12px;
-					font-weight: 700;
+					font-size: 13px;
+					font-weight: 800;
 					text-transform: uppercase;
-					letter-spacing: 0.5px;
+					letter-spacing: 0.8px;
 					line-height: 1;
 				}
 			}
 		}
 
-		// BANNER PLACEHOLDER (when no image)
-		&.card-banner-placeholder {
+		// Placeholder when no image
+		.card-image-placeholder {
+			width: 100%;
+			height: 100%;
 			display: flex;
+			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			background: none;
+			gap: 12px;
 
-			.placeholder-content {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				gap: 12px;
-				padding: 40px;
-				width: 100%;
-				height: 100%;
+			.placeholder-icon {
+				font-size: 56px;
+				line-height: 1;
+				filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+			}
 
-				.placeholder-icon {
-					font-size: 48px;
-					line-height: 1;
-				}
-
-				.placeholder-text {
-					color: #fff;
-					font-family: $font;
-					font-size: 18px;
-					font-weight: 700;
-					text-transform: uppercase;
-					letter-spacing: 1px;
-					line-height: 1;
-				}
+			.placeholder-text {
+				color: #fff;
+				font-family: $font;
+				font-size: 20px;
+				font-weight: 800;
+				text-transform: uppercase;
+				letter-spacing: 1.2px;
+				line-height: 1;
+				text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 			}
 		}
 	}
 
-	// CARD CONTENT SECTION
-	.card-content {
-		padding: 20px;
+	// ============================================
+	// CARD BODY/CONTENT SECTION
+	// ============================================
+	.card-body {
+		padding: 24px;
 		display: flex;
 		flex-direction: column;
 		flex: 1;
 		gap: 0;
 
-		// TITLE
+		// Category Chip (for cards without image)
+		.category-chip {
+			margin-bottom: 12px;
+		}
+
+		// Card Title
 		.card-title {
 			color: #1f2937;
 			font-family: $font;
-			font-size: 18px;
+			font-size: 20px;
 			font-weight: 800;
 			line-height: 1.4;
-			margin: 0 0 12px 0;
+			margin: 0 0 14px 0;
 			overflow: hidden;
 			display: -webkit-box;
-			// -webkit-line-clamp: 2;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
 			-webkit-box-orient: vertical;
-			min-height: 50px;
+			min-height: 56px;
+			letter-spacing: -0.3px;
 		}
 
-		// EXCERPT
-		.card-excerpt {
+		// Card Description/Excerpt
+		.card-description {
 			color: #6b7280;
 			font-family: $font;
 			font-size: 14px;
 			font-weight: 400;
 			line-height: 1.7;
-			margin: 0 0 16px 0;
+			margin: 0 0 18px 0;
 			overflow: hidden;
 			display: -webkit-box;
-			// -webkit-line-clamp: 3;
+			-webkit-line-clamp: 3;
+			line-clamp: 2;
 			-webkit-box-orient: vertical;
 			flex: 1;
 		}
 
-		// META INFO (Date, Location, Job Type)
-		.card-meta {
+		// ============================================
+		// META INFORMATION
+		// ============================================
+		.card-meta-info {
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
-			gap: 12px;
-			margin-bottom: 16px;
-			padding-bottom: 16px;
+			gap: 14px;
+			margin-bottom: 18px;
+			padding-bottom: 18px;
 			border-bottom: 1px solid #f3f4f6;
 
 			.meta-item {
@@ -181,56 +196,59 @@
 				align-items: center;
 				gap: 6px;
 
-				svg {
-					width: 14px;
-					height: 14px;
+				.meta-icon {
+					width: 15px;
+					height: 15px;
 					color: #9ca3af;
 				}
 
-				p {
+				.meta-text {
 					color: #9ca3af;
 					font-family: $font;
 					font-size: 13px;
-					font-weight: 500;
+					font-weight: 600;
 					line-height: 1;
 					margin: 0;
 				}
 			}
 		}
 
-		// CARD FOOTER (Author & Stats)
-		.card-footer {
+		// ============================================
+		// CARD FOOTER (AUTHOR + STATS)
+		// ============================================
+		.card-footer-section {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
-			margin-bottom: 16px;
-			padding-bottom: 16px;
+			margin-bottom: 18px;
+			padding-bottom: 18px;
 			border-bottom: 1px solid #f3f4f6;
 
-			// AUTHOR SECTION
-			.author-section {
+			// Author Container
+			.author-container {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				gap: 10px;
+				gap: 12px;
 
 				.author-avatar {
-					width: 36px;
-					height: 36px;
+					width: 38px;
+					height: 38px;
 					border: 2px solid #e5e7eb;
+					transition: border-color 0.2s ease;
 				}
 
-				.author-info {
+				.author-details {
 					display: flex;
 					flex-direction: column;
-					gap: 2px;
+					gap: 3px;
 
 					.author-name {
 						color: #1f2937;
 						font-family: $font;
-						font-size: 13px;
-						font-weight: 600;
+						font-size: 14px;
+						font-weight: 700;
 						margin: 0;
 						line-height: 1.2;
 					}
@@ -238,7 +256,7 @@
 					.author-role {
 						color: #9ca3af;
 						font-family: $font;
-						font-size: 11px;
+						font-size: 12px;
 						font-weight: 500;
 						margin: 0;
 						line-height: 1.2;
@@ -246,58 +264,63 @@
 				}
 			}
 
-			// STATS SECTION (Views, Likes, Comments)
-			.stats-section {
+			// Engagement Stats Container
+			.engagement-stats {
 				display: flex;
 				flex-direction: row;
-				gap: 12px;
+				gap: 14px;
 
 				.stat-item {
 					display: flex;
 					flex-direction: row;
 					align-items: center;
-					gap: 4px;
-					padding: 4px 8px;
-					border-radius: 8px;
+					gap: 5px;
+					padding: 6px 10px;
+					border-radius: 10px;
 					transition: all 0.2s ease;
 
-					svg {
-						width: 16px;
-						height: 16px;
+					.stat-icon {
+						width: 17px;
+						height: 17px;
 						color: #9ca3af;
+						transition: color 0.2s ease;
+
+						&.liked {
+							color: #667eea;
+						}
 					}
 
-					p {
+					.stat-value {
 						color: #6b7280;
 						font-family: $font;
 						font-size: 13px;
-						font-weight: 600;
+						font-weight: 700;
 						line-height: 1;
 						margin: 0;
 					}
 
-					// LIKE BUTTON
+					// Like Button Specific Styles
 					&.like-button {
 						cursor: pointer;
 
 						&:hover {
-							background: rgba(102, 126, 234, 0.1);
+							background: rgba(102, 126, 234, 0.12);
 
-							svg {
+							.stat-icon {
 								color: #667eea;
 							}
 
-							p {
+							.stat-value {
 								color: #667eea;
 							}
 						}
 
 						&.liked {
-							svg {
+							.stat-icon {
 								color: #667eea;
 							}
 
-							p {
+							.stat-value {
 								color: #667eea;
 							}
 						}
@@ -306,220 +329,244 @@
 			}
 		}
 
-		// READ MORE BUTTON
-		.read-more {
+		// ============================================
+		// VIEW DETAILS BUTTON
+		// ============================================
+		.view-details-button {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			gap: 6px;
-			padding: 12px;
-			background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-			border-radius: 12px;
-			transition: all 0.2s ease;
+			gap: 8px;
+			padding: 14px;
+			background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+			border-radius: 14px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-			p {
+			.button-text {
 				color: #667eea;
 				font-family: $font;
 				font-size: 14px;
-				font-weight: 700;
+				font-weight: 800;
 				line-height: 1;
 				margin: 0;
 			}
 
-			.arrow-icon {
-				width: 16px;
-				height: 16px;
+			.button-icon {
+				width: 18px;
+				height: 18px;
 				color: #667eea;
-				transition: transform 0.2s ease;
+				transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 			}
 		}
 	}
 }
 
-// RESPONSIVE - TABLET
+// ============================================
+// RESPONSIVE - TABLET (max-width: 1024px)
+// ============================================
 @media (max-width: 1024px) {
 	.opportunity-card {
-		.card-banner {
-			height: 180px;
+		.card-image-section {
+			height: 200px;
 
-			&.card-banner-placeholder {
-				.placeholder-content {
-					padding: 35px;
+			.card-image-placeholder {
+				.placeholder-icon {
+					font-size: 48px;
+				}
 
-					.placeholder-icon {
-						font-size: 42px;
-					}
-
-					.placeholder-text {
-						font-size: 16px;
-					}
+				.placeholder-text {
+					font-size: 18px;
 				}
 			}
 		}
 
-		.card-content {
-			padding: 18px;
+		.card-body {
+			padding: 20px;
 
 			.card-title {
-				font-size: 17px;
+				font-size: 18px;
+				min-height: 50px;
 			}
 
-			.card-excerpt {
+			.card-description {
 				font-size: 13px;
 			}
 		}
 	}
 }
 
-// RESPONSIVE - MOBILE
+// ============================================
+// RESPONSIVE - MOBILE (max-width: 768px)
+// ============================================
 @media (max-width: 768px) {
 	.opportunity-card {
-		border-radius: 16px;
+		border-radius: 20px;
 
-		.card-banner {
-			height: 160px;
+		.card-image-section {
+			height: 180px;
 
-			.banner-overlay {
-				padding: 12px;
+			.image-overlay {
+				padding: 14px;
 
 				.category-badge {
-					padding: 6px 12px;
+					padding: 8px 14px;
 
-					.category-icon {
-						font-size: 14px;
+					.badge-icon {
+						font-size: 16px;
 					}
 
-					.category-text {
-						font-size: 11px;
-					}
-				}
-			}
-
-			&.card-banner-placeholder {
-				.placeholder-content {
-					padding: 30px;
-
-					.placeholder-icon {
-						font-size: 36px;
-					}
-
-					.placeholder-text {
-						font-size: 14px;
-					}
-				}
-			}
-		}
-
-		.card-content {
-			padding: 16px;
-
-			.card-title {
-				font-size: 16px;
-				min-height: 44px;
-			}
-
-			.card-excerpt {
-				font-size: 13px;
-				// -webkit-line-clamp: 2;
-				margin-bottom: 12px;
-			}
-
-			.card-meta {
-				gap: 10px;
-				margin-bottom: 12px;
-				padding-bottom: 12px;
-
-				.meta-item {
-					gap: 5px;
-
-					svg {
-						width: 13px;
-						height: 13px;
-					}
-
-					p {
+					.badge-text {
 						font-size: 12px;
 					}
 				}
 			}
 
-			.card-footer {
-				flex-direction: column;
-				gap: 12px;
-				align-items: flex-start;
-				margin-bottom: 12px;
-				padding-bottom: 12px;
+			.card-image-placeholder {
+				.placeholder-icon {
+					font-size: 42px;
+				}
 
-				.author-section {
-					.author-avatar {
-						width: 32px;
-						height: 32px;
+				.placeholder-text {
+					font-size: 16px;
+				}
+			}
+		}
+
+		.card-body {
+			padding: 18px;
+
+			.card-title {
+				font-size: 17px;
+				min-height: 48px;
+			}
+
+			.card-description {
+				font-size: 13px;
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
+				margin-bottom: 14px;
+			}
+
+			.card-meta-info {
+				gap: 10px;
+				margin-bottom: 14px;
+				padding-bottom: 14px;
+
+				.meta-item {
+					gap: 5px;
+
+					.meta-icon {
+						width: 14px;
+						height: 14px;
 					}
 
-					.author-info {
+					.meta-text {
+						font-size: 12px;
+					}
+				}
+			}
+
+			.card-footer-section {
+				flex-direction: column;
+				gap: 14px;
+				align-items: flex-start;
+				margin-bottom: 14px;
+				padding-bottom: 14px;
+
+				.author-container {
+					.author-avatar {
+						width: 34px;
+						height: 34px;
+					}
+
+					.author-details {
 						.author-name {
-							font-size: 12px;
+							font-size: 13px;
 						}
 
 						.author-role {
-							font-size: 10px;
+							font-size: 11px;
 						}
 					}
 				}
 
-				.stats-section {
+				.engagement-stats {
 					width: 100%;
 					justify-content: space-between;
 
 					.stat-item {
-						padding: 4px 6px;
+						padding: 5px 8px;
 
-						svg {
-							width: 15px;
-							height: 15px;
+						.stat-icon {
+							width: 16px;
+							height: 16px;
 						}
 
-						p {
+						.stat-value {
 							font-size: 12px;
 						}
 					}
 				}
 			}
 
-			.read-more {
-				padding: 10px;
+			.view-details-button {
+				padding: 12px;
 
-				p {
+				.button-text {
 					font-size: 13px;
 				}
 
-				.arrow-icon {
-					width: 14px;
-					height: 14px;
+				.button-icon {
+					width: 16px;
+					height: 16px;
 				}
 			}
 		}
 	}
 }
 
-// RESPONSIVE - SMALL MOBILE
+// ============================================
+// RESPONSIVE - SMALL MOBILE (max-width: 480px)
+// ============================================
 @media (max-width: 480px) {
 	.opportunity-card {
-		.card-banner {
-			height: 140px;
+		border-radius: 16px;
+
+		.card-image-section {
+			height: 160px;
+
+			.card-image-placeholder {
+				.placeholder-icon {
+					font-size: 38px;
+				}
+
+				.placeholder-text {
+					font-size: 14px;
+				}
+			}
 		}
 
-		.card-content {
-			padding: 14px;
+		.card-body {
+			padding: 16px;
 
 			.card-title {
-				font-size: 15px;
-				min-height: 42px;
+				font-size: 16px;
+				min-height: 45px;
 			}
 
-			.card-excerpt {
+			.card-description {
 				font-size: 12px;
+			}
+
+			.card-meta-info {
+				gap: 8px;
+
+				.meta-item {
+					.meta-text {
+						font-size: 11px;
+					}
+				}
 			}
 		}
 	}

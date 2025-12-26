@@ -1,6 +1,5 @@
-// OpportunityCard.tsx
 import React from 'react';
-import { Stack, Typography, Avatar, IconButton } from '@mui/material';
+import { Stack, Typography, Avatar, IconButton, Chip } from '@mui/material';
 import { useRouter } from 'next/router';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
@@ -9,7 +8,9 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
+import EventIcon from '@mui/icons-material/Event';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import Moment from 'react-moment';
 import { useReactiveVar } from '@apollo/client';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
@@ -26,127 +27,160 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 
 	const goDetailPage = (e: any) => {
 		if (e.target.closest('.like-button')) return;
-		
+
 		router.push({
 			pathname: '/opportunities/detail',
-			query: { 
+			query: {
 				id: boardArticle?._id,
-				articleCategory: boardArticle?.articleCategory 
+				articleCategory: boardArticle?.articleCategory,
 			},
 		});
 	};
 
 	const getCategoryStyles = (category: string) => {
 		const styles: any = {
-			COMMUNITY: {
-				bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-				icon: '👥',
-				label: 'Community'
-			},
-			MARKET: {
-				bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-				icon: '🛒',
-				label: 'Marketplace'
-			},
 			CAREER: {
 				bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+				color: '#f59e0b',
 				icon: '💼',
-				label: 'Career'
-			},
-			KNOWLEDGE: {
-				bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-				icon: '📚',
-				label: 'Knowledge'
+				label: 'Career',
 			},
 			EVENTS: {
 				bg: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+				color: '#ec4899',
 				icon: '🎉',
-				label: 'Events'
+				label: 'Event',
+			},
+			KNOWLEDGE: {
+				bg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+				color: '#3b82f6',
+				icon: '📰',
+				label: 'News',
 			},
 			HELP: {
-				bg: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-				icon: '💡',
-				label: 'Help'
+				bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+				color: '#8b5cf6',
+				icon: '📚',
+				label: 'Resource',
 			},
 		};
-		return styles[category] || styles.COMMUNITY;
+		return styles[category] || styles.CAREER;
 	};
 
 	const categoryStyle = getCategoryStyles(boardArticle?.articleCategory);
 	const isLiked = boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite;
 
-	return (
-		<Stack 
-			className="opportunity-card"
-			onClick={goDetailPage}
-		>
-			{/* Featured Image/Banner */}
-			{boardArticle?.articleImage && (
-				<Stack className="card-banner">
-					<img 
-						src={`${process.env.REACT_APP_API_URL}/${boardArticle?.articleImage}`}
-						alt={boardArticle?.articleTitle}
-					/>
-					<Stack className="banner-overlay">
-						<Stack 
-							className="category-badge"
-							sx={{ background: categoryStyle.bg }}
-						>
-							<Typography className="category-icon">{categoryStyle.icon}</Typography>
-							<Typography className="category-text">{categoryStyle.label}</Typography>
-						</Stack>
-					</Stack>
-				</Stack>
-			)}
+	// Strip HTML tags and get excerpt
+	const getExcerpt = (html: string, length: number = 150) => {
+		const text = html?.replace(/<[^>]*>/g, '') || '';
+		return text.length > length ? text.substring(0, length) + '...' : text;
+	};
 
-			{/* Card Content */}
-			<Stack className="card-content">
-				{/* Category Badge (if no image) */}
-				{!boardArticle?.articleImage && (
-					<Stack 
-						className="category-badge-top"
-						sx={{ background: categoryStyle.bg }}
-					>
-						<Typography className="category-icon">{categoryStyle.icon}</Typography>
-						<Typography className="category-text">{categoryStyle.label}</Typography>
+	return (
+		<Stack className="opportunity-card" onClick={goDetailPage}>
+			{/* Card Image Banner */}
+			<Stack className="card-image-section">
+				{boardArticle?.articleImage ? (
+					<>
+						<img
+							src={`${process.env.REACT_APP_API_URL}/${boardArticle?.articleImage}`}
+							alt={boardArticle?.articleTitle}
+							className="card-image"
+						/>
+						<Stack className="image-overlay">
+							<Stack className="category-badge" sx={{ background: categoryStyle.bg }}>
+								<Typography className="badge-icon">{categoryStyle.icon}</Typography>
+								<Typography className="badge-text">{categoryStyle.label}</Typography>
+							</Stack>
+						</Stack>
+					</>
+				) : (
+					<Stack className="card-image-placeholder" sx={{ background: categoryStyle.bg }}>
+						<Typography className="placeholder-icon">{categoryStyle.icon}</Typography>
+						<Typography className="placeholder-text">{categoryStyle.label}</Typography>
 					</Stack>
+				)}
+			</Stack>
+
+			{/* Card Content Section */}
+			<Stack className="card-body">
+				{/* Category Badge for no-image cards */}
+				{!boardArticle?.articleImage && (
+					<Chip
+						icon={<span>{categoryStyle.icon}</span>}
+						label={categoryStyle.label}
+						size="small"
+						className="category-chip"
+						sx={{
+							background: categoryStyle.bg,
+							color: '#fff',
+							fontWeight: 700,
+							fontSize: '11px',
+							height: '24px',
+							marginBottom: '12px',
+						}}
+					/>
 				)}
 
 				{/* Title */}
-				<Typography className="card-title">
-					{boardArticle?.articleTitle}
+				<Typography className="card-title">{boardArticle?.articleTitle}</Typography>
+
+				{/* Description/Excerpt */}
+				<Typography className="card-description">
+					{getExcerpt(boardArticle?.articleContent, 140)}
 				</Typography>
 
-				{/* Excerpt */}
-				<Typography className="card-excerpt">
-					{boardArticle?.articleContent?.replace(/<[^>]*>/g, '').substring(0, 120)}...
-				</Typography>
-
-				{/* Meta Info */}
-				<Stack className="card-meta">
+				{/* Meta Information Based on Category */}
+				<Stack className="card-meta-info">
+					{/* Posted Date - Always shown */}
 					<Stack className="meta-item">
-						<CalendarTodayIcon />
-						<Typography>
+						<CalendarTodayIcon className="meta-icon" />
+						<Typography className="meta-text">
 							<Moment fromNow>{boardArticle?.createdAt}</Moment>
 						</Typography>
 					</Stack>
-					{boardArticle?.articleCategory === 'EVENTS' && (
-						<Stack className="meta-item">
-							<LocationOnIcon />
-							<Typography>Campus Center</Typography>
-						</Stack>
-					)}
+
+					{/* Career specific info */}
 					{boardArticle?.articleCategory === 'CAREER' && (
+						<>
+							<Stack className="meta-item">
+								<WorkOutlineIcon className="meta-icon" />
+								<Typography className="meta-text">Full-time Position</Typography>
+							</Stack>
+							<Stack className="meta-item">
+								<LocationOnIcon className="meta-icon" />
+								<Typography className="meta-text">BUFS Campus</Typography>
+							</Stack>
+						</>
+					)}
+
+					{/* Events specific info */}
+					{boardArticle?.articleCategory === 'EVENTS' && (
+						<>
+							<Stack className="meta-item">
+								<EventIcon className="meta-icon" />
+								<Typography className="meta-text">Upcoming Event</Typography>
+							</Stack>
+							<Stack className="meta-item">
+								<LocationOnIcon className="meta-icon" />
+								<Typography className="meta-text">Main Campus</Typography>
+							</Stack>
+						</>
+					)}
+
+					{/* News specific info */}
+					{boardArticle?.articleCategory === 'KNOWLEDGE' && (
 						<Stack className="meta-item">
-							<WorkOutlineIcon />
-							<Typography>Full-time</Typography>
+							<TrendingUpIcon className="meta-icon" />
+							<Typography className="meta-text">University Update</Typography>
 						</Stack>
 					)}
 				</Stack>
 
-				{/* Author & Stats */}
-				<Stack className="card-footer">
-					<Stack className="author-section">
+				{/* Author and Stats Section */}
+				<Stack className="card-footer-section">
+					{/* Author Info */}
+					<Stack className="author-container">
 						<Avatar
 							src={
 								boardArticle?.memberData?.memberImage
@@ -154,21 +188,23 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 									: '/img/user/default.png'
 							}
 							className="author-avatar"
+							sx={{ width: 36, height: 36 }}
 						/>
-						<Stack className="author-info">
+						<Stack className="author-details">
 							<Typography className="author-name">
-								{boardArticle?.memberData?.memberNick || 'Anonymous'}
+								{boardArticle?.memberData?.memberNick || 'BUFS Admin'}
 							</Typography>
-							<Typography className="author-role">University Admin</Typography>
+							<Typography className="author-role">University Staff</Typography>
 						</Stack>
 					</Stack>
 
-					<Stack className="stats-section">
+					{/* Engagement Stats */}
+					<Stack className="engagement-stats">
 						<Stack className="stat-item">
-							<VisibilityIcon />
-							<Typography>{boardArticle?.articleViews || 0}</Typography>
+							<VisibilityIcon className="stat-icon" />
+							<Typography className="stat-value">{boardArticle?.articleViews || 0}</Typography>
 						</Stack>
-						<Stack 
+						<Stack
 							className={`stat-item like-button ${isLiked ? 'liked' : ''}`}
 							onClick={(e) => {
 								e.stopPropagation();
@@ -176,23 +212,23 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 							}}
 						>
 							{isLiked ? (
-								<ThumbUpAltIcon />
+								<ThumbUpAltIcon className="stat-icon liked" />
 							) : (
-								<ThumbUpOffAltIcon />
+								<ThumbUpOffAltIcon className="stat-icon" />
 							)}
-							<Typography>{boardArticle?.articleLikes || 0}</Typography>
+							<Typography className="stat-value">{boardArticle?.articleLikes || 0}</Typography>
 						</Stack>
 						<Stack className="stat-item">
-							<ChatBubbleOutlineIcon />
-							<Typography>{boardArticle?.articleComments || 0}</Typography>
+							<ChatBubbleOutlineIcon className="stat-icon" />
+							<Typography className="stat-value">{boardArticle?.articleComments || 0}</Typography>
 						</Stack>
 					</Stack>
 				</Stack>
 
-				{/* Read More Button */}
-				<Stack className="read-more">
-					<Typography>Read More</Typography>
-					<ArrowForwardIcon className="arrow-icon" />
+				{/* View Details Button */}
+				<Stack className="view-details-button">
+					<Typography className="button-text">View Full Details</Typography>
+					<ArrowForwardIcon className="button-icon" />
 				</Stack>
 			</Stack>
 		</Stack>
