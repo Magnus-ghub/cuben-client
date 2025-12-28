@@ -4,273 +4,390 @@
 	.mypage-container {
 		width: 100%;
 		min-height: calc(100vh - 64px);
-		background: #f9fafb;
-		padding: 32px 0 80px 0;
+		background: #f8fafc;
+		padding: 0 0 80px 0;
 
 		.container {
 			max-width: 1400px;
 			margin: 0 auto;
-			padding: 0 24px;
 			display: flex;
 			flex-direction: column;
-			gap: 24px;
 		}
 
 		// ============================================
-		// PAGE HEADER
+		// HERO PROFILE SECTION - Ultra Modern
 		// ============================================
-		.page-header {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			margin-bottom: 8px;
-
-			.header-content {
-				h1 {
-					font-family: $font;
-					font-size: 32px;
-					font-weight: 700;
-					color: #1f2937;
-					margin: 0 0 4px 0;
-					letter-spacing: -0.5px;
-				}
-
-				p {
-					font-family: $font;
-					font-size: 15px;
-					color: #6b7280;
-					margin: 0;
-				}
-			}
-
-			.settings-btn {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				padding: 10px 20px;
-				background: #ffffff;
-				border: 2px solid #e5e7eb;
-				border-radius: 12px;
-				cursor: pointer;
-				transition: all 0.2s ease;
-
-				svg {
-					color: #6b7280;
-				}
-
-				span {
-					font-family: $font;
-					font-size: 14px;
-					font-weight: 600;
-					color: #374151;
-				}
-
-				&:hover {
-					border-color: #667eea;
-					background: rgba(102, 126, 234, 0.05);
-
-					svg {
-						color: #667eea;
-					}
-
-					span {
-						color: #667eea;
-					}
-				}
-			}
-		}
-
-		// ============================================
-		// PROFILE BANNER
-		// ============================================
-		.profile-banner {
+		.hero-section {
 			position: relative;
 			background: #ffffff;
-			border-radius: 20px;
-			overflow: hidden;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-			border: 1px solid #e5e7eb;
+			border-bottom: 1px solid #e2e8f0;
+			overflow: visible;
 
-			.profile-background {
-				width: 100%;
-				height: 180px;
-				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-				position: relative;
+			// Background with animated gradient
+			.hero-background {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 220px;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+				z-index: 0;
 
-				&::before {
-					content: '';
+				.pattern-overlay {
 					position: absolute;
-					top: -30%;
-					right: -10%;
-					width: 400px;
-					height: 400px;
-					background: rgba(255, 255, 255, 0.1);
-					border-radius: 50%;
-				}
-
-				&::after {
-					content: '';
-					position: absolute;
-					bottom: -50%;
-					left: -5%;
-					width: 300px;
-					height: 300px;
-					background: rgba(255, 255, 255, 0.08);
-					border-radius: 50%;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+						radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+					animation: patternMove 20s ease-in-out infinite;
 				}
 			}
 
-			.profile-content {
+			// Hero Content
+			.hero-content {
 				position: relative;
-				padding: 0 40px 32px 40px;
+				z-index: 1;
+				padding: 40px 40px 24px 40px;
 				display: flex;
 				justify-content: space-between;
-				align-items: flex-end;
+				align-items: flex-start;
 
-				.profile-left {
+				.profile-section {
 					display: flex;
 					gap: 24px;
-					align-items: flex-end;
-					margin-top: -50px;
+					align-items: flex-start;
 
 					.MuiBadge-root {
-						.profile-avatar {
-							width: 140px;
-							height: 140px;
-							border: 5px solid #ffffff;
-							box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+						.hero-avatar {
+							width: 120px;
+							height: 120px;
+							border: 4px solid rgba(255, 255, 255, 0.9);
+							box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+							transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+							&:hover {
+								transform: scale(1.05);
+								box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+							}
 						}
 
 						.edit-badge {
-							width: 32px;
-							height: 32px;
-							background: #667eea;
+							width: 36px;
+							height: 36px;
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 							border-radius: 50%;
 							display: flex;
 							align-items: center;
 							justify-content: center;
 							border: 3px solid #ffffff;
 							cursor: pointer;
-							transition: all 0.2s ease;
+							transition: all 0.3s ease;
+							box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 
 							svg {
 								color: #ffffff;
 							}
 
 							&:hover {
-								background: #5568d3;
-								transform: scale(1.1);
+								transform: scale(1.15) rotate(90deg);
+								box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 							}
 						}
 					}
 
-					.profile-info {
-						padding-bottom: 8px;
+					.profile-details {
+						padding-top: 8px;
 
-						.name-badge {
-							display: flex;
-							align-items: center;
-							gap: 8px;
-							margin-bottom: 4px;
+						.name-section {
+							margin-bottom: 16px;
 
-							h2 {
-								font-family: $font;
-								font-size: 28px;
-								font-weight: 700;
-								color: #1f2937;
-								margin: 0;
-								letter-spacing: -0.5px;
-							}
-
-							.verified-badge {
-								width: 28px;
-								height: 28px;
-								background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-								border-radius: 50%;
+							.name-row {
 								display: flex;
 								align-items: center;
-								justify-content: center;
+								gap: 12px;
+								margin-bottom: 6px;
+
+								h1 {
+									font-family: $font;
+									font-size: 32px;
+									font-weight: 700;
+									color: #ffffff;
+									margin: 0;
+									letter-spacing: -0.5px;
+									text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+								}
+
+								.verified-chip {
+									background: rgba(255, 255, 255, 0.25) !important;
+									backdrop-filter: blur(10px);
+									color: #ffffff !important;
+									font-weight: 600 !important;
+									border: 1px solid rgba(255, 255, 255, 0.3);
+									padding: 4px 8px !important;
+									height: 28px !important;
+
+									.MuiChip-icon {
+										color: #fbbf24 !important;
+									}
+								}
+							}
+
+							.username {
+								font-family: $font;
+								font-size: 16px;
+								color: rgba(255, 255, 255, 0.9);
+								margin: 0;
+								font-weight: 500;
+							}
+						}
+
+						.contact-info {
+							display: flex;
+							gap: 24px;
+							flex-wrap: wrap;
+
+							.contact-item {
+								display: flex;
+								align-items: center;
+								gap: 8px;
+								padding: 8px 16px;
+								background: rgba(255, 255, 255, 0.2);
+								backdrop-filter: blur(10px);
+								border-radius: 20px;
+								border: 1px solid rgba(255, 255, 255, 0.3);
+								transition: all 0.3s ease;
 
 								svg {
 									color: #ffffff;
-								}
-							}
-						}
-
-						.username {
-							font-family: $font;
-							font-size: 16px;
-							color: #9ca3af;
-							margin: 0 0 12px 0;
-						}
-
-						.user-meta {
-							display: flex;
-							gap: 20px;
-
-							.meta-item {
-								display: flex;
-								align-items: center;
-								gap: 6px;
-
-								svg {
-									color: #9ca3af;
+									flex-shrink: 0;
 								}
 
 								span {
 									font-family: $font;
 									font-size: 14px;
-									color: #6b7280;
+									color: #ffffff;
+									font-weight: 500;
+								}
+
+								&:hover {
+									background: rgba(255, 255, 255, 0.3);
+									transform: translateY(-2px);
 								}
 							}
 						}
 					}
 				}
 
-				.quick-stats {
+				.settings-button {
 					display: flex;
-					gap: 16px;
+					align-items: center;
+					gap: 8px;
+					padding: 12px 24px;
+					background: rgba(255, 255, 255, 0.25);
+					backdrop-filter: blur(10px);
+					border: 2px solid rgba(255, 255, 255, 0.3);
+					border-radius: 12px;
+					cursor: pointer;
+					transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-					.stat-item {
-						background: #ffffff;
-						padding: 16px 20px;
+					svg {
+						color: #ffffff;
+						transition: transform 0.3s ease;
+					}
+
+					span {
+						font-family: $font;
+						font-size: 14px;
+						font-weight: 600;
+						color: #ffffff;
+					}
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.35);
+						border-color: rgba(255, 255, 255, 0.5);
+						transform: translateY(-2px);
+						box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+
+						svg {
+							transform: rotate(90deg);
+						}
+					}
+				}
+			}
+
+			// Stats Grid - Modern Cards
+			.stats-grid {
+				position: relative;
+				z-index: 1;
+				display: grid;
+				grid-template-columns: repeat(4, 1fr);
+				gap: 16px;
+				padding: 0 40px 32px 40px;
+
+				.stat-card {
+					position: relative;
+					padding: 24px;
+					border-radius: 16px;
+					overflow: hidden;
+					color: #ffffff;
+					cursor: pointer;
+					transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+					box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+					&:hover {
+						transform: translateY(-4px);
+						box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+					}
+
+					.stat-icon-wrapper {
+						width: 48px;
+						height: 48px;
+						background: rgba(255, 255, 255, 0.2);
 						border-radius: 12px;
-						border: 1px solid #e5e7eb;
-						border-top: 3px solid #667eea;
 						display: flex;
 						align-items: center;
-						gap: 12px;
-						min-width: 140px;
-						transition: all 0.2s ease;
+						justify-content: center;
+						margin-bottom: 12px;
+						backdrop-filter: blur(10px);
 
-						&:hover {
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+						svg {
+							color: #ffffff;
+						}
+					}
+
+					.stat-info {
+						position: relative;
+						z-index: 2;
+
+						h3 {
+							font-family: $font;
+							font-size: 28px;
+							font-weight: 700;
+							margin: 0 0 4px 0;
+							color: #ffffff;
 						}
 
-						.stat-icon {
-							width: 44px;
-							height: 44px;
-							border-radius: 10px;
-							display: flex;
-							align-items: center;
-							justify-content: center;
+						p {
+							font-family: $font;
+							font-size: 13px;
+							margin: 0;
+							color: rgba(255, 255, 255, 0.9);
+							font-weight: 500;
+						}
+					}
+
+					.stat-decoration {
+						position: absolute;
+						bottom: -10px;
+						right: -10px;
+						opacity: 0.1;
+						z-index: 1;
+
+						svg {
+							color: #ffffff;
+						}
+					}
+				}
+			}
+		}
+
+		// ============================================
+		// TOP NAVIGATION TABS - Modern
+		// ============================================
+		.navigation-tabs {
+			position: sticky;
+			top: 64px;
+			z-index: 100;
+			background: #ffffff;
+			border-bottom: 1px solid #e2e8f0;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+			.tabs-container {
+				display: flex;
+				padding: 0 40px;
+				gap: 8px;
+				overflow-x: auto;
+				scrollbar-width: none;
+
+				&::-webkit-scrollbar {
+					display: none;
+				}
+
+				.nav-tab {
+					position: relative;
+					padding: 16px 24px;
+					cursor: pointer;
+					transition: all 0.3s ease;
+					border-bottom: 2px solid transparent;
+
+					.tab-content {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						white-space: nowrap;
+
+						svg {
+							color: #64748b;
+							transition: color 0.3s ease;
+							flex-shrink: 0;
 						}
 
-						.stat-content {
-							h3 {
-								font-family: $font;
-								font-size: 24px;
-								font-weight: 700;
-								color: #1f2937;
-								margin: 0;
+						span {
+							font-family: $font;
+							font-size: 14px;
+							font-weight: 600;
+							color: #64748b;
+							transition: color 0.3s ease;
+						}
+
+						.tab-badge {
+							background: #f1f5f9 !important;
+							color: #64748b !important;
+							font-weight: 600 !important;
+							height: 22px !important;
+							transition: all 0.3s ease;
+						}
+					}
+
+					.active-indicator {
+						position: absolute;
+						bottom: -2px;
+						left: 0;
+						right: 0;
+						height: 3px;
+						background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+						border-radius: 2px 2px 0 0;
+						animation: slideIn 0.3s ease;
+					}
+
+					&:hover {
+						background: #f8fafc;
+
+						.tab-content {
+							svg,
+							span {
+								color: #667eea;
 							}
 
-							p {
-								font-family: $font;
-								font-size: 13px;
-								color: #6b7280;
-								margin: 0;
+							.tab-badge {
+								background: rgba(102, 126, 234, 0.1) !important;
+								color: #667eea !important;
+							}
+						}
+					}
+
+					&.active {
+						.tab-content {
+							svg,
+							span {
+								color: #667eea;
+							}
+
+							.tab-badge {
+								background: rgba(102, 126, 234, 0.15) !important;
+								color: #667eea !important;
 							}
 						}
 					}
@@ -279,137 +396,54 @@
 		}
 
 		// ============================================
-		// MAIN CONTENT AREA (Sidebar + Content)
+		// CONTENT WRAPPER
 		// ============================================
-		.main-content {
-			display: grid;
-			grid-template-columns: 280px 1fr;
-			gap: 24px;
-			align-items: start;
+		.content-wrapper {
+			padding: 32px 40px;
 
-			// ============================================
-			// SIDEBAR MENU
-			// ============================================
-			.sidebar-menu {
-				position: sticky;
-				top: 88px;
-				background: #ffffff;
-				border-radius: 16px;
-				padding: 24px;
-				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-				border: 1px solid #e5e7eb;
-
-				.menu-header {
-					display: flex;
-					align-items: center;
-					gap: 10px;
-					padding-bottom: 16px;
-					border-bottom: 1px solid #f3f4f6;
-					margin-bottom: 20px;
-
-					svg {
-						color: #667eea;
-					}
-
-					h3 {
-						font-family: $font;
-						font-size: 16px;
-						font-weight: 700;
-						color: #1f2937;
-						margin: 0;
-					}
-				}
-
-				.menu-sections {
-					display: flex;
-					flex-direction: column;
-					gap: 24px;
-
-					.menu-section {
-						.section-label {
-							font-family: $font;
-							font-size: 11px;
-							font-weight: 700;
-							color: #9ca3af;
-							text-transform: uppercase;
-							letter-spacing: 0.5px;
-							margin: 0 0 8px 0;
-							padding: 0 12px;
-						}
-
-						.menu-item {
-							display: flex;
-							align-items: center;
-							gap: 12px;
-							padding: 12px 12px;
-							border-radius: 10px;
-							cursor: pointer;
-							transition: all 0.2s ease;
-							position: relative;
-
-							svg {
-								color: #9ca3af;
-								transition: color 0.2s ease;
-							}
-
-							span {
-								flex: 1;
-								font-family: $font;
-								font-size: 14px;
-								font-weight: 500;
-								color: #6b7280;
-								transition: color 0.2s ease;
-							}
-
-							.menu-badge {
-								position: absolute;
-								right: 12px;
-							}
-
-							&:hover {
-								background: #f9fafb;
-
-								svg,
-								span {
-									color: #667eea;
-								}
-							}
-
-							&.active {
-								background: linear-gradient(
-									90deg,
-									rgba(102, 126, 234, 0.15) 0%,
-									rgba(102, 126, 234, 0.05) 100%
-								);
-								border-left: 3px solid #667eea;
-								padding-left: 9px;
-
-								svg {
-									color: #667eea;
-								}
-
-								span {
-									color: #667eea;
-									font-weight: 600;
-								}
-							}
-						}
-					}
-				}
-			}
-
-			// ============================================
-			// CONTENT AREA
-			// ============================================
 			.content-area {
 				background: #ffffff;
 				border-radius: 16px;
 				padding: 32px;
 				min-height: 500px;
 				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-				border: 1px solid #e5e7eb;
+				border: 1px solid #e2e8f0;
+				animation: fadeInUp 0.5s ease;
 			}
 		}
+	}
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+@keyframes patternMove {
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	50% {
+		transform: translate(20px, 20px);
+	}
+}
+
+@keyframes slideIn {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }
 
@@ -418,17 +452,9 @@
 // ============================================
 @media (max-width: 1400px) {
 	#pc-wrap .mypage-container {
-		.profile-banner .profile-content {
-			flex-direction: column;
-			align-items: flex-start;
-
-			.profile-left {
-				margin-bottom: 24px;
-			}
-
-			.quick-stats {
-				width: 100%;
-				flex-wrap: wrap;
+		.hero-section {
+			.stats-grid {
+				grid-template-columns: repeat(2, 1fr);
 			}
 		}
 	}
@@ -436,101 +462,117 @@
 
 @media (max-width: 1200px) {
 	#pc-wrap .mypage-container {
-		.main-content {
-			grid-template-columns: 240px 1fr;
+		.hero-section {
+			.hero-content {
+				flex-direction: column;
+				gap: 24px;
+
+				.settings-button {
+					align-self: flex-start;
+				}
+			}
 		}
 	}
 }
 
 @media (max-width: 960px) {
 	#pc-wrap .mypage-container {
-		.main-content {
-			grid-template-columns: 1fr;
+		.hero-section {
+			.hero-content {
+				padding: 32px 24px 20px 24px;
 
-			.sidebar-menu {
-				position: static;
-				display: none; // Hide on mobile, can add hamburger menu
-			}
-		}
+				.profile-section {
+					flex-direction: column;
+					align-items: center;
+					text-align: center;
 
-		.profile-banner .profile-content {
-			padding: 0 24px 24px 24px;
-
-			.profile-left {
-				flex-direction: column;
-				align-items: center;
-				text-align: center;
-
-				.profile-info {
-					.user-meta {
-						flex-direction: column;
-						align-items: center;
-						gap: 8px;
+					.profile-details {
+						.contact-info {
+							justify-content: center;
+						}
 					}
 				}
 			}
 
-			.quick-stats {
-				grid-template-columns: repeat(2, 1fr);
+			.stats-grid {
+				padding: 0 24px 24px 24px;
+				grid-template-columns: 1fr;
 			}
+		}
+
+		.navigation-tabs .tabs-container {
+			padding: 0 24px;
+		}
+
+		.content-wrapper {
+			padding: 24px;
 		}
 	}
 }
 
 @media (max-width: 640px) {
 	#pc-wrap .mypage-container {
-		padding: 20px 0 60px 0;
-
-		.container {
-			padding: 0 16px;
-		}
-
-		.page-header {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 16px;
-
-			.settings-btn {
-				width: 100%;
-				justify-content: center;
-			}
-		}
-
-		.profile-banner {
-			.profile-background {
-				height: 120px;
+		.hero-section {
+			.hero-background {
+				height: 180px;
 			}
 
-			.profile-content {
-				padding: 0 16px 20px 16px;
+			.hero-content {
+				padding: 24px 16px 16px 16px;
 
-				.profile-left {
-					margin-top: -40px;
-
-					.MuiBadge-root .profile-avatar {
-						width: 100px;
-						height: 100px;
+				.profile-section {
+					.MuiBadge-root .hero-avatar {
+						width: 90px;
+						height: 90px;
 					}
 
-					.profile-info {
-						.name-badge h2 {
-							font-size: 22px;
+					.profile-details {
+						.name-section {
+							.name-row h1 {
+								font-size: 24px;
+							}
+						}
+
+						.contact-info {
+							flex-direction: column;
+							width: 100%;
+
+							.contact-item {
+								justify-content: center;
+							}
 						}
 					}
 				}
 
-				.quick-stats {
-					grid-template-columns: 1fr;
+				.settings-button {
+					width: 100%;
+					justify-content: center;
+				}
+			}
 
-					.stat-item {
-						min-width: auto;
-					}
+			.stats-grid {
+				padding: 0 16px 20px 16px;
+			}
+		}
+
+		.navigation-tabs .tabs-container {
+			padding: 0 16px;
+
+			.nav-tab {
+				padding: 14px 16px;
+
+				.tab-content span {
+					font-size: 13px;
 				}
 			}
 		}
 
-		.main-content .content-area {
-			padding: 20px;
+		.content-wrapper {
+			padding: 20px 16px;
+
+			.content-area {
+				padding: 20px;
+			}
 		}
 	}
 }

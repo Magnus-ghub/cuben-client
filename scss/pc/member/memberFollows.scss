@@ -1,0 +1,496 @@
+@import '/scss/variables.scss';
+
+// Modern Followers/Followings Container
+.modern-followers-container {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+
+	// ============================================
+	// HEADER SECTION
+	// ============================================
+	.followers-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-bottom: 24px;
+		border-bottom: 2px solid #f1f5f9;
+
+		.header-left {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+
+			.title-icon {
+				width: 48px;
+				height: 48px;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				border-radius: 12px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				svg {
+					color: #ffffff;
+				}
+			}
+
+			.section-title {
+				font-family: $font;
+				font-size: 24px;
+				font-weight: 700;
+				color: #1f2937;
+				margin: 0 0 4px 0;
+				letter-spacing: -0.5px;
+			}
+
+			.section-subtitle {
+				font-family: $font;
+				font-size: 14px;
+				color: #64748b;
+				margin: 0;
+			}
+		}
+
+		.header-right {
+			.total-chip {
+				background: rgba(102, 126, 234, 0.1) !important;
+				color: #667eea !important;
+				font-family: $font !important;
+				font-weight: 600 !important;
+				font-size: 14px !important;
+				padding: 8px 4px !important;
+				height: 36px !important;
+
+				.MuiChip-icon {
+					color: #667eea !important;
+				}
+			}
+		}
+	}
+
+	// ============================================
+	// SEARCH & FILTER BAR
+	// ============================================
+	.search-filter-bar {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+
+		.search-box {
+			flex: 1;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px 20px;
+			background: #f8fafc;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			transition: all 0.3s ease;
+
+			svg {
+				color: #94a3b8;
+				flex-shrink: 0;
+			}
+
+			input {
+				flex: 1;
+				border: none;
+				background: transparent;
+				font-family: $font;
+				font-size: 14px;
+				color: #1f2937;
+				outline: none;
+
+				&::placeholder {
+					color: #94a3b8;
+				}
+			}
+
+			&:focus-within {
+				border-color: #667eea;
+				background: #ffffff;
+				box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+
+				svg {
+					color: #667eea;
+				}
+			}
+		}
+
+		.filter-button {
+			padding: 12px 24px !important;
+			background: #ffffff !important;
+			border: 2px solid #e2e8f0 !important;
+			border-radius: 12px !important;
+			color: #64748b !important;
+			font-family: $font !important;
+			font-weight: 600 !important;
+			text-transform: none !important;
+			transition: all 0.3s ease !important;
+
+			&:hover {
+				border-color: #667eea !important;
+				background: rgba(102, 126, 234, 0.05) !important;
+				color: #667eea !important;
+			}
+		}
+	}
+
+	// ============================================
+	// FOLLOWERS LIST
+	// ============================================
+	.followers-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+
+		// Empty State
+		.empty-state {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 80px 20px;
+			text-align: center;
+
+			.empty-icon {
+				width: 120px;
+				height: 120px;
+				background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 24px;
+
+				svg {
+					color: #667eea;
+					opacity: 0.5;
+				}
+			}
+
+			h3 {
+				font-family: $font;
+				font-size: 20px;
+				font-weight: 700;
+				color: #1f2937;
+				margin: 0 0 8px 0;
+			}
+
+			p {
+				font-family: $font;
+				font-size: 14px;
+				color: #64748b;
+				margin: 0;
+			}
+		}
+
+		// Follower Card
+		.follower-card {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 20px;
+			background: #ffffff;
+			border: 1px solid #e2e8f0;
+			border-radius: 16px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			gap: 24px;
+
+			&:hover {
+				border-color: #cbd5e1;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+				transform: translateY(-2px);
+			}
+
+			// Profile Section
+			.profile-section {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				cursor: pointer;
+				min-width: 280px;
+				transition: all 0.3s ease;
+
+				&:hover {
+					.follower-name {
+						color: #667eea;
+					}
+				}
+
+				.follower-avatar {
+					width: 64px;
+					height: 64px;
+					border: 3px solid #f1f5f9;
+					transition: all 0.3s ease;
+
+					&:hover {
+						border-color: #667eea;
+						transform: scale(1.05);
+					}
+				}
+
+				.profile-info {
+					.follower-name {
+						font-family: $font;
+						font-size: 16px;
+						font-weight: 700;
+						color: #1f2937;
+						margin: 0 0 4px 0;
+						transition: color 0.3s ease;
+					}
+
+					.follower-username {
+						font-family: $font;
+						font-size: 14px;
+						color: #64748b;
+						margin: 0;
+					}
+				}
+			}
+
+			// Stats Section
+			.stats-section {
+				display: flex;
+				gap: 32px;
+				flex: 1;
+
+				.stat-item {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+
+					svg {
+						color: #94a3b8;
+						flex-shrink: 0;
+					}
+
+					.stat-info {
+						display: flex;
+						flex-direction: column;
+						gap: 2px;
+
+						.stat-label {
+							font-family: $font;
+							font-size: 12px;
+							color: #94a3b8;
+							font-weight: 500;
+						}
+
+						.stat-value {
+							font-family: $font;
+							font-size: 16px;
+							color: #1f2937;
+							font-weight: 700;
+						}
+					}
+				}
+			}
+
+			// Action Section
+			.action-section {
+				min-width: 140px;
+				display: flex;
+				justify-content: flex-end;
+
+				.follow-button {
+					background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+					color: #ffffff !important;
+					font-family: $font !important;
+					font-weight: 600 !important;
+					text-transform: none !important;
+					padding: 10px 24px !important;
+					border-radius: 10px !important;
+					box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+					transition: all 0.3s ease !important;
+
+					&:hover {
+						transform: translateY(-2px);
+						box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+					}
+				}
+
+				.unfollow-button {
+					background: #ffffff !important;
+					border: 2px solid #e2e8f0 !important;
+					color: #64748b !important;
+					font-family: $font !important;
+					font-weight: 600 !important;
+					text-transform: none !important;
+					padding: 10px 24px !important;
+					border-radius: 10px !important;
+					transition: all 0.3s ease !important;
+
+					&:hover {
+						border-color: #ef4444 !important;
+						background: rgba(239, 68, 68, 0.05) !important;
+						color: #ef4444 !important;
+						transform: translateY(-2px);
+					}
+				}
+			}
+		}
+	}
+
+	// ============================================
+	// PAGINATION SECTION
+	// ============================================
+	.pagination-section {
+		display: flex;
+		justify-content: center;
+		padding-top: 24px;
+		margin-top: 24px;
+		border-top: 1px solid #f1f5f9;
+
+		.pagination-control {
+			.MuiPaginationItem-root {
+				font-family: $font !important;
+				font-weight: 600 !important;
+				border-radius: 10px !important;
+
+				&.Mui-selected {
+					background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+					color: #ffffff !important;
+					box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+				}
+
+				&:hover {
+					background: rgba(102, 126, 234, 0.1) !important;
+				}
+			}
+		}
+	}
+}
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+@media (max-width: 1200px) {
+	.modern-followers-container {
+		.followers-list .follower-card {
+			.stats-section {
+				gap: 20px;
+			}
+		}
+	}
+}
+
+@media (max-width: 960px) {
+	.modern-followers-container {
+		.followers-header {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+		}
+
+		.search-filter-bar {
+			flex-direction: column;
+
+			.search-box,
+			.filter-button {
+				width: 100%;
+			}
+		}
+
+		.followers-list .follower-card {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+
+			.profile-section {
+				min-width: auto;
+				width: 100%;
+			}
+
+			.stats-section {
+				width: 100%;
+				justify-content: space-between;
+			}
+
+			.action-section {
+				width: 100%;
+
+				button {
+					width: 100%;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.modern-followers-container {
+		gap: 16px;
+
+		.followers-header {
+			padding-bottom: 16px;
+
+			.header-left {
+				.title-icon {
+					width: 40px;
+					height: 40px;
+				}
+
+				.section-title {
+					font-size: 20px;
+				}
+			}
+		}
+
+		.followers-list {
+			.empty-state {
+				padding: 60px 20px;
+
+				.empty-icon {
+					width: 80px;
+					height: 80px;
+
+					svg {
+						width: 40px;
+						height: 40px;
+					}
+				}
+			}
+
+			.follower-card {
+				padding: 16px;
+
+				.profile-section {
+					.follower-avatar {
+						width: 56px;
+						height: 56px;
+					}
+
+					.profile-info {
+						.follower-name {
+							font-size: 15px;
+						}
+
+						.follower-username {
+							font-size: 13px;
+						}
+					}
+				}
+
+				.stats-section {
+					flex-direction: column;
+					gap: 12px;
+
+					.stat-item {
+						.stat-info {
+							.stat-label {
+								font-size: 11px;
+							}
+
+							.stat-value {
+								font-size: 14px;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
