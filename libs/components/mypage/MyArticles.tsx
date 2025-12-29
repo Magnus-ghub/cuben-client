@@ -8,9 +8,6 @@ import { BoardArticle } from '../../types/board-article/board-article';
 import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
 import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
-import { LIKE_TARGET_BOARD_ARTICLE } from '../../apollo/user/mutation';
-import { useMutation, useQuery } from '@apollo/client';
-import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
 
 const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -26,38 +23,91 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			search: {},
 		}
 	);
-	const [memberBoardrticles, setMemberBoArticles] = useState<BoardArticle[]>([]);
+	
+	// Mock Data - Replace with real API data later
+	const mockArticles: BoardArticle[] = [
+		{
+			_id: '1',
+			articleCategory: 'COMMUNITY',
+			articleTitle: 'Getting Started with React and TypeScript',
+			articleContent: 'Learn how to build modern web applications using React with TypeScript. This comprehensive guide covers everything from basic setup to advanced patterns and best practices for scalable applications.',
+			articleImage: '/img/community/communityImg.png',
+			articleViews: 1250,
+			articleLikes: 89,
+			articleComments: 23,
+			createdAt: '2024-12-20T10:30:00Z',
+		},
+		{
+			_id: '2',
+			articleCategory: 'LIFESTYLE',
+			articleTitle: 'Top 10 Productivity Tips for Remote Workers',
+			articleContent: 'Working from home can be challenging. Here are ten proven strategies to boost your productivity, maintain work-life balance, and stay motivated while working remotely.',
+			articleImage: '/img/community/communityImg.png',
+			articleViews: 890,
+			articleLikes: 67,
+			articleComments: 15,
+			createdAt: '2024-12-18T14:20:00Z',
+		},
+		{
+			_id: '3',
+			articleCategory: 'TRAVEL',
+			articleTitle: 'Hidden Gems in South Korea You Must Visit',
+			articleContent: 'Discover the most beautiful and lesser-known destinations in South Korea. From stunning mountains to serene beaches, explore places that most tourists miss.',
+			articleImage: '/img/community/communityImg.png',
+			articleViews: 2100,
+			articleLikes: 156,
+			articleComments: 42,
+			createdAt: '2024-12-15T09:15:00Z',
+		},
+		{
+			_id: '4',
+			articleCategory: 'TECHNOLOGY',
+			articleTitle: 'The Future of AI in Web Development',
+			articleContent: 'Artificial Intelligence is transforming how we build websites. Explore the latest AI tools and techniques that are revolutionizing web development in 2024.',
+			articleImage: "/img/product/macbookpro.jpeg",
+			articleViews: 3400,
+			articleLikes: 234,
+			articleComments: 67,
+			createdAt: '2024-12-12T16:45:00Z',
+		},
+		{
+			_id: '5',
+			articleCategory: 'FOOD',
+			articleTitle: 'Authentic Korean Street Food Guide',
+			articleContent: 'From tteokbokki to hotteok, explore the delicious world of Korean street food. A complete guide to the best street food spots in Seoul and beyond.',
+			articleImage: "/img/product/macbookpro.jpeg",
+			articleViews: 1680,
+			articleLikes: 123,
+			articleComments: 34,
+			createdAt: '2024-12-10T11:30:00Z',
+		},
+		{
+			_id: '6',
+			articleCategory: 'LIFESTYLE',
+			articleTitle: 'Minimalist Living: A Beginners Guide',
+			articleContent: 'Simplify your life with minimalism. Learn practical steps to declutter your space, reduce stress, and focus on what truly matters.',
+			articleImage: "/img/product/macbookpro.jpeg",
+			articleViews: 945,
+			articleLikes: 71,
+			articleComments: 19,
+			createdAt: '2024-12-08T13:20:00Z',
+		},
+	];
+	
+	const [memberBoArticles, setMemberBoArticles] = useState<BoardArticle[]>(mockArticles);
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
-
-	const {
-		loading: boardArticlesLoading,
-		data: boardArticlesData,
-		error: getBoardArticlesError,
-		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
-		fetchPolicy: 'network-only',
-		variables: {
-			// input: searchCommunity,
-		},
-		notifyOnNetworkStatusChange: true,
-		onCompleted(data: T) {
-			// setBoardArticles(data?.getBoardArticles?.list);
-			// setTotalCount(data?.getBoardArticles?.metaCounter?.[0]?.total);
-		},
-	});
 	// TODO: Add GraphQL query
 	// const { data, loading, refetch } = useQuery(GET_MEMBER_ARTICLES, {
 	//   variables: { input: searchFilter },
 	// });
 
 	/** LIFECYCLES **/
-	// useEffect(() => {
-	// 	if (memberId) {
-	// 		setSearchFilter({ ...searchFilter, search: { memberId: memberId as string } });
-	// 	}
-	// }, [memberId]);
+	useEffect(() => {
+		if (memberId) {
+			setSearchFilter({ ...searchFilter, search: { memberId: memberId as string } });
+		}
+	}, [memberId]);
 
 	useEffect(() => {
 		// TODO: Fetch articles data
@@ -119,7 +169,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 
 			{/* Articles Grid */}
 			<Box className="articles-grid">
-				{memberBoardrticles?.length === 0 ? (
+				{memberBoArticles?.length === 0 ? (
 					<Box className="empty-state">
 						<Box className="empty-icon">
 							<FileText size={64} />
@@ -129,7 +179,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 				) : (
 					<>
-						{memberBoardrticles?.map((article: BoardArticle) => {
+						{memberBoArticles?.map((article: BoardArticle) => {
 							const imagePath = article?.articleImage
 								? `${REACT_APP_API_URL}/${article.articleImage}`
 								: '/img/banner/community.webp';
@@ -142,7 +192,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 								>
 									{/* Article Image */}
 									<Box className="article-image">
-										<img src={imagePath} alt={article.articleTitle} />
+										<img src="/img/product/macbookpro.jpeg" alt={article.articleTitle} />
 										<Box className="image-overlay">
 											<Chip label={article.articleCategory} className="category-chip" size="small" />
 										</Box>
@@ -172,7 +222,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 											</Box>
 											<Box className="stat-item date">
 												<Calendar size={16} />
-												{/* <span>{formatDate(article.createdAt)}</span> */}
+												<span>{formatDate(article.createdAt)}</span>
 											</Box>
 										</Stack>
 
@@ -213,7 +263,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			</Box>
 
 			{/* Pagination */}
-			{memberBoardrticles.length > 0 && (
+			{memberBoArticles.length > 0 && (
 				<Stack className="pagination-section">
 					<Pagination
 						count={Math.ceil(total / searchFilter.limit) || 1}

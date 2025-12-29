@@ -159,21 +159,21 @@ const LeftSidebar = () => {
 									</Stack>
 								</Link>
 
-								<Link href={'/mypage/favorites'}>
+								<Link href={'/activity/favorites'}>
 									<Stack className={`menu-item ${isActive('/mypage/favorites') ? 'active' : ''}`}>
 										<Heart size={20} className="menu-icon" />
 										<Box className="menu-text">Favorites</Box>
 									</Stack>
 								</Link>
 
-								<Link href={'/mypage/my-products'}>
+								<Link href={'/activity/history'}>
 									<Stack className={`menu-item ${isActive('/mypage/my-products') ? 'active' : ''}`}>
 										<History size={20} className="menu-icon" />
 										<Box className="menu-text">Recently Viewed</Box>
 									</Stack>
 								</Link>
 
-								<Link href={'/mypage/saved'}>
+								<Link href={'/activity/savedItems'}>
 									<Stack className={`menu-item ${isActive('/mypage/saved') ? 'active' : ''}`}>
 										<BookmarkIcon size={20} className="menu-icon" />
 										<Box className="menu-text">Saved Items</Box>

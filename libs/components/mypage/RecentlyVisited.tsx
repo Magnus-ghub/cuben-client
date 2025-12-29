@@ -32,8 +32,8 @@ const RecentlyVisited: NextPage = () => {
 				</Stack>
 				<Stack className="favorites-list-box">
 					{recentlyVisited?.length ? (
-						recentlyVisited?.map((property: Product) => {
-							return <ProductCard property={property} recentlyVisited={true} />;
+						recentlyVisited?.map((product: Product) => {
+							return <ProductCard product={product} recentlyVisited={true} />;
 						})
 					) : (
 						<div className={'no-data'}>

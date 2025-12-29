@@ -11,7 +11,9 @@ import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
 import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../libs/apollo/user/mutation';
 import MyProfile from '../../libs/components/mypage/MyProfile';
+import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import MyProducts from '../../libs/components/mypage/MyProducts';
+import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
 import MyArticles from '../../libs/components/mypage/MyArticles';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
@@ -24,6 +26,7 @@ import {
 	Users,
 	UserPlus,
 	ShoppingBag,
+	Award,
 	Edit,
 	Crown,
 	Mail,
@@ -31,6 +34,7 @@ import {
 	Eye,
 	TrendingUp,
 	Activity,
+	Zap,
 } from 'lucide-react';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -47,11 +51,11 @@ const MyPage: NextPage = () => {
 	
 	// State for stats
 	const [stats, setStats] = useState({
-		posts: 0,
-		listings: 0,
-		followers: 0,
-		views: 0,
-		engagement: 0,
+		posts: 6, // mockArticles.length
+		listings: 8, // mockProducts.length
+		followers: 5, // mockFollowers.length
+		views: 1240,
+		engagement: 89,
 	});
 
 	/** APOLLO REQUESTS **/
@@ -66,12 +70,12 @@ const MyPage: NextPage = () => {
 
 	// Fetch user statistics
 	useEffect(() => {
-		// TODO: Replace with real GraphQL queries
+		// Using mock data counts
 		setStats({
-			posts: user?.memberArticles || 24,
-			listings: user?.memberProducts || 8,  
-			followers: user?.memberArticles || 125,  // followers
-			views: user?.memberViews || 1240,
+			posts: 6, // Total mock articles
+			listings: 8, // Total mock products
+			followers: 5, // Total mock followers
+			views: 1240,
 			engagement: 89,
 		});
 	}, [user]);
@@ -265,12 +269,12 @@ const MyPage: NextPage = () => {
 							</Box>
 						</Box>
 
-						<Box  style={{ textDecoration: 'none' }}>
+						<Link href="/settings" style={{ textDecoration: 'none' }}>
 							<Box className={'settings-button'}>
 								<Settings size={20} />
 								<span>Settings</span>
 							</Box>
-						</Box>
+						</Link>
 					</Box>
 
 					{/* Quick Stats Cards */}
