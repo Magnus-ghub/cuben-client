@@ -8,13 +8,14 @@ export interface Member {
 	memberStatus: MemberStatus;
 	memberAuthType: MemberAuthType;
 	memberPhone: string;
+	memberEmail: string;
 	memberNick: string;
 	memberPassword?: string;
 	memberFullName?: string;
 	memberImage?: string;
 	memberAddress?: string;
 	memberDesc?: string;
-	memberProperties: number;
+	memberProducts: number;
 	memberRank: number;
 	memberArticles: number;
 	memberPoints: number;

@@ -8,6 +8,9 @@ import { BoardArticle } from '../../types/board-article/board-article';
 import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
 import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
+import { LIKE_TARGET_BOARD_ARTICLE } from '../../apollo/user/mutation';
+import { useMutation, useQuery } from '@apollo/client';
+import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
 
 const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -23,20 +26,38 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			search: {},
 		}
 	);
-	const [memberBoArticles, setMemberBoArticles] = useState<BoardArticle[]>([]);
+	const [memberBoardrticles, setMemberBoArticles] = useState<BoardArticle[]>([]);
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+
+	const {
+		loading: boardArticlesLoading,
+		data: boardArticlesData,
+		error: getBoardArticlesError,
+		refetch: boardArticlesRefetch,
+	} = useQuery(GET_BOARD_ARTICLES, {
+		fetchPolicy: 'network-only',
+		variables: {
+			// input: searchCommunity,
+		},
+		notifyOnNetworkStatusChange: true,
+		onCompleted(data: T) {
+			// setBoardArticles(data?.getBoardArticles?.list);
+			// setTotalCount(data?.getBoardArticles?.metaCounter?.[0]?.total);
+		},
+	});
 	// TODO: Add GraphQL query
 	// const { data, loading, refetch } = useQuery(GET_MEMBER_ARTICLES, {
 	//   variables: { input: searchFilter },
 	// });
 
 	/** LIFECYCLES **/
-	useEffect(() => {
-		if (memberId) {
-			setSearchFilter({ ...searchFilter, search: { memberId: memberId as string } });
-		}
-	}, [memberId]);
+	// useEffect(() => {
+	// 	if (memberId) {
+	// 		setSearchFilter({ ...searchFilter, search: { memberId: memberId as string } });
+	// 	}
+	// }, [memberId]);
 
 	useEffect(() => {
 		// TODO: Fetch articles data
@@ -98,7 +119,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 
 			{/* Articles Grid */}
 			<Box className="articles-grid">
-				{memberBoArticles?.length === 0 ? (
+				{memberBoardrticles?.length === 0 ? (
 					<Box className="empty-state">
 						<Box className="empty-icon">
 							<FileText size={64} />
@@ -108,7 +129,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 				) : (
 					<>
-						{memberBoArticles?.map((article: BoardArticle) => {
+						{memberBoardrticles?.map((article: BoardArticle) => {
 							const imagePath = article?.articleImage
 								? `${REACT_APP_API_URL}/${article.articleImage}`
 								: '/img/banner/community.webp';
@@ -192,7 +213,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			</Box>
 
 			{/* Pagination */}
-			{memberBoArticles.length > 0 && (
+			{memberBoardrticles.length > 0 && (
 				<Stack className="pagination-section">
 					<Pagination
 						count={Math.ceil(total / searchFilter.limit) || 1}

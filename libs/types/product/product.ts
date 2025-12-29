@@ -16,11 +16,10 @@ export interface Product {
 	productType: ProductType;
 	productStatus: ProductStatus;
 	productLocation: ProductLocation;
+	productName: string;
 	productAddress: string;
 	productTitle: string;
 	productPrice: number;
-	productSquare: number;
-	productBeds: number;
 	productRooms: number;
 	productViews: number;
 	productLikes: number;

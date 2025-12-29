@@ -69,7 +69,7 @@ const MyPage: NextPage = () => {
 		// TODO: Replace with real GraphQL queries
 		setStats({
 			posts: user?.memberArticles || 24,
-			listings: user?.memberProperties || 8,   // products
+			listings: user?.memberProducts || 8,  
 			followers: user?.memberArticles || 125,  // followers
 			views: user?.memberViews || 1240,
 			engagement: 89,
@@ -255,8 +255,7 @@ const MyPage: NextPage = () => {
 								<Stack className={'contact-info'}>
 									<Box className={'contact-item'}>
 										<Mail size={16} />
-										{/* memberPhone change to memberEmail */}
-										<span>{user?.memberPhone || 'email@example.com'}</span>
+										<span>{user?.memberEmail || 'email@example.com'}</span>
 									</Box>
 									<Box className={'contact-item'}>
 										<Phone size={16} />
@@ -266,12 +265,12 @@ const MyPage: NextPage = () => {
 							</Box>
 						</Box>
 
-						<Link href="/settings" style={{ textDecoration: 'none' }}>
+						<Box  style={{ textDecoration: 'none' }}>
 							<Box className={'settings-button'}>
 								<Settings size={20} />
 								<span>Settings</span>
 							</Box>
-						</Link>
+						</Box>
 					</Box>
 
 					{/* Quick Stats Cards */}

@@ -98,7 +98,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	if (device === 'mobile') {
 		return <div>MY PRODUCTS MOBILE</div>;
 	}
-
 	return (
 		<Box className="modern-content-container">
 			{/* Header Section */}
@@ -142,7 +141,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 								>
 									{/* Product Image */}
 									<Box className="product-image">
-										<img src={imagePath} alt={product.productName} />
+										<img src={imagePath} alt="no image" />
 										<Box className="image-overlay">
 											<Chip
 												label={product.productStatus}
