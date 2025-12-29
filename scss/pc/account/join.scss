@@ -2,13 +2,13 @@
 
 #pc-wrap {
 	.join-page {
-		min-height: calc(100vh - 64px);
+		min-height: calc(auto - 64px);
 		width: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-		padding: 60px 24px;
+		padding: 40px 24px 80px 24px;
 
 		.container {
 			width: 100%;
@@ -26,7 +26,7 @@
 			background: #ffffff;
 			border-radius: 24px;
 			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.05);
-			overflow: hidden;
+			overflow: visible;
 
 			// ============================================
 			// LEFT SIDE - FORM SECTION
