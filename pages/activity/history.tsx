@@ -19,7 +19,7 @@ const History: NextPage = () => {
 	const [searchHistory, setSearchHistory] = useState({ page: 1, limit: 8 });
 	
 	// Mock Data - Recently Viewed
-	const History: Product[] = [
+	const mockRecentlyViewed: Product[] = [
 		{
 			_id: '1',
 			productName: 'Apple AirPods Pro 2nd Gen',
