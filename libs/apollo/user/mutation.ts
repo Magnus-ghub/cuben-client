@@ -119,25 +119,23 @@ export const LIKE_TARGET_MEMBER = gql`
 `;
 
 /**************************
- *        PROPERTY        *
+ *        PRODUCT        *
  *************************/
 
 export const CREATE_PRODUCT = gql`
-	mutation CreateProperty($input: PropertyInput!) {
-		createProperty(input: $input) {
+	mutation CreateProduct($input: ProductInput!) {
+		createProduct(input: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
+			productType
+			productStatus
+			productLocation
+			productAddress
+			productTitle
+			productPrice
+			productViews
+			productLikes
+			productImages
+			productDesc
 			memberId
 			soldAt
 			deletedAt
@@ -148,25 +146,25 @@ export const CREATE_PRODUCT = gql`
 	}
 `;
 
-export const UPDATE_PROPERTY = gql`
-	mutation UpdateProperty($input: PropertyUpdate!) {
-		updateProperty(input: $input) {
+export const UPDATE_PRODUCT = gql`
+	mutation UpdateProduct($input: ProductUpdate!) {
+		updateProduct(input: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
+			productType
+			productStatus
+			productLocation
+			productAddress
+			productTitle
+			productPrice
+			productSquare
+			productBeds
+			productRooms
+			productViews
+			productLikes
+			productImages
+			productDesc
+			productBarter
+			productRent
 			memberId
 			soldAt
 			deletedAt
@@ -178,24 +176,21 @@ export const UPDATE_PROPERTY = gql`
 `;
 
 export const LIKE_TARGET_PRODUCT = gql`
-	mutation LikeTargetProperty($input: String!) {
-		likeTargetProperty(propertyId: $input) {
+	mutation LikeTargetProduct($input: String!) {
+		likeTargetProduct(productId: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
+			productType
+			productStatus
+			productLocation
+			productAddress
+			productTitle
+			productPrice
+			productViews
+			productLikes
+			productImages
+			productDesc
+			productBarter
+			productRent
 			memberId
 			soldAt
 			deletedAt

@@ -39,29 +39,24 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 `;
 
 /**************************
- *        PROPERTY        *
+ *        PRODUCT        *
  *************************/
 
-export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
-	query GetAllPropertiesByAdmin($input: AllPropertiesInquiry!) {
-		getAllPropertiesByAdmin(input: $input) {
+export const GET_ALL_PRODUCTS_BY_ADMIN = gql`
+	query GetAllProductByAdmin($input: AllProductInquiry!) {
+		getAllProductsByAdmin(input: $input) {
 			list {
 				_id
-				propertyType
-				propertyStatus
-				propertyLocation
-				propertyAddress
-				propertyTitle
-				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
-				propertyViews
-				propertyLikes
-				propertyImages
-				propertyDesc
-				propertyBarter
-				propertyRent
+				productType
+				productStatus
+				productLocation
+				productAddress
+				productTitle
+				productPrice
+				productViews
+				productLikes
+				productImages
+				productDesc
 				memberId
 				soldAt
 				deletedAt

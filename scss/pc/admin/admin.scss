@@ -1,0 +1,107 @@
+@import '/scss/variables.scss';
+
+$primary-color: #6366f1; // Cuben violet/indigo
+$sidebar-bg: #1e293b;   // To'q rangli professional sidebar
+$body-bg: #f1f5f9;
+
+.admin-dashboard {
+    width: 100%;
+    min-height: 100vh;
+    background: $body-bg;
+    display: flex;
+
+    .admin-appbar {
+        left: 280px !important;
+        width: calc(100% - 280px) !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(12px);
+        box-shadow: none !important;
+        border-bottom: 1px solid #e2e8f0;
+        color: #1e293b !important;
+
+        .appbar-content {
+            height: 72px;
+            padding: 0 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .page-title {
+                font-size: 20px;
+                font-weight: 700;
+                color: $primary-color;
+            }
+
+            .appbar-right {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                .user-menu-trigger {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 6px 12px;
+                    border-radius: 50px;
+                    background: #f8fafc;
+                    cursor: pointer;
+                    border: 1px solid #e2e8f0;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background: #fff;
+                        border-color: $primary-color;
+                    }
+
+                    .user-avatar { width: 32px; height: 32px; }
+                    .user-name { font-size: 14px; font-weight: 600; }
+                    .user-role { font-size: 11px; color: #64748b; }
+                }
+            }
+        }
+    }
+
+    .admin-sidebar {
+        width: 280px;
+        .MuiDrawer-paper {
+            width: 280px;
+            background: $sidebar-bg;
+            border-right: none;
+            color: #fff;
+
+            .sidebar-header {
+                padding: 30px;
+                text-align: center;
+                img { width: 140px; filter: brightness(0) invert(1); }
+            }
+
+            .sidebar-user-card {
+                margin: 0 20px;
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                
+                .sidebar-avatar { border: 2px solid $primary-color; }
+                .sidebar-user-name { font-weight: 600; color: #fff; }
+                .sidebar-user-role { font-size: 12px; color: #94a3b8; }
+            }
+        }
+    }
+
+    .admin-content {
+        flex: 1;
+        padding: 100px 32px 32px 32px; // Appbar balandligini hisobga olgan holda
+        margin-left: 0; // Drawer variant "permanent" bo'lgani uchun automatic
+    }
+}
+
+// Stats Cards & Tables (Nestar mantiqi asosida)
+.content-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+}

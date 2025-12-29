@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
 	IconButton,
-	OutlinedInput,
 	Typography,
 	Checkbox,
 	Button,
@@ -85,7 +84,7 @@ const Filter = (props: FilterType) => {
 		);
 	};
 
-	const propertyPriceHandler = useCallback(
+	const productPriceHandler = useCallback(
 		async (value: number, type: string) => {
 			if (type === 'start') {
 				await router.push(
@@ -137,7 +136,7 @@ const Filter = (props: FilterType) => {
 	};
 
 	if (device === 'mobile') {
-		return <div>PROPERTIES FILTER</div>;
+		return <div>PRODUCTS FILTER</div>;
 	}
 
 	return (
@@ -313,7 +312,7 @@ const Filter = (props: FilterType) => {
 							value={searchFilter?.search?.pricesRange?.start ?? 0}
 							onChange={(e: any) => {
 								if (e.target.value >= 0) {
-									propertyPriceHandler(e.target.value, 'start');
+									productPriceHandler(e.target.value, 'start');
 								}
 							}}
 							className="price-input"
@@ -325,7 +324,7 @@ const Filter = (props: FilterType) => {
 							value={searchFilter?.search?.pricesRange?.end ?? 0}
 							onChange={(e: any) => {
 								if (e.target.value >= 0) {
-									propertyPriceHandler(e.target.value, 'end');
+									productPriceHandler(e.target.value, 'end');
 								}
 							}}
 							className="price-input"

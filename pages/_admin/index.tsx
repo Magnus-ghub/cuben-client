@@ -1,8 +1,16 @@
-import withLayoutMain from "../../libs/components/layout/LayoutHome";
+import React, { useEffect } from 'react';
+import type { NextPage } from 'next';
+import withAdminLayout from '../../libs/components/layout/LayoutAdmin';
+import { useRouter } from 'next/router';
 
+const AdminHome: NextPage = (props: any) => {
+	const router = useRouter();
 
-function AdminPage() {
-  return <div>Admin Page</div>;
-}
+	/** LIFECYCLES **/
+	useEffect(() => {
+		router.push('/_admin/users');
+	}, []);
+	return <></>;
+};
 
-export default withLayoutMain(AdminPage);
+export default withAdminLayout(AdminHome);

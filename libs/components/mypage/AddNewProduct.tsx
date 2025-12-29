@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { REACT_APP_API_URL, propertySquare } from '../../config';
+import { REACT_APP_API_URL } from '../../config';
 import axios from 'axios';
 import { getJwtToken } from '../../auth';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
@@ -16,33 +16,28 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const inputRef = useRef<any>(null);
-	const [insertPropertyData, setInsertPropertyData] = useState<ProductInput>(initialValues);
-	const [propertyType, setPropertyType] = useState<ProductType[]>(Object.values(ProductType));
-	const [propertyLocation, setPropertyLocation] = useState<ProductLocation[]>(Object.values(ProductLocation));
+	const [insertProductData, setInsertProductData] = useState<ProductInput>(initialValues);
+	const [productType, setProductType] = useState<ProductType[]>(Object.values(ProductType));
+	const [productLocation, setProductLocation] = useState<ProductLocation[]>(Object.values(ProductLocation));
 	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	let getPropertyData: any, getPropertyLoading: any;
+	let getProductData: any, getProductLoading: any;
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		setInsertPropertyData({
-			...insertPropertyData,
-			productTitle: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyTitle : '',
-			productPrice: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyPrice : 0,
-			productType: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyType : '',
-			productLocation: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyLocation : '',
-			productAddress: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyAddress : '',
-			productBarter: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyBarter : false,
-			productRent: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyRent : false,
-			productRooms: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyRooms : 0,
-			productBeds: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyBeds : 0,
-			productSquare: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertySquare : 0,
-			productDesc: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyDesc : '',
-			productImages: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyImages : [],
+		setInsertProductData({
+			...insertProductData,
+			productTitle: getProductData?.getProduct ? getProductData?.getProduct?.productTitle : '',
+			productPrice: getProductData?.getProduct ? getProductData?.getProduct?.productPrice : 0,
+			productType: getProductData?.getProduct ? getProductData?.getProduct?.productType : '',
+			productLocation: getProductData?.getProduct ? getProductData?.getProduct?.productLocation : '',
+			productAddress: getProductData?.getProduct ? getProductData?.getProduct?.productAddress : '',
+			productDesc: getProductData?.getProduct ? getProductData?.getProduct?.productDesc : '',
+			productImages: getProductData?.getProduct ? getProductData?.getProduct?.productImages : [],
 		});
-	}, [getPropertyLoading, getPropertyData]);
+	}, [getProductLoading, getProductData]);
 
 	/** HANDLERS **/
 	async function uploadImages() {
@@ -61,7 +56,7 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 				  }`,
 					variables: {
 						files: [null, null, null, null, null],
-						target: 'property',
+						target: 'product',
 					},
 				}),
 			);
@@ -88,55 +83,52 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 			});
 
 			const responseImages = response.data.data.imagesUploader;
-			setInsertPropertyData({ ...insertPropertyData, productImages: responseImages });
+			setInsertProductData({ ...insertProductData, productImages: responseImages });
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message);
 		}
 	}
 
 	const removeImage = (indexToRemove: number) => {
-		const updatedImages = insertPropertyData.productImages.filter((_, index) => index !== indexToRemove);
-		setInsertPropertyData({ ...insertPropertyData, productImages: updatedImages });
+		const updatedImages = insertProductData.productImages.filter((_, index) => index !== indexToRemove);
+		setInsertProductData({ ...insertProductData, productImages: updatedImages });
 	};
 
 	const doDisabledCheck = () => {
 		if (
-			insertPropertyData.productTitle === '' ||
-			insertPropertyData.productPrice === 0 ||
-			!insertPropertyData.productType ||
-			!insertPropertyData.productLocation ||
-			insertPropertyData.productAddress === '' ||
-			insertPropertyData.productRooms === 0 ||
-			insertPropertyData.productBeds === 0 ||
-			insertPropertyData.productSquare === 0 ||
-			insertPropertyData.productDesc === '' ||
-			insertPropertyData.productImages.length === 0
+			insertProductData.productTitle === '' ||
+			insertProductData.productPrice === 0 ||
+			!insertProductData.productType ||
+			!insertProductData.productLocation ||
+			insertProductData.productAddress === '' ||
+			insertProductData.productDesc === '' ||
+			insertProductData.productImages.length === 0
 		) {
 			return true;
 		}
 	};
 
-	const insertPropertyHandler = useCallback(async () => {}, [insertPropertyData]);
+	const insertProductHandler = useCallback(async () => {}, [insertProductData]);
 
-	const updatePropertyHandler = useCallback(async () => {}, [insertPropertyData]);
+	const updateProductHandler = useCallback(async () => {}, [insertProductData]);
 
 	if (user?.memberType !== 'AGENT') {
 		router.back();
 	}
 
 	if (device === 'mobile') {
-		return <div>ADD NEW PROPERTY MOBILE PAGE</div>;
+		return <div>ADD NEW PRODUCT MOBILE PAGE</div>;
 	} else {
 		return (
-			<div id="add-property-page">
+			<div id="add-product-page">
 				{/* Header Section */}
 				<Stack className="page-header-section">
 					<Stack className="header-content">
 						<Typography className="page-title">
-							{router.query.propertyId ? 'Edit Listing' : 'Create New Listing'}
+							{router.query.productId ? 'Edit Listing' : 'Create New Listing'}
 						</Typography>
 						<Typography className="page-subtitle">
-							Fill in the details below to {router.query.propertyId ? 'update' : 'list'} your property
+							Fill in the details below to {router.query.productId ? 'update' : 'list'} your product
 						</Typography>
 					</Stack>
 				</Stack>
@@ -153,14 +145,14 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 						<Stack className="form-content">
 							{/* Title */}
 							<Stack className="form-group full-width">
-								<Typography className="form-label">Property Title *</Typography>
+								<Typography className="form-label">Product Title *</Typography>
 								<input
 									type="text"
 									className="form-input"
-									placeholder="Enter property title"
-									value={insertPropertyData.productTitle}
+									placeholder="Enter product title"
+									value={insertProductData.productTitle}
 									onChange={({ target: { value } }) =>
-										setInsertPropertyData({ ...insertPropertyData, productTitle: value })
+										setInsertProductData({ ...insertProductData, productTitle: value })
 									}
 								/>
 							</Stack>
@@ -175,27 +167,27 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 											type="number"
 											className="form-input with-icon"
 											placeholder="Enter price"
-											value={insertPropertyData.productPrice}
+											value={insertProductData.productPrice}
 											onChange={({ target: { value } }) =>
-												setInsertPropertyData({ ...insertPropertyData, productPrice: parseInt(value) || 0 })
+												setInsertProductData({ ...insertProductData, productPrice: parseInt(value) || 0 })
 											}
 										/>
 									</div>
 								</Stack>
 
 								<Stack className="form-group">
-									<Typography className="form-label">Property Type *</Typography>
+									<Typography className="form-label">Product Type *</Typography>
 									<select
 										className="form-select"
-										value={insertPropertyData.productType || ''}
+										value={insertProductData.productType || ''}
 										onChange={({ target: { value } }) =>
-											setInsertPropertyData({ ...insertPropertyData, productType: value as ProductType })
+											setInsertProductData({ ...insertProductData, productType: value as ProductType })
 										}
 									>
 										<option value="" disabled>
-											Select property type
+											Select product type
 										</option>
-										{propertyType.map((type: any) => (
+										{productType.map((type: any) => (
 											<option value={type} key={type}>
 												{type}
 											</option>
@@ -212,15 +204,15 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 										<MapPin size={18} className="input-icon" />
 										<select
 											className="form-select with-icon"
-											value={insertPropertyData.productLocation || ''}
+											value={insertProductData.productLocation || ''}
 											onChange={({ target: { value } }) =>
-												setInsertPropertyData({ ...insertPropertyData, productLocation: value as ProductLocation })
+												setInsertProductData({ ...insertProductData, productLocation: value as ProductLocation })
 											}
 										>
 											<option value="" disabled>
 												Select location
 											</option>
-											{propertyLocation.map((location: any) => (
+											{productLocation.map((location: any) => (
 												<option value={location} key={location}>
 													{location}
 												</option>
@@ -235,9 +227,9 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 										type="text"
 										className="form-input"
 										placeholder="Enter full address"
-										value={insertPropertyData.productAddress}
+										value={insertProductData.productAddress}
 										onChange={({ target: { value } }) =>
-											setInsertPropertyData({ ...insertPropertyData, productAddress: value })
+											setInsertProductData({ ...insertProductData, productAddress: value })
 										}
 									/>
 								</Stack>
@@ -249,9 +241,9 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 									<Typography className="form-label">Barter Available</Typography>
 									<select
 										className="form-select"
-										value={insertPropertyData.productBarter ? 'yes' : 'no'}
+										value={insertProductData.productBarter ? 'yes' : 'no'}
 										onChange={({ target: { value } }) =>
-											setInsertPropertyData({ ...insertPropertyData, productBarter: value === 'yes' })
+											setInsertProductData({ ...insertProductData, productBarter: value === 'yes' })
 										}
 									>
 										<option value="no">No</option>
@@ -263,9 +255,9 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 									<Typography className="form-label">Available for Rent</Typography>
 									<select
 										className="form-select"
-										value={insertPropertyData.productRent ? 'yes' : 'no'}
+										value={insertProductData.productRent ? 'yes' : 'no'}
 										onChange={({ target: { value } }) =>
-											setInsertPropertyData({ ...insertPropertyData, productRent: value === 'yes' })
+											setInsertProductData({ ...insertProductData, productRent: value === 'yes' })
 										}
 									>
 										<option value="no">No</option>
@@ -276,11 +268,11 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 						</Stack>
 					</Stack>
 
-					{/* Property Details Card */}
+					{/* Product Details Card */}
 					<Stack className="form-card">
 						<Stack className="card-header">
 							<Maximize size={20} />
-							<Typography className="card-title">Property Details</Typography>
+							<Typography className="card-title">Product Details</Typography>
 						</Stack>
 
 						<Stack className="form-content">
@@ -289,9 +281,9 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 									<Typography className="form-label">Rooms *</Typography>
 									<select
 										className="form-select"
-										value={insertPropertyData.productRooms || ''}
+										value={insertProductData.productRooms || ''}
 										onChange={({ target: { value } }) =>
-											setInsertPropertyData({ ...insertPropertyData, productRooms: parseInt(value) })
+											setInsertProductData({ ...insertProductData, productRooms: parseInt(value) })
 										}
 									>
 										<option value="" disabled>
@@ -309,9 +301,9 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 									<Typography className="form-label">Beds *</Typography>
 									<select
 										className="form-select"
-										value={insertPropertyData.productBeds || ''}
+										value={insertProductData.productBeds || ''}
 										onChange={({ target: { value } }) =>
-											setInsertPropertyData({ ...insertPropertyData, productBeds: parseInt(value) })
+											setInsertProductData({ ...insertProductData, productBeds: parseInt(value) })
 										}
 									>
 										<option value="" disabled>
@@ -324,42 +316,18 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 										))}
 									</select>
 								</Stack>
-
-								<Stack className="form-group">
-									<Typography className="form-label">Square (m²) *</Typography>
-									<select
-										className="form-select"
-										value={insertPropertyData.productSquare || ''}
-										onChange={({ target: { value } }) =>
-											setInsertPropertyData({ ...insertPropertyData, productSquare: parseInt(value) })
-										}
-									>
-										<option value="" disabled>
-											Select size
-										</option>
-										{propertySquare.map((square: number) => {
-											if (square !== 0) {
-												return (
-													<option value={square} key={square}>
-														{square} m²
-													</option>
-												);
-											}
-										})}
-									</select>
-								</Stack>
 							</Stack>
 
 							{/* Description */}
 							<Stack className="form-group full-width">
-								<Typography className="form-label">Property Description *</Typography>
+								<Typography className="form-label">Product Description *</Typography>
 								<textarea
 									className="form-textarea"
-									placeholder="Describe your property in detail..."
+									placeholder="Describe your product in detail..."
 									rows={6}
-									value={insertPropertyData.productDesc}
+									value={insertProductData.productDesc}
 									onChange={({ target: { value } }) =>
-										setInsertPropertyData({ ...insertPropertyData, productDesc: value })
+										setInsertProductData({ ...insertProductData, productDesc: value })
 									}
 								/>
 							</Stack>
@@ -370,7 +338,7 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 					<Stack className="form-card">
 						<Stack className="card-header">
 							<ImageIcon size={20} />
-							<Typography className="card-title">Property Images</Typography>
+							<Typography className="card-title">Product Images</Typography>
 						</Stack>
 
 						<Stack className="form-content">
@@ -399,11 +367,11 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 								</Stack>
 
 								{/* Image Gallery */}
-								{insertPropertyData.productImages.length >= 0 && (
+								{insertProductData.productImages.length >= 0 && (
 									<Stack className="images-gallery">
-										{insertPropertyData.productImages.map((image: string, index: number) => (
+										{insertProductData.productImages.map((image: string, index: number) => (
 											<Stack className="image-preview" key={index}>
-												<img src={`${REACT_APP_API_URL}/${image}`} alt={`Property ${index + 1}`} />
+												<img src={`${REACT_APP_API_URL}/${image}`} alt={`Product ${index + 1}`} />
 												<Button
 													className="remove-image"
 													onClick={() => removeImage(index)}
@@ -426,11 +394,11 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 						<Button className="cancel-button" onClick={() => router.back()}>
 							Cancel
 						</Button>
-						{router.query.propertyId ? (
+						{router.query.productId ? (
 							<Button
 								className="submit-button"
 								disabled={doDisabledCheck()}
-								onClick={updatePropertyHandler}
+								onClick={updateProductHandler}
 							>
 								<span>Update Listing</span>
 								<svg
@@ -450,7 +418,7 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 							<Button
 								className="submit-button"
 								disabled={doDisabledCheck()}
-								onClick={insertPropertyHandler}
+								onClick={insertProductHandler}
 							>
 								<span>Create Listing</span>
 								<svg

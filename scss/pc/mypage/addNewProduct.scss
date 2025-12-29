@@ -1,7 +1,7 @@
 @import '/scss/variables.scss';
 
 #pc-wrap {
-	#add-property-page {
+	#add-product-page {
 		width: 100%;
 		min-height: 100%;
 		display: flex;
@@ -480,7 +480,7 @@
 // RESPONSIVE DESIGN
 // ============================================
 @media (max-width: 1024px) {
-	#pc-wrap #add-property-page {
+	#pc-wrap #add-product-page {
 		.form-container {
 			.form-row {
 				grid-template-columns: 1fr;
@@ -498,7 +498,7 @@
 }
 
 @media (max-width: 768px) {
-	#pc-wrap #add-property-page {
+	#pc-wrap #add-product-page {
 		gap: 20px;
 
 		.page-header-section .header-content {
@@ -547,7 +547,7 @@
 }
 
 @media (max-width: 480px) {
-	#pc-wrap #add-property-page {
+	#pc-wrap #add-product-page {
 		.form-container {
 			.upload-area {
 				.upload-zone {
