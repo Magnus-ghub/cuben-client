@@ -220,7 +220,7 @@ const Top: React.FC = () => {
 								<StyledMenu anchorEl={createMenuAnchor} open={createMenuOpen} onClose={handleCreateMenuClose}>
 									<MenuItem
 										onClick={() => {
-											router.push('/community/write');
+											router.push('/create/writePost');
 											handleCreateMenuClose();
 										}}
 									>
@@ -228,13 +228,13 @@ const Top: React.FC = () => {
 									</MenuItem>
 									<MenuItem
 										onClick={() => {
-											router.push('/mypage/add-product');
+											router.push('/create/listItem');
 											handleCreateMenuClose();
 										}}
 									>
 										🛒 List an Item
 									</MenuItem>
-									<MenuItem
+									{/* <MenuItem
 										onClick={() => {
 											router.push('/jobs/create');
 											handleCreateMenuClose();
@@ -249,7 +249,7 @@ const Top: React.FC = () => {
 										}}
 									>
 										📅 Create Event
-									</MenuItem>
+									</MenuItem> */}
 								</StyledMenu>
 							</>
 						)}

@@ -225,13 +225,71 @@ const LeftSidebar = () => {
 									<Box>Logout</Box>
 								</Stack>
 
-								<Dialog open={logoutOpen} onClose={() => setLogoutOpen(false)} maxWidth="xs" fullWidth>
-									<DialogTitle>Confirm Logout</DialogTitle>
-									<DialogContent>Are you sure you want to log out?</DialogContent>
-									<DialogActions>
-										<Button onClick={() => setLogoutOpen(false)}>Cancel</Button>
-										<Button color="error" variant="contained" onClick={handleLogout}>
-											Logout
+								<Dialog
+									open={logoutOpen}
+									onClose={() => setLogoutOpen(false)}
+									maxWidth="xs"
+									fullWidth
+									PaperProps={{
+										sx: {
+											borderRadius: '16px',
+											boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+											overflow: 'hidden',
+										},
+									}}
+								>
+									{/* Content */}
+									<DialogContent sx={{ px: 3, py: 3 }}>
+										<Box
+											sx={{
+												fontSize: '14px',
+												color: '#374151',
+												lineHeight: 1.6,
+											}}
+										>
+											Are you sure you want to log out?
+											<br />
+											You’ll need to sign in again to access your account.
+										</Box>
+									</DialogContent>
+
+									{/* Actions */}
+									<DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+										<Button
+											fullWidth
+											variant="outlined"
+											onClick={() => setLogoutOpen(false)}
+											sx={{
+												borderRadius: '10px',
+												textTransform: 'none',
+												fontWeight: 600,
+												borderColor: '#e5e7eb',
+												color: '#374151',
+												'&:hover': {
+													backgroundColor: '#f9fafb',
+													borderColor: '#d1d5db',
+												},
+											}}
+										>
+											Cancel
+										</Button>
+
+										<Button
+											fullWidth
+											variant="contained"
+											onClick={handleLogout}
+											sx={{
+												borderRadius: '10px',
+												textTransform: 'none',
+												fontWeight: 700,
+												background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+												boxShadow: '0 6px 20px rgba(239,68,68,0.35)',
+												'&:hover': {
+													background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+												},
+											}}
+										>
+											Log out
 										</Button>
 									</DialogActions>
 								</Dialog>

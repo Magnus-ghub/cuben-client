@@ -6,7 +6,7 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0;
+  padding: 40px 24px 80px 24px;
 
   // Header
   .notes-header {
@@ -363,6 +363,7 @@
             word-break: break-word;
             display: -webkit-box;
             -webkit-line-clamp: 6;
+            line-clamp: 6;
             -webkit-box-orient: vertical;
             overflow: hidden;
           }

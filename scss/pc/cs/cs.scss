@@ -3,9 +3,9 @@
 #pc-wrap {
 	.cs-page {
 		width: 100%;
-		min-height: calc(100vh - 64px);
+		min-height: calc(auto - 64px);
 		background: #f9fafb;
-		padding: 60px 0 80px 0;
+		padding:40px 24px 80px 24px;
 
 		.container {
 			max-width: 1200px;
