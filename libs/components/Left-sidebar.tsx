@@ -30,12 +30,14 @@ import { userVar } from '../apollo/store';
 import { useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { REACT_APP_API_URL } from '../config';
+import { Snackbar, Alert } from '@mui/material';
 
 const LeftSidebar = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const [logoutOpen, setLogoutOpen] = useState(false);
+	const [comingSoonOpen, setComingSoonOpen] = useState(false);
 	const [imageError, setImageError] = useState(false);
 
 	// Reset image error when user changes
@@ -87,11 +89,7 @@ const LeftSidebar = () => {
 							<Stack className="profile-card">
 								<Stack className="profile-header">
 									<Box className="profile-avatar">
-										<img
-											src={getUserImageSrc()}
-											alt={user.memberNick || 'User profile'}
-											onError={handleImageError}
-										/>
+										<img src={getUserImageSrc()} alt={user.memberNick || 'User profile'} onError={handleImageError} />
 									</Box>
 									<Stack className="profile-info">
 										<Box className="profile-name">{user.memberNick}</Box>
@@ -138,13 +136,11 @@ const LeftSidebar = () => {
 									<Box className="menu-count">245</Box>
 								</Stack>
 							</Link>
-							<Link href={'/'}>
-								<Stack className={`menu-item ${isActive('/mypage/messages') ? 'active' : ''}`}>
-									<MessageSquare size={20} className="menu-icon" />
-									<Box className="menu-text">Messages</Box>
-									<Box className="menu-badge">5</Box>
-								</Stack>
-							</Link>
+							<Stack className="menu-item " onClick={() => setComingSoonOpen(true)} sx={{ cursor: 'pointer' }}>
+								<MessageSquare size={20} className="menu-icon" />
+								<Box className="menu-text">Messages</Box>
+								<Box className="menu-badge">Soon</Box>
+							</Stack>
 						</Stack>
 
 						{/* MY ACTIVITY Section - Faqat login qilgan userlar uchun */}
@@ -160,21 +156,21 @@ const LeftSidebar = () => {
 								</Link>
 
 								<Link href={'/activity/favorites'}>
-									<Stack className={`menu-item ${isActive('/mypage/favorites') ? 'active' : ''}`}>
+									<Stack className={`menu-item ${isActive('/activity/favorites') ? 'active' : ''}`}>
 										<Heart size={20} className="menu-icon" />
 										<Box className="menu-text">Favorites</Box>
 									</Stack>
 								</Link>
 
 								<Link href={'/activity/history'}>
-									<Stack className={`menu-item ${isActive('/mypage/my-products') ? 'active' : ''}`}>
+									<Stack className={`menu-item ${isActive('/activity/history') ? 'active' : ''}`}>
 										<History size={20} className="menu-icon" />
 										<Box className="menu-text">Recently Viewed</Box>
 									</Stack>
 								</Link>
 
 								<Link href={'/activity/savedItems'}>
-									<Stack className={`menu-item ${isActive('/mypage/saved') ? 'active' : ''}`}>
+									<Stack className={`menu-item ${isActive('/activity/savedItems') ? 'active' : ''}`}>
 										<BookmarkIcon size={20} className="menu-icon" />
 										<Box className="menu-text">Saved Items</Box>
 									</Stack>
@@ -239,6 +235,12 @@ const LeftSidebar = () => {
 										</Button>
 									</DialogActions>
 								</Dialog>
+
+								<Snackbar open={comingSoonOpen} autoHideDuration={3000} onClose={() => setComingSoonOpen(false)}>
+									<Alert severity="info" variant="filled">
+										Messages feature is coming soon 🚀
+									</Alert>
+								</Snackbar>
 							</>
 						)}
 					</Stack>

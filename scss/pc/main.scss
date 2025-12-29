@@ -444,6 +444,7 @@
 						}
 					}
 
+					// HOME Section ichidagi barcha menu itemlar uchun universal styling
 					.sidebar-section {
 						padding: 14px 0;
 						border-bottom: 1px solid #f3f4f6;
@@ -458,78 +459,152 @@
 							letter-spacing: 0.5px;
 						}
 
-						a {
+						// Link va Stack uchun umumiy styling
+						a,
+						> .menu-item {
 							text-decoration: none;
 							display: block;
+						}
 
-							.menu-item {
-								padding: 9px 18px;
-								display: flex;
-								flex-direction: row;
-								align-items: center;
-								gap: 10px;
-								cursor: pointer;
-								transition: all 0.2s ease;
-								color: #4b5563;
-								position: relative;
+						// Menu item o'zini styling (Link ichida ham, Stack o'zida ham)
+						.menu-item {
+							padding: 9px 18px;
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							gap: 10px;
+							cursor: pointer;
+							transition: all 0.2s ease;
+							color: #4b5563;
+							position: relative;
 
-								&:hover {
-									background: #f9fafb;
-									color: #667eea;
-
-									.menu-icon {
-										color: #667eea;
-									}
-								}
-
-								&.active {
-									background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
-									color: #667eea;
-									border-left: 3px solid #667eea;
-									padding-left: 15px;
-
-									.menu-icon {
-										color: #667eea;
-									}
-
-									.menu-text {
-										font-weight: 600;
-									}
-								}
+							&:hover {
+								background: #f9fafb;
+								color: #667eea;
 
 								.menu-icon {
-									width: 18px;
-									height: 18px;
-									color: #9ca3af;
-									transition: color 0.2s ease;
-									flex-shrink: 0;
+									color: #667eea;
+								}
+							}
+
+							&.active {
+								background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
+								color: #667eea;
+								border-left: 3px solid #667eea;
+								padding-left: 15px;
+
+								.menu-icon {
+									color: #667eea;
 								}
 
 								.menu-text {
-									flex: 1;
-									font-family: $font;
-									font-size: 13px;
-									font-weight: 500;
+									font-weight: 600;
+								}
+							}
+
+							.menu-icon {
+								width: 18px;
+								height: 18px;
+								color: #9ca3af;
+								transition: color 0.2s ease;
+								flex-shrink: 0;
+							}
+
+							.menu-text {
+								flex: 1;
+								font-family: $font;
+								font-size: 13px;
+								font-weight: 500;
+							}
+
+							.menu-badge {
+								background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+								color: #fff;
+								padding: 2px 7px;
+								border-radius: 10px;
+								font-family: $font;
+								font-size: 10px;
+								font-weight: 700;
+								min-width: 18px;
+								text-align: center;
+							}
+
+							.menu-count {
+								color: #9ca3af;
+								font-family: $font;
+								font-size: 12px;
+								font-weight: 500;
+							}
+						}
+
+						// Link ichidagi .menu-item uchun nested selector
+						a .menu-item {
+							padding: 9px 18px;
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							gap: 10px;
+							cursor: pointer;
+							transition: all 0.2s ease;
+							color: #4b5563;
+							position: relative;
+
+							&:hover {
+								background: #f9fafb;
+								color: #667eea;
+
+								.menu-icon {
+									color: #667eea;
+								}
+							}
+
+							&.active {
+								background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
+								color: #667eea;
+								border-left: 3px solid #667eea;
+								padding-left: 15px;
+
+								.menu-icon {
+									color: #667eea;
 								}
 
-								.menu-badge {
-									background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-									color: #fff;
-									padding: 2px 7px;
-									border-radius: 10px;
-									font-family: $font;
-									font-size: 10px;
-									font-weight: 700;
-									min-width: 18px;
-									text-align: center;
+								.menu-text {
+									font-weight: 600;
 								}
+							}
 
-								.menu-count {
-									color: #9ca3af;
-									font-family: $font;
-									font-size: 12px;
-									font-weight: 500;
-								}
+							.menu-icon {
+								width: 18px;
+								height: 18px;
+								color: #9ca3af;
+								transition: color 0.2s ease;
+								flex-shrink: 0;
+							}
+
+							.menu-text {
+								flex: 1;
+								font-family: $font;
+								font-size: 13px;
+								font-weight: 500;
+							}
+
+							.menu-badge {
+								background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+								color: #fff;
+								padding: 2px 7px;
+								border-radius: 10px;
+								font-family: $font;
+								font-size: 10px;
+								font-weight: 700;
+								min-width: 18px;
+								text-align: center;
+							}
+
+							.menu-count {
+								color: #9ca3af;
+								font-family: $font;
+								font-size: 12px;
+								font-weight: 500;
 							}
 						}
 					}

@@ -16,6 +16,7 @@ import { userVar, chatOpenVar } from '../apollo/store';
 import { useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
 import { getJwtToken, updateUserInfo } from '../auth';
+import { Snackbar, Alert } from '@mui/material';
 
 // Cuben Logo SVG Component
 const CubenLogo: React.FC = () => (
@@ -51,8 +52,9 @@ const Top: React.FC = () => {
 	const drop = Boolean(anchorEl2);
 	const createMenuOpen = Boolean(createMenuAnchor);
 	const chatOpen = useReactiveVar(chatOpenVar);
-	const [notificationCount] = useState(3);
+	const [notificationCount] = useState();
 	const [imageError, setImageError] = useState(false);
+	const [notificationComingSoonOpen, setNotificationComingSoonOpen] = useState(false);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -118,6 +120,10 @@ const Top: React.FC = () => {
 			return `${REACT_APP_API_URL}/${user.memberImage}`;
 		}
 		return '/img/profile/defaultUser.svg';
+	};
+
+	const handleNotificationClick = () => {
+		setNotificationComingSoonOpen(true);
 	};
 
 	const StyledMenu = styled((props: MenuProps) => (
@@ -211,12 +217,7 @@ const Top: React.FC = () => {
 								>
 									Create
 								</Button>
-
-								<StyledMenu
-									anchorEl={createMenuAnchor}
-									open={createMenuOpen}
-									onClose={handleCreateMenuClose}
-								>
+								<StyledMenu anchorEl={createMenuAnchor} open={createMenuOpen} onClose={handleCreateMenuClose}>
 									<MenuItem
 										onClick={() => {
 											router.push('/community/write');
@@ -272,11 +273,21 @@ const Top: React.FC = () => {
 
 							{/* Notification Icon - Faqat login qilgan userlar uchun */}
 							{user?._id && (
-								<Link href="/notifications" style={{ textDecoration: 'none' }}>
-									<Badge badgeContent={notificationCount} color="error" className="icon-wrapper">
+								<Box
+									component="div"
+									onClick={handleNotificationClick}
+									className="icon-wrapper"
+									sx={{
+										cursor: 'pointer',
+										'&:hover': {
+											transform: 'scale(1.1)',
+										},
+									}}
+								>
+									<Badge badgeContent={notificationCount} color="error">
 										<NotificationsOutlinedIcon sx={{ fontSize: 24, color: '#6b7280' }} />
 									</Badge>
-								</Link>
+								</Box>
 							)}
 
 							{/* Language Selector */}
@@ -305,7 +316,6 @@ const Top: React.FC = () => {
 									/>
 								</Box>
 							</Button>
-
 							<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose}>
 								<MenuItem disableRipple onClick={langChoice} id="en">
 									<img className="img-flag" src={'/img/flag/langen.png'} alt={'USA Flag'} />
@@ -326,11 +336,7 @@ const Top: React.FC = () => {
 						{user?._id ? (
 							<Link href="/mypage" style={{ textDecoration: 'none' }}>
 								<Box className={'login-user'}>
-									<img
-										src={getUserImageSrc()}
-										alt="user profile"
-										onError={handleImageError}
-									/>
+									<img src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
 								</Box>
 							</Link>
 						) : (
@@ -359,6 +365,17 @@ const Top: React.FC = () => {
 					</Box>
 				</Stack>
 			</Stack>
+
+			{/* Snackbar for Notification Coming Soon */}
+			<Snackbar
+				open={notificationComingSoonOpen}
+				autoHideDuration={3000}
+				onClose={() => setNotificationComingSoonOpen(false)}
+			>
+				<Alert severity="info" variant="filled">
+					Notifications feature is coming soon 🔔
+				</Alert>
+			</Snackbar>
 		</Stack>
 	);
 };
