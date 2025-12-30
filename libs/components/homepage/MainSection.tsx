@@ -15,12 +15,20 @@ import {
 	Award,
 } from 'lucide-react';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
+import CommentModal from '../common/CommentModal';
+
 
 const MainSection = () => {
 	const device = useDeviceDetect();
 	const [activeTab, setActiveTab] = useState('all');
+	const [commentModalOpen, setCommentModalOpen] = useState(false);
+	const [selectedPost, setSelectedPost] = useState(null);
+	
+	// Like va Save state
+	const [likedPosts, setLikedPosts] = useState({});
+	const [savedPosts, setSavedPosts] = useState({});
 
-	// Mock Data - Keyinchalik API dan keladi
+	// Mock Data
 	const posts = [
 		{
 			id: 1,
@@ -71,22 +79,6 @@ const MainSection = () => {
 			category: 'Food',
 		},
 		{
-			id: 1,
-			author: {
-				name: 'Emily Johnson',
-				username: '@emilyjohnson',
-				avatar: '/img/profile/user1.jpg',
-				verified: true,
-			},
-			content:
-				'Just finished my final exam! 🎉 Anyone else feeling relieved? Time to enjoy the winter break! What are your plans?',
-			timestamp: '2 hours ago',
-			likes: 234,
-			comments: 45,
-			images: ['/img/posts/finalexam.webp'],
-			category: 'Campus Life',
-		},
-		{
 			id: 3,
 			author: {
 				name: 'Mike Wilson',
@@ -102,39 +94,26 @@ const MainSection = () => {
 			images: [],
 			category: 'Study',
 		},
-		{
-			id: 2,
-			author: {
-				name: 'David Chen',
-				username: '@davidchen',
-				avatar: '/img/profile/user2.jpg',
-				verified: false,
-			},
-			content:
-				'🍕 PIZZA PARTY AT MY DORM! Room 304, Building A. First 20 people get free pizza! Starting at 7 PM tonight. Bring your own drinks! 🎉',
-			timestamp: '4 hours ago',
-			likes: 567,
-			comments: 89,
-			images: ['/img/posts/pizzaclub.jpeg'],
-			category: 'Food',
-		},
-		{
-			id: 4,
-			author: {
-				name: 'Sarah Martinez',
-				username: '@sarahm',
-				avatar: '/img/profile/user3.jpg',
-				verified: true,
-			},
-			content:
-				'Looking for study partners for Data Structures course! We can meet at the library every Tuesday and Thursday. DM me if interested 📚',
-			timestamp: '6 hours ago',
-			likes: 123,
-			comments: 34,
-			images: [],
-			category: 'Study',
-		},
 	];
+
+	const handleCommentClick = (post) => {
+		setSelectedPost(post);
+		setCommentModalOpen(true);
+	};
+
+	const handleLikeClick = (postId) => {
+		setLikedPosts(prev => ({
+			...prev,
+			[postId]: !prev[postId]
+		}));
+	};
+
+	const handleSaveClick = (postId) => {
+		setSavedPosts(prev => ({
+			...prev,
+			[postId]: !prev[postId]
+		}));
+	};
 
 	if (device === 'mobile') {
 		return (
@@ -233,7 +212,7 @@ const MainSection = () => {
 							{/* Post Stats */}
 							<Box className="post-stats">
 								<span>
-									<Heart size={16} /> {post.likes} likes
+									<Heart size={16} /> {post.likes + (likedPosts[post.id] ? 1 : 0)} likes
 								</span>
 								<span>
 									<MessageCircle size={16} /> {post.comments} comments
@@ -242,23 +221,51 @@ const MainSection = () => {
 
 							{/* Post Actions */}
 							<Box className="post-actions">
-								<Button className="action-btn">
-									<Heart size={20} />
-									Like
+								<Button 
+									className={`action-btn ${likedPosts[post.id] ? 'liked' : ''}`}
+									onClick={() => handleLikeClick(post.id)}
+								>
+									<Heart 
+										size={20} 
+										fill={likedPosts[post.id] ? '#ef4444' : 'none'}
+										color={likedPosts[post.id] ? '#ef4444' : 'currentColor'}
+									/>
+									<span style={{ color: likedPosts[post.id] ? '#ef4444' : 'inherit' }}>
+										Like
+									</span>
 								</Button>
-								<Button className="action-btn">
+								<Button 
+									className="action-btn"
+									onClick={() => handleCommentClick(post)}
+								>
 									<MessageCircle size={20} />
 									Comment
 								</Button>
-								<Button className="action-btn">
-									<Bookmark size={20} />
-									Save
+								<Button 
+									className={`action-btn ${savedPosts[post.id] ? 'saved' : ''}`}
+									onClick={() => handleSaveClick(post.id)}
+								>
+									<Bookmark 
+										size={20}
+										fill={savedPosts[post.id] ? '#667eea' : 'none'}
+										color={savedPosts[post.id] ? '#667eea' : 'currentColor'}
+									/>
+									<span style={{ color: savedPosts[post.id] ? '#667eea' : 'inherit' }}>
+										Save
+									</span>
 								</Button>
 							</Box>
 						</Box>
 					))}
 				</Stack>
 			</Box>
+
+			{/* Comment Modal */}
+			<CommentModal 
+				open={commentModalOpen}
+				onClose={() => setCommentModalOpen(false)}
+				post={selectedPost}
+			/>
 		</Stack>
 	);
 };
