@@ -335,6 +335,103 @@ export const GET_VISITED = gql`
 `;
 
 /**************************
+ *      POST     *
+ *************************/
+
+export const GET_POST = gql`
+	query GetBoardArticle($input: String!) {
+		getBoardArticle(articleId: $input) {
+			_id
+			postStatus
+			postTitle
+			postDesc
+			postImages
+			postLikes
+			postComments
+			memberId
+			createdAt
+			updatedAt
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberWarnings
+				memberBlocks
+				memberProducts
+				memberRank
+				memberPoints
+				memberLikes
+				memberViews
+				deletedAt
+				createdAt
+				updatedAt
+			}
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
+		}
+	}
+`;
+
+export const GET_POSTS = gql`
+	query GetBoardArticles($input: BoardArticlesInquiry!) {
+		getBoardArticles(input: $input) {
+			list {
+				_id
+				postStatus
+				postTitle
+				postDesc
+				postImages
+				postLikes
+				postComments
+				memberId
+				createdAt
+				updatedAt
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
+				memberData {
+					_id
+					memberType
+					memberStatus
+					memberAuthType
+					memberPhone
+					memberNick
+					memberFullName
+					memberImage
+					memberAddress
+					memberDesc
+					memberWarnings
+					memberBlocks
+					memberProducts
+					memberRank
+					memberPoints
+					memberLikes
+					memberViews
+					deletedAt
+					createdAt
+					updatedAt
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+/**************************
  *      BOARD-ARTICLE     *
  *************************/
 

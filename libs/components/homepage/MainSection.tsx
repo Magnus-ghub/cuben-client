@@ -1,5 +1,5 @@
-import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
-import { Stack, Box, Button, Avatar } from '@mui/material';
+import React, { MouseEvent, useEffect, useState } from 'react';
+import { Stack, Box, Button, Avatar, Pagination } from '@mui/material';
 import Link from 'next/link';
 import {
 	TrendingUp,
@@ -14,16 +14,16 @@ import CommentModal from '../common/CommentModal';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { LIKE_TARGET_BOARD_ARTICLE } from '../../apollo/user/mutation';
-import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
-import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
-import { BoardArticle } from '../../types/board-article/board-article';
+import { LIKE_TARGET_POST } from '../../apollo/user/mutation';
+import { GET_POSTS } from '../../apollo/user/query';
 import { T } from '../../types/common';
 import { Direction } from '../../enums/common.enum';
 import { Messages, REACT_APP_API_URL } from '../../config';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { userVar } from '../../apollo/store';
 import PostCard from '../community/Postcard';
+import { PostsInquiry } from '../../types/post/post.input';
+import { Post } from '../../types/post/post';
 
 const MainSection = ({ initialInput }: any) => {
 	const { t } = useTranslation('common');
@@ -33,191 +33,94 @@ const MainSection = ({ initialInput }: any) => {
 	const { query } = router;
 
 	/** STATES **/
-	const [searchFilter, setSearchFilter] = useState<BoardArticlesInquiry>(
-		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
-	);
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const articleCategory = query?.articleCategory as string;
-	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>(initialInput);
-	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
+	const [searchCommunity, setSearchCommunity] = useState<PostsInquiry>({
+		page: 1,
+		limit: 10,
+		sort: 'createdAt',
+		direction: Direction.DESC,
+		search: {},
+	});
+	const [posts, setPosts] = useState<Post[]>([]);
 	const [totalCount, setTotalCount] = useState<number>(0);
-	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [sortingOpen, setSortingOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState('all');
 	const [commentModalOpen, setCommentModalOpen] = useState(false);
-	const [selectedPost, setSelectedPost] = useState(null);
-	const [filterSortName, setFilterSortName] = useState('New');
+	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
 
-	if (articleCategory) initialInput.search.articleCategory = articleCategory;
-
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+	const [likeTargetPost] = useMutation(LIKE_TARGET_POST);
 
 	const {
-		loading: boardArticlesLoading,
-		data: boardArticlesData,
-		error: getAgentsrror,
-		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
-		fetchPolicy: 'cache-and-network',
+		loading: postsLoading,
+		data: postsData,
+		error: getPostsError,
+		refetch: postsRefetch,
+	} = useQuery(GET_POSTS, {
+		fetchPolicy: 'network-only',
 		variables: {
 			input: searchCommunity,
 		},
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setBoardArticles(data?.getBoardArticles?.list);
-			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
+			console.log('Posts data received:', data);
+			if (data?.getPosts) {
+				setPosts(data.getPosts.list || []);
+				setTotalCount(data.getPosts.metaCounter?.[0]?.total || 0);
+			}
+		},
+		onError: (error) => {
+			console.error('Error fetching posts:', error);
 		},
 	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (router.query.input) {
-			const inputObj = JSON.parse(router?.query?.input as string);
-			setSearchFilter(inputObj);
-		}
-		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
-	}, [router]);
+		console.log('Search community changed:', searchCommunity);
+	}, [searchCommunity]);
 
 	useEffect(() => {
-		console.log('searchFilter:', searchFilter);
-	}, [searchFilter]);
-
-	/** MOCK DATA - Bu qismni keyinchalik API dan olingan data bilan almashtirish mumkin **/
-	const posts = [
-		{
-			id: 1,
-			author: {
-				name: 'Emily Johnson',
-				username: '@emilyjohnson',
-				avatar: '/img/profile/user1.jpg',
-				verified: true,
-			},
-			content:
-				'Just finished my final exam! 🎉 Anyone else feeling relieved? Time to enjoy the winter break! What are your plans?',
-			timestamp: '2 hours ago',
-			likes: 234,
-			comments: 45,
-			images: ['/img/posts/finalexam.webp'],
-			category: 'Campus Life',
-		},
-		{
-			id: 2,
-			author: {
-				name: 'David Chen',
-				username: '@davidchen',
-				avatar: '/img/profile/user2.jpg',
-				verified: false,
-			},
-			content:
-				'🍕 PIZZA PARTY AT MY DORM! Room 304, Building A. First 20 people get free pizza! Starting at 7 PM tonight. Bring your own drinks! 🎉',
-			timestamp: '4 hours ago',
-			likes: 567,
-			comments: 89,
-			images: ['/img/posts/pizzaclub.jpeg'],
-			category: 'Food',
-		},
-		{
-			id: 3,
-			author: {
-				name: 'Mike Wilson',
-				username: '@mikewilson',
-				avatar: '/img/profile/magnus.png',
-				verified: false,
-			},
-			content:
-				'Anyone interested in forming a study group for Advanced Algorithms? Meeting twice a week at the library. 📖',
-			timestamp: '5 hours ago',
-			likes: 189,
-			comments: 34,
-			images: [],
-			category: 'Study',
-		},
-		{
-			id: 4,
-			author: {
-				name: 'Sarah Martinez',
-				username: '@sarahm',
-				avatar: '/img/profile/user3.jpg',
-				verified: true,
-			},
-			content:
-				'Looking for study partners for Data Structures course! We can meet at the library every Tuesday and Thursday. DM me if interested 📚',
-			timestamp: '6 hours ago',
-			likes: 123,
-			comments: 34,
-			images: [],
-			category: 'Study',
-		},
-	];
+		if (getPostsError) {
+			console.error('Get posts error:', getPostsError);
+			sweetMixinErrorAlert('Failed to load posts').then();
+		}
+	}, [getPostsError]);
 
 	/** HANDLERS **/
-	const handleCommentClick = (post) => {
+	const handleCommentClick = (post: Post) => {
 		setSelectedPost(post);
 		setCommentModalOpen(true);
 	};
 
-	const handleLikeClick = (postId: number) => {
-		console.log('Post liked:', postId);
-		// Bu yerda backend ga like so'rovi yuborilishi mumkin
-	};
-
-	const handleSaveClick = (postId: number) => {
-		console.log('Post saved:', postId);
-		// Bu yerda backend ga save so'rovi yuborilishi mumkin
-	};
-
-	const likeArticleHandler = async (e: any, user: any, id: string) => {
+	const handleLikeClick = async (currentUser: any, postId: string) => {
 		try {
-			e.stopPropagation();
-			if (!id) return;
-			if (!user._id) throw new Error(Messages.error2);
+			if (!postId) return;
+			if (!currentUser?._id) {
+				sweetMixinErrorAlert(Messages.error2 || 'Please login first').then();
+				return;
+			}
 
-			await likeTargetBoardArticle({
+			await likeTargetPost({
 				variables: {
-					input: id,
+					postId: postId,
 				},
 			});
 
-			await boardArticlesRefetch({ input: searchCommunity });
+			await postsRefetch({ input: searchCommunity });
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.log('ERROR, likeProductHandler:', err.message);
+			console.error('ERROR, handleLikeClick:', err);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
 
+	const handleSaveClick = (postId: string) => {
+		console.log('Post saved:', postId);
+		// TODO: Backend save mutation qo'shish kerak
+	};
+
 	const paginationHandler = (e: T, value: number) => {
 		setSearchCommunity({ ...searchCommunity, page: value });
-	};
-
-	const sortingClickHandler = (e: MouseEvent<HTMLElement>) => {
-		setAnchorEl(e.currentTarget);
-		setSortingOpen(true);
-	};
-
-	const sortingCloseHandler = () => {
-		setSortingOpen(false);
-		setAnchorEl(null);
-	};
-
-	const sortingHandler = (e: React.MouseEvent<HTMLLIElement>) => {
-		switch (e.currentTarget.id) {
-			case 'new':
-				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.ASC });
-				setFilterSortName('New');
-				break;
-			case 'lowest':
-				setSearchFilter({ ...searchFilter, sort: 'propertyPrice', direction: Direction.ASC });
-				setFilterSortName('Lowest Price');
-				break;
-			case 'highest':
-				setSearchFilter({ ...searchFilter, sort: 'propertyPrice', direction: Direction.DESC });
-				setFilterSortName('Highest Price');
-		}
-		setSortingOpen(false);
-		setAnchorEl(null);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
 	const handleImageError = () => {
@@ -232,6 +135,39 @@ const MainSection = ({ initialInput }: any) => {
 			return `${REACT_APP_API_URL}/${user.memberImage}`;
 		}
 		return '/img/profile/defaultUser.svg';
+	};
+
+	const handleTabChange = (tab: string) => {
+		setActiveTab(tab);
+		
+		switch (tab) {
+			case 'all':
+				setSearchCommunity({ 
+					...searchCommunity, 
+					page: 1,
+					sort: 'createdAt', 
+					direction: Direction.DESC 
+				});
+				break;
+			case 'following':
+				// TODO: Following logic qo'shish kerak
+				console.log('Following tab clicked');
+				setSearchCommunity({ 
+					...searchCommunity, 
+					page: 1,
+					sort: 'createdAt', 
+					direction: Direction.DESC 
+				});
+				break;
+			case 'popular':
+				setSearchCommunity({ 
+					...searchCommunity, 
+					page: 1,
+					sort: 'postLikes', 
+					direction: Direction.DESC 
+				});
+				break;
+		}
 	};
 
 	/** MOBILE VIEW **/
@@ -279,21 +215,21 @@ const MainSection = ({ initialInput }: any) => {
 				<Box className="feed-tabs">
 					<Button
 						className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
-						onClick={() => setActiveTab('all')}
+						onClick={() => handleTabChange('all')}
 					>
 						<TrendingUp size={18} />
 						For You
 					</Button>
 					<Button
 						className={`tab-btn ${activeTab === 'following' ? 'active' : ''}`}
-						onClick={() => setActiveTab('following')}
+						onClick={() => handleTabChange('following')}
 					>
 						<Users size={18} />
 						Following
 					</Button>
 					<Button
 						className={`tab-btn ${activeTab === 'popular' ? 'active' : ''}`}
-						onClick={() => setActiveTab('popular')}
+						onClick={() => handleTabChange('popular')}
 					>
 						<Flame size={18} />
 						Popular
@@ -302,15 +238,42 @@ const MainSection = ({ initialInput }: any) => {
 
 				{/* Posts Feed */}
 				<Stack className="posts-feed">
-					{posts.map((post) => (
-						<PostCard
-							key={post.id}
-							post={post}
-							onCommentClick={handleCommentClick}
-							onLikeClick={handleLikeClick}
-							onSaveClick={handleSaveClick}
-						/>
-					))}
+					{postsLoading ? (
+						<Stack className="loading-container">
+							<p>Loading posts...</p>
+						</Stack>
+					) : posts && posts.length > 0 ? (
+						<>
+							{posts.map((post: Post) => (
+								<PostCard
+									key={post._id}
+									post={post}
+									onCommentClick={handleCommentClick}
+									onLikeClick={handleLikeClick}
+									onSaveClick={handleSaveClick}
+									currentUser={user}
+								/>
+							))}
+							
+							{/* Pagination */}
+							{totalCount > searchCommunity.limit && (
+								<Stack className="pagination-box">
+									<Pagination
+										page={searchCommunity.page}
+										count={Math.ceil(totalCount / searchCommunity.limit)}
+										onChange={paginationHandler}
+										color="primary"
+										shape="circular"
+									/>
+								</Stack>
+							)}
+						</>
+					) : (
+						<Stack className="no-data">
+							<img src="/img/icons/icoAlert.svg" alt="No posts" />
+							<p>No posts found!</p>
+						</Stack>
+					)}
 				</Stack>
 			</Box>
 
@@ -322,18 +285,6 @@ const MainSection = ({ initialInput }: any) => {
 			/>
 		</Stack>
 	);
-};
-
-MainSection.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 6,
-		sort: 'createdAt',
-		direction: 'ASC',
-		search: {
-			articleCategory: 'FREE',
-		},
-	},
 };
 
 export default MainSection;

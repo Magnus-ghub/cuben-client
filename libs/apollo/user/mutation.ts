@@ -202,6 +202,71 @@ export const LIKE_TARGET_PRODUCT = gql`
 `;
 
 /**************************
+ *      POST     *
+ *************************/
+
+export const CREATE_POST = gql`
+	mutation CreateBoardArticle($input: BoardArticleInput!) {
+		createBoardArticle(input: $input) {
+			_id
+			postStatus
+			postTitle
+			postDesc
+			postImages
+			postLikes
+			postComments
+			memberId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const UPDATE_POST = gql`
+	mutation UpdateBoardArticle($input: BoardArticleUpdate!) {
+		updateBoardArticle(input: $input) {
+			_id
+			postStatus
+			postTitle
+			postDesc
+			postImages
+			postLikes
+			postComments
+			memberId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const LIKE_TARGET_POST = gql`
+	mutation LikeTargetBoardArticle($input: String!) {
+		likeTargetBoardArticle(articleId: $input) {
+			_id
+			postStatus
+			postTitle
+			postContent
+			postImages
+			postLikes
+			memberId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const SAVE_TARGET_POST = gql`
+	mutation SaveTargetPost($postId: String!) {
+		saveTargetPost(postId: $postId) {
+			_id
+			postLikes
+		}
+	}
+`;
+
+
+
+/**************************
  *      BOARD-ARTICLE     *
  *************************/
 
