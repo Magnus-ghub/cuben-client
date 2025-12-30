@@ -3,7 +3,6 @@ import { Container, Stack, Box, Typography, IconButton, Avatar, Chip } from '@mu
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import ShareIcon from '@mui/icons-material/Share';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -158,9 +157,6 @@ const MarketplaceDetail = () => {
 											) : (
 												<BookmarkBorderIcon />
 											)}
-										</IconButton>
-										<IconButton className="action-icon">
-											<ShareIcon />
 										</IconButton>
 									</Stack>
 								</Stack>

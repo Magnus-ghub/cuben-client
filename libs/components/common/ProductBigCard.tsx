@@ -13,14 +13,16 @@ import { userVar } from '../../apollo/store';
 interface ProductBigCardProps {
 	product: Product;
 	likeProductHandler?: any;
+	saveProductHandler?: any;
 }
 
 const ProductBigCard = (props: ProductBigCardProps) => {
-	const { product, likeProductHandler } = props;
+	const { product, likeProductHandler, saveProductHandler } = props;
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const [isLiked, setIsLiked] = useState(false);
+	const [isSaved, setIsSaved] = useState(false);
 
 	/** HANDLERS **/
 	const goProductDetailPage = (productId: string) => {
@@ -31,6 +33,14 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 		e.stopPropagation();
 		if (likeProductHandler) {
 			likeProductHandler(user, product?._id);
+		}
+		setIsLiked(!isLiked);
+	};
+
+	const handleSaveClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (saveProductHandler) {
+			saveProductHandler(user, product?._id);
 		}
 		setIsLiked(!isLiked);
 	};

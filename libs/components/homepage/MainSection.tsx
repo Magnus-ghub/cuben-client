@@ -1,34 +1,90 @@
-import React, { useState } from 'react';
-import { Stack, Box, Button, Avatar, Chip } from '@mui/material';
+import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import { Stack, Box, Button, Avatar } from '@mui/material';
 import Link from 'next/link';
 import {
 	TrendingUp,
 	Flame,
 	Users,
-	Heart,
-	MessageCircle,
-	Bookmark,
-	MoreHorizontal,
 	Image as ImageIcon,
 	Video,
 	Smile,
-	Award,
 } from 'lucide-react';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import CommentModal from '../common/CommentModal';
+import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { LIKE_TARGET_BOARD_ARTICLE } from '../../apollo/user/mutation';
+import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
+import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
+import { BoardArticle } from '../../types/board-article/board-article';
+import { T } from '../../types/common';
+import { Direction } from '../../enums/common.enum';
+import { Messages, REACT_APP_API_URL } from '../../config';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { userVar } from '../../apollo/store';
+import PostCard from '../community/Postcard';
 
-
-const MainSection = () => {
+const MainSection = ({ initialInput }: any) => {
+	const { t } = useTranslation('common');
 	const device = useDeviceDetect();
+	const user = useReactiveVar(userVar);
+	const router = useRouter();
+	const { query } = router;
+
+	/** STATES **/
+	const [searchFilter, setSearchFilter] = useState<BoardArticlesInquiry>(
+		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
+	);
+	const [currentPage, setCurrentPage] = useState<number>(1);
+	const articleCategory = query?.articleCategory as string;
+	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>(initialInput);
+	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
+	const [totalCount, setTotalCount] = useState<number>(0);
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	const [sortingOpen, setSortingOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState('all');
 	const [commentModalOpen, setCommentModalOpen] = useState(false);
 	const [selectedPost, setSelectedPost] = useState(null);
-	
-	// Like va Save state
-	const [likedPosts, setLikedPosts] = useState({});
-	const [savedPosts, setSavedPosts] = useState({});
+	const [filterSortName, setFilterSortName] = useState('New');
+	const [imageError, setImageError] = useState(false);
 
-	// Mock Data
+	if (articleCategory) initialInput.search.articleCategory = articleCategory;
+
+	/** APOLLO REQUESTS **/
+	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+
+	const {
+		loading: boardArticlesLoading,
+		data: boardArticlesData,
+		error: getAgentsrror,
+		refetch: boardArticlesRefetch,
+	} = useQuery(GET_BOARD_ARTICLES, {
+		fetchPolicy: 'cache-and-network',
+		variables: {
+			input: searchCommunity,
+		},
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setBoardArticles(data?.getBoardArticles?.list);
+			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
+		},
+	});
+
+	/** LIFECYCLES **/
+	useEffect(() => {
+		if (router.query.input) {
+			const inputObj = JSON.parse(router?.query?.input as string);
+			setSearchFilter(inputObj);
+		}
+		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
+	}, [router]);
+
+	useEffect(() => {
+		console.log('searchFilter:', searchFilter);
+	}, [searchFilter]);
+
+	/** MOCK DATA - Bu qismni keyinchalik API dan olingan data bilan almashtirish mumkin **/
 	const posts = [
 		{
 			id: 1,
@@ -45,22 +101,6 @@ const MainSection = () => {
 			comments: 45,
 			images: ['/img/posts/finalexam.webp'],
 			category: 'Campus Life',
-		},
-		{
-			id: 4,
-			author: {
-				name: 'Sarah Martinez',
-				username: '@sarahm',
-				avatar: '/img/profile/user3.jpg',
-				verified: true,
-			},
-			content:
-				'Looking for study partners for Data Structures course! We can meet at the library every Tuesday and Thursday. DM me if interested 📚',
-			timestamp: '6 hours ago',
-			likes: 123,
-			comments: 34,
-			images: [],
-			category: 'Study',
 		},
 		{
 			id: 2,
@@ -94,27 +134,107 @@ const MainSection = () => {
 			images: [],
 			category: 'Study',
 		},
+		{
+			id: 4,
+			author: {
+				name: 'Sarah Martinez',
+				username: '@sarahm',
+				avatar: '/img/profile/user3.jpg',
+				verified: true,
+			},
+			content:
+				'Looking for study partners for Data Structures course! We can meet at the library every Tuesday and Thursday. DM me if interested 📚',
+			timestamp: '6 hours ago',
+			likes: 123,
+			comments: 34,
+			images: [],
+			category: 'Study',
+		},
 	];
 
+	/** HANDLERS **/
 	const handleCommentClick = (post) => {
 		setSelectedPost(post);
 		setCommentModalOpen(true);
 	};
 
-	const handleLikeClick = (postId) => {
-		setLikedPosts(prev => ({
-			...prev,
-			[postId]: !prev[postId]
-		}));
+	const handleLikeClick = (postId: number) => {
+		console.log('Post liked:', postId);
+		// Bu yerda backend ga like so'rovi yuborilishi mumkin
 	};
 
-	const handleSaveClick = (postId) => {
-		setSavedPosts(prev => ({
-			...prev,
-			[postId]: !prev[postId]
-		}));
+	const handleSaveClick = (postId: number) => {
+		console.log('Post saved:', postId);
+		// Bu yerda backend ga save so'rovi yuborilishi mumkin
 	};
 
+	const likeArticleHandler = async (e: any, user: any, id: string) => {
+		try {
+			e.stopPropagation();
+			if (!id) return;
+			if (!user._id) throw new Error(Messages.error2);
+
+			await likeTargetBoardArticle({
+				variables: {
+					input: id,
+				},
+			});
+
+			await boardArticlesRefetch({ input: searchCommunity });
+			await sweetTopSmallSuccessAlert('success', 800);
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
+	const paginationHandler = (e: T, value: number) => {
+		setSearchCommunity({ ...searchCommunity, page: value });
+	};
+
+	const sortingClickHandler = (e: MouseEvent<HTMLElement>) => {
+		setAnchorEl(e.currentTarget);
+		setSortingOpen(true);
+	};
+
+	const sortingCloseHandler = () => {
+		setSortingOpen(false);
+		setAnchorEl(null);
+	};
+
+	const sortingHandler = (e: React.MouseEvent<HTMLLIElement>) => {
+		switch (e.currentTarget.id) {
+			case 'new':
+				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.ASC });
+				setFilterSortName('New');
+				break;
+			case 'lowest':
+				setSearchFilter({ ...searchFilter, sort: 'propertyPrice', direction: Direction.ASC });
+				setFilterSortName('Lowest Price');
+				break;
+			case 'highest':
+				setSearchFilter({ ...searchFilter, sort: 'propertyPrice', direction: Direction.DESC });
+				setFilterSortName('Highest Price');
+		}
+		setSortingOpen(false);
+		setAnchorEl(null);
+	};
+
+	const handleImageError = () => {
+		setImageError(true);
+	};
+
+	const getUserImageSrc = () => {
+		if (imageError) {
+			return '/img/profile/defaultUser.svg';
+		}
+		if (user?.memberImage) {
+			return `${REACT_APP_API_URL}/${user.memberImage}`;
+		}
+		return '/img/profile/defaultUser.svg';
+	};
+
+	/** MOBILE VIEW **/
 	if (device === 'mobile') {
 		return (
 			<Stack className="main-section">
@@ -123,12 +243,18 @@ const MainSection = () => {
 		);
 	}
 
+	/** DESKTOP VIEW **/
 	return (
 		<Stack className="main-section">
 			<Box className="center-feed">
 				{/* Create Post Box */}
 				<Box className="create-post-box">
-					<Avatar className="user-avatar" src="/img/profile/defaultUser.svg" />
+					<Avatar 
+						className="user-avatar" 
+						src={getUserImageSrc()} 
+						alt="user profile" 
+						onError={handleImageError} 
+					/>
 					<Link href="/create/writePost" style={{ textDecoration: 'none', flex: 1 }}>
 						<Box className="create-input">
 							<span>What's on your mind?</span>
@@ -136,6 +262,7 @@ const MainSection = () => {
 					</Link>
 				</Box>
 
+				{/* Create Post Actions */}
 				<Stack className="create-post-actions">
 					<Button startIcon={<ImageIcon size={18} />} className="post-action-btn">
 						Photo
@@ -176,98 +303,37 @@ const MainSection = () => {
 				{/* Posts Feed */}
 				<Stack className="posts-feed">
 					{posts.map((post) => (
-						<Box key={post.id} className="post-card">
-							{/* Post Header */}
-							<Box className="post-header">
-								<Avatar className="post-avatar" src={post.author.avatar} />
-								<Box className="post-author-info">
-									<Box className="author-name">
-										<span>{post.author.name}</span>
-										{post.author.verified && <Award size={16} className="verified-badge" />}
-									</Box>
-									<Box className="post-meta">
-										<span>{post.author.username}</span>
-										<span>•</span>
-										<span>{post.timestamp}</span>
-									</Box>
-								</Box>
-								<Chip label={post.category} size="small" className="post-category" />
-								<Button className="post-more-btn">
-									<MoreHorizontal size={20} />
-								</Button>
-							</Box>
-
-							{/* Post Content */}
-							<Box className="post-content">
-								<p>{post.content}</p>
-								{post.images.length > 0 && (
-									<Box className="post-images">
-										{post.images.map((img, idx) => (
-											<img key={idx} src={img} alt="post" />
-										))}
-									</Box>
-								)}
-							</Box>
-
-							{/* Post Stats */}
-							<Box className="post-stats">
-								<span>
-									<Heart size={16} /> {post.likes + (likedPosts[post.id] ? 1 : 0)} likes
-								</span>
-								<span>
-									<MessageCircle size={16} /> {post.comments} comments
-								</span>
-							</Box>
-
-							{/* Post Actions */}
-							<Box className="post-actions">
-								<Button 
-									className={`action-btn ${likedPosts[post.id] ? 'liked' : ''}`}
-									onClick={() => handleLikeClick(post.id)}
-								>
-									<Heart 
-										size={20} 
-										fill={likedPosts[post.id] ? '#ef4444' : 'none'}
-										color={likedPosts[post.id] ? '#ef4444' : 'currentColor'}
-									/>
-									<span style={{ color: likedPosts[post.id] ? '#ef4444' : 'inherit' }}>
-										Like
-									</span>
-								</Button>
-								<Button 
-									className="action-btn"
-									onClick={() => handleCommentClick(post)}
-								>
-									<MessageCircle size={20} />
-									Comment
-								</Button>
-								<Button 
-									className={`action-btn ${savedPosts[post.id] ? 'saved' : ''}`}
-									onClick={() => handleSaveClick(post.id)}
-								>
-									<Bookmark 
-										size={20}
-										fill={savedPosts[post.id] ? '#667eea' : 'none'}
-										color={savedPosts[post.id] ? '#667eea' : 'currentColor'}
-									/>
-									<span style={{ color: savedPosts[post.id] ? '#667eea' : 'inherit' }}>
-										Save
-									</span>
-								</Button>
-							</Box>
-						</Box>
+						<PostCard
+							key={post.id}
+							post={post}
+							onCommentClick={handleCommentClick}
+							onLikeClick={handleLikeClick}
+							onSaveClick={handleSaveClick}
+						/>
 					))}
 				</Stack>
 			</Box>
 
 			{/* Comment Modal */}
-			<CommentModal 
+			<CommentModal
 				open={commentModalOpen}
 				onClose={() => setCommentModalOpen(false)}
 				post={selectedPost}
 			/>
 		</Stack>
 	);
+};
+
+MainSection.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 6,
+		sort: 'createdAt',
+		direction: 'ASC',
+		search: {
+			articleCategory: 'FREE',
+		},
+	},
 };
 
 export default MainSection;

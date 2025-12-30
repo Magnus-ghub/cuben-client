@@ -3,8 +3,8 @@ import { Stack, Typography, Avatar, IconButton } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import ShareIcon from '@mui/icons-material/Share';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Product } from '../../types/product/product';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 
@@ -20,6 +20,7 @@ const ProductCard = (props: ProductTypeCard) => {
 	const { product, likeProductHandler, myFavorites, recentlyVisited, savedItems } = props;
 	const device = useDeviceDetect();
 	const [isFavorited, setIsFavorited] = useState(false);
+	const [isSaved, setIsSaved] = useState(false);
 
 	if (device === 'mobile') {
 		return <div>Product card</div>;
@@ -93,8 +94,8 @@ const ProductCard = (props: ProductTypeCard) => {
 							<IconButton className="action-btn" onClick={() => setIsFavorited(!isFavorited)}>
 								{isFavorited ? <FavoriteIcon className="favorited" /> : <FavoriteBorderIcon />}
 							</IconButton>
-							<IconButton className="action-btn">
-								<BookmarkBorderIcon />
+							<IconButton className="action-btn" onClick={() => setIsSaved(!isSaved)}>
+								{isSaved ? <BookmarkIcon className="saved" /> : <BookmarkBorderIcon />}
 							</IconButton>
 						</Stack>
 					</Stack>
