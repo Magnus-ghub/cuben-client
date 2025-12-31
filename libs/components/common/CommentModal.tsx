@@ -160,9 +160,9 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
   if (!post) return null;
 
   // Get post images
-  const getPostImages = () => {
-    if (post?.postImages && post.postImages.length > 0) {
-      return post.postImages.map(img => `${REACT_APP_API_URL}/${img}`);
+  const getPostImage = () => {
+    if (post?.postImage) {
+      return(img => `${REACT_APP_API_URL}/${img}`);
     }
     return [];
   };
@@ -225,14 +225,14 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
                 {post.postContent}
               </Typography>
             )}
-            {getPostImages().length > 0 && (
+            {getPostImage().length > 0 && (
               <Box sx={{ 
                 borderRadius: '12px', 
                 overflow: 'hidden',
                 mt: 2
               }}>
                 <img 
-                  src={getPostImages()[0]} 
+                  src={getPostImage()[0]} 
                   alt="post" 
                   style={{ 
                     width: '100%', 

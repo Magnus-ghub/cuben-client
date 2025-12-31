@@ -189,41 +189,6 @@
 					}
 				}
 
-				// Category Select
-				.category-select {
-					.MuiOutlinedInput-root {
-						border-radius: 12px;
-						background: #f8fafc;
-						border: 2px solid #e2e8f0;
-						font-family: $font;
-						transition: all 0.3s ease;
-
-						&:hover {
-							border-color: #cbd5e1;
-							background: #ffffff;
-						}
-
-						&.Mui-focused {
-							background: #ffffff;
-							border-color: #667eea !important;
-							box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-
-							.MuiOutlinedInput-notchedOutline {
-								border: none;
-							}
-						}
-
-						.MuiOutlinedInput-notchedOutline {
-							border: none;
-						}
-					}
-
-					.MuiSelect-select {
-						padding: 16px;
-						font-family: $font;
-					}
-				}
-
 				// Title Input
 				.title-input {
 					.MuiOutlinedInput-root {
@@ -282,7 +247,7 @@
 				.image-preview {
 					position: relative;
 					width: 100%;
-					height: 240px;
+					height: 400px;
 					border-radius: 12px;
 					overflow: hidden;
 					border: 2px solid #e2e8f0;
@@ -315,6 +280,7 @@
 				.upload-area {
 					border: 2px dashed #cbd5e1;
 					border-radius: 12px;
+					height: 400px;
 					background: #f8fafc;
 					padding: 40px 24px;
 					text-align: center;

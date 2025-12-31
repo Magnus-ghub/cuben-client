@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { Box, Stack, Button, TextField, MenuItem, Select, FormControl, Chip, Avatar, IconButton } from '@mui/material';
+import { Box, Stack, Button, TextField, Chip, Avatar, IconButton } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
@@ -12,8 +12,7 @@ import { sweetErrorHandling, sweetTopSuccessAlert } from '../../libs/sweetAlert'
 import { getJwtToken } from '../../libs/auth';
 import { REACT_APP_API_URL } from '../../libs/config';
 import axios from 'axios';
-import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
-import { CREATE_BOARD_ARTICLE } from '../../libs/apollo/user/mutation';
+import { CREATE_POST } from '../../libs/apollo/user/mutation';
 import { 
 	FileText, 
 	Image as ImageIcon, 
@@ -22,6 +21,8 @@ import {
 	AlertCircle,
 	Sparkles,
 } from 'lucide-react';
+import { Message } from '../../libs/enums/common.enum';
+import { T } from '../../libs/types/common';
 
 const WritePost: NextPage = () => {
 	const device = useDeviceDetect();
@@ -30,20 +31,13 @@ const WritePost: NextPage = () => {
 	const editorRef = useRef<Editor>(null);
 
 	// Form State
-	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.CAREER);
-	const [articleTitle, setArticleTitle] = useState<string>('');
-	const [articleImage, setArticleImage] = useState<string>('');
+	const [postTitle, setPostTitle] = useState<string>('');
+	const [postImage, setPostImage] = useState<string>('');
 	const [uploadingImage, setUploadingImage] = useState<boolean>(false);
-
-	// Validation State
-	const [errors, setErrors] = useState({
-		title: '',
-		content: '',
-		category: '',
-	});
+	const [errors, setErrors] = useState({ title: '', content: '' });
 
 	/** APOLLO REQUESTS **/
-	const [createBoardArticle, { loading }] = useMutation(CREATE_BOARD_ARTICLE);
+	const [createPost, { loading }] = useMutation(CREATE_POST);
 
 	/** HANDLERS **/
 	const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,93 +45,128 @@ const WritePost: NextPage = () => {
 			const file = event.target.files?.[0];
 			if (!file) return;
 
-			if (file.size > 5 * 1024 * 1024) {
-				await sweetErrorHandling(new Error('Image size should be less than 5MB'));
+			// Check file type
+			const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+			if (!validTypes.includes(file.type)) {
+				await sweetErrorHandling(new Error('Please upload only JPG, PNG or WEBP images'));
+				return;
+			}
+
+			if (file.size > 10 * 1024 * 1024) {
+				await sweetErrorHandling(new Error('Image size should be less than 10MB'));
 				return;
 			}
 
 			setUploadingImage(true);
 
 			const formData = new FormData();
-			formData.append('image', file);
+			formData.append('file', file); // Changed from 'image' to 'file'
+			formData.append('type', 'post'); // Add upload type
 
 			const token = getJwtToken();
+			
+			// Remove Content-Type header - let browser set it with boundary
 			const response = await axios.post(`${REACT_APP_API_URL}/upload`, formData, {
 				headers: {
-					'Content-Type': 'multipart/form-data',
 					Authorization: `Bearer ${token}`,
 				},
 			});
 
-			setArticleImage(response.data.url);
-			await sweetTopSuccessAlert('Image uploaded successfully!', 2000);
+			// Check response structure
+			if (response.data && response.data.url) {
+				setPostImage(response.data.url);
+				await sweetTopSuccessAlert('Image uploaded successfully!', 2000);
+			} else if (response.data) {
+				// Handle different response formats
+				const imageUrl = response.data.imageUrl || response.data.path || response.data;
+				setPostImage(imageUrl);
+				await sweetTopSuccessAlert('Image uploaded successfully!', 2000);
+			}
+			
+			// Reset input
+			event.target.value = '';
 		} catch (err: any) {
-			await sweetErrorHandling(err);
+			console.error('Upload error:', err);
+			console.error('Error response:', err.response?.data);
+			
+			const errorMessage = err.response?.data?.message || 
+			                     err.response?.data?.error || 
+			                     err.message || 
+			                     'Failed to upload image';
+			
+			await sweetErrorHandling(new Error(errorMessage));
 		} finally {
 			setUploadingImage(false);
 		}
 	};
 
 	const validateForm = (): boolean => {
-		const newErrors = { title: '', content: '', category: '' };
+		const newErrors = { title: '', content: '' };
+		let isValid = true;
 
-		if (!articleTitle.trim()) {
+		if (!postTitle.trim()) {
 			newErrors.title = 'Title is required';
-		} else if (articleTitle.length < 5) {
+			isValid = false;
+		} else if (postTitle.length < 5) {
 			newErrors.title = 'Title must be at least 5 characters';
-		} else if (articleTitle.length > 100) {
+			isValid = false;
+		} else if (postTitle.length > 100) {
 			newErrors.title = 'Title must be less than 100 characters';
+			isValid = false;
 		}
 
 		const content = editorRef.current?.getInstance().getMarkdown();
 		if (!content || content.trim().length < 10) {
 			newErrors.content = 'Content must be at least 10 characters';
-		}
-
-		if (!articleCategory) {
-			newErrors.category = 'Please select a category';
+			isValid = false;
 		}
 
 		setErrors(newErrors);
-		return !newErrors.title && !newErrors.content && !newErrors.category;
+		return isValid;
 	};
 
 	const handleSubmit = async () => {
 		try {
-			if (!validateForm()) return;
+			// Clear previous errors
+			setErrors({ title: '', content: '' });
 
-			const articleContent = editorRef.current?.getInstance().getMarkdown();
+			// Validate form
+			if (!validateForm()) {
+				return;
+			}
 
-			await createBoardArticle({
+			const postContent = editorRef.current?.getInstance().getMarkdown();
+
+			if (!postContent || !postTitle) {
+				throw new Error(Message.INSERT_ALL_INPUTS);
+			}
+
+			await createPost({
 				variables: {
 					input: {
-						articleCategory,
-						articleTitle,
-						articleContent,
-						articleImage,
+						postTitle,
+						postContent,
+						postImage,
 					},
 				},
 			});
 
-			await sweetTopSuccessAlert('Post created successfully!', 2000);
-			router.push('/community');
+			await sweetTopSuccessAlert('Post is created successfully', 700);
+			await router.push({
+				pathname: '/',
+				query: {
+					category: 'myPosts',
+				},
+			});
 		} catch (err: any) {
-			await sweetErrorHandling(err);
+			console.log(err);
+			sweetErrorHandling(err).then();
 		}
 	};
 
 	if (device === 'mobile') {
 		return <div>WRITE POST MOBILE</div>;
 	}
-
-	const categories = [
-		{ value: BoardArticleCategory.COMMUNITY, label: '💬 General Discussion' },
-		{ value: BoardArticleCategory.MARKET, label: '💻 Technology' },
-		{ value: BoardArticleCategory.CAREER, label: '🌟 Lifestyle' },
-		{ value: BoardArticleCategory.EVENTS, label: '✈️ Travel' },
-		{ value: BoardArticleCategory.KNOWLEDGE, label: '🍕 Food & Cooking' },
-		{ value: BoardArticleCategory.HELP, label: '📚 Education' },
-	];
 
 	return (
 		<Box className="write-post-page">
@@ -177,45 +206,18 @@ const WritePost: NextPage = () => {
 						/>
 					</Box>
 
-					{/* Category */}
-					<Box className="form-group">
-						<label className="form-label">
-							<span className="emoji">📁</span>
-							Select Category
-						</label>
-						<FormControl fullWidth error={!!errors.category}>
-							<Select
-								value={articleCategory}
-								onChange={(e) => setArticleCategory(e.target.value as BoardArticleCategory)}
-								className="category-select"
-							>
-								{categories.map((cat) => (
-									<MenuItem key={cat.value} value={cat.value}>
-										{cat.label}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-						{errors.category && (
-							<Box className="error-msg">
-								<AlertCircle size={14} />
-								<span>{errors.category}</span>
-							</Box>
-						)}
-					</Box>
-
 					{/* Title */}
 					<Box className="form-group">
 						<label className="form-label">
 							<span className="emoji">✏️</span>
 							Post Title
-							<span className="char-count">{articleTitle.length}/100</span>
+							<span className="char-count">{postTitle.length}/100</span>
 						</label>
 						<TextField
 							fullWidth
 							placeholder="What's on your mind? Give your post an interesting title..."
-							value={articleTitle}
-							onChange={(e) => setArticleTitle(e.target.value)}
+							value={postTitle}
+							onChange={(e) => setPostTitle(e.target.value)}
 							error={!!errors.title}
 							helperText={errors.title}
 							className="title-input"
@@ -230,12 +232,12 @@ const WritePost: NextPage = () => {
 							Cover Image (Optional)
 						</label>
 						
-						{articleImage ? (
+						{postImage ? (
 							<Box className="image-preview">
-								<img src={`${REACT_APP_API_URL}/${articleImage}`} alt="Cover" />
+								<img src={`${REACT_APP_API_URL}/${postImage}`} alt="Cover" />
 								<IconButton 
 									className="remove-img-btn"
-									onClick={() => setArticleImage('')}
+									onClick={() => setPostImage('')}
 								>
 									<X size={16} />
 								</IconButton>
@@ -253,7 +255,7 @@ const WritePost: NextPage = () => {
 								<label htmlFor="image-upload" className="upload-label">
 									<ImageIcon size={32} />
 									<p>{uploadingImage ? 'Uploading...' : 'Click to upload cover image'}</p>
-									<span>PNG, JPG up to 5MB</span>
+									<span>PNG, JPG up to 10MB</span>
 								</label>
 							</Box>
 						)}

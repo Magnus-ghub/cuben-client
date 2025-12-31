@@ -55,9 +55,9 @@ const PostCard: React.FC<PostCardProps> = ({
 	};
 
 	// Get post images
-	const getPostImages = () => {
-		if (post?.postImages && post.postImages.length > 0) {
-			return post.postImages.map(img => `${REACT_APP_API_URL}/${img}`);
+	const getPostImage = () => {
+		if (post?.postImage) {
+			return (img => `${REACT_APP_API_URL}/${img}`);
 		}
 		return [];
 	};
@@ -90,7 +90,11 @@ const PostCard: React.FC<PostCardProps> = ({
 					</Box>
 				</Box>
 				<Button className="post-more-btn">
+<<<<<<< HEAD
 					<MoreHorizontal size={20} />
+=======
+					<span>Follow </span>
+>>>>>>> be44e2c (fix: modify postImage logic)
 				</Button>
 			</Box>
 
@@ -98,14 +102,6 @@ const PostCard: React.FC<PostCardProps> = ({
 			<Box className="post-content">
 				<p className="post-title">{post?.postTitle}</p>
 				{post?.postContent && <p className="post-description">{post.postContent}</p>}
-				
-				{getPostImages().length > 0 && (
-					<Box className="post-images">
-						{getPostImages().map((img, idx) => (
-							<img key={idx} src={img} alt={`Post image ${idx + 1}`} />
-						))}
-					</Box>
-				)}
 			</Box>
 
 			{/* Post Stats */}

@@ -96,7 +96,7 @@ export const UPDATE_POST_BY_ADMIN = gql`
 			postStatus
 			postTitle
 			postContent
-			postImages
+			postImage
 			postLikes
 			postComments
 			memberId
@@ -113,7 +113,7 @@ export const REMOVE_POST_BY_ADMIN = gql`
 			postStatus
 			postTitle
 			postContent
-			postImages
+			postImage
 			postLikes
 			postComments
 			memberId
