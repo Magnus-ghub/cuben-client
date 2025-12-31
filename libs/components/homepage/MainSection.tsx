@@ -1,5 +1,5 @@
 import React, { MouseEvent, useEffect, useState } from 'react';
-import { Stack, Box, Button, Avatar, Pagination } from '@mui/material';
+import { Stack, Box, Button, Avatar } from '@mui/material';
 import Link from 'next/link';
 import {
 	TrendingUp,
@@ -14,12 +14,11 @@ import CommentModal from '../common/CommentModal';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { LIKE_TARGET_POST } from '../../apollo/user/mutation';
+import { LIKE_TARGET_POST, SAVE_TARGET_POST } from '../../apollo/user/mutation';
 import { GET_POSTS } from '../../apollo/user/query';
 import { T } from '../../types/common';
 import { Direction } from '../../enums/common.enum';
 import { Messages, REACT_APP_API_URL } from '../../config';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { userVar } from '../../apollo/store';
 import PostCard from '../community/Postcard';
 import { PostsInquiry } from '../../types/post/post.input';
@@ -32,58 +31,68 @@ const MainSection = ({ initialInput }: any) => {
 	const router = useRouter();
 	const { query } = router;
 
+	// Initialize with initialInput immediately
+	const [searchCommunity, setSearchCommunity] = useState<PostsInquiry>(initialInput);
+	
 	/** STATES **/
-	const [searchCommunity, setSearchCommunity] = useState<PostsInquiry>({
-		page: 1,
-		limit: 10,
-		sort: 'createdAt',
-		direction: Direction.DESC,
-		search: {},
-	});
+	const [searchFilter, setSearchFilter] = useState<PostsInquiry>(
+		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
+	);
+	const [currentPage, setCurrentPage] = useState<number>(1);
+	const postCategory = query?.postCategory as string;
 	const [posts, setPosts] = useState<Post[]>([]);
 	const [totalCount, setTotalCount] = useState<number>(0);
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	const [sortingOpen, setSortingOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState('all');
 	const [commentModalOpen, setCommentModalOpen] = useState(false);
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+	const [filterSortName, setFilterSortName] = useState('New');
 	const [imageError, setImageError] = useState(false);
+
+	if (postCategory) initialInput.search.postCategory = postCategory;
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetPost] = useMutation(LIKE_TARGET_POST);
+	const [saveTargetPost] = useMutation(SAVE_TARGET_POST);
 
 	const {
 		loading: postsLoading,
 		data: postsData,
-		error: getPostsError,
+		error: postsError,
 		refetch: postsRefetch,
 	} = useQuery(GET_POSTS, {
-		fetchPolicy: 'network-only',
+		fetchPolicy: 'cache-and-network',
 		variables: {
 			input: searchCommunity,
 		},
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			console.log('Posts data received:', data);
-			if (data?.getPosts) {
-				setPosts(data.getPosts.list || []);
-				setTotalCount(data.getPosts.metaCounter?.[0]?.total || 0);
-			}
-		},
-		onError: (error) => {
-			console.error('Error fetching posts:', error);
-		},
 	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		console.log('Search community changed:', searchCommunity);
-	}, [searchCommunity]);
+		if (router.query.input) {
+			const inputObj = JSON.parse(router?.query?.input as string);
+			setSearchFilter(inputObj);
+		}
+	}, [router]);
 
 	useEffect(() => {
-		if (getPostsError) {
-			console.error('Get posts error:', getPostsError);
-			sweetMixinErrorAlert('Failed to load posts').then();
+		setCurrentPage(searchFilter?.page ?? 1);
+	}, [searchFilter]);
+
+	useEffect(() => {
+		if (postsData?.getPosts) {
+			setPosts(postsData.getPosts.list || []);
+			setTotalCount(postsData.getPosts.metaCounter?.[0]?.total || 0);
 		}
-	}, [getPostsError]);
+	}, [postsData]);
+
+	useEffect(() => {
+		if (postsError) {
+			console.error('Error fetching posts:', postsError);
+		}
+	}, [postsError]);
 
 	/** HANDLERS **/
 	const handleCommentClick = (post: Post) => {
@@ -94,10 +103,7 @@ const MainSection = ({ initialInput }: any) => {
 	const handleLikeClick = async (currentUser: any, postId: string) => {
 		try {
 			if (!postId) return;
-			if (!currentUser?._id) {
-				sweetMixinErrorAlert(Messages.error2 || 'Please login first').then();
-				return;
-			}
+			if (!currentUser?._id) throw new Error(Messages.error2);
 
 			await likeTargetPost({
 				variables: {
@@ -106,21 +112,62 @@ const MainSection = ({ initialInput }: any) => {
 			});
 
 			await postsRefetch({ input: searchCommunity });
-			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.error('ERROR, handleLikeClick:', err);
-			sweetMixinErrorAlert(err.message).then();
+			console.log('ERROR, handleLikeClick:', err.message);
 		}
 	};
 
-	const handleSaveClick = (postId: string) => {
-		console.log('Post saved:', postId);
-		// TODO: Backend save mutation qo'shish kerak
+	const handleSaveClick = async (postId: string) => {
+		try {
+			if (!postId) return;
+			if (!user?._id) throw new Error(Messages.error2);
+
+			await saveTargetPost({
+				variables: {
+					postId: postId,
+				},
+			});
+
+			await postsRefetch({ input: searchCommunity });
+		} catch (err: any) {
+			console.log('ERROR, handleSaveClick:', err.message);
+		}
 	};
 
 	const paginationHandler = (e: T, value: number) => {
 		setSearchCommunity({ ...searchCommunity, page: value });
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
+
+	const sortingClickHandler = (e: MouseEvent<HTMLElement>) => {
+		setAnchorEl(e.currentTarget);
+		setSortingOpen(true);
+	};
+
+	const sortingCloseHandler = () => {
+		setSortingOpen(false);
+		setAnchorEl(null);
+	};
+
+	const sortingHandler = (e: React.MouseEvent<HTMLLIElement>) => {
+		switch (e.currentTarget.id) {
+			case 'new':
+				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.DESC });
+				setSearchCommunity({ ...searchCommunity, sort: 'createdAt', direction: Direction.DESC });
+				setFilterSortName('New');
+				break;
+			case 'popular':
+				setSearchFilter({ ...searchFilter, sort: 'postLikes', direction: Direction.DESC });
+				setSearchCommunity({ ...searchCommunity, sort: 'postLikes', direction: Direction.DESC });
+				setFilterSortName('Popular');
+				break;
+			case 'views':
+				setSearchFilter({ ...searchFilter, sort: 'postViews', direction: Direction.DESC });
+				setSearchCommunity({ ...searchCommunity, sort: 'postViews', direction: Direction.DESC });
+				setFilterSortName('Most Viewed');
+				break;
+		}
+		setSortingOpen(false);
+		setAnchorEl(null);
 	};
 
 	const handleImageError = () => {
@@ -140,29 +187,30 @@ const MainSection = ({ initialInput }: any) => {
 	const handleTabChange = (tab: string) => {
 		setActiveTab(tab);
 		
+		const baseSearch = { ...searchCommunity };
+		
 		switch (tab) {
 			case 'all':
+				// For You - yangi postlar (createdAt)
 				setSearchCommunity({ 
-					...searchCommunity, 
-					page: 1,
+					...baseSearch, 
 					sort: 'createdAt', 
 					direction: Direction.DESC 
 				});
 				break;
 			case 'following':
-				// TODO: Following logic qo'shish kerak
-				console.log('Following tab clicked');
+				// Following - Hozircha default (keyinchalik memberId filter qo'shiladi)
+				console.log('Following tab - coming soon');
 				setSearchCommunity({ 
-					...searchCommunity, 
-					page: 1,
+					...baseSearch, 
 					sort: 'createdAt', 
 					direction: Direction.DESC 
 				});
 				break;
 			case 'popular':
+				// Popular - Ko'p like olgan postlar
 				setSearchCommunity({ 
-					...searchCommunity, 
-					page: 1,
+					...baseSearch, 
 					sort: 'postLikes', 
 					direction: Direction.DESC 
 				});
@@ -243,31 +291,16 @@ const MainSection = ({ initialInput }: any) => {
 							<p>Loading posts...</p>
 						</Stack>
 					) : posts && posts.length > 0 ? (
-						<>
-							{posts.map((post: Post) => (
-								<PostCard
-									key={post._id}
-									post={post}
-									onCommentClick={handleCommentClick}
-									onLikeClick={handleLikeClick}
-									onSaveClick={handleSaveClick}
-									currentUser={user}
-								/>
-							))}
-							
-							{/* Pagination */}
-							{totalCount > searchCommunity.limit && (
-								<Stack className="pagination-box">
-									<Pagination
-										page={searchCommunity.page}
-										count={Math.ceil(totalCount / searchCommunity.limit)}
-										onChange={paginationHandler}
-										color="primary"
-										shape="circular"
-									/>
-								</Stack>
-							)}
-						</>
+						posts.map((post: Post) => (
+							<PostCard
+								key={post._id}
+								post={post}
+								onCommentClick={handleCommentClick}
+								onLikeClick={handleLikeClick}
+								onSaveClick={handleSaveClick}
+								currentUser={user}
+							/>
+						))
 					) : (
 						<Stack className="no-data">
 							<img src="/img/icons/icoAlert.svg" alt="No posts" />
@@ -285,6 +318,16 @@ const MainSection = ({ initialInput }: any) => {
 			/>
 		</Stack>
 	);
+};
+
+MainSection.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 10,
+		sort: 'createdAt',
+		direction: 'DESC',
+		search: {},
+	},
 };
 
 export default MainSection;

@@ -202,16 +202,16 @@ export const LIKE_TARGET_PRODUCT = gql`
 `;
 
 /**************************
- *      POST     *
+ *         POST           *
  *************************/
 
 export const CREATE_POST = gql`
-	mutation CreateBoardArticle($input: BoardArticleInput!) {
-		createBoardArticle(input: $input) {
+	mutation CreatePost($input: PostInput!) {
+		createPost(input: $input) {
 			_id
 			postStatus
 			postTitle
-			postDesc
+			postContent
 			postImages
 			postLikes
 			postComments
@@ -223,12 +223,12 @@ export const CREATE_POST = gql`
 `;
 
 export const UPDATE_POST = gql`
-	mutation UpdateBoardArticle($input: BoardArticleUpdate!) {
-		updateBoardArticle(input: $input) {
+	mutation UpdatePost($input: PostUpdate!) {
+		updatePost(input: $input) {
 			_id
 			postStatus
 			postTitle
-			postDesc
+			postContent
 			postImages
 			postLikes
 			postComments
@@ -240,17 +240,23 @@ export const UPDATE_POST = gql`
 `;
 
 export const LIKE_TARGET_POST = gql`
-	mutation LikeTargetBoardArticle($input: String!) {
-		likeTargetBoardArticle(articleId: $input) {
+	mutation LikeTargetPost($postId: String!) {
+		likeTargetPost(postId: $postId) {
 			_id
 			postStatus
 			postTitle
 			postContent
 			postImages
 			postLikes
+			postComments
 			memberId
 			createdAt
 			updatedAt
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
 		}
 	}
 `;
@@ -259,12 +265,14 @@ export const SAVE_TARGET_POST = gql`
 	mutation SaveTargetPost($postId: String!) {
 		saveTargetPost(postId: $postId) {
 			_id
+			postStatus
+			postTitle
 			postLikes
+			postSaves
+			memberId
 		}
 	}
 `;
-
-
 
 /**************************
  *      BOARD-ARTICLE     *
@@ -281,6 +289,7 @@ export const CREATE_BOARD_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
+			articleComments
 			memberId
 			createdAt
 			updatedAt
@@ -299,6 +308,7 @@ export const UPDATE_BOARD_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
+			articleComments
 			memberId
 			createdAt
 			updatedAt
@@ -317,9 +327,15 @@ export const LIKE_TARGET_BOARD_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
+			articleComments
 			memberId
 			createdAt
 			updatedAt
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
 		}
 	}
 `;

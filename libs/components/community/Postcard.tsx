@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState } from 'react';
 import { Box, Button, Avatar, Chip } from '@mui/material';
 import { Heart, MessageCircle, Bookmark, MoreHorizontal, Award } from 'lucide-react';
 import { Post } from '../../types/post/post';
@@ -21,50 +21,29 @@ const PostCard: React.FC<PostCardProps> = ({
 	currentUser
 }) => {
 	// Check if current user already liked the post
-	const [isLiked, setIsLiked] = useState(false);
+	const [isLiked, setIsLiked] = useState(
+		post?.meLiked && post.meLiked.length > 0 ? post.meLiked[0]?.myFavorite : false
+	);
 	const [isSaved, setIsSaved] = useState(false);
 	const [likeCount, setLikeCount] = useState(post?.postLikes || 0);
 
-	// Update like state when post data changes
-	useEffect(() => {
-		if (post?.meLiked && Array.isArray(post.meLiked) && post.meLiked.length > 0) {
-			setIsLiked(post.meLiked[0]?.myFavorite || false);
-		} else {
-			setIsLiked(false);
-		}
-		setLikeCount(post?.postLikes || 0);
-	}, [post]);
-
 	const handleLike = async () => {
-		if (!currentUser?._id) {
-			console.log('Please login to like posts');
-			return;
-		}
-
-		// Optimistic UI update
 		const newLikedState = !isLiked;
 		setIsLiked(newLikedState);
 		setLikeCount(prev => newLikedState ? prev + 1 : prev - 1);
 		
 		if (onLikeClick) {
-			try {
-				await onLikeClick(currentUser, post._id);
-			} catch (error) {
-				// Revert on error
-				setIsLiked(!newLikedState);
-				setLikeCount(prev => newLikedState ? prev - 1 : prev + 1);
-			}
+			await onLikeClick(currentUser, post._id);
 		}
 	};
 
-	const handleSave = () => {
-		if (!currentUser?._id) {
-			console.log('Please login to save posts');
-			return;
-		}
+	const handleSave = async () => {
+		const newSavedState = !isSaved;
+		setIsSaved(newSavedState);
 		
-		setIsSaved(!isSaved);
-		onSaveClick?.(post._id);
+		if (onSaveClick) {
+			await onSaveClick(post._id);
+		}
 	};
 
 	// Get author image
@@ -77,20 +56,16 @@ const PostCard: React.FC<PostCardProps> = ({
 
 	// Get post images
 	const getPostImages = () => {
-		if (post?.postImages && Array.isArray(post.postImages) && post.postImages.length > 0) {
+		if (post?.postImages && post.postImages.length > 0) {
 			return post.postImages.map(img => `${REACT_APP_API_URL}/${img}`);
 		}
 		return [];
 	};
 
 	// Format timestamp
-	const formatTimestamp = (date: Date | string) => {
-		if (!date) return 'Just now';
+	const formatTimestamp = (date: Date) => {
 		return moment(date).fromNow();
 	};
-
-	// Get member type badge
-	const isVerified = post?.memberData?.memberType === 'AGENT';
 
 	return (
 		<Box className="post-card">
@@ -100,12 +75,11 @@ const PostCard: React.FC<PostCardProps> = ({
 					className="post-avatar" 
 					src={getAuthorImage()} 
 					alt={post?.memberData?.memberNick || 'User'}
-					sx={{ width: 40, height: 40 }}
 				/>
 				<Box className="post-author-info">
 					<Box className="author-name">
 						<span>{post?.memberData?.memberNick || 'Anonymous'}</span>
-						{isVerified && (
+						{post?.memberData?.memberType === 'AGENT' && (
 							<Award size={16} className="verified-badge" />
 						)}
 					</Box>
@@ -115,7 +89,6 @@ const PostCard: React.FC<PostCardProps> = ({
 						<span>{formatTimestamp(post?.createdAt)}</span>
 					</Box>
 				</Box>
-
 				<Button className="post-more-btn">
 					<MoreHorizontal size={20} />
 				</Button>
@@ -123,22 +96,13 @@ const PostCard: React.FC<PostCardProps> = ({
 
 			{/* Post Content */}
 			<Box className="post-content">
-				{post?.postTitle && <h3 className="post-title">{post.postTitle}</h3>}
-				{post?.postTitle && <p className="post-description">{post.postTitle}</p>}
+				<p className="post-title">{post?.postTitle}</p>
+				{post?.postContent && <p className="post-description">{post.postContent}</p>}
 				
 				{getPostImages().length > 0 && (
-					<Box className={`post-images ${getPostImages().length === 1 ? 'single' : 'grid'}`}>
+					<Box className="post-images">
 						{getPostImages().map((img, idx) => (
-							<Box key={idx} className="post-image-wrapper">
-								<img 
-									src={img} 
-									alt={`Post image ${idx + 1}`}
-									onError={(e) => {
-										const target = e.target as HTMLImageElement;
-										target.src = '/img/banner/placeholder.jpg';
-									}}
-								/>
-							</Box>
+							<img key={idx} src={img} alt={`Post image ${idx + 1}`} />
 						))}
 					</Box>
 				)}
@@ -146,11 +110,11 @@ const PostCard: React.FC<PostCardProps> = ({
 
 			{/* Post Stats */}
 			<Box className="post-stats">
-				<span className="stat-item">
-					<Heart size={16} /> {likeCount} {likeCount === 1 ? 'like' : 'likes'}
+				<span>
+					<Heart size={16} /> {likeCount} likes
 				</span>
-				<span className="stat-item">
-					<MessageCircle size={16} /> {post?.postComments || 0} {post?.postComments === 1 ? 'comment' : 'comments'}
+				<span>
+					<MessageCircle size={16} /> {post?.postComments || 0} comments
 				</span>
 			</Box>
 
@@ -166,7 +130,7 @@ const PostCard: React.FC<PostCardProps> = ({
 						color={isLiked ? '#ef4444' : 'currentColor'}
 					/>
 					<span style={{ color: isLiked ? '#ef4444' : 'inherit' }}>
-						{isLiked ? 'Liked' : 'Like'}
+						Like
 					</span>
 				</Button>
 				<Button 
@@ -186,7 +150,7 @@ const PostCard: React.FC<PostCardProps> = ({
 						color={isSaved ? '#667eea' : 'currentColor'}
 					/>
 					<span style={{ color: isSaved ? '#667eea' : 'inherit' }}>
-						{isSaved ? 'Saved' : 'Save'}
+						Save
 					</span>
 				</Button>
 			</Box>

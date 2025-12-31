@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -9,74 +9,163 @@ import {
   Button,
   Stack,
   Typography,
-  Divider
 } from '@mui/material';
-import { X, Send, Heart, MoreHorizontal, Smile } from 'lucide-react';
+import { X, Send } from 'lucide-react';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { CREATE_COMMENT } from '../../apollo/user/mutation';
+import { GET_COMMENTS } from '../../apollo/user/query';
+import { userVar } from '../../apollo/store';
+import { Post } from '../../types/post/post';
+import { Comment } from '../../types/comment/comment';
+import { CommentsInquiry } from '../../types/comment/comment.input';
+import { CommentGroup } from '../../enums/comment.enum';
+import { REACT_APP_API_URL, Messages } from '../../config';
+import moment from 'moment';
+import { Direction } from '../../enums/common.enum';
 
-const CommentModal = ({ open, onClose, post }) => {
+interface CommentModalProps {
+  open: boolean;
+  onClose: () => void;
+  post: Post | null;
+}
+
+const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
+  const user = useReactiveVar(userVar);
   const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      author: {
-        name: 'John Smith',
-        avatar: '/img/profile/user1.jpg',
-        username: '@johnsmith'
-      },
-      content: 'Congratulations! I also just finished mine. What a relief! 🎉',
-      timestamp: '1 hour ago',
-      likes: 12
-    },
-    {
-      id: 2,
-      author: {
-        name: 'Alice Brown',
-        avatar: '/img/profile/user2.jpg',
-        username: '@aliceb'
-      },
-      content: 'Good luck on your break! You deserve it after all that hard work 💪',
-      timestamp: '45 minutes ago',
-      likes: 8
-    },
-    {
-      id: 3,
-      author: {
-        name: 'Michael Lee',
-        avatar: '/img/profile/user3.jpg',
-        username: '@mikelee'
-      },
-      content: 'Planning to travel during the break. How about you?',
-      timestamp: '30 minutes ago',
-      likes: 5
-    }
-  ]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
 
-  const handleSendComment = () => {
-    if (commentText.trim()) {
-      const newComment = {
-        id: comments.length + 1,
-        author: {
-          name: 'Mark',
-          avatar: '/img/profile/defaultUser.svg',
-          username: '@mark'
+  // Comment inquiry for fetching
+  const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>({
+    page: 1,
+    limit: 20,
+    sort: 'createdAt',
+    direction: Direction.DESC,
+    search: {
+      commentRefId: post?._id || '',
+    },
+  });
+
+  /** APOLLO REQUESTS **/
+  const [createComment] = useMutation(CREATE_COMMENT);
+  const {
+    loading: commentsLoading,
+    data: commentsData,
+    error: commentsError,
+    refetch: commentsRefetch,
+  } = useQuery(GET_COMMENTS, {
+    fetchPolicy: 'cache-and-network',
+    variables: {
+      input: commentInquiry,
+    },
+    skip: !post?._id,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  /** LIFECYCLES **/
+  useEffect(() => {
+    if (post?._id) {
+      setCommentInquiry({
+        ...commentInquiry,
+        search: {
+          commentRefId: post._id,
         },
-        content: commentText,
-        timestamp: 'Just now',
-        likes: 0
-      };
-      setComments([newComment, ...comments]);
+      });
+    }
+  }, [post?._id]);
+
+  useEffect(() => {
+    if (commentsData?.getComments) {
+      setComments(commentsData.getComments.list || []);
+    }
+  }, [commentsData]);
+
+  useEffect(() => {
+    if (commentsError) {
+      console.error('Error fetching comments:', commentsError);
+    }
+  }, [commentsError]);
+
+  /** HANDLERS **/
+  const handleSendComment = async () => {
+    try {
+      if (!commentText.trim()) return;
+      if (!user?._id) {
+        alert('Please login to comment');
+        return;
+      }
+      if (!post?._id) return;
+
+      console.log('Sending comment...', {
+        commentGroup: CommentGroup.POST,
+        commentContent: commentText.trim(),
+        commentRefId: post._id,
+      });
+
+      const result = await createComment({
+        variables: {
+          input: {
+            commentGroup: CommentGroup.POST,
+            commentContent: commentText.trim(),
+            commentRefId: post._id,
+          },
+        },
+      });
+
+      console.log('Comment created successfully:', result);
+
       setCommentText('');
+      await commentsRefetch();
+    } catch (err: any) {
+      console.error('ERROR, handleSendComment:', err);
+      console.error('Error details:', err.message);
+      console.error('Network error:', err.networkError);
+      console.error('GraphQL errors:', err.graphQLErrors);
+      alert('Failed to send comment. Please try again.');
     }
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendComment();
     }
   };
 
+  const handleImageError = (commentId: string) => {
+    setImageError(prev => ({ ...prev, [commentId]: true }));
+  };
+
+  const getAuthorImage = (memberImage?: string, commentId?: string) => {
+    if (commentId && imageError[commentId]) {
+      return '/img/profile/defaultUser.svg';
+    }
+    if (memberImage) {
+      return `${REACT_APP_API_URL}/${memberImage}`;
+    }
+    return '/img/profile/defaultUser.svg';
+  };
+
+  const getUserImageSrc = () => {
+    if (user?.memberImage) {
+      return `${REACT_APP_API_URL}/${user.memberImage}`;
+    }
+    return '/img/profile/defaultUser.svg';
+  };
+
+  const formatTimestamp = (date: Date) => {
+    return moment(date).fromNow();
+  };
+
   if (!post) return null;
+
+  // Get post images
+  const getPostImages = () => {
+    if (post?.postImages && post.postImages.length > 0) {
+      return post.postImages.map(img => `${REACT_APP_API_URL}/${img}`);
+    }
+    return [];
+  };
 
   return (
     <Dialog
@@ -103,13 +192,16 @@ const CommentModal = ({ open, onClose, post }) => {
             justifyContent: 'space-between'
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Avatar src={post.author.avatar} sx={{ width: 40, height: 40 }} />
+              <Avatar 
+                src={getAuthorImage(post.memberData?.memberImage)} 
+                sx={{ width: 40, height: 40 }} 
+              />
               <Box>
                 <Typography sx={{ fontSize: '15px', fontWeight: 600, color: '#1f2937' }}>
-                  {post.author.name}
+                  {post.memberData?.memberNick || 'Anonymous'}
                 </Typography>
                 <Typography sx={{ fontSize: '13px', color: '#6b7280' }}>
-                  {post.timestamp}
+                  {formatTimestamp(post.createdAt)}
                 </Typography>
               </Box>
             </Box>
@@ -125,17 +217,22 @@ const CommentModal = ({ open, onClose, post }) => {
             maxHeight: '200px',
             overflowY: 'auto'
           }}>
-            <Typography sx={{ fontSize: '14px', color: '#1f2937', mb: 1.5, lineHeight: 1.6 }}>
-              {post.content}
+            <Typography sx={{ fontSize: '15px', fontWeight: 600, color: '#1f2937', mb: 1 }}>
+              {post.postTitle}
             </Typography>
-            {post.images && post.images.length > 0 && (
+            {post.postContent && (
+              <Typography sx={{ fontSize: '14px', color: '#1f2937', mb: 1.5, lineHeight: 1.6 }}>
+                {post.postContent}
+              </Typography>
+            )}
+            {getPostImages().length > 0 && (
               <Box sx={{ 
                 borderRadius: '12px', 
                 overflow: 'hidden',
                 mt: 2
               }}>
                 <img 
-                  src={post.images[0]} 
+                  src={getPostImages()[0]} 
                   alt="post" 
                   style={{ 
                     width: '100%', 
@@ -152,8 +249,8 @@ const CommentModal = ({ open, onClose, post }) => {
               fontSize: '13px',
               color: '#6b7280'
             }}>
-              <span>{post.likes} likes</span>
-              <span>{post.comments} comments</span>
+              <span>{post.postLikes || 0} likes</span>
+              <span>{post.postComments || 0} comments</span>
             </Box>
           </Box>
 
@@ -170,93 +267,62 @@ const CommentModal = ({ open, onClose, post }) => {
               borderRadius: '3px'
             }
           }}>
-            <Stack spacing={2.5}>
-              {comments.map((comment) => (
-                <Box key={comment.id}>
-                  <Box sx={{ display: 'flex', gap: 1.5 }}>
-                    <Avatar 
-                      src={comment.author.avatar} 
-                      sx={{ width: 36, height: 36, flexShrink: 0 }} 
-                    />
-                    <Box sx={{ flex: 1 }}>
-                      <Box sx={{ 
-                        background: '#f3f4f6',
-                        borderRadius: '16px',
-                        p: 1.5
-                      }}>
-                        <Typography sx={{ 
-                          fontSize: '14px', 
-                          fontWeight: 600, 
-                          color: '#1f2937',
-                          mb: 0.5
+            {commentsLoading ? (
+              <Box sx={{ textAlign: 'center', py: 4, color: '#6b7280' }}>
+                <Typography>Loading comments...</Typography>
+              </Box>
+            ) : comments && comments.length > 0 ? (
+              <Stack spacing={2.5}>
+                {comments.map((comment: Comment) => (
+                  <Box key={comment._id}>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
+                      <Avatar 
+                        src={getAuthorImage(comment.memberData?.memberImage, comment._id)} 
+                        onError={() => handleImageError(comment._id)}
+                        sx={{ width: 36, height: 36, flexShrink: 0 }} 
+                      />
+                      <Box sx={{ flex: 1 }}>
+                        <Box sx={{ 
+                          background: '#f3f4f6',
+                          borderRadius: '16px',
+                          p: 1.5
                         }}>
-                          {comment.author.name}
-                        </Typography>
-                        <Typography sx={{ 
-                          fontSize: '14px', 
-                          color: '#374151',
-                          lineHeight: 1.5
-                        }}>
-                          {comment.content}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ 
-                        display: 'flex', 
-                        gap: 2, 
-                        mt: 0.5,
-                        ml: 1.5,
-                        fontSize: '12px',
-                        color: '#6b7280'
-                      }}>
-                        <Button 
-                          size="small" 
-                          sx={{ 
-                            minWidth: 'auto',
-                            p: 0,
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            color: '#6b7280',
-                            '&:hover': {
-                              background: 'transparent',
-                              color: '#667eea'
-                            }
-                          }}
-                        >
-                          Like
-                        </Button>
-                        <Button 
-                          size="small"
-                          sx={{ 
-                            minWidth: 'auto',
-                            p: 0,
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            color: '#6b7280',
-                            '&:hover': {
-                              background: 'transparent',
-                              color: '#667eea'
-                            }
-                          }}
-                        >
-                          Reply
-                        </Button>
-                        <span>{comment.timestamp}</span>
-                        {comment.likes > 0 && (
-                          <Box sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 0.5 
+                          <Typography sx={{ 
+                            fontSize: '14px', 
+                            fontWeight: 600, 
+                            color: '#1f2937',
+                            mb: 0.5
                           }}>
-                            <Heart size={12} fill="#ef4444" color="#ef4444" />
-                            <span>{comment.likes}</span>
-                          </Box>
-                        )}
+                            {comment.memberData?.memberNick || 'Anonymous'}
+                          </Typography>
+                          <Typography sx={{ 
+                            fontSize: '14px', 
+                            color: '#374151',
+                            lineHeight: 1.5
+                          }}>
+                            {comment.commentContent}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          gap: 2, 
+                          mt: 0.5,
+                          ml: 1.5,
+                          fontSize: '12px',
+                          color: '#6b7280'
+                        }}>
+                          <span>{formatTimestamp(comment.createdAt)}</span>
+                        </Box>
                       </Box>
                     </Box>
                   </Box>
-                </Box>
-              ))}
-            </Stack>
+                ))}
+              </Stack>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 4, color: '#6b7280' }}>
+                <Typography>No comments yet. Be the first to comment!</Typography>
+              </Box>
+            )}
           </Box>
 
           {/* Comment Input */}
@@ -267,7 +333,7 @@ const CommentModal = ({ open, onClose, post }) => {
           }}>
             <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
               <Avatar 
-                src="/img/profile/defaultUser.svg" 
+                src={getUserImageSrc()} 
                 sx={{ width: 36, height: 36, flexShrink: 0 }} 
               />
               <Box sx={{ 
@@ -284,6 +350,7 @@ const CommentModal = ({ open, onClose, post }) => {
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   onKeyPress={handleKeyPress}
+                  disabled={!user?._id}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '20px',
@@ -304,14 +371,14 @@ const CommentModal = ({ open, onClose, post }) => {
                 />
                 <IconButton
                   onClick={handleSendComment}
-                  disabled={!commentText.trim()}
+                  disabled={!commentText.trim() || !user?._id}
                   sx={{
-                    background: commentText.trim() ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e5e7eb',
+                    background: commentText.trim() && user?._id ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e5e7eb',
                     color: '#fff',
                     width: 40,
                     height: 40,
                     '&:hover': {
-                      background: commentText.trim() ? 'linear-gradient(135deg, #5568d3 0%, #653a8b 100%)' : '#e5e7eb',
+                      background: commentText.trim() && user?._id ? 'linear-gradient(135deg, #5568d3 0%, #653a8b 100%)' : '#e5e7eb',
                     },
                     '&.Mui-disabled': {
                       background: '#e5e7eb',

@@ -73,12 +73,50 @@ export const REMOVE_PRODUCT_BY_ADMIN = gql`
 			productPrice
 			productViews
 			productLikes
-			proImages
+			productImages
 			productDesc
 			productRent
 			memberId
 			soldAt
 			deletedAt
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+/**************************
+ *         POST           *
+ *************************/
+
+export const UPDATE_POST_BY_ADMIN = gql`
+	mutation UpdatePostByAdmin($input: PostUpdate!) {
+		updatePostByAdmin(input: $input) {
+			_id
+			postStatus
+			postTitle
+			postContent
+			postImages
+			postLikes
+			postComments
+			memberId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REMOVE_POST_BY_ADMIN = gql`
+	mutation RemovePostByAdmin($input: String!) {
+		removePostByAdmin(postId: $input) {
+			_id
+			postStatus
+			postTitle
+			postContent
+			postImages
+			postLikes
+			postComments
+			memberId
 			createdAt
 			updatedAt
 		}
@@ -100,6 +138,7 @@ export const UPDATE_BOARD_ARTICLE_BY_ADMIN = gql`
 			articleImage
 			articleViews
 			articleLikes
+			articleComments
 			memberId
 			createdAt
 			updatedAt
@@ -118,6 +157,7 @@ export const REMOVE_BOARD_ARTICLE_BY_ADMIN = gql`
 			articleImage
 			articleViews
 			articleLikes
+			articleComments
 			memberId
 			createdAt
 			updatedAt

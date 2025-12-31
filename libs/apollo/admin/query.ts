@@ -43,7 +43,7 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
  *************************/
 
 export const GET_ALL_PRODUCTS_BY_ADMIN = gql`
-	query GetAllProductByAdmin($input: AllProductInquiry!) {
+	query GetAllProductsByAdmin($input: AllProductsInquiry!) {
 		getAllProductsByAdmin(input: $input) {
 			list {
 				_id
@@ -95,6 +95,55 @@ export const GET_ALL_PRODUCTS_BY_ADMIN = gql`
 `;
 
 /**************************
+ *         POST           *
+ *************************/
+
+export const GET_ALL_POSTS_BY_ADMIN = gql`
+	query GetAllPostsByAdmin($input: AllPostsInquiry!) {
+		getAllPostsByAdmin(input: $input) {
+			list {
+				_id
+				postStatus
+				postTitle
+				postContent
+				postImages
+				postLikes
+				postComments
+				memberId
+				createdAt
+				updatedAt
+				memberData {
+					_id
+					memberType
+					memberStatus
+					memberAuthType
+					memberPhone
+					memberNick
+					memberFullName
+					memberImage
+					memberAddress
+					memberDesc
+					memberWarnings
+					memberBlocks
+					memberProducts
+					memberRank
+					memberPoints
+					memberLikes
+					memberViews
+					deletedAt
+					createdAt
+					updatedAt
+					accessToken
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+/**************************
  *      BOARD-ARTICLE     *
  *************************/
 
@@ -110,6 +159,7 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
 				articleImage
 				articleViews
 				articleLikes
+				articleComments
 				memberId
 				createdAt
 				updatedAt
@@ -148,9 +198,9 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
  *         COMMENT        *
  *************************/
 
-export const GET_COMMENTS = gql`
-	query GetComments($input: CommentsInquiry!) {
-		getComments(input: $input) {
+export const GET_ALL_COMMENTS_BY_ADMIN = gql`
+	query GetAllCommentsByAdmin($input: CommentsInquiry!) {
+		getAllCommentsByAdmin(input: $input) {
 			list {
 				_id
 				commentStatus

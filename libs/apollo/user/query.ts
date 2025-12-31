@@ -42,41 +42,41 @@ export const GET_AGENTS = gql`
 	}
 `;
 
-export const GET_MEMBER = gql(`
- query GetMember($input: String!) {
-    getMember(memberId: $input) {
-        _id
-        memberType
-        memberStatus
-        memberAuthType
-        memberPhone
-        memberNick
-        memberFullName
-        memberImage
-        memberAddress
-        memberDesc
-        memberProducts
-        memberArticles
-        memberPoints
-        memberLikes
-        memberViews
-        memberFollowings
-				memberFollowers
-        memberRank
-        memberWarnings
-        memberBlocks
-        deletedAt
-        createdAt
-        updatedAt
-        accessToken
-        meFollowed {
-					followingId
-					followerId
-					myFollowing
-				}
-    }
-}
-`);
+export const GET_MEMBER = gql`
+	query GetMember($input: String!) {
+		getMember(memberId: $input) {
+			_id
+			memberType
+			memberStatus
+			memberAuthType
+			memberPhone
+			memberNick
+			memberFullName
+			memberImage
+			memberAddress
+			memberDesc
+			memberProducts
+			memberArticles
+			memberPoints
+			memberLikes
+			memberViews
+			memberFollowings
+			memberFollowers
+			memberRank
+			memberWarnings
+			memberBlocks
+			deletedAt
+			createdAt
+			updatedAt
+			accessToken
+			meFollowed {
+				followingId
+				followerId
+				myFollowing
+			}
+		}
+	}
+`;
 
 /**************************
  *        PRODUCT        *
@@ -335,16 +335,16 @@ export const GET_VISITED = gql`
 `;
 
 /**************************
- *      POST     *
+ *         POST           *
  *************************/
 
 export const GET_POST = gql`
-	query GetBoardArticle($input: String!) {
-		getBoardArticle(articleId: $input) {
+	query GetPost($postId: String!) {
+		getPost(postId: $postId) {
 			_id
 			postStatus
 			postTitle
-			postDesc
+			postContent
 			postImages
 			postLikes
 			postComments
@@ -383,13 +383,13 @@ export const GET_POST = gql`
 `;
 
 export const GET_POSTS = gql`
-	query GetBoardArticles($input: BoardArticlesInquiry!) {
-		getBoardArticles(input: $input) {
+	query GetPosts($input: PostsInquiry!) {
+		getPosts(input: $input) {
 			list {
 				_id
 				postStatus
 				postTitle
-				postDesc
+				postContent
 				postImages
 				postLikes
 				postComments
@@ -582,6 +582,7 @@ export const GET_COMMENTS = gql`
 /**************************
  *         FOLLOW        *
  *************************/
+
 export const GET_MEMBER_FOLLOWERS = gql`
 	query GetMemberFollowers($input: FollowInquiry!) {
 		getMemberFollowers(input: $input) {
