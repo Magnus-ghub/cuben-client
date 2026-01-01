@@ -379,6 +379,11 @@ export const GET_POST = gql`
 				likeRefId
 				myFavorite
 			}
+		    meSaved {
+				memberId
+				saveRefId
+				mySaves
+			}
 		}
 	}
 `;
@@ -403,6 +408,11 @@ export const GET_POSTS = gql`
 					likeRefId
 					myFavorite
 				}
+			    meSaved {
+			 		memberId
+					saveRefId
+					mySaves
+			    }
 				memberData {
 					_id
 					memberType

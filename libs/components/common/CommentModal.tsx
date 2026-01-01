@@ -97,7 +97,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
     try {
       if (!commentText.trim()) return;
       if (!user?._id) {
-        alert('Please login to comment');
+        console.warn('Please login to comment');  // Alert o'rniga console
         return;
       }
       if (!post?._id) return;
@@ -116,19 +116,17 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
             commentRefId: post._id,
           },
         },
+        refetchQueries: [
+          { query: GET_COMMENTS, variables: { input: commentInquiry } },
+        ],
+        awaitRefetchQueries: true,
       });
 
       console.log('Comment created successfully:', result);
 
       setCommentText('');
-      
-      // Increment comment count locally
       setTotalComments(prev => prev + 1);
       
-      // Refetch comments to show new one
-      await commentsRefetch();
-      
-      // Notify parent component to update post data
       if (onCommentAdded) {
         onCommentAdded();
       }
@@ -137,7 +135,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
       console.error('Error details:', err.message);
       console.error('Network error:', err.networkError);
       console.error('GraphQL errors:', err.graphQLErrors);
-      alert('Failed to send comment. Please try again.');
+      console.warn('Failed to send comment. Please try again.');  // Alert o'rniga console
     }
   };
 
@@ -175,7 +173,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
 
   if (!post) return null;
 
-  // Get post images - FIXED VERSION
+  // Get post images
   const getPostImages = () => {
     if (post?.postImages && Array.isArray(post.postImages)) {
       return post.postImages.map(img => `${REACT_APP_API_URL}/${img}`);
@@ -244,7 +242,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
               </Typography>
             )}
             
-            {/* Post Images - FIXED */}
+            {/* Post Images */}
             {postImages.length > 0 && (
               <Box sx={{ 
                 borderRadius: '12px', 

@@ -260,21 +260,41 @@ export const LIKE_TARGET_POST = gql`
 				likeRefId
 				myFavorite
 			}
+			meSaved {
+				memberId
+				saveRefId
+				mySaves
+			}
 		}
 	}
 `;
 
 export const SAVE_TARGET_POST = gql`
-	mutation SaveTargetPost($postId: String!) {
-		saveTargetPost(postId: $postId) {
-			_id
-			postStatus
-			postTitle
-			postLikes
-			postSaves
-			memberId
-		}
-	}
+  mutation SaveTargetPost($postId: String!) {
+    saveTargetPost(postId: $postId) {
+      _id
+      postStatus
+      postTitle
+      postContent
+      postImages
+      postSaves 
+      postLikes
+      postComments
+      memberId
+      createdAt
+      updatedAt
+      meSaved { 
+        memberId
+        saveRefId
+        mySaves
+      }
+      meLiked { 
+        memberId
+        likeRefId
+        myFavorite
+      }
+    }
+  }
 `;
 
 /**************************

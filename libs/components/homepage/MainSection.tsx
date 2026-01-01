@@ -9,8 +9,7 @@ import {
 	Video,
 	Smile,
 } from 'lucide-react';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import CommentModal from '../common/CommentModal';
+import CommentModal from '../common/CommentModal';  // Import qo'shildi
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
@@ -26,7 +25,6 @@ import { T } from '../../types/common';
 
 const MainSection = ({ initialInput }: any) => {
 	const { t } = useTranslation('common');
-	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const { query } = router;
@@ -43,7 +41,7 @@ const MainSection = ({ initialInput }: any) => {
 	const [posts, setPosts] = useState<Post[]>([]);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [activeTab, setActiveTab] = useState('all');
-	const [commentModalOpen, setCommentModalOpen] = useState(false);
+	const [commentModalOpen, setCommentModalOpen] = useState(false);  // Modal state
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
 
@@ -93,43 +91,69 @@ const MainSection = ({ initialInput }: any) => {
 
 	/** HANDLERS **/
 	const handleCommentClick = (post: Post) => {
+		console.log('Opening modal for post:', post._id);  // Debug
 		setSelectedPost(post);
 		setCommentModalOpen(true);
 	};
 
-	const likePostHandler = async (user: T, id: string) => {
+	const likePostHandler = async (id: string) => {
 		try {
 			if (!id) return;
 			if (!user?._id) throw new Error(Messages.error2);
-
 			await likeTargetPost({
-				variables: {
-					input: id
-				},
+				variables: { postId: id },
+				refetchQueries: [
+					{ query: GET_POSTS, variables: { input: initialInput } },
+				],
+				awaitRefetchQueries: true,
 			});
-
-			await getPostsRefetch({ input: initialInput });
 		} catch (err: any) {
-			console.log('ERROR, handleLikeClick:', err.message);
+			console.error('ERROR in likePostHandler:', err.message);
 		}
 	};
 
 	const handleSaveClick = async (postId: string) => {
-		try {
-			if (!postId) return;
-			if (!user?._id) throw new Error(Messages.error2);
+  try {
+    if (!postId) return;
+    if (!user?._id) throw new Error(Messages.error2);
 
-			await saveTargetPost({
-				variables: {
-					postId: postId,
-				},
-			});
+    const { data } = await saveTargetPost({  // Destructure data
+      variables: { postId: postId },
+      refetchQueries: [  // List'ni yangilash
+        { query: GET_POSTS, variables: { input: initialInput } },
+      ],
+      awaitRefetchQueries: true,
+      update: (cache, { data }) => {  // Cache'ni local yangilash (tezroq UI)
+        if (data?.saveTargetPost) {
+          const existingPosts = cache.readQuery({ 
+            query: GET_POSTS, 
+            variables: { input: initialInput } 
+          }) as any;
 
-			await getPostsRefetch({ input: initialInput });
-		} catch (err: any) {
-			console.log('ERROR, handleSaveClick:', err.message);
-		}
-	};
+          if (existingPosts?.getPosts?.list) {
+            const updatedPosts = existingPosts.getPosts.list.map((p: Post) => 
+              p._id === postId 
+                ? { 
+                    ...p, 
+                    meSaved: data.saveTargetPost.meSaved,  // ✅ Yangi response'dan oling
+                    postSaves: data.saveTargetPost.postSaves  // Son yangilash
+                  }
+                : p
+            );
+            cache.writeQuery({
+              query: GET_POSTS,
+              variables: { input: initialInput },
+              data: { getPosts: { ...existingPosts.getPosts, list: updatedPosts } },
+            });
+          }
+        }
+      },
+    });
+    console.log('Save successful:', data);  // Debug
+  } catch (err: any) {
+    console.error('ERROR in handleSaveClick:', err.message);
+  }
+};
 
 	const handleImageError = () => {
 		setImageError(true);
@@ -153,7 +177,6 @@ const MainSection = ({ initialInput }: any) => {
 		
 		switch (tab) {
 			case 'all':
-				// For You
 				setSearchCommunity({ 
 					...baseSearch, 
 					sort: 'createdAt', 
@@ -161,7 +184,6 @@ const MainSection = ({ initialInput }: any) => {
 				});
 				break;
 			case 'following':
-				// Following - Hozircha default (keyinchalik memberId filter qo'shiladi)
 				console.log('Following tab - coming soon');
 				setSearchCommunity({ 
 					...baseSearch, 
@@ -170,7 +192,6 @@ const MainSection = ({ initialInput }: any) => {
 				});
 				break;
 			case 'popular':
-				// Popular 
 				setSearchCommunity({ 
 					...baseSearch, 
 					sort: 'postLikes', 
@@ -180,15 +201,6 @@ const MainSection = ({ initialInput }: any) => {
 		}
 	};
 
-	/** MOBILE VIEW **/
-	if (device === 'mobile') {
-		return (
-			<Stack className="main-section">
-				<div>MainSection Mobile</div>
-			</Stack>
-		);
-	}
-	/** DESKTOP VIEW **/
 	return (
 		<Stack className="main-section">
 			<Box className="center-feed">
@@ -256,10 +268,10 @@ const MainSection = ({ initialInput }: any) => {
 							<PostCard
 								key={post._id}
 								post={post}
-								// onCommentClick={handleCommentClick}
 								likePostHandler={likePostHandler}
-								// onSaveClick={handleSaveClick}
-								// currentUser={user}
+								onCommentClick={handleCommentClick}
+								onSaveClick={handleSaveClick}
+								user={user}
 							/>
 						))
 					) : (
@@ -276,6 +288,7 @@ const MainSection = ({ initialInput }: any) => {
 				open={commentModalOpen}
 				onClose={() => setCommentModalOpen(false)}
 				post={selectedPost}
+				onCommentAdded={() => getPostsRefetch({ input: initialInput })}
 			/>
 		</Stack>
 	);
