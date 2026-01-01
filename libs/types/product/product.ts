@@ -7,6 +7,12 @@ export interface MeLiked {
 	myFavorite: boolean;
 }
 
+export interface MeSaved {
+	memberId: string;
+	saveRefId: string;
+	mySaves: boolean;
+}
+
 export interface TotalCounter {
 	total: number;
 }
@@ -37,6 +43,7 @@ export interface Product {
 	createdAt: Date;
 	updatedAt: Date;
 	/** from aggregation **/
+	meSaved?: MeSaved[];
 	meLiked?: MeLiked[];
 	memberData?: Member;
 }

@@ -27,13 +27,15 @@ interface CommentModalProps {
   open: boolean;
   onClose: () => void;
   post: Post | null;
+  onCommentAdded?: () => void;
 }
 
-const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
+const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onCommentAdded }) => {
   const user = useReactiveVar(userVar);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
   const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
+  const [totalComments, setTotalComments] = useState(post?.postComments || 0);
 
   // Comment inquiry for fetching
   const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>({
@@ -71,12 +73,16 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
           commentRefId: post._id,
         },
       });
+      setTotalComments(post.postComments || 0);
     }
-  }, [post?._id]);
+  }, [post?._id, post?.postComments]);
 
   useEffect(() => {
     if (commentsData?.getComments) {
       setComments(commentsData.getComments.list || []);
+      // Update total comments from server
+      const total = commentsData.getComments.metaCounter?.[0]?.total || commentsData.getComments.list?.length || 0;
+      setTotalComments(total);
     }
   }, [commentsData]);
 
@@ -115,7 +121,17 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
       console.log('Comment created successfully:', result);
 
       setCommentText('');
+      
+      // Increment comment count locally
+      setTotalComments(prev => prev + 1);
+      
+      // Refetch comments to show new one
       await commentsRefetch();
+      
+      // Notify parent component to update post data
+      if (onCommentAdded) {
+        onCommentAdded();
+      }
     } catch (err: any) {
       console.error('ERROR, handleSendComment:', err);
       console.error('Error details:', err.message);
@@ -159,13 +175,15 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
 
   if (!post) return null;
 
-  // Get post images
-  const getPostImage = () => {
-    if (post?.postImage) {
-      return(img => `${REACT_APP_API_URL}/${img}`);
+  // Get post images - FIXED VERSION
+  const getPostImages = () => {
+    if (post?.postImages && Array.isArray(post.postImages)) {
+      return post.postImages.map(img => `${REACT_APP_API_URL}/${img}`);
     }
     return [];
   };
+
+  const postImages = getPostImages();
 
   return (
     <Dialog
@@ -214,7 +232,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
           <Box sx={{ 
             p: 2.5, 
             borderBottom: '1px solid #e5e7eb',
-            maxHeight: '200px',
+            maxHeight: '300px',
             overflowY: 'auto'
           }}>
             <Typography sx={{ fontSize: '15px', fontWeight: 600, color: '#1f2937', mb: 1 }}>
@@ -225,23 +243,48 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
                 {post.postContent}
               </Typography>
             )}
-            {getPostImage().length > 0 && (
+            
+            {/* Post Images - FIXED */}
+            {postImages.length > 0 && (
               <Box sx={{ 
                 borderRadius: '12px', 
                 overflow: 'hidden',
                 mt: 2
               }}>
-                <img 
-                  src={getPostImage()[0]} 
-                  alt="post" 
-                  style={{ 
-                    width: '100%', 
-                    maxHeight: '150px',
-                    objectFit: 'cover'
-                  }} 
-                />
+                {postImages.length === 1 ? (
+                  <img 
+                    src={postImages[0]} 
+                    alt="post" 
+                    style={{ 
+                      width: '100%', 
+                      maxHeight: '200px',
+                      objectFit: 'cover'
+                    }} 
+                  />
+                ) : (
+                  <Box sx={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '8px' 
+                  }}>
+                    {postImages.slice(0, 4).map((img, index) => (
+                      <img 
+                        key={index}
+                        src={img} 
+                        alt={`post-${index}`} 
+                        style={{ 
+                          width: '100%', 
+                          height: '150px',
+                          objectFit: 'cover',
+                          borderRadius: '8px' 
+                        }}
+                      />
+                    ))}
+                  </Box>
+                )}
               </Box>
             )}
+            
             <Box sx={{ 
               display: 'flex', 
               gap: 2, 
@@ -250,7 +293,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post }) => {
               color: '#6b7280'
             }}>
               <span>{post.postLikes || 0} likes</span>
-              <span>{post.postComments || 0} comments</span>
+              <span>{totalComments} comments</span>
             </Box>
           </Box>
 

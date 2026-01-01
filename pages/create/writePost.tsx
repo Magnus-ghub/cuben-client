@@ -32,7 +32,7 @@ const WritePost: NextPage = () => {
 
 	// Form State
 	const [postTitle, setPostTitle] = useState<string>('');
-	const [postImage, setPostImage] = useState<string>('');
+	const [postImages, setPostImages] = useState<string>('');
 	const [uploadingImage, setUploadingImage] = useState<boolean>(false);
 	const [errors, setErrors] = useState({ title: '', content: '' });
 
@@ -74,12 +74,12 @@ const WritePost: NextPage = () => {
 
 			// Check response structure
 			if (response.data && response.data.url) {
-				setPostImage(response.data.url);
+				setPostImages(response.data.url);
 				await sweetTopSuccessAlert('Image uploaded successfully!', 2000);
 			} else if (response.data) {
 				// Handle different response formats
 				const imageUrl = response.data.imageUrl || response.data.path || response.data;
-				setPostImage(imageUrl);
+				setPostImages(imageUrl);
 				await sweetTopSuccessAlert('Image uploaded successfully!', 2000);
 			}
 			
@@ -146,7 +146,7 @@ const WritePost: NextPage = () => {
 					input: {
 						postTitle,
 						postContent,
-						postImage,
+						postImages,
 					},
 				},
 			});
@@ -232,12 +232,12 @@ const WritePost: NextPage = () => {
 							Cover Image (Optional)
 						</label>
 						
-						{postImage ? (
+						{postImages ? (
 							<Box className="image-preview">
-								<img src={`${REACT_APP_API_URL}/${postImage}`} alt="Cover" />
+								<img src={`${REACT_APP_API_URL}/${postImages}`} alt="Cover" />
 								<IconButton 
 									className="remove-img-btn"
-									onClick={() => setPostImage('')}
+									onClick={() => setPostImages('')}
 								>
 									<X size={16} />
 								</IconButton>

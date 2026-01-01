@@ -16,13 +16,13 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { LIKE_TARGET_POST, SAVE_TARGET_POST } from '../../apollo/user/mutation';
 import { GET_POSTS } from '../../apollo/user/query';
-import { T } from '../../types/common';
 import { Direction } from '../../enums/common.enum';
 import { Messages, REACT_APP_API_URL } from '../../config';
 import { userVar } from '../../apollo/store';
 import PostCard from '../community/Postcard';
 import { PostsInquiry } from '../../types/post/post.input';
 import { Post } from '../../types/post/post';
+import { T } from '../../types/common';
 
 const MainSection = ({ initialInput }: any) => {
 	const { t } = useTranslation('common');
@@ -41,13 +41,10 @@ const MainSection = ({ initialInput }: any) => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const postCategory = query?.postCategory as string;
 	const [posts, setPosts] = useState<Post[]>([]);
-	const [totalCount, setTotalCount] = useState<number>(0);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [sortingOpen, setSortingOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState('all');
 	const [commentModalOpen, setCommentModalOpen] = useState(false);
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-	const [filterSortName, setFilterSortName] = useState('New');
 	const [imageError, setImageError] = useState(false);
 
 	if (postCategory) initialInput.search.postCategory = postCategory;
@@ -57,14 +54,14 @@ const MainSection = ({ initialInput }: any) => {
 	const [saveTargetPost] = useMutation(SAVE_TARGET_POST);
 
 	const {
-		loading: postsLoading,
-		data: postsData,
-		error: postsError,
-		refetch: postsRefetch,
+		loading: gtePostsLoading,
+		data: getPostsData,
+		error: getPostsError,
+		refetch: getPostsRefetch,
 	} = useQuery(GET_POSTS, {
 		fetchPolicy: 'cache-and-network',
 		variables: {
-			input: searchCommunity,
+			input: initialInput,
 		},
 		notifyOnNetworkStatusChange: true,
 	});
@@ -81,18 +78,18 @@ const MainSection = ({ initialInput }: any) => {
 		setCurrentPage(searchFilter?.page ?? 1);
 	}, [searchFilter]);
 
+	//post data from db
 	useEffect(() => {
-		if (postsData?.getPosts) {
-			setPosts(postsData.getPosts.list || []);
-			setTotalCount(postsData.getPosts.metaCounter?.[0]?.total || 0);
+		if (getPostsData?.getPosts) {
+			setPosts(getPostsData.getPosts.list || []);
 		}
-	}, [postsData]);
+	}, [getPostsData]);
 
 	useEffect(() => {
-		if (postsError) {
-			console.error('Error fetching posts:', postsError);
+		if (getPostsError) {
+			console.error('Error fetching posts:', getPostsError);
 		}
-	}, [postsError]);
+	}, [getPostsError]);
 
 	/** HANDLERS **/
 	const handleCommentClick = (post: Post) => {
@@ -100,18 +97,18 @@ const MainSection = ({ initialInput }: any) => {
 		setCommentModalOpen(true);
 	};
 
-	const handleLikeClick = async (currentUser: any, postId: string) => {
+	const likePostHandler = async (user: T, id: string) => {
 		try {
-			if (!postId) return;
-			if (!currentUser?._id) throw new Error(Messages.error2);
+			if (!id) return;
+			if (!user?._id) throw new Error(Messages.error2);
 
 			await likeTargetPost({
 				variables: {
-					postId: postId,
+					input: id
 				},
 			});
 
-			await postsRefetch({ input: searchCommunity });
+			await getPostsRefetch({ input: initialInput });
 		} catch (err: any) {
 			console.log('ERROR, handleLikeClick:', err.message);
 		}
@@ -128,46 +125,10 @@ const MainSection = ({ initialInput }: any) => {
 				},
 			});
 
-			await postsRefetch({ input: searchCommunity });
+			await getPostsRefetch({ input: initialInput });
 		} catch (err: any) {
 			console.log('ERROR, handleSaveClick:', err.message);
 		}
-	};
-
-	const paginationHandler = (e: T, value: number) => {
-		setSearchCommunity({ ...searchCommunity, page: value });
-	};
-
-	const sortingClickHandler = (e: MouseEvent<HTMLElement>) => {
-		setAnchorEl(e.currentTarget);
-		setSortingOpen(true);
-	};
-
-	const sortingCloseHandler = () => {
-		setSortingOpen(false);
-		setAnchorEl(null);
-	};
-
-	const sortingHandler = (e: React.MouseEvent<HTMLLIElement>) => {
-		switch (e.currentTarget.id) {
-			case 'new':
-				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.DESC });
-				setSearchCommunity({ ...searchCommunity, sort: 'createdAt', direction: Direction.DESC });
-				setFilterSortName('New');
-				break;
-			case 'popular':
-				setSearchFilter({ ...searchFilter, sort: 'postLikes', direction: Direction.DESC });
-				setSearchCommunity({ ...searchCommunity, sort: 'postLikes', direction: Direction.DESC });
-				setFilterSortName('Popular');
-				break;
-			case 'views':
-				setSearchFilter({ ...searchFilter, sort: 'postViews', direction: Direction.DESC });
-				setSearchCommunity({ ...searchCommunity, sort: 'postViews', direction: Direction.DESC });
-				setFilterSortName('Most Viewed');
-				break;
-		}
-		setSortingOpen(false);
-		setAnchorEl(null);
 	};
 
 	const handleImageError = () => {
@@ -184,6 +145,7 @@ const MainSection = ({ initialInput }: any) => {
 		return '/img/profile/defaultUser.svg';
 	};
 
+	// for sorting for you | popular
 	const handleTabChange = (tab: string) => {
 		setActiveTab(tab);
 		
@@ -191,7 +153,7 @@ const MainSection = ({ initialInput }: any) => {
 		
 		switch (tab) {
 			case 'all':
-				// For You - yangi postlar (createdAt)
+				// For You
 				setSearchCommunity({ 
 					...baseSearch, 
 					sort: 'createdAt', 
@@ -208,7 +170,7 @@ const MainSection = ({ initialInput }: any) => {
 				});
 				break;
 			case 'popular':
-				// Popular - Ko'p like olgan postlar
+				// Popular 
 				setSearchCommunity({ 
 					...baseSearch, 
 					sort: 'postLikes', 
@@ -226,7 +188,6 @@ const MainSection = ({ initialInput }: any) => {
 			</Stack>
 		);
 	}
-
 	/** DESKTOP VIEW **/
 	return (
 		<Stack className="main-section">
@@ -286,7 +247,7 @@ const MainSection = ({ initialInput }: any) => {
 
 				{/* Posts Feed */}
 				<Stack className="posts-feed">
-					{postsLoading ? (
+					{gtePostsLoading ? (
 						<Stack className="loading-container">
 							<p>Loading posts...</p>
 						</Stack>
@@ -295,10 +256,10 @@ const MainSection = ({ initialInput }: any) => {
 							<PostCard
 								key={post._id}
 								post={post}
-								onCommentClick={handleCommentClick}
-								onLikeClick={handleLikeClick}
-								onSaveClick={handleSaveClick}
-								currentUser={user}
+								// onCommentClick={handleCommentClick}
+								likePostHandler={likePostHandler}
+								// onSaveClick={handleSaveClick}
+								// currentUser={user}
 							/>
 						))
 					) : (
