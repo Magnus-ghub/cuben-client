@@ -5,5 +5,5 @@ export interface PostUpdate {
 	postStatus?: PostStatus;
 	postTitle?: string;
 	postContent?: string;
-	postImage?: string;
+	postImages?: string[];
 }

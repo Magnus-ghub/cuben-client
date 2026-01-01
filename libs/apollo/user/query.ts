@@ -345,7 +345,8 @@ export const GET_POST = gql`
 			postStatus
 			postTitle
 			postContent
-			postImage
+			postImages
+			postSaves
 			postLikes
 			postComments
 			memberId
@@ -390,7 +391,8 @@ export const GET_POSTS = gql`
 				postStatus
 				postTitle
 				postContent
-				postImage
+				postImages
+			    postSaves
 				postLikes
 				postComments
 				memberId

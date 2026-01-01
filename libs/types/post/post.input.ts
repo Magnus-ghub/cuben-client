@@ -4,7 +4,7 @@ import { PostStatus } from '../../enums/post.enum';
 export interface PostInput {
 	postTitle: string;
 	postContent: string;
-	postImage: string;
+	postImages: string[];
 	memberId?: string;
 }
 

@@ -90,11 +90,8 @@ const PostCard: React.FC<PostCardProps> = ({
 					</Box>
 				</Box>
 				<Button className="post-more-btn">
-<<<<<<< HEAD
-					<MoreHorizontal size={20} />
-=======
+
 					<span>Follow </span>
->>>>>>> be44e2c (fix: modify postImage logic)
 				</Button>
 			</Box>
 

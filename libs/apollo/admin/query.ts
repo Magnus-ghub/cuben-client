@@ -106,7 +106,8 @@ export const GET_ALL_POSTS_BY_ADMIN = gql`
 				postStatus
 				postTitle
 				postContent
-				postImage
+				postImages
+			    postSaves
 				postLikes
 				postComments
 				memberId

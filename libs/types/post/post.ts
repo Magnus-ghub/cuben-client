@@ -7,7 +7,7 @@ export interface Post {
 	postStatus: PostStatus;
 	postTitle: string;
 	postContent: string;
-	postImage: string;
+	postImages: string[];
 	postLikes: number;
 	postComments: number;
 	memberId: string;

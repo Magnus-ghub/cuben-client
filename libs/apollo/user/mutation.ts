@@ -212,7 +212,8 @@ export const CREATE_POST = gql`
 			postStatus
 			postTitle
 			postContent
-			postImage
+			postImages
+			postSaves
 			postLikes
 			postComments
 			memberId
@@ -229,7 +230,8 @@ export const UPDATE_POST = gql`
 			postStatus
 			postTitle
 			postContent
-			postImage
+			postImages
+			postSaves
 			postLikes
 			postComments
 			memberId
@@ -246,7 +248,8 @@ export const LIKE_TARGET_POST = gql`
 			postStatus
 			postTitle
 			postContent
-			postImage
+			postImages
+			postSaves
 			postLikes
 			postComments
 			memberId
