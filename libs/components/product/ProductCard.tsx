@@ -69,14 +69,6 @@ const ProductCard = (props: ProductTypeCard) => {
 								<Typography component="p">{product?.productCondition}</Typography>
 							</Stack>
 						</Stack>
-						
-						{/* Price Tag */}
-						<Stack className="price-tag">
-							<Typography className="price">
-								₩{product?.productPrice?.toLocaleString()}
-								{product?.isNegotiable && <span className="negotiable"> (Negotiable)</span>}
-							</Typography>
-						</Stack>
 					</div>
 				</Link>
 
@@ -138,7 +130,7 @@ const ProductCard = (props: ProductTypeCard) => {
 						</Stack>
 						<Stack className={`status-badge ${product?.productStatus?.toLowerCase()}`}>
 							<Typography component="p">
-								{product?.isSold ? 'SOLD' : product?.productStatus}
+								{product?.soldAt ? 'SOLD' : product?.productStatus}
 							</Typography>
 						</Stack>
 					</Stack>

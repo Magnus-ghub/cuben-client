@@ -11,7 +11,6 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -171,15 +170,15 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		return categoryMap[type] || type;
 	};
 
-	const getBrandFromProduct = (product: Product | null): string => {
-		// Hard coded - backend da brand yo'q
-		if (!product) return 'N/A';
-		if (product.productType === 'ELECTRONICS') return 'Apple';
-		if (product.productType === 'FURNITURE') return 'IKEA';
-		if (product.productType === 'BOOKS') return 'Penguin Books';
-		if (product.productType === 'CLOTHING') return 'H&M';
-		return 'Generic Brand';
-	};
+	// const getBrandFromProduct = (product: Product | null): string => {
+	// 	// Hard coded - backend da brand yo'q
+	// 	if (!product) return 'N/A';
+	// 	if (product.productType === 'ELECTRONICS') return 'Apple';
+	// 	if (product.productType === 'FURNITURE') return 'IKEA';
+	// 	if (product.productType === 'BOOKS') return 'Penguin Books';
+	// 	if (product.productType === 'CLOTHING') return 'H&M';
+	// 	return 'Generic Brand';
+	// };
 
 	if (getProductLoading) {
 		return (
@@ -218,7 +217,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									/>
 									<Stack className="image-badges">
 										<Chip label={product?.productCondition?.toUpperCase()} className="condition-chip" />
-										{product?.isSold && <Chip label="SOLD" className="sold-chip" />}
+										{product?.soldAt && <Chip label="SOLD" className="sold-chip" />}
 									</Stack>
 								</Box>
 								<Stack className="thumbnail-list">
@@ -259,12 +258,12 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Brand</Typography>
-										<Typography className="detail-value">{getBrandFromProduct(product)}</Typography>
+										<Typography className="detail-value"></Typography>
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Status</Typography>
 										<Typography className={`detail-value ${product?.productStatus?.toLowerCase()}`}>
-											{product?.isSold ? 'SOLD' : product?.productStatus}
+											{product?.soldAt ? 'SOLD' : product?.productStatus}
 										</Typography>
 									</Stack>
 									<Stack className="detail-row">
@@ -274,14 +273,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									<Stack className="detail-row">
 										<Typography className="detail-label">Posted</Typography>
 										<Typography className="detail-value">{moment(product?.createdAt).fromNow()}</Typography>
-									</Stack>
-									<Stack className="detail-row">
-										<Typography className="detail-label">Price Type</Typography>
-										<Typography className="detail-value">{product?.isNegotiable ? 'Negotiable' : 'Fixed'}</Typography>
-									</Stack>
-									<Stack className="detail-row">
-										<Typography className="detail-label">Comments</Typography>
-										<Typography className="detail-value">{product?.productComments || 0}</Typography>
 									</Stack>
 								</Stack>
 							</Stack>
@@ -327,14 +318,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							{/* Price & Actions */}
 							<Stack className="price-section">
 								<Stack className="price-row">
-									<Stack>
-										<Typography className="price">₩{product?.productPrice?.toLocaleString()}</Typography>
-										{product?.isNegotiable && (
-											<Typography className="negotiable-text" sx={{ fontSize: '12px', color: '#667eea', marginTop: '4px' }}>
-												Negotiable
-											</Typography>
-										)}
-									</Stack>
 									<Stack className="action-icons">
 										<IconButton className="action-icon" onClick={() => likeProductHandler(user, product?._id!)}>
 											{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
@@ -356,10 +339,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									<Stack className="stat">
 										<FavoriteIcon className="favorited" />
 										<Typography>{product?.productLikes} likes</Typography>
-									</Stack>
-									<Stack className="stat">
-										<ChatBubbleOutlineIcon />
-										<Typography>{product?.productComments || 0} comments</Typography>
 									</Stack>
 								</Stack>
 							</Stack>
@@ -425,11 +404,11 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Button
 									className="send-button"
 									onClick={sendMessageHandler}
-									disabled={!user._id || product?.isSold}
+									disabled={!user._id || !!product?.soldAt}
 									fullWidth
 								>
 									<Typography component="p">
-										{product?.isSold ? 'Item Sold' : 'Send Message'}
+										{product?.soldAt ? 'Item Sold' : 'Send Message'}
 									</Typography>
 								</Button>
 							</Stack>

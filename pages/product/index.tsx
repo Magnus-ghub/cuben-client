@@ -233,7 +233,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 							<Stack className="products-grid">
 								{products.length === 0 ? (
 									<Stack className="no-data">
-										<img src="/img/icons/icoAlert.svg" alt="" />
+										<img src="/img/icons/icoAlert.svg" alt=""/>
 										<Typography>No Products found!</Typography>
 									</Stack>
 								) : (
