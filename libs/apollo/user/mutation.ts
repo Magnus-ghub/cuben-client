@@ -113,7 +113,6 @@ export const LIKE_TARGET_MEMBER = gql`
 			deletedAt
 			createdAt
 			updatedAt
-			accessToken
 		}
 	}
 `;
@@ -257,11 +256,6 @@ export const LIKE_TARGET_POST = gql`
 				likeRefId
 				myFavorite
 			}
-			meSaved {
-				memberId
-				saveRefId
-				mySaves
-			}
 		}
 	}
 `;
@@ -280,11 +274,6 @@ export const SAVE_TARGET_POST = gql`
 			memberId
 			createdAt
 			updatedAt
-			meSaved { 
-				memberId
-				saveRefId
-				mySaves
-			}
 			meLiked { 
 				memberId
 				likeRefId

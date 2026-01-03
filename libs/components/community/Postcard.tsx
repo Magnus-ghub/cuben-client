@@ -18,7 +18,7 @@ interface PostCardProps {
 	post: Post;
 	likePostHandler: any;
 	savePostHandler: any;
-	onCommentClick: (post: Post) => void; // ✅ Comment handler qo'shildi
+	onCommentClick: (post: Post) => void; 
 }
 
 const PostCard = (props: PostCardProps) => {
@@ -156,13 +156,13 @@ const PostCard = (props: PostCardProps) => {
 					className='action-btn'
 					disabled={!user?._id}
 				>
-					{post?.meSaved && post?.meSaved[0]?.mySaves ? (
+					{post?.meSaved && post?.meSaved[0]?.myFavorite ? (
 						<BookmarkIcon style={{ color: '#1976d2' }} />
 					) : (
 						<BookmarkBorderIcon />
 					)}
 					<Typography variant="body2" component="span" className="button-text">
-						{post?.meSaved?.[0]?.mySaves ? 'Saved' : 'Save'}
+						{post?.meSaved?.[0]?.myFavorite ? 'Saved' : 'Save'}
 					</Typography>
 				</IconButton>
 			</Box>

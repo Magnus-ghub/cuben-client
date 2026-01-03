@@ -28,7 +28,6 @@ export const GET_AGENTS = gql`
 				deletedAt
 				createdAt
 				updatedAt
-				accessToken
 				meLiked {
 					memberId
 					likeRefId
@@ -68,7 +67,6 @@ export const GET_MEMBER = gql`
 			deletedAt
 			createdAt
 			updatedAt
-			accessToken
 			meFollowed {
 				followingId
 				followerId
@@ -92,10 +90,15 @@ export const GET_PRODUCT = gql`
 			productAddress
 			productTitle
 			productPrice
+			productSquare
+			productBeds
+			productRooms
 			productViews
 			productLikes
 			productImages
 			productDesc
+			productBarter
+			productRent
 			memberId
 			soldAt
 			deletedAt
@@ -120,7 +123,6 @@ export const GET_PRODUCT = gql`
 				deletedAt
 				createdAt
 				updatedAt
-				accessToken
 			}
 			meLiked {
 				memberId
@@ -142,11 +144,16 @@ export const GET_PRODUCTS = gql`
 				productAddress
 				productTitle
 				productPrice
+				productSquare
+				productBeds
+				productRooms
 				productViews
 				productLikes
 				productRank
 				productImages
 				productDesc
+				productBarter
+				productRent
 				memberId
 				soldAt
 				deletedAt
@@ -198,10 +205,15 @@ export const GET_AGENT_PRODUCTS = gql`
 				productAddress
 				productTitle
 				productPrice
+				productSquare
+				productBeds
+				productRooms
 				productViews
 				productLikes
 				productImages
 				productDesc
+				productBarter
+				productRent
 				memberId
 				soldAt
 				deletedAt
@@ -262,7 +274,6 @@ export const GET_FAVORITES = gql`
 					deletedAt
 					createdAt
 					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -319,7 +330,6 @@ export const GET_VISITED = gql`
 					deletedAt
 					createdAt
 					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -374,10 +384,10 @@ export const GET_POST = gql`
 				likeRefId
 				myFavorite
 			}
-		    meSaved {
+			meSaved {
 				memberId
-				saveRefId
-				mySaves
+				likeRefId
+				myFavorite  
 			}
 		}
 	}
@@ -392,7 +402,7 @@ export const GET_POSTS = gql`
 				postTitle
 				postContent
 				postImages
-			    postSaves
+				postSaves
 				postLikes
 				postComments
 				memberId
@@ -403,11 +413,11 @@ export const GET_POSTS = gql`
 					likeRefId
 					myFavorite
 				}
-			    meSaved {
-			 		memberId
-					saveRefId
-					mySaves
-			    }
+				meSaved {
+					memberId
+					likeRefId
+					myFavorite  
+				}
 				memberData {
 					_id
 					memberType
@@ -576,7 +586,6 @@ export const GET_COMMENTS = gql`
 					deletedAt
 					createdAt
 					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -677,7 +686,6 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 					deletedAt
 					createdAt
 					updatedAt
-					accessToken
 				}
 				meLiked {
 					memberId

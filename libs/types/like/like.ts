@@ -8,3 +8,9 @@ export interface Like {
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+export interface MeLiked {
+	memberId: string;
+	likeRefId: string;
+	myFavorite: boolean;
+}

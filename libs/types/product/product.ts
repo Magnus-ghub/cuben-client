@@ -1,17 +1,7 @@
 import { ProductCondition, ProductLocation, ProductStatus, ProductType } from "../../enums/product.enum";
+import { MeLiked } from "../like/like";
 import { Member } from "../member/member";
 
-export interface MeLiked {
-	memberId: string;
-	likeRefId: string;
-	myFavorite: boolean;
-}
-
-export interface MeSaved {
-	memberId: string;
-	saveRefId: string;
-	mySaves: boolean;
-}
 
 export interface TotalCounter {
 	total: number;
@@ -39,7 +29,7 @@ export interface Product {
 	createdAt: Date;
 	updatedAt: Date;
 	/** from aggregation **/
-	meSaved?: MeSaved[];
+	meSaved?: MeLiked[];
 	meLiked?: MeLiked[];
 	memberData?: Member;
 }

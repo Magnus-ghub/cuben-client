@@ -1,6 +1,7 @@
 import { PostStatus } from '../../enums/post.enum';
+import { MeLiked } from '../like/like';
 import { Member } from '../member/member';
-import { MeLiked, MeSaved, TotalCounter } from '../product/product';
+import { TotalCounter } from '../product/product';
 
 export interface Post {
 	_id: string;
@@ -15,7 +16,7 @@ export interface Post {
 	createdAt: Date;
 	updatedAt: Date;
 	/** from aggregation **/
-	meSaved?: MeSaved[];
+	meSaved?: MeLiked[];
 	meLiked?: MeLiked[];
 	memberData?: Member;
 }
