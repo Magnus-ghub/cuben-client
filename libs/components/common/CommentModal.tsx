@@ -94,50 +94,48 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
 
   /** HANDLERS **/
   const handleSendComment = async () => {
-    try {
-      if (!commentText.trim()) return;
-      if (!user?._id) {
-        console.warn('Please login to comment');  // Alert o'rniga console
-        return;
-      }
-      if (!post?._id) return;
-
-      console.log('Sending comment...', {
-        commentGroup: CommentGroup.POST,
-        commentContent: commentText.trim(),
-        commentRefId: post._id,
-      });
-
-      const result = await createComment({
-        variables: {
-          input: {
-            commentGroup: CommentGroup.POST,
-            commentContent: commentText.trim(),
-            commentRefId: post._id,
-          },
-        },
-        refetchQueries: [
-          { query: GET_COMMENTS, variables: { input: commentInquiry } },
-        ],
-        awaitRefetchQueries: true,
-      });
-
-      console.log('Comment created successfully:', result);
-
-      setCommentText('');
-      setTotalComments(prev => prev + 1);
-      
-      if (onCommentAdded) {
-        onCommentAdded();
-      }
-    } catch (err: any) {
-      console.error('ERROR, handleSendComment:', err);
-      console.error('Error details:', err.message);
-      console.error('Network error:', err.networkError);
-      console.error('GraphQL errors:', err.graphQLErrors);
-      console.warn('Failed to send comment. Please try again.');  // Alert o'rniga console
+  try {
+    if (!commentText.trim()) return;
+    if (!user?._id) {
+      console.warn('Please login to comment');
+      return;
     }
-  };
+    if (!post?._id) return;
+
+    console.log('Sending comment...', {
+      commentGroup: CommentGroup.POST,
+      commentContent: commentText.trim(),
+      commentRefId: post._id,
+    });
+
+    await createComment({
+      variables: {
+        input: {
+          commentGroup: CommentGroup.POST,
+          commentContent: commentText.trim(),
+          commentRefId: post._id,
+        },
+      },
+    });
+
+    // ✅ Comment yaratilgandan so'ng commentlarni refetch qilish
+    await commentsRefetch({ input: commentInquiry });
+    
+    console.log('Comment created successfully');
+
+    setCommentText('');
+    setTotalComments(prev => prev + 1);
+    
+    // ✅ Parent componentga xabar berish (posts listini yangilash uchun)
+    if (onCommentAdded) {
+      onCommentAdded();
+    }
+  } catch (err: any) {
+    console.error('ERROR, handleSendComment:', err);
+    console.error('Error details:', err.message);
+    console.warn('Failed to send comment. Please try again.');
+  }
+};
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {

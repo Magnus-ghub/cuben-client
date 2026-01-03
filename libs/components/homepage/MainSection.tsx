@@ -9,19 +9,19 @@ import {
 	Video,
 	Smile,
 } from 'lucide-react';
-import CommentModal from '../common/CommentModal';  // Import qo'shildi
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { LIKE_TARGET_POST, SAVE_TARGET_POST } from '../../apollo/user/mutation';
 import { GET_POSTS } from '../../apollo/user/query';
-import { Direction } from '../../enums/common.enum';
-import { Messages, REACT_APP_API_URL } from '../../config';
+import { Direction, Message } from '../../enums/common.enum';
+import { REACT_APP_API_URL } from '../../config';
 import { userVar } from '../../apollo/store';
 import PostCard from '../community/Postcard';
 import { PostsInquiry } from '../../types/post/post.input';
 import { Post } from '../../types/post/post';
 import { T } from '../../types/common';
+import CommentModal from '../common/CommentModal';
 
 const MainSection = ({ initialInput }: any) => {
 	const { t } = useTranslation('common');
@@ -29,21 +29,21 @@ const MainSection = ({ initialInput }: any) => {
 	const router = useRouter();
 	const { query } = router;
 
-	// Initialize with initialInput immediately
-	const [searchCommunity, setSearchCommunity] = useState<PostsInquiry>(initialInput);
-	
 	/** STATES **/
+	const [posts, setPosts] = useState<Post[]>([]);
+	const [searchCommunity, setSearchCommunity] = useState<PostsInquiry>(initialInput);
 	const [searchFilter, setSearchFilter] = useState<PostsInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
 	);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const postCategory = query?.postCategory as string;
-	const [posts, setPosts] = useState<Post[]>([]);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [activeTab, setActiveTab] = useState('all');
-	const [commentModalOpen, setCommentModalOpen] = useState(false);  // Modal state
+	const [commentModalOpen, setCommentModalOpen] = useState(false); 
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
+
+	console.log('Modal state:', { commentModalOpen, selectedPost: selectedPost?._id }); // ✅ Debug log
 
 	if (postCategory) initialInput.search.postCategory = postCategory;
 
@@ -52,16 +52,17 @@ const MainSection = ({ initialInput }: any) => {
 	const [saveTargetPost] = useMutation(SAVE_TARGET_POST);
 
 	const {
-		loading: gtePostsLoading,
+		loading: getPostsLoading,
 		data: getPostsData,
 		error: getPostsError,
 		refetch: getPostsRefetch,
 	} = useQuery(GET_POSTS, {
-		fetchPolicy: 'cache-and-network',
-		variables: {
-			input: initialInput,
-		},
+		fetchPolicy: 'cache-and-network', 
+		variables: { input: searchCommunity },
 		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setPosts(data?.getPosts?.list || []);
+		},
 	});
 
 	/** LIFECYCLES **/
@@ -76,13 +77,6 @@ const MainSection = ({ initialInput }: any) => {
 		setCurrentPage(searchFilter?.page ?? 1);
 	}, [searchFilter]);
 
-	//post data from db
-	useEffect(() => {
-		if (getPostsData?.getPosts) {
-			setPosts(getPostsData.getPosts.list || []);
-		}
-	}, [getPostsData]);
-
 	useEffect(() => {
 		if (getPostsError) {
 			console.error('Error fetching posts:', getPostsError);
@@ -90,70 +84,41 @@ const MainSection = ({ initialInput }: any) => {
 	}, [getPostsError]);
 
 	/** HANDLERS **/
-	const handleCommentClick = (post: Post) => {
-		console.log('Opening modal for post:', post._id);  // Debug
-		setSelectedPost(post);
-		setCommentModalOpen(true);
-	};
-
-	const likePostHandler = async (id: string) => {
+	const likePostHandler = async (user: T, id: string) => {
 		try {
 			if (!id) return;
-			if (!user?._id) throw new Error(Messages.error2);
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			
 			await likeTargetPost({
-				variables: { postId: id },
-				refetchQueries: [
-					{ query: GET_POSTS, variables: { input: initialInput } },
-				],
-				awaitRefetchQueries: true,
+				variables: { postId: id }, 
 			});
+			
+			await getPostsRefetch({ input: searchCommunity });
 		} catch (err: any) {
-			console.error('ERROR in likePostHandler:', err.message);
+			console.log('ERROR, likePostHandler:', err.message);
 		}
 	};
 
-	const handleSaveClick = async (postId: string) => {
-  try {
-    if (!postId) return;
-    if (!user?._id) throw new Error(Messages.error2);
+	const savePostHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			
+			await saveTargetPost({
+				variables: { postId: id }, 
+			});
+			
+			await getPostsRefetch({ input: searchCommunity });
+		} catch (err: any) {
+			console.log('ERROR, savePostHandler:', err.message);
+		}
+	};
 
-    const { data } = await saveTargetPost({  // Destructure data
-      variables: { postId: postId },
-      refetchQueries: [  // List'ni yangilash
-        { query: GET_POSTS, variables: { input: initialInput } },
-      ],
-      awaitRefetchQueries: true,
-      update: (cache, { data }) => {  // Cache'ni local yangilash (tezroq UI)
-        if (data?.saveTargetPost) {
-          const existingPosts = cache.readQuery({ 
-            query: GET_POSTS, 
-            variables: { input: initialInput } 
-          }) as any;
-
-          if (existingPosts?.getPosts?.list) {
-            const updatedPosts = existingPosts.getPosts.list.map((p: Post) => 
-              p._id === postId 
-                ? { 
-                    ...p, 
-                    meSaved: data.saveTargetPost.meSaved,  // ✅ Yangi response'dan oling
-                    postSaves: data.saveTargetPost.postSaves  // Son yangilash
-                  }
-                : p
-            );
-            cache.writeQuery({
-              query: GET_POSTS,
-              variables: { input: initialInput },
-              data: { getPosts: { ...existingPosts.getPosts, list: updatedPosts } },
-            });
-          }
-        }
-      },
-    });
-    console.log('Save successful:', data);  // Debug
-  } catch (err: any) {
-    console.error('ERROR in handleSaveClick:', err.message);
-  }
-};
+	const handleCommentClick = (post: Post) => {
+		console.log('Comment clicked for post:', post._id); 
+		setSelectedPost(post);
+		setCommentModalOpen(true);
+	};
 
 	const handleImageError = () => {
 		setImageError(true);
@@ -169,7 +134,6 @@ const MainSection = ({ initialInput }: any) => {
 		return '/img/profile/defaultUser.svg';
 	};
 
-	// for sorting for you | popular
 	const handleTabChange = (tab: string) => {
 		setActiveTab(tab);
 		
@@ -200,6 +164,9 @@ const MainSection = ({ initialInput }: any) => {
 				break;
 		}
 	};
+
+	if (posts) console.log('posts:', posts);
+	if (!posts) return null;
 
 	return (
 		<Stack className="main-section">
@@ -259,7 +226,7 @@ const MainSection = ({ initialInput }: any) => {
 
 				{/* Posts Feed */}
 				<Stack className="posts-feed">
-					{gtePostsLoading ? (
+					{getPostsLoading ? (
 						<Stack className="loading-container">
 							<p>Loading posts...</p>
 						</Stack>
@@ -269,9 +236,8 @@ const MainSection = ({ initialInput }: any) => {
 								key={post._id}
 								post={post}
 								likePostHandler={likePostHandler}
+								savePostHandler={savePostHandler}
 								onCommentClick={handleCommentClick}
-								onSaveClick={handleSaveClick}
-								user={user}
 							/>
 						))
 					) : (
@@ -288,7 +254,7 @@ const MainSection = ({ initialInput }: any) => {
 				open={commentModalOpen}
 				onClose={() => setCommentModalOpen(false)}
 				post={selectedPost}
-				onCommentAdded={() => getPostsRefetch({ input: initialInput })}
+				onCommentAdded={() => getPostsRefetch({ input: searchCommunity })}
 			/>
 		</Stack>
 	);
