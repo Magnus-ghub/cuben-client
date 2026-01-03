@@ -54,7 +54,6 @@ export const UPDATE_PRODUCT_BY_ADMIN = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}

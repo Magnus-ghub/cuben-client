@@ -99,7 +99,6 @@ export const GET_PRODUCT = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 			memberData {
@@ -151,7 +150,6 @@ export const GET_PRODUCTS = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {
@@ -207,7 +205,6 @@ export const GET_AGENT_PRODUCTS = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 			}
@@ -238,7 +235,6 @@ export const GET_FAVORITES = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {
@@ -296,7 +292,6 @@ export const GET_VISITED = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {

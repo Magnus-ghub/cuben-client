@@ -14,5 +14,5 @@ export interface ProductUpdate {
 	productRent?: boolean;
 	soldAt?: Date;
 	deletedAt?: Date;
-	constructedAt?: Date;
+	createdAt?: Date;
 }

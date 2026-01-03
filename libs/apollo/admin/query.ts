@@ -60,7 +60,6 @@ export const GET_ALL_PRODUCTS_BY_ADMIN = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {

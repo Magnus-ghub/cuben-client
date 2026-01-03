@@ -139,7 +139,6 @@ export const CREATE_PRODUCT = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}
@@ -168,7 +167,6 @@ export const UPDATE_PRODUCT = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}
@@ -194,7 +192,6 @@ export const LIKE_TARGET_PRODUCT = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}

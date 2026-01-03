@@ -9,58 +9,95 @@ import ProductCard from '../../libs/components/product/ProductCard';
 import Filter from '../../libs/components/product/Filter';
 import { ProductsInquiry } from '../../libs/types/product/product.input';
 import { useRouter } from 'next/router';
-import { Direction } from '../../libs/enums/common.enum';
+import { Direction, Message } from '../../libs/enums/common.enum';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { LIKE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
+import { useMutation, useQuery } from '@apollo/client';
+import { Product } from '../../libs/types/product/product';
+import { GET_PRODUCTS } from '../../libs/apollo/user/query';
+import { T } from '../../libs/types/common';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
 
 const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
+		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
+	);
+	const [products, setProducts] = useState<Product[]>([]);
+	const [total, setTotal] = useState<number>(0);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [products, setProducts] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-	const [total, setTotal] = useState<number>(245);
-	const [showFilter, setShowFilter] = useState(true);
 	const [sortingOpen, setSortingOpen] = useState(false);
 	const [filterSortName, setFilterSortName] = useState('New');
-	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
-		initialInput || {
-			page: 1,
-			limit: 9,
-			sort: 'createdAt',
-			direction: Direction.DESC,
-			search: {},
-		}
-	);
+	const [showFilter, setShowFilter] = useState(true);
+
+	/** APOLLO REQUESTS **/
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
+
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		fetchPolicy: 'network-only',
+		variables: { input: searchFilter },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setProducts(data?.getProducts?.list);
+			setTotal(data?.getProducts?.metaCounter[0]?.total ?? 0);
+		},
+	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.input) {
-			try {
-				const inputObj = JSON.parse(router?.query?.input as string);
-				setSearchFilter(inputObj);
-				setCurrentPage(inputObj.page || 1);
-			} catch (err) {
-				console.error('Error parsing router query:', err);
-			}
-		} else {
-			setCurrentPage(searchFilter?.page || 1);
+			const inputObj = JSON.parse(router?.query?.input as string);
+			setSearchFilter(inputObj);
 		}
+		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
 	}, [router]);
 
 	useEffect(() => {
 		console.log('searchFilter:', searchFilter);
+		getProductsRefetch({ input: searchFilter });
 	}, [searchFilter]);
 
 	/** HANDLERS **/
+	const likeProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			await likeTargetProduct({
+				variables: { input: id },
+			});
+
+			await getProductsRefetch({ input: searchFilter });
+			await sweetTopSmallSuccessAlert('success', 800);
+		} catch (err: any) {
+			console.log('ERROR, likeProductHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
-		const newFilter = { ...searchFilter, page: value };
-		setSearchFilter(newFilter);
-		setCurrentPage(value);
-		
+		searchFilter.page = value;
 		await router.push(
-			`/marketplace?input=${JSON.stringify(newFilter)}`,
-			`/marketplace?input=${JSON.stringify(newFilter)}`,
-			{ scroll: false }
+			`/product?input=${JSON.stringify(searchFilter)}`,
+			`/product?input=${JSON.stringify(searchFilter)}`,
+			{
+				scroll: false,
+			},
 		);
+		setCurrentPage(value);
 	};
 
 	const sortingClickHandler = (e: MouseEvent<HTMLElement>) => {
@@ -74,24 +111,20 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const sortingHandler = (e: React.MouseEvent<HTMLLIElement>) => {
-		let newFilter = { ...searchFilter };
-		
 		switch (e.currentTarget.id) {
 			case 'new':
-				newFilter = { ...searchFilter, sort: 'createdAt', direction: Direction.DESC };
+				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.DESC });
 				setFilterSortName('New');
 				break;
 			case 'lowest':
-				newFilter = { ...searchFilter, sort: 'productPrice', direction: Direction.ASC };
+				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.ASC });
 				setFilterSortName('Lowest Price');
 				break;
 			case 'highest':
-				newFilter = { ...searchFilter, sort: 'productPrice', direction: Direction.DESC };
+				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.DESC });
 				setFilterSortName('Highest Price');
 				break;
 		}
-		
-		setSearchFilter(newFilter);
 		setSortingOpen(false);
 		setAnchorEl(null);
 	};
@@ -118,16 +151,16 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 							</Button>
 							<Stack className="sort-box">
 								<Typography className="sort-label">Sort by</Typography>
-								<Button 
+								<Button
 									className="sort-btn"
-									onClick={sortingClickHandler} 
+									onClick={sortingClickHandler}
 									endIcon={<KeyboardArrowDownRoundedIcon />}
 								>
 									{filterSortName}
 								</Button>
-								<Menu 
-									anchorEl={anchorEl} 
-									open={sortingOpen} 
+								<Menu
+									anchorEl={anchorEl}
+									open={sortingOpen}
 									onClose={sortingCloseHandler}
 									PaperProps={{
 										sx: {
@@ -136,19 +169,19 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 											boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
 											border: '1px solid #e5e7eb',
 											minWidth: '160px',
-										}
+										},
 									}}
 								>
 									<MenuItem
 										onClick={sortingHandler}
 										id={'new'}
-										sx={{ 
+										sx={{
 											fontFamily: 'inherit',
 											fontSize: '14px',
 											padding: '10px 16px',
 											'&:hover': {
-												backgroundColor: '#f9fafb'
-											}
+												backgroundColor: '#f9fafb',
+											},
 										}}
 									>
 										New
@@ -156,13 +189,13 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 									<MenuItem
 										onClick={sortingHandler}
 										id={'lowest'}
-										sx={{ 
+										sx={{
 											fontFamily: 'inherit',
 											fontSize: '14px',
 											padding: '10px 16px',
 											'&:hover': {
-												backgroundColor: '#f9fafb'
-											}
+												backgroundColor: '#f9fafb',
+											},
 										}}
 									>
 										Lowest Price
@@ -170,13 +203,13 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 									<MenuItem
 										onClick={sortingHandler}
 										id={'highest'}
-										sx={{ 
+										sx={{
 											fontFamily: 'inherit',
 											fontSize: '14px',
 											padding: '10px 16px',
 											'&:hover': {
-												backgroundColor: '#f9fafb'
-											}
+												backgroundColor: '#f9fafb',
+											},
 										}}
 									>
 										Highest Price
@@ -191,11 +224,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 						{/* Filter Sidebar */}
 						{showFilter && (
 							<Stack className="filter-sidebar">
-								<Filter 
-									searchFilter={searchFilter} 
-									setSearchFilter={setSearchFilter} 
-									initialInput={initialInput} 
-								/>
+								<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
 							</Stack>
 						)}
 
@@ -208,8 +237,8 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 										<Typography>No Products found!</Typography>
 									</Stack>
 								) : (
-									products.map((product, index) => (
-										<ProductCard key={index} />
+									products.map((product: Product) => (
+										<ProductCard product={product} likeProductHandler={likeProductHandler} key={product?._id} />
 									))
 								)}
 							</Stack>
@@ -219,15 +248,17 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 								<Stack className="pagination-wrapper">
 									<Stack className="pagination-info">
 										<Typography className="result-count">
-											Showing <strong>{(currentPage - 1) * searchFilter.limit + 1}-{Math.min(currentPage * searchFilter.limit, total)}</strong> of <strong>{total}</strong> products
+											Showing <strong>{(currentPage - 1) * searchFilter.limit + 1}</strong>-
+											<strong>{Math.min(currentPage * searchFilter.limit, total)}</strong> of <strong>{total}</strong>{' '}
+											product{total > 1 ? 's' : ''}
 										</Typography>
 									</Stack>
 									<Stack className="pagination-controls">
-										<Pagination 
-											page={currentPage} 
-											count={Math.ceil(total / searchFilter.limit)} 
-											shape="rounded" 
-											color="primary" 
+										<Pagination
+											page={currentPage}
+											count={Math.ceil(total / searchFilter.limit)}
+											shape="rounded"
+											color="primary"
 											size="large"
 											onChange={handlePaginationChange}
 										/>

@@ -16,7 +16,7 @@ export interface ProductInput {
 	productBarter?: boolean;
 	productRent?: boolean;
 	memberId?: string;
-	constructedAt?: Date;
+	createdAt?: Date;
 }
 
 interface PISearch {
