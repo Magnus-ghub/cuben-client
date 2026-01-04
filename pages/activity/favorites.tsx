@@ -1,107 +1,161 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { Box, Stack, Chip, Pagination, IconButton } from '@mui/material';
+import { Box, Stack, Chip, Pagination, IconButton, Typography } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import { useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
-import { Heart, Package, Eye, Calendar, MapPin, DollarSign, Trash2, ShoppingCart } from 'lucide-react';
+import { Heart, Eye, Calendar, MapPin, Trash2 } from 'lucide-react';
 import { Product } from '../../libs/types/product/product';
-import { REACT_APP_API_URL } from '../../libs/config';
-
+import { Messages, REACT_APP_API_URL } from '../../libs/config';
+import { T } from '../../libs/types/common';
+import { LIKE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
+import { GET_FAVORITES } from '../../libs/apollo/user/query';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 
 const Favorites: NextPage = () => {
 	const device = useDeviceDetect();
-	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const [searchFavorites, setSearchFavorites] = useState({ page: 1, limit: 8 });
-	
-	// Mock Data
-	const mockFavorites: Product[] = [
-		{
-			_id: '1',
-			productName: 'Vintage Leather Backpack',
-			productPrice: 89000,
-			productImages: ['/img/products/bag1.jpg'],
-			productLocation: 'Gangnam, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 456,
-			productLikes: 78,
-			createdAt: '2024-12-20T10:30:00Z',
-		},
-		{
-			_id: '2',
-			productName: 'Designer Sunglasses Collection',
-			productPrice: 125000,
-			productImages: ['/img/products/glasses1.jpg'],
-			productLocation: 'Hongdae, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 234,
-			productLikes: 45,
-			createdAt: '2024-12-18T14:20:00Z',
-		},
-		{
-			_id: '3',
-			productName: 'Wireless Gaming Mouse',
-			productPrice: 75000,
-			productImages: ['/img/products/mouse1.jpg'],
-			productLocation: 'Gangnam, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 567,
-			productLikes: 92,
-			createdAt: '2024-12-15T09:15:00Z',
-		},
-		{
-			_id: '4',
-			productName: 'Minimalist Desk Lamp',
-			productPrice: 55000,
-			productImages: ['/img/products/lamp1.jpg'],
-			productLocation: 'Sinchon, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 189,
-			productLikes: 34,
-			createdAt: '2024-12-12T16:45:00Z',
-		},
-	];
+	const user = useReactiveVar(userVar);
+	const [myFavorites, setMyFavorites] = useState<Product[]>([]);
+	const [total, setTotal] = useState<number>(0);
+	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 });
 
-	const [myFavorites, setMyFavorites] = useState<Product[]>(mockFavorites);
-	const [total, setTotal] = useState<number>(mockFavorites.length);
+	/** APOLLO REQUESTS **/
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
 
+	const {
+		loading: getFavoritesLoading,
+		data: getFavoritesData,
+		error: getFavoritesError,
+		refetch: getFavoritesRefetch,
+	} = useQuery(GET_FAVORITES, {
+		fetchPolicy: 'network-only',
+		variables: {
+			input: searchFavorites,
+		},
+		notifyOnNetworkStatusChange: true,
+		skip: !user?._id,
+		onCompleted: (data: T) => {
+			console.log('Favorites Data:', data); 
+			setMyFavorites(data?.getFavorites?.list || []);
+			setTotal(data?.getFavorites?.metaCounter?.[0]?.total || 0);
+		},
+		onError: (error) => {
+			console.error('Favorites Query Error:', error); 
+			sweetMixinErrorAlert('Error loading favorites: ' + error.message);
+		},
+	});
+
+	/** LIFECYCLE */
 	useEffect(() => {
-		// Simulate pagination
-		const startIndex = (searchFavorites.page - 1) * searchFavorites.limit;
-		const endIndex = startIndex + searchFavorites.limit;
-		setMyFavorites(mockFavorites.slice(startIndex, endIndex));
-	}, [searchFavorites]);
+		if (user?._id) {
+			getFavoritesRefetch({ input: searchFavorites });
+		}
+	}, [searchFavorites, user?._id]); 
 
-	const paginationHandler = (e: any, value: number) => {
-		setSearchFavorites({ ...searchFavorites, page: value });
+	/** HANDLERS **/
+	const paginationHandler = (event: React.ChangeEvent<unknown>, value: number) => { 
+		const newSearch = { ...searchFavorites, page: value };
+		setSearchFavorites(newSearch);
 	};
 
-	const handleRemoveFavorite = (productId: string, e: React.MouseEvent) => {
+	// ✅ Unlike handler - Favorites dan o'chirish
+	const handleRemoveFavorite = async (productId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		console.log('Remove from favorites:', productId);
-		// TODO: Implement remove functionality
+		
+		try {
+			if (!user?._id) {
+				sweetMixinErrorAlert(Messages.error2 || 'Please log in!');
+				return;
+			}
+
+			// Unlike qilish (toggle like)
+			await likeTargetProduct({
+				variables: {
+					productId: productId,
+				},
+			});
+
+			// Refetch favorites list
+			await getFavoritesRefetch({ input: searchFavorites });
+			sweetTopSmallSuccessAlert('Removed from favorites!', 800);
+			
+		} catch (err: any) {
+			console.error('ERROR, handleRemoveFavorite:', err.message);
+			sweetMixinErrorAlert(err.message);
+		}
 	};
 
+	// ✅ Product card bosilganda detail page ga o'tish
 	const handleProductClick = (productId: string) => {
-		router.push(`/product/${productId}`);
+		router.push({
+			pathname: '/product/detail',
+			query: { id: productId },
+		});
 	};
 
 	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat('ko-KR', {
+		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'KRW',
+			currency: 'USD', 
 		}).format(price);
 	};
 
 	const formatDate = (date: string) => {
-		return new Date(date).toLocaleDateString('en-US', {
+		return new Date(date).toLocaleDateString('en-US', { 
 			month: 'short',
 			day: 'numeric',
+			year: 'numeric',
 		});
 	};
+
+	// Loading state
+	if (getFavoritesLoading) {
+		return (
+			<Box className="saved-content-page">
+				<Stack sx={{ justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+						<Heart size={48} className="loading-heart" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
+						<Typography>Loading your favorites...</Typography>
+					</Box>
+				</Stack>
+			</Box>
+		);
+	}
+
+	// Error or not authenticated
+	if (getFavoritesError || !user?._id) {
+		return (
+			<Box className="saved-content-page">
+				<Stack sx={{ justifyContent: 'center', alignItems: 'center', height: '50vh', gap: 2 }}>
+					<Heart size={64} color="#ec4899" />
+					<Typography variant="h5">
+						{getFavoritesError ? 'An error occurred' : 'Please log in'}
+					</Typography>
+					<Typography color="text.secondary">
+						{getFavoritesError?.message || 'Log in to view your favorites'}
+					</Typography>
+					{!user?._id && (
+						<button 
+							onClick={() => router.push('/login')}
+							style={{
+								padding: '10px 20px',
+								background: '#ec4899',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								cursor: 'pointer',
+							}}
+						>
+							Login
+						</button>
+					)}
+				</Stack>
+			</Box>
+		);
+	}
 
 	if (device === 'mobile') {
 		return <div>FAVORITES MOBILE</div>;
@@ -121,10 +175,10 @@ const Favorites: NextPage = () => {
 					</Box>
 				</Box>
 				<Box className="header-right">
-					<Chip 
-						icon={<Heart size={16} />} 
-						label={`${total} Items`} 
-						className="total-chip" 
+					<Chip
+						icon={<Heart size={16} />}
+						label={`${total} Item${total !== 1 ? 's' : ''}`}
+						className="total-chip"
 					/>
 				</Box>
 			</Stack>
@@ -138,6 +192,20 @@ const Favorites: NextPage = () => {
 						</Box>
 						<h3>No Favorites Yet</h3>
 						<p>Start adding products you love to your favorites</p>
+						<button 
+							onClick={() => router.push('/product')}
+							style={{
+								marginTop: '20px',
+								padding: '10px 20px',
+								background: '#ec4899',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								cursor: 'pointer',
+							}}
+						>
+							Browse Products
+						</button>
 					</Box>
 				) : (
 					<>
@@ -151,10 +219,11 @@ const Favorites: NextPage = () => {
 									key={product._id}
 									className="saved-item-card"
 									onClick={() => handleProductClick(product._id)}
+									style={{ cursor: 'pointer' }}
 								>
 									{/* Image */}
 									<Box className="item-image">
-										<img src={imagePath} alt={product.productName} />
+										<img src={imagePath} alt={product.productTitle} />
 										<Box className="favorite-badge">
 											<Heart size={16} fill="#ec4899" color="#ec4899" />
 										</Box>
@@ -162,8 +231,8 @@ const Favorites: NextPage = () => {
 
 									{/* Content */}
 									<Box className="item-content">
-										<h3 className="item-title">{product.productName}</h3>
-										
+										<h3 className="item-title">{product.productTitle}</h3>
+
 										{product.productLocation && (
 											<Box className="item-location">
 												<MapPin size={14} />
@@ -190,11 +259,13 @@ const Favorites: NextPage = () => {
 											</Box>
 										</Stack>
 
+										{/* ✅ Remove button */}
 										<Box className="item-actions">
 											<IconButton
 												size="small"
 												className="remove-btn"
 												onClick={(e) => handleRemoveFavorite(product._id, e)}
+												title="Remove from favorites"
 											>
 												<Trash2 size={16} />
 											</IconButton>

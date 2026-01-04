@@ -77,7 +77,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			await likeTargetProduct({
-				variables: { input: id },
+				variables: { productId: id },
 			});
 
 			await getProductsRefetch({ input: searchFilter });

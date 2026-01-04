@@ -1,128 +1,140 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { Box, Stack, Chip, Pagination, IconButton } from '@mui/material';
+import { Box, Stack, Chip, Pagination, IconButton, Typography } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import { useReactiveVar } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
 import { Clock, Eye, Heart, Calendar, MapPin, Trash2, RefreshCw } from 'lucide-react';
 import { Product } from '../../libs/types/product/product';
-import { REACT_APP_API_URL } from '../../libs/config';
-import { ProductLocation } from '../../libs/enums/product.enum';
+import { Messages, REACT_APP_API_URL } from '../../libs/config';
+import { T } from '../../libs/types/common';
+import { GET_VISITED } from '../../libs/apollo/user/query';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import moment from 'moment';
 
 const History: NextPage = () => {
 	const device = useDeviceDetect();
-    const [productLocation, setProductLocation] = useState<ProductLocation[]>(Object.values(ProductLocation));
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const [searchHistory, setSearchHistory] = useState({ page: 1, limit: 8 });
-	
-	// Mock Data - Recently Viewed
-	const mockRecentlyViewed: Product[] = [
-		{
-			_id: '1',
-			productName: 'Apple AirPods Pro 2nd Gen',
-			productPrice: 289000,
-			productImages: ['/img/products/airpods1.jpg'],
-			productLocation: 'Gangnam, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 1234,
-			productLikes: 234,
-			createdAt: '2024-12-28T15:30:00Z',
-		},
-		{
-			_id: '2',
-			productName: 'Nike Air Jordan 1 Retro',
-			productPrice: 180000,
-			productImages: ['/img/products/shoes1.jpg'],
-			productLocation: 'Myeongdong, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 890,
-			productLikes: 167,
-			createdAt: '2024-12-28T12:15:00Z',
-		},
-		{
-			_id: '3',
-			productName: 'LG UltraWide Monitor 34"',
-			productPrice: 650000,
-			productImages: ['/img/products/monitor1.jpg'],
-			productLocation: 'Gangnam, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 456,
-			productLikes: 89,
-			createdAt: '2024-12-27T18:45:00Z',
-		},
-		{
-			_id: '4',
-			productName: 'Kindle Paperwhite 2024',
-			productPrice: 150000,
-			productImages: ['/img/products/kindle1.jpg'],
-			productLocation: 'Hongdae, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 678,
-			productLikes: 123,
-			createdAt: '2024-12-27T10:20:00Z',
-		},
-		{
-			_id: '5',
-			productName: 'Dyson V15 Vacuum Cleaner',
-			productPrice: 890000,
-			productImages: ['/img/products/vacuum1.jpg'],
-			productLocation: 'Jamsil, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 345,
-			productLikes: 67,
-			createdAt: '2024-12-26T14:30:00Z',
-		},
-	];
+	const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+	const [total, setTotal] = useState<number>(0);
+	const [searchHistory, setSearchHistory] = useState<T>({ page: 1, limit: 8 });
 
-	const [recentlyViewed, setRecentlyViewed] = useState<Product[]>(mockRecentlyViewed);
-	const [total, setTotal] = useState<number>(mockRecentlyViewed.length);
+	/** APOLLO REQUESTS **/
+	const {
+		loading: getVisitedLoading,
+		data: getVisitedData,
+		error: getVisitedError,
+		refetch: getVisitedRefetch,
+	} = useQuery(GET_VISITED, {
+		fetchPolicy: 'network-only',
+		variables: {
+			input: searchHistory,
+		},
+		notifyOnNetworkStatusChange: true,
+		skip: !user?._id,
+		onCompleted: (data: T) => {
+			console.log('Recently Viewed Data:', data);
+			setRecentlyViewed(data?.getVisited?.list || []);
+			setTotal(data?.getVisited?.metaCounter?.[0]?.total || 0);
+		},
+		onError: (error) => {
+			console.error('History Query Error:', error);
+			sweetMixinErrorAlert('Error loading history: ' + error.message);
+		},
+	});
 
+	/** LIFECYCLE */
 	useEffect(() => {
-		// Simulate pagination
-		const startIndex = (searchHistory.page - 1) * searchHistory.limit;
-		const endIndex = startIndex + searchHistory.limit;
-		setRecentlyViewed(mockRecentlyViewed.slice(startIndex, endIndex));
-	}, [searchHistory]);
+		if (user?._id) {
+			getVisitedRefetch({ input: searchHistory });
+		}
+	}, [searchHistory, user?._id]);
 
-	const paginationHandler = (e: any, value: number) => {
-		setSearchHistory({ ...searchHistory, page: value });
+	/** HANDLERS **/
+	const paginationHandler = (event: React.ChangeEvent<unknown>, value: number) => {
+		const newSearch = { ...searchHistory, page: value };
+		setSearchHistory(newSearch);
 	};
 
-	const handleClearHistory = () => {
+	const handleClearHistory = async () => {
+		// TODO: Backend mutation kerak - barcha ko'rilgan mahsulotlarni o'chirish
 		console.log('Clear all history');
-		// TODO: Implement clear all functionality
+		sweetMixinErrorAlert('Feature coming soon!');
 	};
 
-	const handleRemoveItem = (productId: string, e: React.MouseEvent) => {
+	const handleRemoveItem = async (productId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
+		// TODO: Backend mutation kerak - bitta ko'rilgan mahsulotni o'chirish
 		console.log('Remove from history:', productId);
-		// TODO: Implement remove functionality
+		sweetMixinErrorAlert('Feature coming soon!');
 	};
 
 	const handleProductClick = (productId: string) => {
-		router.push(`/product/${productId}`);
+		router.push({
+			pathname: '/product/detail',
+			query: { id: productId },
+		});
 	};
 
 	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat('ko-KR', {
+		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'KRW',
+			currency: 'USD',
 		}).format(price);
 	};
 
 	const formatDate = (date: string) => {
-		const now = new Date();
-		const viewDate = new Date(date);
-		const diffHours = Math.floor((now.getTime() - viewDate.getTime()) / (1000 * 60 * 60));
-		
-		if (diffHours < 1) return 'Just now';
-		if (diffHours < 24) return `${diffHours}h ago`;
-		const diffDays = Math.floor(diffHours / 24);
-		return `${diffDays}d ago`;
+		return moment(date).fromNow();
 	};
+
+	// Loading state
+	if (getVisitedLoading) {
+		return (
+			<Box className="saved-content-page">
+				<Stack sx={{ justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+						<Clock size={48} style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
+						<Typography>Loading your history...</Typography>
+					</Box>
+				</Stack>
+			</Box>
+		);
+	}
+
+	// Error or not authenticated
+	if (getVisitedError || !user?._id) {
+		return (
+			<Box className="saved-content-page">
+				<Stack sx={{ justifyContent: 'center', alignItems: 'center', height: '50vh', gap: 2 }}>
+					<Clock size={64} color="#667eea" />
+					<Typography variant="h5">
+						{getVisitedError ? 'An error occurred' : 'Please log in'}
+					</Typography>
+					<Typography color="text.secondary">
+						{getVisitedError?.message || 'Log in to view your browsing history'}
+					</Typography>
+					{!user?._id && (
+						<button
+							onClick={() => router.push('/login')}
+							style={{
+								padding: '10px 20px',
+								background: '#667eea',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								cursor: 'pointer',
+							}}
+						>
+							Login
+						</button>
+					)}
+				</Stack>
+			</Box>
+		);
+	}
 
 	if (device === 'mobile') {
 		return <div>RECENTLY VIEWED MOBILE</div>;
@@ -142,15 +154,12 @@ const History: NextPage = () => {
 					</Box>
 				</Box>
 				<Box className="header-right">
-					<Chip 
-						icon={<Clock size={16} />} 
-						label={`${total} Items`} 
-						className="total-chip" 
+					<Chip
+						icon={<Clock size={16} />}
+						label={`${total} Item${total !== 1 ? 's' : ''}`}
+						className="total-chip"
 					/>
-					<IconButton 
-						className="clear-btn"
-						onClick={handleClearHistory}
-					>
+					<IconButton className="clear-btn" onClick={handleClearHistory} title="Clear all history">
 						<RefreshCw size={18} />
 					</IconButton>
 				</Box>
@@ -165,6 +174,20 @@ const History: NextPage = () => {
 						</Box>
 						<h3>No Recent Views</h3>
 						<p>Products you view will appear here</p>
+						<button
+							onClick={() => router.push('/product')}
+							style={{
+								marginTop: '20px',
+								padding: '10px 20px',
+								background: '#667eea',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								cursor: 'pointer',
+							}}
+						>
+							Browse Products
+						</button>
 					</Box>
 				) : (
 					<>
@@ -178,10 +201,11 @@ const History: NextPage = () => {
 									key={product._id}
 									className="saved-item-card"
 									onClick={() => handleProductClick(product._id)}
+									style={{ cursor: 'pointer' }}
 								>
 									{/* Image */}
 									<Box className="item-image">
-										<img src={imagePath} alt={product.productName} />
+										<img src={imagePath} alt={product.productTitle} />
 										<Box className="time-badge">
 											<Clock size={12} />
 											<span>{formatDate(product.createdAt)}</span>
@@ -190,8 +214,8 @@ const History: NextPage = () => {
 
 									{/* Content */}
 									<Box className="item-content">
-										<h3 className="item-title">{product.productName}</h3>
-										
+										<h3 className="item-title">{product.productTitle}</h3>
+
 										{product.productLocation && (
 											<Box className="item-location">
 												<MapPin size={14} />
@@ -219,6 +243,7 @@ const History: NextPage = () => {
 												size="small"
 												className="remove-btn"
 												onClick={(e) => handleRemoveItem(product._id, e)}
+												title="Remove from history"
 											>
 												<Trash2 size={16} />
 											</IconButton>

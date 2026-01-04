@@ -1,14 +1,7 @@
 import React, { MouseEvent, useEffect, useState } from 'react';
 import { Stack, Box, Button, Avatar } from '@mui/material';
 import Link from 'next/link';
-import {
-	TrendingUp,
-	Flame,
-	Users,
-	Image as ImageIcon,
-	Video,
-	Smile,
-} from 'lucide-react';
+import { TrendingUp, Flame, Users, Image as ImageIcon, Video, Smile } from 'lucide-react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
@@ -31,7 +24,6 @@ const MainSection = ({ initialInput }: any) => {
 
 	/** STATES **/
 	const [posts, setPosts] = useState<Post[]>([]);
-	const [searchCommunity, setSearchCommunity] = useState<PostsInquiry>(initialInput);
 	const [searchFilter, setSearchFilter] = useState<PostsInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
 	);
@@ -39,7 +31,7 @@ const MainSection = ({ initialInput }: any) => {
 	const postCategory = query?.postCategory as string;
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [activeTab, setActiveTab] = useState('all');
-	const [commentModalOpen, setCommentModalOpen] = useState(false); 
+	const [commentModalOpen, setCommentModalOpen] = useState(false);
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
 
@@ -57,8 +49,8 @@ const MainSection = ({ initialInput }: any) => {
 		error: getPostsError,
 		refetch: getPostsRefetch,
 	} = useQuery(GET_POSTS, {
-		fetchPolicy: 'cache-and-network', 
-		variables: { input: searchCommunity },
+		fetchPolicy: 'network-only',
+		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			setPosts(data?.getPosts?.list || []);
@@ -71,7 +63,12 @@ const MainSection = ({ initialInput }: any) => {
 			const inputObj = JSON.parse(router?.query?.input as string);
 			setSearchFilter(inputObj);
 		}
-	}, [router]);
+		setCurrentPage(searchFilter?.page ?? 1);
+	}, [router, searchFilter]);
+
+	useEffect(() => {
+		getPostsRefetch({ input: searchFilter });
+	}, [searchFilter]);
 
 	useEffect(() => {
 		setCurrentPage(searchFilter?.page ?? 1);
@@ -88,12 +85,7 @@ const MainSection = ({ initialInput }: any) => {
 		try {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-			
-			await likeTargetPost({
-				variables: { postId: id }, 
-			});
-			
-			await getPostsRefetch({ input: searchCommunity });
+			await getPostsRefetch({ input: searchFilter });
 		} catch (err: any) {
 			console.log('ERROR, likePostHandler:', err.message);
 		}
@@ -103,19 +95,19 @@ const MainSection = ({ initialInput }: any) => {
 		try {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-			
+
 			await saveTargetPost({
-				variables: { postId: id }, 
+				variables: { postId: id },
 			});
-			
-			await getPostsRefetch({ input: searchCommunity });
+
+			await getPostsRefetch({ input: searchFilter });
 		} catch (err: any) {
 			console.log('ERROR, savePostHandler:', err.message);
 		}
 	};
 
 	const handleCommentClick = (post: Post) => {
-		console.log('Comment clicked for post:', post._id); 
+		console.log('Comment clicked for post:', post._id);
 		setSelectedPost(post);
 		setCommentModalOpen(true);
 	};
@@ -136,30 +128,30 @@ const MainSection = ({ initialInput }: any) => {
 
 	const handleTabChange = (tab: string) => {
 		setActiveTab(tab);
-		
-		const baseSearch = { ...searchCommunity };
-		
+
+		const baseSearch = { ...searchFilter };
+
 		switch (tab) {
 			case 'all':
-				setSearchCommunity({ 
-					...baseSearch, 
-					sort: 'createdAt', 
-					direction: Direction.DESC 
+				setSearchFilter({
+					...baseSearch,
+					sort: 'createdAt',
+					direction: Direction.DESC,
 				});
 				break;
 			case 'following':
 				console.log('Following tab - coming soon');
-				setSearchCommunity({ 
-					...baseSearch, 
-					sort: 'createdAt', 
-					direction: Direction.DESC 
+				setSearchFilter({
+					...baseSearch,
+					sort: 'createdAt',
+					direction: Direction.DESC,
 				});
 				break;
 			case 'popular':
-				setSearchCommunity({ 
-					...baseSearch, 
-					sort: 'postLikes', 
-					direction: Direction.DESC 
+				setSearchFilter({
+					...baseSearch,
+					sort: 'postLikes',
+					direction: Direction.DESC,
 				});
 				break;
 		}
@@ -173,12 +165,7 @@ const MainSection = ({ initialInput }: any) => {
 			<Box className="center-feed">
 				{/* Create Post Box */}
 				<Box className="create-post-box">
-					<Avatar 
-						className="user-avatar" 
-						src={getUserImageSrc()} 
-						alt="user profile" 
-						onError={handleImageError} 
-					/>
+					<Avatar className="user-avatar" src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
 					<Link href="/create/writePost" style={{ textDecoration: 'none', flex: 1 }}>
 						<Box className="create-input">
 							<span>What's on your mind?</span>
@@ -201,10 +188,7 @@ const MainSection = ({ initialInput }: any) => {
 
 				{/* Feed Tabs */}
 				<Box className="feed-tabs">
-					<Button
-						className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
-						onClick={() => handleTabChange('all')}
-					>
+					<Button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabChange('all')}>
 						<TrendingUp size={18} />
 						For You
 					</Button>
@@ -254,7 +238,7 @@ const MainSection = ({ initialInput }: any) => {
 				open={commentModalOpen}
 				onClose={() => setCommentModalOpen(false)}
 				post={selectedPost}
-				onCommentAdded={() => getPostsRefetch({ input: searchCommunity })}
+				onCommentAdded={() => getPostsRefetch({ input: searchFilter })}
 			/>
 		</Stack>
 	);
