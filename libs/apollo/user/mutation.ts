@@ -162,7 +162,6 @@ export const UPDATE_PRODUCT = gql`
 			productImages
 			productDesc
 			productBarter
-			productRent
 			memberId
 			soldAt
 			deletedAt
@@ -181,18 +180,23 @@ export const LIKE_TARGET_PRODUCT = gql`
 			productLocation
 			productAddress
 			productTitle
+			productDesc
 			productPrice
 			productViews
 			productLikes
 			productImages
-			productDesc
-			productBarter
-			productRent
+			productCondition
 			memberId
+			isSold
 			soldAt
 			deletedAt
 			createdAt
 			updatedAt
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
 		}
 	}
 `;
@@ -245,13 +249,18 @@ export const LIKE_TARGET_POST = gql`
 			postTitle
 			postContent
 			postImages
-			postSaves
 			postLikes
 			postComments
+			postSaves
 			memberId
 			createdAt
 			updatedAt
 			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
+			meSaved {
 				memberId
 				likeRefId
 				myFavorite
@@ -268,13 +277,13 @@ export const SAVE_TARGET_POST = gql`
 			postTitle
 			postContent
 			postImages
-			postSaves 
+			postSaves
 			postLikes
 			postComments
 			memberId
 			createdAt
 			updatedAt
-			meLiked { 
+			meLiked {
 				memberId
 				likeRefId
 				myFavorite

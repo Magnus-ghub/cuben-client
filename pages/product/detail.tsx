@@ -137,9 +137,9 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 	};
 
 	const sendMessageHandler = () => {
-		// Hard coding - message sending functionality
+		
 		if (!user._id) {
-			sweetMixinErrorAlert('Please login to send message').then();
+			sweetMixinErrorAlert(Message.LOGIN_FIRST).then();
 			return;
 		}
 		if (!contactName || !contactMessage) {
@@ -156,29 +156,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		setContactName('');
 		setContactMessage('');
 	};
-
-	// Hard coded helper functions
-	const getCategoryFromType = (type: string): string => {
-		const categoryMap: { [key: string]: string } = {
-			ELECTRONICS: 'Electronics',
-			FURNITURE: 'Furniture',
-			BOOKS: 'Books',
-			CLOTHING: 'Clothing',
-			SPORTS: 'Sports',
-			OTHER: 'Other',
-		};
-		return categoryMap[type] || type;
-	};
-
-	// const getBrandFromProduct = (product: Product | null): string => {
-	// 	// Hard coded - backend da brand yo'q
-	// 	if (!product) return 'N/A';
-	// 	if (product.productType === 'ELECTRONICS') return 'Apple';
-	// 	if (product.productType === 'FURNITURE') return 'IKEA';
-	// 	if (product.productType === 'BOOKS') return 'Penguin Books';
-	// 	if (product.productType === 'CLOTHING') return 'H&M';
-	// 	return 'Generic Brand';
-	// };
 
 	if (getProductLoading) {
 		return (
@@ -200,7 +177,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<Typography className="crumb">Marketplace</Typography>
 						</Link>
 						<Typography className="separator">/</Typography>
-						<Typography className="crumb">{getCategoryFromType(product?.productType || '')}</Typography>
+						<Typography className="crumb">{}</Typography>
 						<Typography className="separator">/</Typography>
 						<Typography className="crumb active">{product?.productTitle}</Typography>
 					</Stack>
@@ -250,7 +227,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Stack className="details-grid">
 									<Stack className="detail-row">
 										<Typography className="detail-label">Category</Typography>
-										<Typography className="detail-value">{getCategoryFromType(product?.productType || '')}</Typography>
+										<Typography className="detail-value">{}</Typography>
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Condition</Typography>
@@ -290,18 +267,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									</Stack>
 								</Stack>
 							</Stack>
-
-							{/* Report Section - Hard coded */}
-							{product?.productPrice && product.productPrice > 0 && (
-								<Stack className="report-section">
-									<Typography className="section-title">Safety Notice</Typography>
-									<Stack className="report-card">
-										<Typography className="report-text">
-											This item has {}. Please exercise caution.
-										</Typography>
-									</Stack>
-								</Stack>
-							)}
 						</Stack>
 
 						{/* RIGHT COLUMN (SIDEBAR) */}
@@ -310,7 +275,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<Stack className="product-header">
 								<Typography className="product-title">{product?.productTitle}</Typography>
 								<Stack className="product-meta">
-									<Chip label={getCategoryFromType(product?.productType || '').toUpperCase()} className="category-chip" />
+									<Chip label='' className="category-chip" />
 									<Typography className="post-date">Posted {moment(product?.createdAt).fromNow()}</Typography>
 								</Stack>
 							</Stack>

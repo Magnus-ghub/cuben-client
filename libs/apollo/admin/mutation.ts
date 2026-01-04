@@ -74,7 +74,6 @@ export const REMOVE_PRODUCT_BY_ADMIN = gql`
 			productLikes
 			productImages
 			productDesc
-			productRent
 			memberId
 			soldAt
 			deletedAt

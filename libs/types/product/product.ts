@@ -13,14 +13,11 @@ export interface Product {
 	productStatus: ProductStatus;
 	productCondition: ProductCondition;
 	productLocation: ProductLocation;
-	productName: string;
-	productAddress: string;
 	productTitle: string;
+	productAddress?: string;
 	productPrice: number;
 	productViews: number;
 	productLikes: number;
-	productComments: number;
-	productRank: number;
 	productImages: string[];
 	productDesc?: string;
 	memberId: string;

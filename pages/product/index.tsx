@@ -276,7 +276,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 MarketplaceList.defaultProps = {
 	initialInput: {
 		page: 1,
-		limit: 8,
+		limit: 6,
 		sort: 'createdAt',
 		direction: 'DESC',
 		search: {

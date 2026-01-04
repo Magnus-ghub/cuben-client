@@ -1,6 +1,7 @@
 export enum Message {
 	SOMETHING_WENT_WRONG = 'Something went wrong!',
 	NO_DATA_FOUND = 'No data found!',
+	LOGIN_FIRST = 'Please Login First!',
 	CREATE_FAILED = 'Create failed!',
 	UPDATE_FAILED = 'Update failed!',
 	REMOVE_FAILED = 'Remove failed!',

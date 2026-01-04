@@ -5,16 +5,11 @@ import { ProductLocation, ProductStatus, ProductType } from "../../enums/product
 export interface ProductInput {
 	productType: ProductType;
 	productLocation: ProductLocation;
-	productAddress: string;
+	productAddress?: string;
 	productTitle: string;
 	productPrice: number;
-	productSquare: number;
-	productBeds: number;
-	productRooms: number;
 	productImages: string[];
 	productDesc?: string;
-	productBarter?: boolean;
-	productRent?: boolean;
 	memberId?: string;
 	createdAt?: Date;
 }

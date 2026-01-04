@@ -10,8 +10,6 @@ export interface ProductUpdate {
 	productPrice?: number;
 	productImages?: string[];
 	productDesc?: string;
-	productBarter?: boolean;
-	productRent?: boolean;
 	soldAt?: Date;
 	deletedAt?: Date;
 	createdAt?: Date;

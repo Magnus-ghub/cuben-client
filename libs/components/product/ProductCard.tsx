@@ -34,18 +34,6 @@ const ProductCard = (props: ProductTypeCard) => {
 		? `${REACT_APP_API_URL}/${product?.productImages[0]}`
 		: '/img/product/default-product.jpg';
 
-	// Hard coded data (backend da yo'q)
-	const getCategoryFromType = (type: string): string => {
-		const categoryMap: { [key: string]: string } = {
-			'ELECTRONICS': 'Electronics',
-			'FURNITURE': 'Furniture', 
-			'BOOKS': 'Books',
-			'CLOTHING': 'Clothing',
-			'SPORTS': 'Sports',
-			'OTHER': 'Other'
-		};
-		return categoryMap[type] || type;
-	};
 
 	if (device === 'mobile') {
 		return <div>Product card</div>;
@@ -66,7 +54,7 @@ const ProductCard = (props: ProductTypeCard) => {
 						{/* Badges */}
 						<Stack className="badge-container">
 							<Stack className="condition-badge">
-								<Typography component="p">{product?.productCondition}</Typography>
+								<Typography component="p">{product?.productCondition || 'N/A'}</Typography>
 							</Stack>
 						</Stack>
 					</div>
@@ -87,7 +75,7 @@ const ProductCard = (props: ProductTypeCard) => {
 						</Link>
 						<Stack className="category-badge">
 							<Typography component="p">
-								{getCategoryFromType(product?.productType)}
+								{product.productType}
 							</Typography>
 						</Stack>
 					</Stack>

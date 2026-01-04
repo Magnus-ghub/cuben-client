@@ -90,15 +90,10 @@ export const GET_PRODUCT = gql`
 			productAddress
 			productTitle
 			productPrice
-			productSquare
-			productBeds
-			productRooms
 			productViews
 			productLikes
 			productImages
 			productDesc
-			productBarter
-			productRent
 			memberId
 			soldAt
 			deletedAt
@@ -143,17 +138,10 @@ export const GET_PRODUCTS = gql`
 				productLocation
 				productAddress
 				productTitle
-				productPrice
-				productSquare
-				productBeds
-				productRooms
 				productViews
 				productLikes
-				productRank
 				productImages
 				productDesc
-				productBarter
-				productRent
 				memberId
 				soldAt
 				deletedAt
@@ -205,15 +193,10 @@ export const GET_AGENT_PRODUCTS = gql`
 				productAddress
 				productTitle
 				productPrice
-				productSquare
-				productBeds
-				productRooms
 				productViews
 				productLikes
 				productImages
 				productDesc
-				productBarter
-				productRent
 				memberId
 				soldAt
 				deletedAt
@@ -237,18 +220,23 @@ export const GET_FAVORITES = gql`
 				productLocation
 				productAddress
 				productTitle
+				productDesc
 				productPrice
 				productViews
 				productLikes
-				productComments
-				productRank
 				productImages
-				productDesc
+				productCondition
 				memberId
+				isSold
 				soldAt
 				deletedAt
 				createdAt
 				updatedAt
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
 				memberData {
 					_id
 					memberType
@@ -261,23 +249,22 @@ export const GET_FAVORITES = gql`
 					memberAddress
 					memberDesc
 					memberProducts
+					memberPosts
 					memberArticles
+					memberFollowers
+					memberFollowings
 					memberPoints
 					memberLikes
 					memberViews
 					memberComments
-					memberFollowings
-					memberFollowers
 					memberRank
 					memberWarnings
 					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
+					accessToken
 				}
-			}
-			metaCounter {
-				total
 			}
 		}
 	}
@@ -293,18 +280,23 @@ export const GET_VISITED = gql`
 				productLocation
 				productAddress
 				productTitle
+				productDesc
 				productPrice
 				productViews
 				productLikes
-				productComments
-				productRank
 				productImages
-				productDesc
+				productCondition
 				memberId
+				isSold
 				soldAt
 				deletedAt
 				createdAt
 				updatedAt
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
 				memberData {
 					_id
 					memberType
@@ -317,19 +309,21 @@ export const GET_VISITED = gql`
 					memberAddress
 					memberDesc
 					memberProducts
+					memberPosts
 					memberArticles
+					memberFollowers
+					memberFollowings
 					memberPoints
 					memberLikes
 					memberViews
 					memberComments
-					memberFollowings
-					memberFollowers
 					memberRank
 					memberWarnings
 					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
+					accessToken
 				}
 			}
 			metaCounter {
@@ -387,7 +381,7 @@ export const GET_POST = gql`
 			meSaved {
 				memberId
 				likeRefId
-				myFavorite  
+				myFavorite
 			}
 		}
 	}
@@ -416,7 +410,7 @@ export const GET_POSTS = gql`
 				meSaved {
 					memberId
 					likeRefId
-					myFavorite  
+					myFavorite
 				}
 				memberData {
 					_id

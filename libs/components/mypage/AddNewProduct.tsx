@@ -251,19 +251,6 @@ const AddProduct = ({ initialValues, ...props }: any) => {
 									</select>
 								</Stack>
 
-								<Stack className="form-group">
-									<Typography className="form-label">Available for Rent</Typography>
-									<select
-										className="form-select"
-										value={insertProductData.productRent ? 'yes' : 'no'}
-										onChange={({ target: { value } }) =>
-											setInsertProductData({ ...insertProductData, productRent: value === 'yes' })
-										}
-									>
-										<option value="no">No</option>
-										<option value="yes">Yes</option>
-									</select>
-								</Stack>
 							</Stack>
 						</Stack>
 					</Stack>
@@ -449,11 +436,6 @@ AddProduct.defaultProps = {
 		productType: '',
 		productLocation: '',
 		productAddress: '',
-		productBarter: false,
-		productRent: false,
-		productRooms: 0,
-		productBeds: 0,
-		productSquare: 0,
 		productDesc: '',
 		productImages: [],
 	},
