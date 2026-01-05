@@ -1,6 +1,6 @@
 import { CommentGroup, CommentStatus } from '../../enums/comment.enum';
+import { TotalCounter } from '../common';
 import { Member } from '../member/member';
-import { MeLiked, TotalCounter } from '../product/product';
 
 export interface Comment {
 	_id: string;
@@ -12,11 +12,10 @@ export interface Comment {
 	createdAt: Date;
 	updatedAt: Date;
 	/** from aggregation **/
-	meLiked?: MeLiked[];
-	memberData?: Member;
+	memberData?: Member; 
 }
 
 export interface Comments {
 	list: Comment[];
-	metaCounter: TotalCounter[];
+	metaCounter: TotalCounter[]; 
 }

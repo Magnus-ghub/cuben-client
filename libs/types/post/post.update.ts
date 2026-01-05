@@ -6,4 +6,6 @@ export interface PostUpdate {
 	postTitle?: string;
 	postContent?: string;
 	postImages?: string[];
+	blockedAt?: Date; 
+	deletedAt?: Date; 
 }

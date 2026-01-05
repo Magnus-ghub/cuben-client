@@ -14,7 +14,7 @@ export interface LoginInput {
 	memberPassword: string;
 }
 
-interface AISearch {
+interface AgentSearch { 
 	text?: string;
 }
 
@@ -23,13 +23,13 @@ export interface AgentsInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: AISearch;
+	search: AgentSearch; 
 }
 
-interface MISearch {
+interface MemberSearch { 
 	memberStatus?: MemberStatus;
 	memberType?: MemberType;
-	text?: string;
+	text?: string; 
 }
 
 export interface MembersInquiry {
@@ -37,5 +37,5 @@ export interface MembersInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: MISearch;
+	search?: MemberSearch; 
 }

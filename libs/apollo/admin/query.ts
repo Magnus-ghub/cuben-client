@@ -30,6 +30,10 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 				createdAt
 				updatedAt
 				accessToken
+				meLiked {
+					liked
+					saved
+				}
 			}
 			metaCounter {
 				total
@@ -62,6 +66,10 @@ export const GET_ALL_PRODUCTS_BY_ADMIN = gql`
 				deletedAt
 				createdAt
 				updatedAt
+				meLiked {
+					liked
+					saved
+				}
 				memberData {
 					_id
 					memberType
@@ -106,12 +114,16 @@ export const GET_ALL_POSTS_BY_ADMIN = gql`
 				postTitle
 				postContent
 				postImages
-			    postSaves
+				postSaves
 				postLikes
 				postComments
 				memberId
 				createdAt
 				updatedAt
+				meLiked {
+					liked
+					saved
+				}
 				memberData {
 					_id
 					memberType
@@ -144,12 +156,12 @@ export const GET_ALL_POSTS_BY_ADMIN = gql`
 `;
 
 /**************************
- *      BOARD-ARTICLE     *
+ *         ARTICLE        *
  *************************/
 
-export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
-	query GetAllBoardArticlesByAdmin($input: AllBoardArticlesInquiry!) {
-		getAllBoardArticlesByAdmin(input: $input) {
+export const GET_ALL_ARTICLES_BY_ADMIN = gql`
+	query GetAllArticlesByAdmin($input: AllArticlesInquiry!) {
+		getAllArticlesByAdmin(input: $input) {
 			list {
 				_id
 				articleCategory
@@ -163,6 +175,10 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
 				memberId
 				createdAt
 				updatedAt
+				meLiked {
+					liked
+					saved
+				}
 				memberData {
 					_id
 					memberType

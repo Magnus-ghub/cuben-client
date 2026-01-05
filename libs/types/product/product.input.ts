@@ -1,6 +1,5 @@
 import { Direction } from "../../enums/common.enum";
-import { ProductLocation, ProductStatus, ProductType } from "../../enums/product.enum";
-
+import { ProductLocation, ProductStatus, ProductType, ProductCondition } from "../../enums/product.enum"; // Added ProductCondition
 
 export interface ProductInput {
 	productType: ProductType;
@@ -8,22 +7,20 @@ export interface ProductInput {
 	productAddress?: string;
 	productTitle: string;
 	productPrice: number;
-	productImages: string[];
+	productImages: string[]; 
 	productDesc?: string;
 	memberId?: string;
-	createdAt?: Date;
+	
 }
 
-interface PISearch {
+interface ProductSearch { 
 	memberId?: string;
 	locationList?: ProductLocation[];
 	typeList?: ProductType[];
-	
-	options?: string[];
-	
+	condition?: ProductCondition; 
+	options?: string[]; 
 	pricesRange?: Range;
 	periodsRange?: PeriodsRange;
-	
 	text?: string;
 }
 
@@ -32,10 +29,10 @@ export interface ProductsInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: PISearch;
+	search: ProductSearch; 
 }
 
-interface APISearch {
+interface AgentProductSearch { 
 	productStatus?: ProductStatus;
 }
 
@@ -44,10 +41,10 @@ export interface AgentProductsInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: APISearch;
+	search: AgentProductSearch; 
 }
 
-interface ALPISearch {
+interface AllProductSearch { 
 	productStatus?: ProductStatus;
 	productLocationList?: ProductLocation[];
 }
@@ -57,7 +54,7 @@ export interface AllProductsInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: ALPISearch;
+	search: AllProductSearch; 
 }
 
 interface Range {

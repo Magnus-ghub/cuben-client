@@ -4,12 +4,13 @@ import { PostStatus } from '../../enums/post.enum';
 export interface PostInput {
 	postTitle: string;
 	postContent: string;
-	postImages: string[];
+	postImages?: string[]; 
 	memberId?: string;
 }
 
-interface PISearch {
+interface PostSearch { 
 	text?: string;
+	memberId?: string; 
 }
 
 export interface PostsInquiry {
@@ -17,10 +18,10 @@ export interface PostsInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: PISearch;
+	search: PostSearch; 
 }
 
-interface POSISearch {
+interface AllPostSearch { 
 	postStatus?: PostStatus;
 }
 
@@ -29,5 +30,5 @@ export interface AllPostsInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: POSISearch;
+	search: AllPostSearch; 
 }

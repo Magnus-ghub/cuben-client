@@ -13,7 +13,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import Moment from 'react-moment';
 import { useReactiveVar } from '@apollo/client';
-import { BoardArticle } from '../../libs/types/board-article/board-article';
+import { BoardArticle } from '../../libs/types/article/article';
 import { userVar } from '../../libs/apollo/store';
 
 interface OpportunityCardProps {

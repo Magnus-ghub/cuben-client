@@ -5,10 +5,9 @@ export interface CommentInput {
 	commentGroup: CommentGroup;
 	commentContent: string;
 	commentRefId: string;
-	memberId?: string;
 }
 
-interface CISearch {
+interface CommentSearch { 
 	commentRefId: string;
 }
 
@@ -17,5 +16,5 @@ export interface CommentsInquiry {
 	limit: number;
 	sort?: string;
 	direction?: Direction;
-	search: CISearch;
+	search: CommentSearch; 
 }

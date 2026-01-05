@@ -17,10 +17,10 @@ import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
 import Moment from 'react-moment';
-import { BoardArticle } from '../../../types/board-article/board-article';
+import { BoardArticle } from '../../../types/article/article';
 import { REACT_APP_API_URL } from '../../../config';
 import Typography from '@mui/material/Typography';
-import { BoardArticleStatus } from '../../../enums/board-article.enum';
+import { BoardArticleStatus } from '../../../enums/article.enum';
 
 interface Data {
 	category: string;

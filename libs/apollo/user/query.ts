@@ -29,9 +29,30 @@ export const GET_AGENTS = gql`
 				createdAt
 				updatedAt
 				meLiked {
-					memberId
-					likeRefId
-					myFavorite
+					liked
+					saved
+				}
+				memberData {
+					_id
+					memberType
+					memberStatus
+					memberAuthType
+					memberPhone
+					memberNick
+					memberFullName
+					memberImage
+					memberAddress
+					memberDesc
+					memberWarnings
+					memberBlocks
+					memberProducts
+					memberRank
+					memberPoints
+					memberLikes
+					memberViews
+					deletedAt
+					createdAt
+					updatedAt
 				}
 			}
 			metaCounter {
@@ -72,6 +93,10 @@ export const GET_MEMBER = gql`
 				followerId
 				myFollowing
 			}
+			meLiked {
+				liked
+				saved
+			}
 		}
 	}
 `;
@@ -99,6 +124,10 @@ export const GET_PRODUCT = gql`
 			deletedAt
 			createdAt
 			updatedAt
+			meLiked {
+				liked
+				saved
+			}
 			memberData {
 				_id
 				memberType
@@ -112,17 +141,14 @@ export const GET_PRODUCT = gql`
 				memberDesc
 				memberWarnings
 				memberBlocks
+				memberProducts
+				memberRank
 				memberPoints
 				memberLikes
 				memberViews
 				deletedAt
 				createdAt
 				updatedAt
-			}
-			meLiked {
-				memberId
-				likeRefId
-				myFavorite
 			}
 		}
 	}
@@ -147,6 +173,10 @@ export const GET_PRODUCTS = gql`
 				deletedAt
 				createdAt
 				updatedAt
+				meLiked {
+					liked
+					saved
+				}
 				memberData {
 					_id
 					memberType
@@ -168,11 +198,6 @@ export const GET_PRODUCTS = gql`
 					deletedAt
 					createdAt
 					updatedAt
-				}
-				meLiked {
-					memberId
-					likeRefId
-					myFavorite
 				}
 			}
 			metaCounter {
@@ -233,9 +258,8 @@ export const GET_FAVORITES = gql`
 				createdAt
 				updatedAt
 				meLiked {
-					memberId
-					likeRefId
-					myFavorite
+					liked
+					saved
 				}
 				memberData {
 					_id
@@ -266,6 +290,9 @@ export const GET_FAVORITES = gql`
 					accessToken
 				}
 			}
+			metaCounter {
+				total
+			}
 		}
 	}
 `;
@@ -293,9 +320,8 @@ export const GET_VISITED = gql`
 				createdAt
 				updatedAt
 				meLiked {
-					memberId
-					likeRefId
-					myFavorite
+					liked
+					saved
 				}
 				memberData {
 					_id
@@ -345,12 +371,16 @@ export const GET_POST = gql`
 			postTitle
 			postContent
 			postImages
-			postSaves
 			postLikes
 			postComments
+			postSaves
 			memberId
 			createdAt
 			updatedAt
+			meLiked {
+				liked
+				saved
+			}
 			memberData {
 				_id
 				memberType
@@ -373,16 +403,6 @@ export const GET_POST = gql`
 				createdAt
 				updatedAt
 			}
-			meLiked {
-				memberId
-				likeRefId
-				myFavorite
-			}
-			meSaved {
-				memberId
-				likeRefId
-				myFavorite
-			}
 		}
 	}
 `;
@@ -396,21 +416,15 @@ export const GET_POSTS = gql`
 				postTitle
 				postContent
 				postImages
-				postSaves
 				postLikes
 				postComments
+				postSaves
 				memberId
 				createdAt
 				updatedAt
 				meLiked {
-					memberId
-					likeRefId
-					myFavorite
-				}
-				meSaved {
-					memberId
-					likeRefId
-					myFavorite
+					liked
+					saved
 				}
 				memberData {
 					_id
@@ -443,12 +457,12 @@ export const GET_POSTS = gql`
 `;
 
 /**************************
- *      BOARD-ARTICLE     *
+ *         ARTICLE        *
  *************************/
 
-export const GET_BOARD_ARTICLE = gql`
-	query GetBoardArticle($input: String!) {
-		getBoardArticle(articleId: $input) {
+export const GET_ARTICLE = gql`
+	query GetArticle($input: String!) {
+		getArticle(articleId: $input) {
 			_id
 			articleCategory
 			articleStatus
@@ -461,6 +475,10 @@ export const GET_BOARD_ARTICLE = gql`
 			memberId
 			createdAt
 			updatedAt
+			meLiked {
+				liked
+				saved
+			}
 			memberData {
 				_id
 				memberType
@@ -483,18 +501,13 @@ export const GET_BOARD_ARTICLE = gql`
 				createdAt
 				updatedAt
 			}
-			meLiked {
-				memberId
-				likeRefId
-				myFavorite
-			}
 		}
 	}
 `;
 
-export const GET_BOARD_ARTICLES = gql`
-	query GetBoardArticles($input: BoardArticlesInquiry!) {
-		getBoardArticles(input: $input) {
+export const GET_ARTICLES = gql`
+	query GetArticles($input: ArticlesInquiry!) {
+		getArticles(input: $input) {
 			list {
 				_id
 				articleCategory
@@ -509,9 +522,8 @@ export const GET_BOARD_ARTICLES = gql`
 				createdAt
 				updatedAt
 				meLiked {
-					memberId
-					likeRefId
-					myFavorite
+					liked
+					saved
 				}
 				memberData {
 					_id
@@ -603,9 +615,8 @@ export const GET_MEMBER_FOLLOWERS = gql`
 				createdAt
 				updatedAt
 				meLiked {
-					memberId
-					likeRefId
-					myFavorite
+					liked
+					saved
 				}
 				meFollowed {
 					followingId
@@ -682,9 +693,8 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 					updatedAt
 				}
 				meLiked {
-					memberId
-					likeRefId
-					myFavorite
+					liked
+					saved
 				}
 				meFollowed {
 					followingId

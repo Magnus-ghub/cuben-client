@@ -4,8 +4,8 @@ import { Pagination, Stack, Box, Chip, IconButton } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { T } from '../../types/common';
-import { BoardArticle } from '../../types/board-article/board-article';
-import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
+import { BoardArticle } from '../../types/article/article';
+import { BoardArticlesInquiry } from '../../types/article/article.input';
 import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
 

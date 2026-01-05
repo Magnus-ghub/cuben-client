@@ -1,7 +1,7 @@
-import { LikeGroup } from '../../enums/like.enum';
+import { LikeTarget, LikeAction } from '../../enums/like.enum';
 
 export interface LikeInput {
-	memberId: string;
-	likeRefId: string;
-	likeGroup: LikeGroup;
+	refId: string; 
+	targetType: LikeTarget; 
+	action: LikeAction; 
 }

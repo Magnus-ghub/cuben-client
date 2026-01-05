@@ -1,4 +1,4 @@
-export enum BoardArticleCategory {
+export enum ArticleCategory {
 	COMMUNITY = 'COMMUNITY', 
 	MARKET = 'MARKET', 
 	CAREER = 'CAREER', 
@@ -7,7 +7,7 @@ export enum BoardArticleCategory {
 	HELP = 'HELP',
 }
 
-export enum BoardArticleStatus {
+export enum ArticleStatus {
 	ACTIVE = 'ACTIVE',
 	DELETE = 'DELETE',
 }

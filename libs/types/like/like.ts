@@ -1,16 +1,16 @@
-import { LikeGroup } from '../../enums/like.enum';
+import { LikeTarget, LikeAction } from '../../enums/like.enum';
 
 export interface Like {
 	_id: string;
-	likeGroup: LikeGroup;
-	likeRefId: string;
+	targetType: LikeTarget; 
+	action: LikeAction; 
+	refId: string; 
 	memberId: string;
 	createdAt: Date;
 	updatedAt: Date;
 }
 
 export interface MeLiked {
-	memberId: string;
-	likeRefId: string;
-	myFavorite: boolean;
+	liked: boolean; 
+	saved: boolean; 
 }
