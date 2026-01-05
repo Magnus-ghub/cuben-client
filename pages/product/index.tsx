@@ -11,7 +11,7 @@ import { ProductsInquiry } from '../../libs/types/product/product.input';
 import { useRouter } from 'next/router';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { LIKE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
+import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation'; // Added SAVE_TARGET_PRODUCT
 import { useMutation, useQuery } from '@apollo/client';
 import { Product } from '../../libs/types/product/product';
 import { GET_PRODUCTS } from '../../libs/apollo/user/query';
@@ -40,6 +40,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
+	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT); // Added for save
 
 	const {
 		loading: getProductsLoading,
@@ -51,8 +52,8 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setProducts(data?.getProducts?.list);
-			setTotal(data?.getProducts?.metaCounter[0]?.total ?? 0);
+			setProducts(data?.getProducts?.list || []);
+			setTotal(data?.getProducts?.metaCounter?.total ?? 0); // Fix: Single metaCounter.total (not [0])
 		},
 	});
 
@@ -84,6 +85,24 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			console.log('ERROR, likeProductHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
+	// Added save handler
+	const saveProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			await saveTargetProduct({
+				variables: { productId: id },
+			});
+
+			await getProductsRefetch({ input: searchFilter });
+			await sweetTopSmallSuccessAlert('Saved successfully!', 800);
+		} catch (err: any) {
+			console.log('ERROR, saveProductHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
@@ -233,12 +252,17 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 							<Stack className="products-grid">
 								{products.length === 0 ? (
 									<Stack className="no-data">
-										<img src="/img/icons/icoAlert.svg" alt=""/>
+										<img src="/img/icons/icoAlert.svg" alt="" />
 										<Typography>No Products found!</Typography>
 									</Stack>
 								) : (
 									products.map((product: Product) => (
-										<ProductCard product={product} likeProductHandler={likeProductHandler} key={product?._id} />
+										<ProductCard 
+											key={product?._id} 
+											product={product} 
+											likeProductHandler={likeProductHandler}
+											saveProductHandler={saveProductHandler} 
+										/>
 									))
 								)}
 							</Stack>

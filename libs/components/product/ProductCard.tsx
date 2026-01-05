@@ -16,24 +16,25 @@ import { userVar } from '../../apollo/store';
 interface ProductTypeCard {
 	product: Product;
 	likeProductHandler?: any;
+	saveProductHandler?: any; // Added for save functionality
 	myFavorites?: boolean;
 	recentlyVisited?: boolean;
 	savedItems?: boolean;
 }
 
 const ProductCard = (props: ProductTypeCard) => {
-	const { product, likeProductHandler, myFavorites, recentlyVisited, savedItems } = props;
+	const { product, likeProductHandler, saveProductHandler, myFavorites, recentlyVisited, savedItems } = props;
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
-	
-	// Save functionality - hozircha hard coding
-	const [isSaved, setIsSaved] = useState(false);
 	
 	// Product image path
 	const imagePath: string = product?.productImages[0]
 		? `${REACT_APP_API_URL}/${product?.productImages[0]}`
 		: '/img/product/default-product.jpg';
 
+	// Fix: Single object access for meLiked (no [0])
+	const isLiked = product.meLiked?.liked || false;
+	const isSaved = product.meLiked?.saved || false;
 
 	if (device === 'mobile') {
 		return <div>Product card</div>;
@@ -132,9 +133,7 @@ const ProductCard = (props: ProductTypeCard) => {
 							</Stack>
 							<Stack className="stat-item">
 								<FavoriteIcon
-									className={`stat-icon ${
-										(myFavorites || product?.meLiked?.[0]?.myFavorite) ? 'favorited' : ''
-									}`}
+									className={`stat-icon ${isLiked ? 'favorited' : ''}`} // Fix: Use isLiked
 								/>
 								<Typography className="stat-text">{product?.productLikes}</Typography>
 							</Stack>
@@ -145,19 +144,20 @@ const ProductCard = (props: ProductTypeCard) => {
 							<IconButton
 								className="action-btn"
 								onClick={() => likeProductHandler(user, product?._id)}
-								disabled={recentlyVisited}
+								disabled={recentlyVisited || !user?._id} // Added auth check
 							>
-								{myFavorites || product?.meLiked?.[0]?.myFavorite ? (
+								{isLiked ? (
 									<FavoriteIcon className="favorited" />
 								) : (
 									<FavoriteBorderIcon />
 								)}
 							</IconButton>
 
-							{/* Save Button - Hard coding */}
+							{/* Save Button */}
 							<IconButton
 								className="action-btn"
-								onClick={() => setIsSaved(!isSaved)}
+								onClick={() => saveProductHandler(user, product?._id)} // Use prop if available
+								disabled={!user?._id}
 							>
 								{isSaved ? (
 									<BookmarkIcon className="saved" />

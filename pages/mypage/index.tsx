@@ -3,18 +3,17 @@ import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import { Stack, Box, Avatar, Badge, Chip } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import { useMutation, useReactiveVar } from '@apollo/client';
-import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Messages } from '../../libs/config';
+import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
-import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../libs/apollo/user/mutation';
+import { SUBSCRIBE, UNSUBSCRIBE } from '../../libs/apollo/user/mutation';
+import { GET_MEMBER } from '../../libs/apollo/user/query'; 
 import MyProfile from '../../libs/components/mypage/MyProfile';
-import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import MyProducts from '../../libs/components/mypage/MyProducts';
-import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
-import MyArticles from '../../libs/components/mypage/MyArticles';
+import MyPosts from '../../libs/components/mypage/MyPosts';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
 import Link from 'next/link';
@@ -34,8 +33,8 @@ import {
 	Eye,
 	TrendingUp,
 	Activity,
-	Zap,
 } from 'lucide-react';
+import { T } from '../../libs/types/common';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -49,36 +48,55 @@ const MyPage: NextPage = () => {
 	const router = useRouter();
 	const category: any = router.query?.category ?? 'myProfile';
 	
-	// State for stats
+	// State for stats (from backend)
 	const [stats, setStats] = useState({
-		posts: 6, // mockArticles.length
-		listings: 8, // mockProducts.length
-		followers: 5, // mockFollowers.length
-		views: 1240,
-		engagement: 89,
+		posts: 0,
+		products: 0,
+		followers: 0,
+		views: 0,
+		likes: 0,
 	});
 
 	/** APOLLO REQUESTS **/
 	const [subscribe] = useMutation(SUBSCRIBE);
 	const [unsubscribe] = useMutation(UNSUBSCRIBE);
-	const [likeTargetMember] = useMutation(LIKE_TARGET_MEMBER);
+
+	const {
+		loading: getMemberLoading,
+		data: getMemberData,
+		error: getMemberError,
+		refetch: getMemberRefetch,
+	} = useQuery(GET_MEMBER, {
+		variables: { input: user?._id || '' },
+		fetchPolicy: 'cache-and-network',
+		skip: !user?._id,
+		onCompleted: (data: T) => {
+			const member = data?.getMember;
+			if (member) {
+				setStats({
+					posts: member.memberPosts || 0,
+					products: member.memberProducts || 0,
+					followers: member.memberFollowers || 0,
+					views: member.memberViews || 0,
+					likes: member.memberLikes || 0,
+				});
+			}
+		},
+		onError: (error) => {
+			sweetErrorHandling(error);
+		},
+	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (!user._id) router.push('/').then();
 	}, [user]);
 
-	// Fetch user statistics
 	useEffect(() => {
-		// Using mock data counts
-		setStats({
-			posts: 6, // Total mock articles
-			listings: 8, // Total mock products
-			followers: 5, // Total mock followers
-			views: 1240,
-			engagement: 89,
-		});
-	}, [user]);
+		if (user?._id) {
+			getMemberRefetch({ input: user._id });
+		}
+	}, [user?._id]);
 
 	/** HANDLERS **/
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
@@ -115,25 +133,6 @@ const MyPage: NextPage = () => {
 		}
 	};
 
-	const likeMemberHandler = async (id: string, refetch: any, query: any) => {
-		try {
-			if (!id) return;
-			if (!user?._id) throw new Error(Messages.error2);
-
-			await likeTargetMember({
-				variables: {
-					input: id,
-				},
-			});
-
-			await sweetTopSmallSuccessAlert('Success!', 800);
-			await refetch({ input: query });
-		} catch (err: any) {
-			console.log('ERROR, likeMemberHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
-
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
 			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
@@ -155,7 +154,7 @@ const MyPage: NextPage = () => {
 			id: 'myProducts',
 			label: 'Listings',
 			icon: <Package size={18} />,
-			count: stats.listings,
+			count: stats.products,
 		},
 		{
 			id: 'myArticles',
@@ -188,7 +187,7 @@ const MyPage: NextPage = () => {
 		},
 		{ 
 			label: 'Active Listings', 
-			value: stats.listings.toString(), 
+			value: stats.products.toString(), 
 			icon: <ShoppingBag size={22} />, 
 			color: '#10b981',
 			gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -202,7 +201,7 @@ const MyPage: NextPage = () => {
 		},
 		{ 
 			label: 'Engagement', 
-			value: `${stats.engagement}%`, 
+			value: `${stats.likes}%`, 
 			icon: <TrendingUp size={22} />, 
 			color: '#ec4899',
 			gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
@@ -236,7 +235,7 @@ const MyPage: NextPage = () => {
 								}
 							>
 								<Avatar 
-									src={user?.memberImage || '/img/profile/defaultUser.svg'} 
+									src={user?.memberImage ? `${REACT_APP_API_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'} 
 									className={'hero-avatar'} 
 								/>
 							</Badge>
@@ -259,7 +258,7 @@ const MyPage: NextPage = () => {
 								<Stack className={'contact-info'}>
 									<Box className={'contact-item'}>
 										<Mail size={16} />
-										<span>{user?.memberEmail || 'email@example.com'}</span>
+										<span>{user?.memberPhone || 'phone@example.com'}</span> {/* memberPhone instead of email */}
 									</Box>
 									<Box className={'contact-item'}>
 										<Phone size={16} />
@@ -334,7 +333,7 @@ const MyPage: NextPage = () => {
 				<Box className={'content-wrapper'}>
 					<Box className={'content-area'}>
 						{category === 'myProducts' && <MyProducts />}
-						{category === 'myArticles' && <MyArticles />}
+						{category === 'myArticles' && <MyPosts />}
 						{category === 'myProfile' && <MyProfile />}
 						{category === 'followers' && (
 							<MemberFollowers

@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Stack, Tab, Typography, Pagination, Chip, Box } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import { BoardArticle } from '../../libs/types/article/article';
 import { T } from '../../libs/types/common';
-import { BoardArticlesInquiry } from '../../libs/types/article/article.input';
-import { BoardArticleCategory } from '../../libs/enums/article.enum';
+import { ArticlesInquiry } from '../../libs/types/article/article.input';
+import { ArticleCategory } from '../../libs/enums/article.enum';
 import { useMutation, useQuery } from '@apollo/client';
 import { Messages } from '../../libs/config';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import { LIKE_TARGET_BOARD_ARTICLE } from '../../libs/apollo/user/mutation';
-import { GET_BOARD_ARTICLES } from '../../libs/apollo/user/query';
+import { LIKE_TARGET_ARTICLE } from '../../libs/apollo/user/mutation'; // Updated mutation
+import { GET_ARTICLES } from '../../libs/apollo/user/query'; // Updated query
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import EventIcon from '@mui/icons-material/Event';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
@@ -22,35 +20,39 @@ import PeopleIcon from '@mui/icons-material/People';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import OpportunityCard from './detail';
+import { NextPage } from 'next';
 
 const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const { query } = router;
-	const articleCategory = query?.articleCategory as string;
-	const [searchOpportunity, setSearchOpportunity] = useState<BoardArticlesInquiry>(initialInput);
-	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
+	const articleCategory = query?.articleCategory as ArticleCategory; // Updated enum
+	const [searchOpportunity, setSearchOpportunity] = useState<ArticlesInquiry>(initialInput); // Updated type
+	const [boardArticles, setBoardArticles] = useState<any[]>([]); // Article[]
 	const [totalCount, setTotalCount] = useState<number>(0);
 
 	if (articleCategory) initialInput.search.articleCategory = articleCategory;
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+	const [likeTargetArticle] = useMutation(LIKE_TARGET_ARTICLE); // Updated mutation
 
 	const {
 		loading: boardArticlesLoading,
 		data: boardArticlesData,
 		error: getBoardArticlesError,
 		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
+	} = useQuery(GET_ARTICLES, { // Updated query
 		fetchPolicy: 'cache-and-network',
 		variables: {
 			input: searchOpportunity,
 		},
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setBoardArticles(data?.getBoardArticles?.list);
-			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
+			setBoardArticles(data?.getArticles?.list || []); // Updated field
+			setTotalCount(data?.getArticles?.metaCounter?.total || 0); // Single total (no [0])
+		},
+		onError: (error) => {
+			sweetMixinErrorAlert('Error loading opportunities: ' + error.message);
 		},
 	});
 
@@ -60,7 +62,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 			router.push(
 				{
 					pathname: router.pathname,
-					query: { articleCategory: 'CAREER' },
+					query: { articleCategory: ArticleCategory.CAREER }, // Updated enum
 				},
 				router.pathname,
 				{ shallow: true },
@@ -68,11 +70,11 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 	}, []);
 
 	/** HANDLERS **/
-	const tabChangeHandler = async (e: T, value: string) => {
+	const tabChangeHandler = async (e: T, value: ArticleCategory) => { // Updated enum
 		setSearchOpportunity({
 			...searchOpportunity,
 			page: 1,
-			search: { articleCategory: value as BoardArticleCategory },
+			search: { articleCategory: value }, // Updated
 		});
 		await router.push(
 			{
@@ -94,9 +96,9 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 			if (!id) return;
 			if (!user._id) throw new Error(Messages.error2);
 
-			await likeTargetBoardArticle({
+			await likeTargetArticle({ // Updated mutation
 				variables: {
-					input: id,
+					articleId: id, // Updated arg
 				},
 			});
 
@@ -108,12 +110,12 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 		}
 	};
 
-	// Get category counts
-	const getCategoryCount = (category: string) => {
+	// Get category counts (mock or from backend)
+	const getCategoryCount = (category: ArticleCategory) => {
 		if (category === searchOpportunity.search.articleCategory) {
 			return totalCount;
 		}
-		return 0;
+		return 0; // TODO: Real counts from backend
 	};
 
 	if (device === 'mobile') {
@@ -186,70 +188,70 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 										onChange={tabChangeHandler}
 									>
 										<Tab
-											value={'CAREER'}
+											value={ArticleCategory.CAREER} // Updated enum
 											label={
 												<Stack className="tab-label-content">
 													<Stack className="tab-label-left">
 														<WorkOutlineIcon className="tab-icon" />
 														<Typography className="tab-text">Career & Jobs</Typography>
 													</Stack>
-													{searchOpportunity.search.articleCategory === 'CAREER' && (
-														<Chip label={totalCount} size="small" className="tab-badge" />
+													{searchOpportunity.search.articleCategory === ArticleCategory.CAREER && (
+														<Chip label={getCategoryCount(ArticleCategory.CAREER)} size="small" className="tab-badge" />
 													)}
 												</Stack>
 											}
 											className={`category-tab ${
-												searchOpportunity.search.articleCategory === 'CAREER' ? 'active' : ''
+												searchOpportunity.search.articleCategory === ArticleCategory.CAREER ? 'active' : ''
 											}`}
 										/>
 										<Tab
-											value={'EVENTS'}
+											value={ArticleCategory.EVENTS}
 											label={
 												<Stack className="tab-label-content">
 													<Stack className="tab-label-left">
 														<EventIcon className="tab-icon" />
 														<Typography className="tab-text">Campus Events</Typography>
 													</Stack>
-													{searchOpportunity.search.articleCategory === 'EVENTS' && (
-														<Chip label={totalCount} size="small" className="tab-badge" />
+													{searchOpportunity.search.articleCategory === ArticleCategory.EVENTS && (
+														<Chip label={getCategoryCount(ArticleCategory.EVENTS)} size="small" className="tab-badge" />
 													)}
 												</Stack>
 											}
 											className={`category-tab ${
-												searchOpportunity.search.articleCategory === 'EVENTS' ? 'active' : ''
+												searchOpportunity.search.articleCategory === ArticleCategory.EVENTS ? 'active' : ''
 											}`}
 										/>
 										<Tab
-											value={'KNOWLEDGE'}
+											value={ArticleCategory.KNOWLEDGE}
 											label={
 												<Stack className="tab-label-content">
 													<Stack className="tab-label-left">
 														<NewspaperIcon className="tab-icon" />
 														<Typography className="tab-text">University News</Typography>
 													</Stack>
-													{searchOpportunity.search.articleCategory === 'KNOWLEDGE' && (
-														<Chip label={totalCount} size="small" className="tab-badge" />
+													{searchOpportunity.search.articleCategory === ArticleCategory.KNOWLEDGE && (
+														<Chip label={getCategoryCount(ArticleCategory.KNOWLEDGE)} size="small" className="tab-badge" />
 													)}
 												</Stack>
 											}
 											className={`category-tab ${
-												searchOpportunity.search.articleCategory === 'KNOWLEDGE' ? 'active' : ''
+												searchOpportunity.search.articleCategory === ArticleCategory.KNOWLEDGE ? 'active' : ''
 											}`}
 										/>
 										<Tab
-											value={'HELP'}
+											value={ArticleCategory.HELP}
 											label={
 												<Stack className="tab-label-content">
 													<Stack className="tab-label-left">
 														<SchoolIcon className="tab-icon" />
 														<Typography className="tab-text">Resources</Typography>
 													</Stack>
-													{searchOpportunity.search.articleCategory === 'HELP' && (
-														<Chip label={totalCount} size="small" className="tab-badge" />
+													{searchOpportunity.search.articleCategory === ArticleCategory.HELP && (
+														<Chip label={getCategoryCount(ArticleCategory.HELP)} size="small" className="tab-badge" />
 													)}
 												</Stack>
 											}
-											className={`category-tab ${searchOpportunity.search.articleCategory === 'HELP' ? 'active' : ''}`}
+											className={`category-tab ${searchOpportunity.search.articleCategory === ArticleCategory.HELP ? 'active' : ''}`}
 										/>
 									</TabList>
 								</Stack>
@@ -282,10 +284,10 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 
 							{/* Right Content Area */}
 							<Stack className="content-area">
-								<TabPanel value="CAREER" className="tab-content">
+								<TabPanel value={ArticleCategory.CAREER} className="tab-content"> {/* Updated enum */}
 									<Stack className="opportunities-grid">
 										{totalCount ? (
-											boardArticles?.map((boardArticle: BoardArticle) => {
+											boardArticles?.map((boardArticle: any) => { // Article
 												return (
 													<OpportunityCard
 														boardArticle={boardArticle}
@@ -306,10 +308,10 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 									</Stack>
 								</TabPanel>
 
-								<TabPanel value="EVENTS" className="tab-content">
+								<TabPanel value={ArticleCategory.EVENTS} className="tab-content">
 									<Stack className="opportunities-grid">
 										{totalCount ? (
-											boardArticles?.map((boardArticle: BoardArticle) => {
+											boardArticles?.map((boardArticle: any) => {
 												return (
 													<OpportunityCard
 														boardArticle={boardArticle}
@@ -330,10 +332,10 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 									</Stack>
 								</TabPanel>
 
-								<TabPanel value="KNOWLEDGE" className="tab-content">
+								<TabPanel value={ArticleCategory.KNOWLEDGE} className="tab-content">
 									<Stack className="opportunities-grid">
 										{totalCount ? (
-											boardArticles?.map((boardArticle: BoardArticle) => {
+											boardArticles?.map((boardArticle: any) => {
 												return (
 													<OpportunityCard
 														boardArticle={boardArticle}
@@ -354,10 +356,10 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 									</Stack>
 								</TabPanel>
 
-								<TabPanel value="HELP" className="tab-content">
+								<TabPanel value={ArticleCategory.HELP} className="tab-content">
 									<Stack className="opportunities-grid">
 										{totalCount ? (
-											boardArticles?.map((boardArticle: BoardArticle) => {
+											boardArticles?.map((boardArticle: any) => {
 												return (
 													<OpportunityCard
 														boardArticle={boardArticle}
@@ -419,7 +421,7 @@ Opportunities.defaultProps = {
 		sort: 'createdAt',
 		direction: 'DESC',
 		search: {
-			articleCategory: 'CAREER',
+			articleCategory: ArticleCategory.CAREER, // Updated enum
 		},
 	},
 };

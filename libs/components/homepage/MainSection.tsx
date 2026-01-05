@@ -35,7 +35,7 @@ const MainSection = ({ initialInput }: any) => {
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
 
-	console.log('Modal state:', { commentModalOpen, selectedPost: selectedPost?._id }); // ✅ Debug log
+	console.log('Modal state:', { commentModalOpen, selectedPost: selectedPost?._id }); 
 
 	if (postCategory) initialInput.search.postCategory = postCategory;
 

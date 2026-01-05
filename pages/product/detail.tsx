@@ -19,7 +19,7 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../libs/apollo/store';
 import { Product } from '../../libs/types/product/product';
-import { LIKE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
+import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation'; // Added SAVE
 import { GET_PRODUCT, GET_PRODUCTS } from '../../libs/apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
@@ -47,12 +47,13 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const [product, setProduct] = useState<Product | null>(null);
 	const [slideImage, setSlideImage] = useState<string>('');
 	const [destinationProducts, setDestinationProducts] = useState<Product[]>([]);
-	const [isSaved, setIsSaved] = useState(false); // Hard coding - save functionality
+	const [isSaved, setIsSaved] = useState(false); // State for save toggle
 	const [contactName, setContactName] = useState<string>('');
 	const [contactMessage, setContactMessage] = useState<string>('');
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
+	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT); // Added for save
 
 	const {
 		loading: getProductLoading,
@@ -66,6 +67,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		onCompleted: (data: T) => {
 			if (data?.getProduct) setProduct(data?.getProduct);
 			if (data?.getProduct) setSlideImage(data?.getProduct?.productImages[0]);
+			if (data?.getProduct?.meLiked?.saved) setIsSaved(data.getProduct.meLiked.saved); // Fix: Single meLiked.saved
 		},
 	});
 
@@ -112,7 +114,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			await likeTargetProduct({
-				variables: { input: id },
+				variables: { productId: id }, // Fix: productId, not input
 			});
 
 			await getProductRefetch({ input: id });
@@ -136,8 +138,27 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		}
 	};
 
+	// Added save handler
+	const saveProductHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			await saveTargetProduct({
+				variables: { productId: id },
+			});
+
+			setIsSaved(!isSaved); // Toggle local state
+			await getProductRefetch({ input: id });
+
+			await sweetTopSmallSuccessAlert('Saved successfully!', 800);
+		} catch (err: any) {
+			console.log('ERROR, saveProductHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
 	const sendMessageHandler = () => {
-		
 		if (!user._id) {
 			sweetMixinErrorAlert(Message.LOGIN_FIRST).then();
 			return;
@@ -177,7 +198,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<Typography className="crumb">Marketplace</Typography>
 						</Link>
 						<Typography className="separator">/</Typography>
-						<Typography className="crumb">{}</Typography>
+						<Typography className="crumb">{product?.productLocation}</Typography>
 						<Typography className="separator">/</Typography>
 						<Typography className="crumb active">{product?.productTitle}</Typography>
 					</Stack>
@@ -227,7 +248,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Stack className="details-grid">
 									<Stack className="detail-row">
 										<Typography className="detail-label">Category</Typography>
-										<Typography className="detail-value">{}</Typography>
+										<Typography className="detail-value">{product?.productType}</Typography>
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Condition</Typography>
@@ -235,7 +256,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Brand</Typography>
-										<Typography className="detail-value"></Typography>
+										<Typography className="detail-value">N/A</Typography> {/* Hardcoded or from desc */}
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Status</Typography>
@@ -275,7 +296,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<Stack className="product-header">
 								<Typography className="product-title">{product?.productTitle}</Typography>
 								<Stack className="product-meta">
-									<Chip label='' className="category-chip" />
+									<Chip label={product?.productType} className="category-chip" />
 									<Typography className="post-date">Posted {moment(product?.createdAt).fromNow()}</Typography>
 								</Stack>
 							</Stack>
@@ -283,15 +304,16 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							{/* Price & Actions */}
 							<Stack className="price-section">
 								<Stack className="price-row">
+									<Typography className="product-price">₩{product?.productPrice?.toLocaleString()}</Typography>
 									<Stack className="action-icons">
 										<IconButton className="action-icon" onClick={() => likeProductHandler(user, product?._id!)}>
-											{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
+											{product?.meLiked?.liked ? (
 												<FavoriteIcon className="favorited" />
 											) : (
 												<FavoriteBorderIcon />
 											)}
 										</IconButton>
-										<IconButton className="action-icon" onClick={() => setIsSaved(!isSaved)}>
+										<IconButton className="action-icon" onClick={() => saveProductHandler(user, product?._id!)}>
 											{isSaved ? <BookmarkIcon style={{ color: '#667eea' }} /> : <BookmarkBorderIcon />}
 										</IconButton>
 									</Stack>
@@ -413,7 +435,12 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									{destinationProducts.map((product: Product) => {
 										return (
 											<SwiperSlide className="similar-products-slide" key={product?._id}>
-												<ProductBigCard product={product} likeProductHandler={likeProductHandler} key={product?._id} />
+												<ProductBigCard 
+													product={product} 
+													likeProductHandler={likeProductHandler}
+													saveProductHandler={saveProductHandler} // Added prop
+													key={product?._id} 
+												/>
 											</SwiperSlide>
 										);
 									})}

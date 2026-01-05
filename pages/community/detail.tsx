@@ -13,11 +13,12 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import Moment from 'react-moment';
 import { useReactiveVar } from '@apollo/client';
-import { BoardArticle } from '../../libs/types/article/article';
+import { Article } from '../../libs/types/article/article'; // Updated type
 import { userVar } from '../../libs/apollo/store';
+import { ArticleCategory } from '../../libs/enums/article.enum';
 
 interface OpportunityCardProps {
-	boardArticle: BoardArticle;
+	boardArticle: Article; // Updated type
 	likeArticleHandler: (e: any, user: any, id: string) => void;
 }
 
@@ -39,36 +40,36 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 
 	const getCategoryStyles = (category: string) => {
 		const styles: any = {
-			CAREER: {
+			[ArticleCategory.CAREER]: { // Updated enum
 				bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
 				color: '#f59e0b',
 				icon: '💼',
 				label: 'Career',
 			},
-			EVENTS: {
+			[ArticleCategory.EVENTS]: {
 				bg: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
 				color: '#ec4899',
 				icon: '🎉',
 				label: 'Event',
 			},
-			KNOWLEDGE: {
+			[ArticleCategory.KNOWLEDGE]: {
 				bg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 				color: '#3b82f6',
 				icon: '📰',
 				label: 'News',
 			},
-			HELP: {
+			[ArticleCategory.HELP]: {
 				bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
 				color: '#8b5cf6',
 				icon: '📚',
 				label: 'Resource',
 			},
 		};
-		return styles[category] || styles.CAREER;
+		return styles[category] || styles[ArticleCategory.CAREER];
 	};
 
 	const categoryStyle = getCategoryStyles(boardArticle?.articleCategory);
-	const isLiked = boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite;
+	const isLiked = boardArticle?.meLiked?.liked || false; // Fix: Single object (no [0])
 
 	// Strip HTML tags and get excerpt
 	const getExcerpt = (html: string, length: number = 150) => {
@@ -83,7 +84,7 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 				{boardArticle?.articleImage ? (
 					<>
 						<img
-							src={`${process.env.REACT_APP_API_URL}/${boardArticle?.articleImage}`}
+							src={`${process.env.REACT_APP_API_URL}/${boardArticle?.articleImage}`} // REACT_APP_API_URL
 							alt={boardArticle?.articleTitle}
 							className="card-image"
 						/>
@@ -141,7 +142,7 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 					</Stack>
 
 					{/* Career specific info */}
-					{boardArticle?.articleCategory === 'CAREER' && (
+					{boardArticle?.articleCategory === ArticleCategory.CAREER && ( // Updated enum
 						<>
 							<Stack className="meta-item">
 								<WorkOutlineIcon className="meta-icon" />
@@ -155,7 +156,7 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 					)}
 
 					{/* Events specific info */}
-					{boardArticle?.articleCategory === 'EVENTS' && (
+					{boardArticle?.articleCategory === ArticleCategory.EVENTS && (
 						<>
 							<Stack className="meta-item">
 								<EventIcon className="meta-icon" />
@@ -169,7 +170,7 @@ const OpportunityCard = ({ boardArticle, likeArticleHandler }: OpportunityCardPr
 					)}
 
 					{/* News specific info */}
-					{boardArticle?.articleCategory === 'KNOWLEDGE' && (
+					{boardArticle?.articleCategory === ArticleCategory.KNOWLEDGE && (
 						<Stack className="meta-item">
 							<TrendingUpIcon className="meta-icon" />
 							<Typography className="meta-text">University Update</Typography>

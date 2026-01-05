@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
-import { Box, Stack, Chip, Pagination, IconButton, Tabs, Tab, Typography } from '@mui/material';
+import { Box, Stack, Chip, Pagination, IconButton, Typography } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
@@ -11,7 +11,7 @@ import { Bookmark, Package, Eye, Heart, Calendar, MapPin, Trash2 } from 'lucide-
 import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import { T } from '../../libs/types/common';
 import { Product } from '../../libs/types/product/product';
-import { GET_SAVED_PRODUCTS } from '../../libs/apollo/user/query';
+import { GET_FAVORITES } from '../../libs/apollo/user/query';
 import { SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import moment from 'moment';
@@ -38,15 +38,15 @@ const SavedItems: NextPage = () => {
 		data: getSavedProductsData,
 		error: getSavedProductsError,
 		refetch: getSavedProductsRefetch,
-	} = useQuery(GET_SAVED_PRODUCTS, {
+	} = useQuery(GET_FAVORITES, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchSaved },
 		notifyOnNetworkStatusChange: true,
 		skip: !user?._id,
 		onCompleted: (data: T) => {
 			console.log('Saved Products Data:', data);
-			setSavedProducts(data?.getSavedProducts?.list || []);
-			setTotalProducts(data?.getSavedProducts?.metaCounter?.[0]?.total || 0);
+			setSavedProducts(data?.getFavorites?.list || []);
+			setTotalProducts(data?.getFavorites?.metaCounter?.total || 0); // Fix: Single total (no [0])
 		},
 		onError: (error) => {
 			console.error('Saved Products Error:', error);
@@ -102,7 +102,8 @@ const SavedItems: NextPage = () => {
 		}).format(price);
 	};
 
-	const formatDate = (date: string) => {
+	// Fix: Date | string qabul qiladi (moment Date ishlatadi)
+	const formatDate = (date: Date | string) => {
 		return moment(date).format('MMM D, YYYY');
 	};
 

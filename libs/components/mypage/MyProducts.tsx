@@ -6,8 +6,11 @@ import { T } from '../../types/common';
 import { useRouter } from 'next/router';
 import { Product } from '../../types/product/product';
 import { ProductsInquiry } from '../../types/product/product.input';
+import { GET_PRODUCTS } from '../../apollo/user/query'; 
+import { useQuery } from '@apollo/client';
 import { Package, Calendar, Eye, Heart, Edit, Trash2, MoreVertical, DollarSign, MapPin, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
+import { Direction } from '../../enums/common.enum';
 
 const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -18,112 +21,34 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			page: 1,
 			limit: 8,
 			sort: 'createdAt',
+			direction: Direction.DESC,
 			search: {
 				memberId: '',
 			},
 		}
 	);
 	
-	// Mock Data - Replace with real API data later
-	const mockProducts: Product[] = [
-		{
-			_id: '1',
-			productName: 'MacBook Pro M3 2023 - 14 inch',
-			productPrice: 1500000,
-			productImages: ['/img/product/macbookpro.jpeg'],
-			productLocation: 'Gangnam, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 245,
-			productLikes: 34,
-			createdAt: '2024-12-25T10:30:00Z',
-		},
-		{
-			_id: '2',
-			productName: 'Calculus Textbook Bundle with Solutions',
-			productPrice: 45000,
-			productImages: ['/img/product/macbookpro.jpeg'],
-			productLocation: 'Hongdae, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 123,
-			productLikes: 18,
-			createdAt: '2024-12-23T14:20:00Z',
-		},
-		{
-			_id: '3',
-			productName: 'Custom Mechanical Keyboard RGB',
-			productPrice: 180000,
-			productImages: ['/img/product/macbookpro.jpeg'],
-			productLocation: 'Itaewon, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 567,
-			productLikes: 89,
-			createdAt: '2024-12-20T09:15:00Z',
-		},
-		{
-			_id: '4',
-			productName: 'iPhone 15 Pro Max 256GB',
-			productPrice: 1200000,
-			productImages: ['/img/products/iphone1.jpg'],
-			productLocation: 'Myeongdong, Seoul',
-			productStatus: 'SOLD',
-			productViews: 890,
-			productLikes: 134,
-			createdAt: '2024-12-18T16:45:00Z',
-		},
-		{
-			_id: '5',
-			productName: 'Sony WH-1000XM5 Headphones',
-			productPrice: 320000,
-			productImages: ['/img/products/headphones1.jpg'],
-			productLocation: 'Gangnam, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 456,
-			productLikes: 67,
-			createdAt: '2024-12-15T11:30:00Z',
-		},
-		{
-			_id: '6',
-			productName: 'Samsung 55 4K Smart TV',
-			productPrice: 850000,
-			productImages: ['/img/product/macbookpro.jpeg'],
-			productLocation: 'Jamsil, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 234,
-			productLikes: 43,
-			createdAt: '2024-12-12T13:20:00Z',
-		},
-		{
-			_id: '7',
-			productName: 'Herman Miller Aeron Chair',
-			productPrice: 980000,
-			productImages: ['/img/product/macbookpro.jpeg'],
-			productLocation: 'Gangnam, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 178,
-			productLikes: 29,
-			createdAt: '2024-12-10T15:10:00Z',
-		},
-		{
-			_id: '8',
-			productName: 'iPad Pro 12.9 inch 2024',
-			productPrice: 1100000,
-			productImages: ['/img/product/macbookpro.jpeg'],
-			productLocation: 'Sinchon, Seoul',
-			productStatus: 'ACTIVE',
-			productViews: 312,
-			productLikes: 51,
-			createdAt: '2024-12-08T10:45:00Z',
-		},
-	];
-	
-	const [agentProducts, setAgentProducts] = useState<Product[]>(mockProducts);
+	const [agentProducts, setAgentProducts] = useState<Product[]>([]);
 	const [total, setTotal] = useState<number>(0);
 
 	/** APOLLO REQUESTS **/
-	// TODO: Add GraphQL query
-	// const { data, loading, refetch } = useQuery(GET_MEMBER_PRODUCTS, {
-	//   variables: { input: searchFilter },
-	// });
+	const {
+		loading: getProductsLoading,
+		data: getProductsData,
+		error: getProductsError,
+		refetch: getProductsRefetch,
+	} = useQuery(GET_PRODUCTS, {
+		variables: { input: searchFilter },
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setAgentProducts(data?.getProducts?.list || []);
+			setTotal(data?.getProducts?.metaCounter?.total || 0); 
+		},
+		onError: (error) => {
+			console.error('MyProducts Error:', error);
+		},
+	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -133,15 +58,10 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 				search: { ...searchFilter.search, memberId: memberId as string },
 			});
 		}
-		// Set total count
-		setTotal(mockProducts.length);
 	}, [memberId]);
 
 	useEffect(() => {
-		// Simulate pagination
-		const startIndex = (searchFilter.page - 1) * searchFilter.limit;
-		const endIndex = startIndex + searchFilter.limit;
-		setAgentProducts(mockProducts.slice(startIndex, endIndex));
+		getProductsRefetch({ input: searchFilter });
 	}, [searchFilter]);
 
 	/** HANDLERS **/
@@ -160,11 +80,11 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 	const handleDeleteProduct = (productId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		// TODO: Implement delete functionality
+		// TODO: Implement delete mutation
 		console.log('Delete product:', productId);
 	};
 
-	const formatDate = (date: string) => {
+	const formatDate = (date: Date | string) => {
 		return new Date(date).toLocaleDateString('en-US', {
 			month: 'short',
 			day: 'numeric',
@@ -224,8 +144,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 				) : (
 					<>
 						{agentProducts?.map((product: Product) => {
-							const imagePath = '/img/product/macbookpro.jpeg';
-							product?.productImages?.[0]
+							const imagePath = product?.productImages?.[0]
 								? `${REACT_APP_API_URL}/${product.productImages[0]}`
 								: '/img/product/macbookpro.jpeg';
 
@@ -237,7 +156,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 								>
 									{/* Product Image */}
 									<Box className="product-image">
-										<img src={imagePath} alt={product.productName} />
+										<img src={imagePath} alt={product.productTitle} />
 										<Box className="image-overlay">
 											<Chip
 												label={product.productStatus}
@@ -261,7 +180,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 									<Box className="product-content">
 										{/* Title & Location */}
 										<Box className="product-header">
-											<h3 className="product-title">{product.productName}</h3>
+											<h3 className="product-title">{product.productTitle}</h3>
 											{product.productLocation && (
 												<Box className="product-location">
 													<MapPin size={14} />

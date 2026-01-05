@@ -1,6 +1,6 @@
 import { PostStatus } from '../../enums/post.enum';
 import { TotalCounter } from '../common';
-import { MeLiked } from '../like/like'; 
+import { MeLiked } from '../like/like';
 import { Member } from '../member/member';
 
 export interface Post {

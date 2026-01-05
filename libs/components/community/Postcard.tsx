@@ -22,7 +22,7 @@ interface PostCardProps {
 }
 
 const PostCard = (props: PostCardProps) => {
-	const { post, likePostHandler, savePostHandler } = props;
+	const { post, likePostHandler, savePostHandler, onCommentClick } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -47,6 +47,10 @@ const PostCard = (props: PostCardProps) => {
 	};
 
 	const postImages = getPostImages();
+
+	// Fix: Single object access (no [0])
+	const isLiked = post.meLiked?.liked || false;
+	const isSaved = post.meLiked?.saved || false;
 
 	return (
 		<Box className="post-card">
@@ -125,13 +129,13 @@ const PostCard = (props: PostCardProps) => {
 					className='action-btn'
 					disabled={!user?._id}
 				>
-					{post?.meLiked && post?.meLiked[0]?.myFavorite ? (
+					{isLiked ? (
 						<FavoriteIcon style={{ color: 'red' }} />
 					) : (
 						<FavoriteBorderIcon />
 					)}
 					<Typography variant="body2" component="span" className="button-text">
-						{post?.meLiked?.[0]?.myFavorite ? 'Liked' : 'Like'}
+						{isLiked ? 'Liked' : 'Like'}
 					</Typography>
 				</IconButton>
 
@@ -139,9 +143,7 @@ const PostCard = (props: PostCardProps) => {
 				<Button 
 					variant="text" 
 					className="action-btn" 
-					onClick={() => {
-						console.log('Comment button clicked');
-					}}
+					onClick={() => onCommentClick(post)}
 				>
 					<MessageCircle size={18} />
 					<Typography variant="body2" component="span" className="button-text">
@@ -156,13 +158,13 @@ const PostCard = (props: PostCardProps) => {
 					className='action-btn'
 					disabled={!user?._id}
 				>
-					{post?.meSaved && post?.meSaved[0]?.myFavorite ? (
+					{isSaved ? (
 						<BookmarkIcon style={{ color: '#1976d2' }} />
 					) : (
 						<BookmarkBorderIcon />
 					)}
 					<Typography variant="body2" component="span" className="button-text">
-						{post?.meSaved?.[0]?.myFavorite ? 'Saved' : 'Save'}
+						{isSaved ? 'Saved' : 'Save'}
 					</Typography>
 				</IconButton>
 			</Box>

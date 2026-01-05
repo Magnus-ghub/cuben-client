@@ -418,14 +418,9 @@ export const GET_POSTS = gql`
 				postImages
 				postLikes
 				postComments
-				postSaves
 				memberId
 				createdAt
 				updatedAt
-				meLiked {
-					liked
-					saved
-				}
 				memberData {
 					_id
 					memberType
@@ -437,16 +432,31 @@ export const GET_POSTS = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
 					memberProducts
-					memberRank
+					memberPosts
+					memberArticles
+					memberFollowers
+					memberFollowings
 					memberPoints
 					memberLikes
 					memberViews
+					memberComments
+					memberRank
+					memberWarnings
+					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
+					accessToken
+					meLiked {
+						liked
+						saved
+					}
+					meFollowed {
+						followingId
+						followerId
+						myFollowing
+					}
 				}
 			}
 			metaCounter {

@@ -40,7 +40,7 @@ const Favorites: NextPage = () => {
 		onCompleted: (data: T) => {
 			console.log('Favorites Data:', data); 
 			setMyFavorites(data?.getFavorites?.list || []);
-			setTotal(data?.getFavorites?.metaCounter?.[0]?.total || 0);
+			setTotal(data?.getFavorites?.metaCounter?.total || 0); // Single total (no [0])
 		},
 		onError: (error) => {
 			console.error('Favorites Query Error:', error); 
@@ -71,7 +71,7 @@ const Favorites: NextPage = () => {
 				return;
 			}
 
-			// Unlike qilish (toggle like)
+			// Toggle like (favorites uchun)
 			await likeTargetProduct({
 				variables: {
 					productId: productId,
@@ -103,8 +103,10 @@ const Favorites: NextPage = () => {
 		}).format(price);
 	};
 
-	const formatDate = (date: string) => {
-		return new Date(date).toLocaleDateString('en-US', { 
+	// Fix: Date | string qabul qiladi
+	const formatDate = (date: Date | string) => {
+		const dateObj = typeof date === 'string' ? new Date(date) : date;
+		return dateObj.toLocaleDateString('en-US', { 
 			month: 'short',
 			day: 'numeric',
 			year: 'numeric',
