@@ -470,127 +470,126 @@ export const SAVE_TARGET_POST = gql`
 
 export const CREATE_ARTICLE = gql`
 	mutation CreateArticle($input: ArticleInput!) {
-    createArticle(input: $input) {
-        _id
-        articleCategory
-        articleStatus
-        articleTitle
-        articleContent
-        articleImage
-        articleViews
-        articleLikes
-        articleSaves
-        articleComments
-        memberId
-        createdAt
-        updatedAt
-        meLiked {
-            liked
-            saved
-        }
-        memberData {
-            _id
-            memberType
-            memberStatus
-            memberAuthType
-            memberPhone
-            memberNick
-            memberFullName
-            memberImage
-            memberAddress
-            memberDesc
-            memberProducts
-            memberPosts
-            memberArticles
-            memberFollowers
-            memberFollowings
-            memberPoints
-            memberLikes
-            memberViews
-            memberComments
-            memberRank
-            memberWarnings
-            memberBlocks
-            deletedAt
-            createdAt
-            updatedAt
-            accessToken
-        }
-    }
-}
-
+		createArticle(input: $input) {
+			_id
+			articleCategory
+			articleStatus
+			articleTitle
+			articleContent
+			articleImage
+			articleViews
+			articleLikes
+			articleSaves
+			articleComments
+			memberId
+			createdAt
+			updatedAt
+			meLiked {
+				liked
+				saved
+			}
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProducts
+				memberPosts
+				memberArticles
+				memberFollowers
+				memberFollowings
+				memberPoints
+				memberLikes
+				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
+				deletedAt
+				createdAt
+				updatedAt
+				accessToken
+			}
+		}
+	}
 `;
 
 export const UPDATE_ARTICLE = gql`
 	mutation UpdateArticle($input: ArticleUpdate!) {
-    updateArticle(input: $input) {
-        _id
-        articleCategory
-        articleStatus
-        articleTitle
-        articleContent
-        articleImage
-        articleViews
-        articleLikes
-        articleSaves
-        articleComments
-        memberId
-        createdAt
-        updatedAt
-        meLiked {
-            liked
-            saved
-        }
-    }
-}
+		updateArticle(input: $input) {
+			_id
+			articleCategory
+			articleStatus
+			articleTitle
+			articleContent
+			articleImage
+			articleViews
+			articleLikes
+			articleSaves
+			articleComments
+			memberId
+			createdAt
+			updatedAt
+			meLiked {
+				liked
+				saved
+			}
+		}
+	}
 `;
 
 export const LIKE_TARGET_ARTICLE = gql`
 	mutation LikeTargetArticle($input: String!) {
-    likeTargetArticle(articleId: $input) {
-        _id
-        articleCategory
-        articleStatus
-        articleTitle
-        articleContent
-        articleImage
-        articleViews
-        articleLikes
-        articleSaves
-        articleComments
-        memberId
-        createdAt
-        updatedAt
-        meLiked {
-            liked
-            saved
-        }
-    }
-}
+		likeTargetArticle(articleId: $input) {
+			_id
+			articleCategory
+			articleStatus
+			articleTitle
+			articleContent
+			articleImage
+			articleViews
+			articleLikes
+			articleSaves
+			articleComments
+			memberId
+			createdAt
+			updatedAt
+			meLiked {
+				liked
+				saved
+			}
+		}
+	}
 `;
 
 export const SAVE_TARGET_ARTICLE = gql`
 	mutation SaveTargetArticle($input: String!) {
-    saveTargetArticle(articleId: $input) {
-        _id
-        articleCategory
-        articleStatus
-        articleTitle
-        articleContent
-        articleImage
-        articleViews
-        articleLikes
-        articleSaves
-        articleComments
-        memberId
-        createdAt
-        updatedAt
-        meLiked {
-            liked
-            saved
-        }
-    }
-}
+		saveTargetArticle(articleId: $input) {
+			_id
+			articleCategory
+			articleStatus
+			articleTitle
+			articleContent
+			articleImage
+			articleViews
+			articleLikes
+			articleSaves
+			articleComments
+			memberId
+			createdAt
+			updatedAt
+			meLiked {
+				liked
+				saved
+			}
+		}
+	}
 `;
 
 /**************************
@@ -599,59 +598,59 @@ export const SAVE_TARGET_ARTICLE = gql`
 
 export const CREATE_COMMENT = gql`
 	mutation CreateComment($input: CommentInput!) {
-    createComment(input: $input) {
-        _id
-        commentStatus
-        commentGroup
-        commentContent
-        commentRefId
-        memberId
-        createdAt
-        updatedAt
-        memberData {
-            _id
-            memberType
-            memberStatus
-            memberAuthType
-            memberPhone
-            memberNick
-            memberFullName
-            memberImage
-            memberAddress
-            memberDesc
-            memberProducts
-            memberArticles
-            memberFollowers
-            memberFollowings
-            memberPoints
-            memberLikes
-            memberViews
-            memberComments
-            memberRank
-            memberWarnings
-            memberBlocks
-            deletedAt
-            createdAt
-            updatedAt
-            accessToken
-        }
-    }
-}
+		createComment(input: $input) {
+			_id
+			commentStatus
+			commentGroup
+			commentContent
+			commentRefId
+			memberId
+			createdAt
+			updatedAt
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProducts
+				memberArticles
+				memberFollowers
+				memberFollowings
+				memberPoints
+				memberLikes
+				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
+				deletedAt
+				createdAt
+				updatedAt
+				accessToken
+			}
+		}
+	}
 `;
 
 export const UPDATE_COMMENT = gql`
 	mutation UpdateComment($input: CommentUpdate!) {
-    updateComment(input: $input) {
-        _id
-        commentStatus
-        commentGroup
-        commentContent
-        commentRefId
-        memberId
-        createdAt
-        updatedAt
-    }
-}
+		updateComment(input: $input) {
+			_id
+			commentStatus
+			commentGroup
+			commentContent
+			commentRefId
+			memberId
+			createdAt
+			updatedAt
+		}
+	}
 `;
 
 /**************************

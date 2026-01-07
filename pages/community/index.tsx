@@ -9,8 +9,8 @@ import { ArticleCategory } from '../../libs/enums/article.enum';
 import { useMutation, useQuery } from '@apollo/client';
 import { Messages } from '../../libs/config';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import { LIKE_TARGET_ARTICLE } from '../../libs/apollo/user/mutation'; // Updated mutation
-import { GET_ARTICLES } from '../../libs/apollo/user/query'; // Updated query
+import { LIKE_TARGET_ARTICLE } from '../../libs/apollo/user/mutation'; 
+import { GET_ARTICLES } from '../../libs/apollo/user/query'; 
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import EventIcon from '@mui/icons-material/Event';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
@@ -21,35 +21,46 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import OpportunityCard from './detail';
 import { NextPage } from 'next';
+import { Message } from '../../libs/enums/common.enum';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
+
+const Opportunities: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const { query } = router;
-	const articleCategory = query?.articleCategory as ArticleCategory; // Updated enum
-	const [searchOpportunity, setSearchOpportunity] = useState<ArticlesInquiry>(initialInput); // Updated type
-	const [boardArticles, setBoardArticles] = useState<any[]>([]); // Article[]
+	const articleCategory = query?.articleCategory as ArticleCategory; 
+	const [searchFilter, setSearchFilter] = useState<ArticlesInquiry>(
+			router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
+		);
+	const [searchOpportunity, setSearchOpportunity] = useState<ArticlesInquiry>(initialInput); 
+	const [boardArticles, setBoardArticles] = useState<any[]>([]); 
 	const [totalCount, setTotalCount] = useState<number>(0);
 
 	if (articleCategory) initialInput.search.articleCategory = articleCategory;
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetArticle] = useMutation(LIKE_TARGET_ARTICLE); // Updated mutation
+	const [likeTargetArticle] = useMutation(LIKE_TARGET_ARTICLE); 
 
 	const {
-		loading: boardArticlesLoading,
-		data: boardArticlesData,
-		error: getBoardArticlesError,
-		refetch: boardArticlesRefetch,
-	} = useQuery(GET_ARTICLES, { // Updated query
-		fetchPolicy: 'cache-and-network',
+		loading: getArticlesLoading,
+		data: getArticlesData,
+		error: getArticlesError,
+		refetch: getArticlesRefetch,
+	} = useQuery(GET_ARTICLES, { 
+		fetchPolicy: 'network-only',
 		variables: {
 			input: searchOpportunity,
 		},
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setBoardArticles(data?.getArticles?.list || []); // Updated field
-			setTotalCount(data?.getArticles?.metaCounter?.total || 0); // Single total (no [0])
+			setBoardArticles(data?.getArticles?.list || []);
+			setTotalCount(data?.getArticles?.metaCounter?.total || 0); 
 		},
 		onError: (error) => {
 			sweetMixinErrorAlert('Error loading opportunities: ' + error.message);
@@ -62,7 +73,7 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 			router.push(
 				{
 					pathname: router.pathname,
-					query: { articleCategory: ArticleCategory.CAREER }, // Updated enum
+					query: { articleCategory: ArticleCategory.CAREER }, 
 				},
 				router.pathname,
 				{ shallow: true },
@@ -70,11 +81,11 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 	}, []);
 
 	/** HANDLERS **/
-	const tabChangeHandler = async (e: T, value: ArticleCategory) => { // Updated enum
+	const tabChangeHandler = async (e: T, value: ArticleCategory) => { 
 		setSearchOpportunity({
 			...searchOpportunity,
 			page: 1,
-			search: { articleCategory: value }, // Updated
+			search: { articleCategory: value }, 
 		});
 		await router.push(
 			{
@@ -90,25 +101,22 @@ const Opportunities: NextPage = ({ initialInput, ...props }: T) => {
 		setSearchOpportunity({ ...searchOpportunity, page: value });
 	};
 
-	const likeArticleHandler = async (e: any, user: any, id: string) => {
-		try {
-			e.stopPropagation();
-			if (!id) return;
-			if (!user._id) throw new Error(Messages.error2);
-
-			await likeTargetArticle({ // Updated mutation
-				variables: {
-					articleId: id, // Updated arg
-				},
-			});
-
-			await boardArticlesRefetch({ input: searchOpportunity });
-			await sweetTopSmallSuccessAlert('success', 800);
-		} catch (err: any) {
-			console.log('ERROR, likeArticleHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
+	const likeArticleHandler = async (user: T, id: string) => {
+			try {
+				if (!id) return;
+				if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+	
+				await likeTargetArticle({
+					variables: { input: id },
+				});
+	
+				await getArticlesRefetch({ input: searchFilter });
+				await sweetTopSmallSuccessAlert('success', 800);
+			} catch (err: any) {
+				console.log('ERROR, likeProductHandler:', err.message);
+				sweetMixinErrorAlert(err.message).then();
+			}
+		};
 
 	// Get category counts (mock or from backend)
 	const getCategoryCount = (category: ArticleCategory) => {

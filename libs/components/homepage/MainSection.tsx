@@ -15,6 +15,7 @@ import { PostsInquiry } from '../../types/post/post.input';
 import { Post } from '../../types/post/post';
 import { T } from '../../types/common';
 import CommentModal from '../common/CommentModal';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 const MainSection = ({ initialInput }: any) => {
 	const { t } = useTranslation('common');
@@ -35,7 +36,7 @@ const MainSection = ({ initialInput }: any) => {
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
 
-	console.log('Modal state:', { commentModalOpen, selectedPost: selectedPost?._id }); 
+	console.log('Modal state:', { commentModalOpen, selectedPost: selectedPost?._id });
 
 	if (postCategory) initialInput.search.postCategory = postCategory;
 
@@ -85,9 +86,16 @@ const MainSection = ({ initialInput }: any) => {
 		try {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			await likeTargetPost({
+				variables: { input: id },
+			});
+
 			await getPostsRefetch({ input: searchFilter });
+			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			console.log('ERROR, likePostHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
 		}
 	};
 
@@ -97,12 +105,14 @@ const MainSection = ({ initialInput }: any) => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			await saveTargetPost({
-				variables: { postId: id },
+				variables: { input: id },
 			});
 
 			await getPostsRefetch({ input: searchFilter });
+			await sweetTopSmallSuccessAlert('Saved successfully!', 800);
 		} catch (err: any) {
 			console.log('ERROR, savePostHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
 		}
 	};
 

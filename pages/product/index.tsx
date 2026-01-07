@@ -11,7 +11,7 @@ import { ProductsInquiry } from '../../libs/types/product/product.input';
 import { useRouter } from 'next/router';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation'; // Added SAVE_TARGET_PRODUCT
+import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation'; 
 import { useMutation, useQuery } from '@apollo/client';
 import { Product } from '../../libs/types/product/product';
 import { GET_PRODUCTS } from '../../libs/apollo/user/query';
@@ -40,7 +40,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
-	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT); // Added for save
+	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT); 
 
 	const {
 		loading: getProductsLoading,
@@ -53,7 +53,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			setProducts(data?.getProducts?.list || []);
-			setTotal(data?.getProducts?.metaCounter?.total ?? 0); // Fix: Single metaCounter.total (not [0])
+			setTotal(data?.getProducts?.metaCounter?.total ?? 0); 
 		},
 	});
 
@@ -78,7 +78,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			await likeTargetProduct({
-				variables: { productId: id },
+				variables: { input: id },
 			});
 
 			await getProductsRefetch({ input: searchFilter });
@@ -96,7 +96,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			await saveTargetProduct({
-				variables: { productId: id },
+				variables: { input: id },
 			});
 
 			await getProductsRefetch({ input: searchFilter });
