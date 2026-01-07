@@ -8,10 +8,10 @@ import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
 import { Clock, Eye, Heart, Calendar, MapPin, Trash2, RefreshCw } from 'lucide-react';
 import { Product } from '../../libs/types/product/product';
-import { Messages, REACT_APP_API_URL } from '../../libs/config';
+import { REACT_APP_API_URL } from '../../libs/config';
 import { T } from '../../libs/types/common';
 import { GET_VISITED } from '../../libs/apollo/user/query';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import moment from 'moment';
 
 const History: NextPage = () => {
