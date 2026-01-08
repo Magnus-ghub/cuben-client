@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { LIKE_TARGET_POST, SAVE_TARGET_POST } from '../../apollo/user/mutation';
+import { SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { GET_POSTS } from '../../apollo/user/query';
 import { Direction, Message } from '../../enums/common.enum';
 import { REACT_APP_API_URL } from '../../config';
@@ -43,6 +44,8 @@ const MainSection = ({ initialInput }: any) => {
 	/** APOLLO REQUESTS **/
 	const [likeTargetPost] = useMutation(LIKE_TARGET_POST);
 	const [saveTargetPost] = useMutation(SAVE_TARGET_POST);
+	const [subscribe] = useMutation(SUBSCRIBE);
+	const [unsubscribe] = useMutation(UNSUBSCRIBE);
 
 	const {
 		loading: getPostsLoading,
@@ -50,7 +53,7 @@ const MainSection = ({ initialInput }: any) => {
 		error: getPostsError,
 		refetch: getPostsRefetch,
 	} = useQuery(GET_POSTS, {
-		fetchPolicy: 'network-only',
+		fetchPolicy: 'cache-and-network',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
@@ -81,20 +84,54 @@ const MainSection = ({ initialInput }: any) => {
 		}
 	}, [getPostsError]);
 
-	/** HANDLERS **/
+	/** HANDLERS - OPTIMISTIC UPDATES **/
 	const likePostHandler = async (user: T, id: string) => {
 		try {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
+			// OPTIMISTIC UPDATE
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlyLiked = post.meLiked?.liked || false;
+						return {
+							...post,
+							postLikes: isCurrentlyLiked ? post.postLikes - 1 : post.postLikes + 1,
+							meLiked: {
+								...post.meLiked,
+								liked: !isCurrentlyLiked,
+							},
+						};
+					}
+					return post;
+				})
+			);
+
 			await likeTargetPost({
 				variables: { input: id },
 			});
-
-			await getPostsRefetch({ input: searchFilter });
-			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			console.log('ERROR, likePostHandler:', err.message);
+
+			// Rollback
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlyLiked = post.meLiked?.liked || false;
+						return {
+							...post,
+							postLikes: isCurrentlyLiked ? post.postLikes - 1 : post.postLikes + 1,
+							meLiked: {
+								...post.meLiked,
+								liked: !isCurrentlyLiked,
+							},
+						};
+					}
+					return post;
+				})
+			);
+
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
@@ -104,15 +141,154 @@ const MainSection = ({ initialInput }: any) => {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
+			// OPTIMISTIC UPDATE
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlySaved = post.meLiked?.saved || false;
+						return {
+							...post,
+							meLiked: {
+								...post.meLiked,
+								saved: !isCurrentlySaved,
+							},
+						};
+					}
+					return post;
+				})
+			);
+
 			await saveTargetPost({
 				variables: { input: id },
 			});
-
-			await getPostsRefetch({ input: searchFilter });
-			await sweetTopSmallSuccessAlert('Saved successfully!', 800);
 		} catch (err: any) {
 			console.log('ERROR, savePostHandler:', err.message);
+
+			// Rollback
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlySaved = post.meLiked?.saved || false;
+						return {
+							...post,
+							meLiked: {
+								...post.meLiked,
+								saved: !isCurrentlySaved,
+							},
+						};
+					}
+					return post;
+				})
+			);
+
 			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
+	// FIXED: Follow/Unfollow Handler with proper state detection
+	const followHandler = async (memberId: string) => {
+		try {
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!memberId) return;
+
+			// Find current follow status from post data
+			const targetPost = posts.find((post) => post.memberData?._id === memberId);
+			if (!targetPost) return;
+
+			// Check meFollowed array - if it exists and has myFollowing: true, we're following
+			const isCurrentlyFollowing =
+				targetPost?.memberData?.meFollowed &&
+				Array.isArray(targetPost.memberData.meFollowed) &&
+				targetPost.memberData.meFollowed.length > 0 &&
+				targetPost.memberData.meFollowed[0]?.myFollowing === true;
+
+			console.log('Follow Handler - Current Status:', {
+				memberId,
+				isCurrentlyFollowing,
+				meFollowed: targetPost?.memberData?.meFollowed,
+			});
+
+			// OPTIMISTIC UPDATE
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								memberFollowers: isCurrentlyFollowing
+									? Math.max(0, (post.memberData.memberFollowers || 1) - 1)
+									: (post.memberData.memberFollowers || 0) + 1,
+								meFollowed: isCurrentlyFollowing
+									? [] // Unfollow - empty array
+									: [
+											{
+												followingId: memberId,
+												followerId: user._id,
+												myFollowing: true,
+											},
+									  ],
+							},
+						};
+					}
+					return post;
+				})
+			);
+
+			// Backend request with proper action
+			if (isCurrentlyFollowing) {
+				console.log('Calling UNSUBSCRIBE for:', memberId);
+				await unsubscribe({ variables: { input: memberId } });
+			} else {
+				console.log('Calling SUBSCRIBE for:', memberId);
+				await subscribe({ variables: { input: memberId } });
+			}
+
+			// Success feedback
+			// await sweetTopSmallSuccessAlert(isCurrentlyFollowing ? 'Unfollowed' : 'Following', 800);
+		} catch (err: any) {
+			console.log('ERROR, followHandler:', err);
+
+			// Rollback on error - revert to original state
+			const targetPost = posts.find((post) => post.memberData?._id === memberId);
+			if (!targetPost) return;
+
+			const wasFollowing =
+				targetPost?.memberData?.meFollowed &&
+				Array.isArray(targetPost.memberData.meFollowed) &&
+				targetPost.memberData.meFollowed.length > 0 &&
+				targetPost.memberData.meFollowed[0]?.myFollowing === true;
+
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								memberFollowers: wasFollowing
+									? (post.memberData.memberFollowers || 0) + 1
+									: Math.max(0, (post.memberData.memberFollowers || 1) - 1),
+								meFollowed: wasFollowing
+									? [
+											{
+												followingId: memberId,
+												followerId: user._id,
+												myFollowing: true,
+											},
+									  ]
+									: [],
+							},
+						};
+					}
+					return post;
+				})
+			);
+
+			// Show error only if it's not a duplicate error (which means already following)
+			if (!err.message?.includes('E11000') && !err.message?.includes('duplicate')) {
+				sweetMixinErrorAlert(err.message).then();
+			}
 		}
 	};
 
@@ -164,6 +340,17 @@ const MainSection = ({ initialInput }: any) => {
 					direction: Direction.DESC,
 				});
 				break;
+		}
+	};
+
+	const handleCommentAdded = async () => {
+		try {
+			const { data } = await getPostsRefetch({ input: searchFilter });
+			if (data?.getPosts?.list) {
+				setPosts(data.getPosts.list);
+			}
+		} catch (err) {
+			console.error('Error refetching posts:', err);
 		}
 	};
 
@@ -220,7 +407,7 @@ const MainSection = ({ initialInput }: any) => {
 
 				{/* Posts Feed */}
 				<Stack className="posts-feed">
-					{getPostsLoading ? (
+					{getPostsLoading && posts.length === 0 ? (
 						<Stack className="loading-container">
 							<p>Loading posts...</p>
 						</Stack>
@@ -232,6 +419,7 @@ const MainSection = ({ initialInput }: any) => {
 								likePostHandler={likePostHandler}
 								savePostHandler={savePostHandler}
 								onCommentClick={handleCommentClick}
+								followHandler={followHandler}
 							/>
 						))
 					) : (
@@ -248,7 +436,7 @@ const MainSection = ({ initialInput }: any) => {
 				open={commentModalOpen}
 				onClose={() => setCommentModalOpen(false)}
 				post={selectedPost}
-				onCommentAdded={() => getPostsRefetch({ input: searchFilter })}
+				onCommentAdded={handleCommentAdded}
 			/>
 		</Stack>
 	);

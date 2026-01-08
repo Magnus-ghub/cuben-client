@@ -11,7 +11,7 @@
 		// HERO BANNER SECTION
 		// ============================================
 		.hero-banner {
-			flex-shrink: 0; // Don't shrink
+			flex-shrink: 0;
 			width: 100%;
 			border-radius: 12px;
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -83,7 +83,6 @@
 					display: flex;
 					flex-direction: row;
 					gap: 16px;
-					// flex-wrap: wrap;
 
 					.quick-action-card {
 						background: rgba(255, 255, 255, 0.95);
@@ -127,19 +126,18 @@
 
 		// ============================================
 		// MAIN CONTENT
-		// Fixed positioning for both columns with independent scrolls
 		// ============================================
 		.content-wrapper {
-			flex: 1; // Take remaining space
+			flex: 1;
 			position: relative;
 			width: 100%;
-			overflow: hidden; // Prevent main wrapper scroll
+			overflow: hidden;
 			display: flex;
-			min-height: 0; // Important for flex scroll
+			min-height: 0;
 		}
 
 		// ============================================
-		// CENTER COLUMN - MAIN FEED (Independent Scroll)
+		// CENTER COLUMN - MAIN FEED
 		// ============================================
 		.main-feed-section {
 			flex: 1;
@@ -148,7 +146,6 @@
 			overflow-x: hidden;
 			padding: 32px 24px;
 
-			//Custom scrollbar
 			&::-webkit-scrollbar {
 				width: 2px;
 			}
@@ -287,6 +284,22 @@
 					flex-direction: column;
 					gap: 16px;
 
+					.loading-container {
+						background: #ffffff;
+						border-radius: 12px;
+						padding: 60px 40px;
+						text-align: center;
+						box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+						border: 1px solid #e5e7eb;
+
+						p {
+							font-family: $font;
+							font-size: 16px;
+							color: #6b7280;
+							margin: 0;
+						}
+					}
+
 					.post-card {
 						background: #ffffff;
 						border-radius: 12px;
@@ -312,10 +325,18 @@
 								border-radius: 50%;
 								border: 2px solid #e5e7eb;
 								object-fit: cover;
+								cursor: pointer;
+								transition: all 0.2s ease;
+
+								&:hover {
+									transform: scale(1.05);
+									border-color: #667eea;
+								}
 							}
 
 							.post-author-info {
 								flex: 1;
+								cursor: pointer;
 
 								.author-name {
 									display: flex;
@@ -325,6 +346,11 @@
 									font-size: 14px;
 									font-weight: 600;
 									color: #1f2937;
+									transition: color 0.2s ease;
+
+									&:hover {
+										color: #667eea;
+									}
 
 									.verified-badge {
 										color: #3b82f6;
@@ -341,6 +367,78 @@
 								}
 							}
 
+							// FOLLOW BUTTON
+							.follow-btn {
+								min-width: auto;
+								padding: 6px 16px;
+								border-radius: 20px;
+								font-family: $font;
+								font-size: 13px;
+								font-weight: 600;
+								text-transform: none;
+								transition: all 0.3s ease;
+								border: 2px solid #667eea;
+								background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+								color: #ffffff;
+								box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+								&:hover {
+									transform: translateY(-2px);
+									box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+									background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+								}
+
+								&:active {
+									transform: translateY(0);
+								}
+
+								&:disabled {
+									opacity: 0.5;
+									cursor: not-allowed;
+									transform: none;
+									box-shadow: none;
+								}
+
+								// Following state (already following)
+								&.following {
+									background: transparent;
+									color: #667eea;
+									border-color: #667eea;
+									box-shadow: none;
+
+									&:hover {
+										background: rgba(239, 68, 68, 0.08);
+										color: #ef4444;
+										border-color: #ef4444;
+										box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+
+										span {
+											&::after {
+												content: 'Unfollow';
+												position: absolute;
+												left: 0;
+												right: 0;
+											}
+										}
+
+										// Hide original text on hover
+										span {
+											color: transparent;
+											position: relative;
+										}
+									}
+								}
+
+								svg {
+									width: 16px;
+									height: 16px;
+								}
+
+								span {
+									margin-left: 4px;
+								}
+							}
+
 							.post-category {
 								background: rgba(102, 126, 234, 0.1);
 								color: #667eea;
@@ -352,13 +450,19 @@
 
 							.post-more-btn {
 								min-width: auto;
-								padding: 6px;
+								padding: 6px 16px;
 								border-radius: 6px;
-								color: #9ca3af;
+								color: #667eea;
+								font-family: $font;
+								font-size: 13px;
+								font-weight: 600;
+								text-transform: none;
+								border: 1px solid #e5e7eb;
+								transition: all 0.2s ease;
 
 								&:hover {
 									background: #f3f4f6;
-									color: #6b7280;
+									border-color: #667eea;
 								}
 							}
 						}
@@ -366,28 +470,115 @@
 						.post-content {
 							margin-bottom: 12px;
 
-							p {
+							.post-title {
 								font-family: $font;
-
-								font-size: 15px;
-								line-height: 1.6;
+								font-size: 16px;
+								font-weight: 600;
+								line-height: 1.5;
 								color: #1f2937;
-								margin: 0 0 12px 0;
+								margin: 0 0 8px 0;
 							}
 
-							.post-images {
-								img {
+							.post-description {
+								font-family: $font;
+								font-size: 15px;
+								line-height: 1.6;
+								color: #4b5563;
+								margin: 0 0 12px 0;
+							}
+						}
+
+						// ============================================
+						// POST IMAGES - FIXED VERSION
+						// ============================================
+						.post-images {
+							margin: 12px 0;
+							border-radius: 12px;
+							overflow: hidden;
+							background: #f3f4f6;
+
+							// 1 rasm - Wide format
+							&.post-images-1 {
+								.single-image {
 									width: 100%;
 									height: auto;
-									max-height: 100px;
+									max-height: 400px;
 									object-fit: cover;
-									border-radius: 12px;
+									display: block;
 								}
-								.MuiBox-root {
-									img {
-										height: auto !important;
-										max-height: 250px;
+							}
+
+							// 2 rasm - Grid 2 columns
+							&.post-images-2 {
+								.images-grid-2 {
+									display: grid;
+									grid-template-columns: repeat(2, 1fr);
+									gap: 8px;
+
+									.multi-image {
+										width: 100%;
+										height: 250px;
+										object-fit: cover;
+										display: block;
+										border-radius: 8px;
 									}
+								}
+							}
+
+							// 3 rasm - 2 yuqorida, 1 pastda
+							&.post-images-3 {
+								.images-grid-3 {
+									display: grid;
+									grid-template-columns: repeat(2, 1fr);
+									grid-template-rows: auto auto;
+									gap: 8px;
+
+									.multi-image {
+										width: 100%;
+										height: 200px;
+										object-fit: cover;
+										display: block;
+										border-radius: 8px;
+
+										&:nth-child(3) {
+											grid-column: 1 / -1;
+											height: 280px;
+										}
+									}
+								}
+							}
+
+							// 4+ rasm - 2x2 grid
+							&.post-images-4,
+							&.post-images-5,
+							&.post-images-6,
+							&.post-images-7,
+							&.post-images-8,
+							&.post-images-9 {
+								.images-grid-4 {
+									display: grid;
+									grid-template-columns: repeat(2, 1fr);
+									grid-template-rows: repeat(2, 1fr);
+									gap: 8px;
+
+									.multi-image {
+										width: 100%;
+										height: 220px;
+										object-fit: cover;
+										display: block;
+										border-radius: 8px;
+									}
+								}
+							}
+
+							// Hover effect
+							img {
+								transition: transform 0.3s ease, opacity 0.2s ease;
+								cursor: pointer;
+
+								&:hover {
+									transform: scale(1.02);
+									opacity: 0.95;
 								}
 							}
 						}
@@ -435,47 +626,115 @@
 								transition: all 0.2s ease;
 								min-width: auto;
 
+								// Default hover
 								&:hover {
 									background: #f3f4f6;
-									color: #667eea;
-
-									svg {
-										stroke: #667eea;
-									}
-								}
-
-								// Like button active state
-								&.liked {
-									color: red;
-									font-weight: 600;
-
-									&:hover {
-										color: red;
-									}
-								}
-
-								// Save button active state
-								&.saved {
-									color: #667eea;
-									font-weight: 600;
-
-									&:hover {
-										color: #667eea;
-									}
-
-									svg {
-										fill: #667eea;
-										stroke: #667eea;
-									}
 								}
 
 								svg {
 									width: 18px;
 									height: 18px;
+									transition: all 0.2s ease;
 								}
 
 								.button-text {
 									margin-left: 4px;
+									transition: color 0.2s ease;
+								}
+							}
+
+							// LIKE BUTTON - Qizil hover
+							.like-btn {
+								&:hover {
+									background: rgba(239, 68, 68, 0.08);
+									color: #ef4444;
+
+									.button-text {
+										color: #ef4444;
+									}
+
+									svg {
+										color: #ef4444;
+									}
+								}
+
+								&.liked {
+									color: #ef4444;
+
+									.button-text {
+										color: #ef4444;
+										font-weight: 500;
+									}
+
+									&:hover {
+										background: rgba(239, 68, 68, 0.12);
+										color: #dc2626;
+
+										.button-text {
+											color: #dc2626;
+										}
+									}
+								}
+							}
+
+							// COMMENT BUTTON - Ko'k hover
+							.comment-btn {
+								&:hover {
+									background: rgba(102, 126, 234, 0.08);
+									color: #667eea;
+
+									.button-text {
+										color: #667eea;
+									}
+
+									svg {
+										stroke: #667eea;
+									}
+								}
+							}
+
+							// SAVE BUTTON - Ko'k hover
+							.save-btn {
+								&:hover {
+									background: rgba(25, 118, 210, 0.08);
+									color: #1976d2;
+
+									.button-text {
+										color: #1976d2;
+									}
+
+									svg {
+										color: #1976d2;
+									}
+								}
+
+								&.saved {
+									color: #1976d2;
+
+									.button-text {
+										color: #1976d2;
+										font-weight: 500;
+									}
+
+									&:hover {
+										background: rgba(25, 118, 210, 0.12);
+										color: #1565c0;
+
+										.button-text {
+											color: #1565c0;
+										}
+									}
+								}
+							}
+
+							// Disabled state
+							.action-btn:disabled {
+								opacity: 0.5;
+								cursor: not-allowed;
+
+								&:hover {
+									background: transparent;
+									color: #6b7280;
 								}
 							}
 						}
@@ -485,14 +744,13 @@
 		}
 
 		// ============================================
-		// RIGHT COLUMN - FIXED SIDEBAR (360px, NO External Scroll)
-		// Completely separate scrolling area like Blind
+		// RIGHT SIDEBAR
 		// ============================================
 		.right-sidebar-section {
 			width: 25%;
 			flex-shrink: 0;
 			height: 100%;
-			overflow: hidden; // IMPORTANT: No external scroll
+			overflow: hidden;
 			background: #ffffff;
 			border-left: 1px solid #e5e7eb;
 			display: flex;
@@ -504,7 +762,6 @@
 				overflow-x: hidden;
 				padding: 24px 16px;
 
-				// Custom scrollbar
 				&::-webkit-scrollbar {
 					width: 4px;
 				}
@@ -522,7 +779,6 @@
 					}
 				}
 
-				// Inner content wrapper
 				> * {
 					display: flex;
 					flex-direction: column;
@@ -530,7 +786,6 @@
 				}
 			}
 
-			// Cards inside sidebar
 			.marketplace-card,
 			.events-card,
 			.jobs-card {
@@ -582,7 +837,6 @@
 				}
 			}
 
-			// Products Grid
 			.products-grid {
 				display: flex;
 				flex-direction: column;
@@ -671,7 +925,6 @@
 				}
 			}
 
-			// Events List
 			.events-list {
 				display: flex;
 				flex-direction: column;
@@ -736,7 +989,6 @@
 				}
 			}
 
-			// Jobs List
 			.jobs-list {
 				display: flex;
 				flex-direction: column;
@@ -851,6 +1103,31 @@
 		}
 
 		// ============================================
+		// NO DATA STATE
+		// ============================================
+		.no-data {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			border-radius: 16px;
+			padding: 60px 40px;
+			color: white;
+			text-align: center;
+
+			img {
+				width: 100px;
+				height: 100px;
+				filter: brightness(0) invert(1);
+				opacity: 0.8;
+				margin-bottom: 20px;
+			}
+
+			p {
+				color: white;
+				font-size: 20px;
+				font-weight: 600;
+				margin: 0;
+			}
+		}
+		// ============================================
 		// ANIMATIONS
 		// ============================================
 		@keyframes pulse {
@@ -944,12 +1221,33 @@
 			.content-wrapper {
 				.main-feed-section {
 					padding: 16px 12px;
+
+					.center-feed .posts-feed .post-card {
+						// Responsive images for mobile
+						.post-images {
+							&.post-images-1 .single-image {
+								max-height: 300px;
+							}
+
+							&.post-images-2 .images-grid-2 .multi-image,
+							&.post-images-3 .images-grid-3 .multi-image,
+							&.post-images-4 .images-grid-4 .multi-image {
+								height: 180px;
+							}
+
+							&.post-images-3 .images-grid-3 .multi-image:nth-child(3) {
+								height: 220px;
+							}
+						}
+					}
 				}
 			}
 		}
 
 		@media (max-width: 640px) {
 			.hero-banner .hero-content .quick-actions {
+				flex-direction: column;
+
 				.quick-action-card {
 					width: 100%;
 				}
@@ -957,6 +1255,28 @@
 
 			.content-wrapper .right-sidebar-section .sticky-wrapper {
 				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.content-wrapper .main-feed-section .center-feed .posts-feed .post-card {
+				// Stack images vertically on very small screens
+				.post-images {
+					&.post-images-2 .images-grid-2,
+					&.post-images-3 .images-grid-3,
+					&.post-images-4 .images-grid-4 {
+						grid-template-columns: 1fr;
+
+						.multi-image {
+							height: 250px;
+						}
+					}
+
+					&.post-images-3 .images-grid-3 .multi-image:nth-child(3) {
+						grid-column: auto;
+						height: 250px;
+					}
+				}
 			}
 		}
 	}
