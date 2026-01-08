@@ -1,8 +1,5 @@
-// ============================================
-// OPPORTUNITY CARD STYLES
-// ============================================
-
-.opportunity-card {
+// article-card.scss - Extracted and generalized card styles from detail.scss (removed opportunity-specific, made reusable)
+.article-card {
 	background: #fff;
 	border-radius: 20px;
 	overflow: hidden;
@@ -39,13 +36,10 @@
 		}
 	}
 
-	// ============================================
-	// CARD IMAGE SECTION
-	// ============================================
 	.card-image-section {
 		position: relative;
 		width: 100%;
-		height: 200px;
+		height: 220px; 
 		overflow: hidden;
 		background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 		flex-shrink: 0;
@@ -53,8 +47,24 @@
 		.card-image {
 			width: 100%;
 			height: 100%;
-			object-fit: cover;
+			object-fit: cover; 
+			object-position: center;
 			transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+			display: block; 
+			image-rendering: -webkit-optimize-contrast;
+			image-rendering: crisp-edges;
+			user-select: none;
+			-webkit-user-drag: none;
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+			transform: translateZ(0);
+			will-change: transform;
+
+			&[src=''] {
+				background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+				background-size: 200% 100%;
+				animation: shimmer 1.5s infinite;
+			}
 		}
 
 		.image-overlay {
@@ -63,10 +73,11 @@
 			left: 0;
 			right: 0;
 			bottom: 0;
-			background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 60%);
+			background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 40%, rgba(0, 0, 0, 0) 70%);
 			display: flex;
 			align-items: flex-start;
 			padding: 16px;
+			pointer-events: none;
 
 			.category-badge {
 				display: flex;
@@ -75,8 +86,9 @@
 				gap: 7px;
 				padding: 8px 16px;
 				border-radius: 12px;
-				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-				backdrop-filter: blur(10px);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+				backdrop-filter: blur(12px);
+				pointer-events: auto;
 
 				.badge-icon {
 					font-size: 16px;
@@ -85,7 +97,6 @@
 
 				.badge-text {
 					color: #fff;
-					font-family: $font;
 					font-size: 12px;
 					font-weight: 800;
 					text-transform: uppercase;
@@ -102,30 +113,47 @@
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 10px;
+			gap: 12px;
+			position: relative;
+
+			&::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: repeating-linear-gradient(
+					45deg,
+					transparent,
+					transparent 10px,
+					rgba(255, 255, 255, 0.05) 10px,
+					rgba(255, 255, 255, 0.05) 20px
+				);
+			}
 
 			.placeholder-icon {
-				font-size: 50px;
+				font-size: 56px;
 				line-height: 1;
-				filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+				filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
+				position: relative;
+				z-index: 1;
 			}
 
 			.placeholder-text {
 				color: #fff;
-				font-family: $font;
 				font-size: 18px;
 				font-weight: 800;
 				text-transform: uppercase;
-				letter-spacing: 1px;
+				letter-spacing: 1.2px;
 				line-height: 1;
-				text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+				text-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+				position: relative;
+				z-index: 1;
 			}
 		}
 	}
 
-	// ============================================
-	// CARD BODY
-	// ============================================
 	.card-body {
 		padding: 20px;
 		display: flex;
@@ -139,7 +167,6 @@
 
 		.card-title {
 			color: #1f2937;
-			font-family: $font;
 			font-size: 18px;
 			font-weight: 800;
 			line-height: 1.4;
@@ -155,7 +182,6 @@
 
 		.card-description {
 			color: #6b7280;
-			font-family: $font;
 			font-size: 13px;
 			font-weight: 400;
 			line-height: 1.6;
@@ -168,9 +194,6 @@
 			flex: 1;
 		}
 
-		// ============================================
-		// META INFO
-		// ============================================
 		.card-meta-info {
 			display: flex;
 			flex-direction: row;
@@ -194,7 +217,6 @@
 
 				.meta-text {
 					color: #9ca3af;
-					font-family: $font;
 					font-size: 12px;
 					font-weight: 600;
 					line-height: 1;
@@ -203,9 +225,6 @@
 			}
 		}
 
-		// ============================================
-		// CARD FOOTER
-		// ============================================
 		.card-footer-section {
 			display: flex;
 			flex-direction: row;
@@ -235,7 +254,6 @@
 
 					.author-name {
 						color: #1f2937;
-						font-family: $font;
 						font-size: 13px;
 						font-weight: 700;
 						margin: 0;
@@ -244,7 +262,6 @@
 
 					.author-role {
 						color: #9ca3af;
-						font-family: $font;
 						font-size: 11px;
 						font-weight: 500;
 						margin: 0;
@@ -280,7 +297,6 @@
 
 					.stat-value {
 						color: #6b7280;
-						font-family: $font;
 						font-size: 12px;
 						font-weight: 700;
 						line-height: 1;
@@ -316,9 +332,6 @@
 			}
 		}
 
-		// ============================================
-		// VIEW DETAILS BUTTON
-		// ============================================
 		.view-details-button {
 			display: flex;
 			flex-direction: row;
@@ -332,7 +345,6 @@
 
 			.button-text {
 				color: #667eea;
-				font-family: $font;
 				font-size: 13px;
 				font-weight: 800;
 				line-height: 1;
@@ -346,16 +358,84 @@
 				transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 			}
 		}
+
+		.apply-button {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			padding: 14px;
+			background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+			border-radius: 12px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			cursor: pointer;
+			box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+
+			.button-text {
+				color: #fff;
+				font-size: 14px;
+				font-weight: 800;
+				line-height: 1;
+				margin: 0;
+			}
+
+			.button-icon {
+				width: 18px;
+				height: 18px;
+				color: #fff;
+				transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+			&:hover:not(.applied) {
+				background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+				box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+				transform: translateY(-2px);
+
+				.button-icon {
+					transform: translateX(4px);
+				}
+			}
+
+			&.applied {
+				background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+				box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+				cursor: default;
+
+				.button-icon {
+					animation: checkmarkPop 0.5s ease;
+				}
+			}
+		}
+	}
+
+	@keyframes checkmarkPop {
+		0% {
+			transform: scale(0);
+		}
+		50% {
+			transform: scale(1.2);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+
+	@keyframes shimmer {
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
 	}
 }
 
-// ============================================
-// RESPONSIVE - TABLET
-// ============================================
+// Responsive for card
 @media (max-width: 1024px) {
-	.opportunity-card {
+	.article-card {
 		.card-image-section {
-			height: 180px;
+			height: 200px;
 		}
 
 		.card-body {
@@ -373,15 +453,12 @@
 	}
 }
 
-// ============================================
-// RESPONSIVE - MOBILE
-// ============================================
 @media (max-width: 768px) {
-	.opportunity-card {
+	.article-card {
 		border-radius: 16px;
 
 		.card-image-section {
-			height: 160px;
+			height: 180px;
 
 			.image-overlay {
 				padding: 14px;
@@ -396,6 +473,16 @@
 					.badge-text {
 						font-size: 11px;
 					}
+				}
+			}
+
+			.card-image-placeholder {
+				.placeholder-icon {
+					font-size: 48px;
+				}
+
+				.placeholder-text {
+					font-size: 16px;
 				}
 			}
 		}
@@ -488,6 +575,25 @@
 					height: 16px;
 				}
 			}
+
+			.apply-button {
+				padding: 12px;
+
+				.button-text {
+					font-size: 13px;
+				}
+
+				.button-icon {
+					width: 16px;
+					height: 16px;
+				}
+			}
 		}
 	}
 }
+
+
+
+
+
+

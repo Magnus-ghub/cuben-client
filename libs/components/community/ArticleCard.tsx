@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Stack, Typography, Avatar, Chip, Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -12,21 +12,23 @@ import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import EventIcon from '@mui/icons-material/Event';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Moment from 'react-moment';
 import { useReactiveVar } from '@apollo/client';
 import { Article } from '../../types/article/article';
-import { userVar } from '../../apollo/store';
 import { ArticleCategory } from '../../enums/article.enum';
-
+import { userVar } from '../../apollo/store';
+import { sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 interface ArticleCardProps {
-	boardArticle: Article;
+	article: Article;
 	likeArticleHandler: (e: any, user: any, id: string) => void;
 }
 
-const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => {
+const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const [isApplied, setIsApplied] = useState(false);
 
 	const getCategoryStyles = (category: string) => {
 		const styles: any = {
@@ -58,8 +60,9 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 		return styles[category] || styles[ArticleCategory.CAREER];
 	};
 
-	const categoryStyle = getCategoryStyles(boardArticle?.articleCategory);
-	const isLiked = boardArticle?.meLiked?.liked || false;
+	const categoryStyle = getCategoryStyles(article?.articleCategory);
+	const isLiked = article?.meLiked?.[0]?.myFavorite || article?.meLiked?.liked || false;
+	const isCareerCategory = article?.articleCategory === ArticleCategory.CAREER;
 
 	const getExcerpt = (html: string, length: number = 150) => {
 		const text = html?.replace(/<[^>]*>/g, '') || '';
@@ -74,26 +77,56 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 		return `${process.env.REACT_APP_API_URL || process.env.NEXT_PUBLIC_API_URL || ''}/${path}`;
 	};
 
+	// Apply button handler
+	const handleApply = async (e: any) => {
+		e.preventDefault();
+		e.stopPropagation();
+		
+		if (isApplied) return;
+		
+		// Show success alert
+		await sweetTopSmallSuccessAlert('Applied Successfully! 🎉', 1500);
+		setIsApplied(true);
+		
+		// Optional: Make API call here to save application
+		// await applyToJob({ variables: { articleId: article._id } });
+	};
+
+	// Navigate to detail page
+	const navigateToDetail = (e: any) => {
+		if (isCareerCategory) {
+			e.preventDefault();
+			router.push({
+				pathname: '/article/detail',
+				query: {
+					id: article?._id,
+					articleCategory: article?.articleCategory,
+				},
+			});
+		}
+	};
+
 	return (
 		<Link
 			href={{
 				pathname: '/article/detail',
 				query: {
-					id: boardArticle?._id,
-					articleCategory: boardArticle?.articleCategory,
+					id: article?._id,
+					articleCategory: article?.articleCategory,
 				},
 			}}
 			passHref
 			style={{ textDecoration: 'none', color: 'inherit' }}
+			onClick={isCareerCategory ? navigateToDetail : undefined}
 		>
-			<Stack className="opportunity-card">
+			<Stack className="article-card">
 				{/* Card Image Banner */}
 				<Stack className="card-image-section">
-					{boardArticle?.articleImage ? (
+					{article?.articleImage ? (
 						<>
 							<img
-								src={getImageUrl(boardArticle?.articleImage)}
-								alt={boardArticle?.articleTitle}
+								src={getImageUrl(article?.articleImage)}
+								alt={article?.articleTitle}
 								className="card-image"
 								onError={(e: any) => {
 									e.target.onerror = null;
@@ -118,7 +151,7 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 				{/* Card Content Section */}
 				<Stack className="card-body">
 					{/* Category Badge for no-image cards */}
-					{!boardArticle?.articleImage && (
+					{!article?.articleImage && (
 						<Chip
 							icon={<span>{categoryStyle.icon}</span>}
 							label={categoryStyle.label}
@@ -136,10 +169,10 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 					)}
 
 					{/* Title */}
-					<Typography className="card-title">{boardArticle?.articleTitle}</Typography>
+					<Typography className="card-title">{article?.articleTitle}</Typography>
 
 					{/* Description/Excerpt */}
-					<Typography className="card-description">{getExcerpt(boardArticle?.articleContent, 140)}</Typography>
+					<Typography className="card-description">{getExcerpt(article?.articleContent, 140)}</Typography>
 
 					{/* Meta Information Based on Category */}
 					<Stack className="card-meta-info">
@@ -147,12 +180,12 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 						<Stack className="meta-item">
 							<CalendarTodayIcon className="meta-icon" />
 							<Typography className="meta-text">
-								<Moment fromNow>{boardArticle?.createdAt}</Moment>
+								<Moment fromNow>{article?.createdAt}</Moment>
 							</Typography>
 						</Stack>
 
 						{/* Career specific info */}
-						{boardArticle?.articleCategory === ArticleCategory.CAREER && (
+						{article?.articleCategory === ArticleCategory.CAREER && (
 							<>
 								<Stack className="meta-item">
 									<WorkOutlineIcon className="meta-icon" />
@@ -166,7 +199,7 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 						)}
 
 						{/* Events specific info */}
-						{boardArticle?.articleCategory === ArticleCategory.EVENTS && (
+						{article?.articleCategory === ArticleCategory.EVENTS && (
 							<>
 								<Stack className="meta-item">
 									<EventIcon className="meta-icon" />
@@ -180,7 +213,7 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 						)}
 
 						{/* News specific info */}
-						{boardArticle?.articleCategory === ArticleCategory.KNOWLEDGE && (
+						{article?.articleCategory === ArticleCategory.KNOWLEDGE && (
 							<Stack className="meta-item">
 								<TrendingUpIcon className="meta-icon" />
 								<Typography className="meta-text">University Update</Typography>
@@ -194,11 +227,11 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 						<Stack className="author-container">
 							<Avatar
 								src={
-									boardArticle?.memberData?.memberImage
-										? getImageUrl(boardArticle?.memberData?.memberImage)
+									article?.memberData?.memberImage
+										? getImageUrl(article?.memberData?.memberImage)
 										: '/img/user/default.png'
 								}
-								alt={boardArticle?.memberData?.memberNick || 'Admin'}
+								alt={article?.memberData?.memberNick || 'Admin'}
 								className="author-avatar"
 								sx={{ width: 36, height: 36 }}
 								onError={(e: any) => {
@@ -207,7 +240,7 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 							/>
 							<Stack className="author-details">
 								<Typography className="author-name">
-									{boardArticle?.memberData?.memberNick || 'BUFS Admin'}
+									{article?.memberData?.memberNick || 'BUFS Admin'}
 								</Typography>
 								<Typography className="author-role">University Staff</Typography>
 							</Stack>
@@ -217,14 +250,14 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 						<Stack className="engagement-stats">
 							<Stack className="stat-item">
 								<VisibilityIcon className="stat-icon" />
-								<Typography className="stat-value">{boardArticle?.articleViews || 0}</Typography>
+								<Typography className="stat-value">{article?.articleViews || 0}</Typography>
 							</Stack>
 							<Stack
 								className={`stat-item like-button ${isLiked ? 'liked' : ''}`}
 								onClick={(e) => {
 									e.preventDefault();
 									e.stopPropagation();
-									likeArticleHandler(e, user, boardArticle?._id);
+									likeArticleHandler(e, user, article?._id);
 								}}
 							>
 								{isLiked ? (
@@ -232,20 +265,39 @@ const ArticleCard = ({ boardArticle, likeArticleHandler }: ArticleCardProps) => 
 								) : (
 									<ThumbUpOffAltIcon className="stat-icon" />
 								)}
-								<Typography className="stat-value">{boardArticle?.articleLikes || 0}</Typography>
+								<Typography className="stat-value">{article?.articleLikes || 0}</Typography>
 							</Stack>
 							<Stack className="stat-item">
 								<ChatBubbleOutlineIcon className="stat-icon" />
-								<Typography className="stat-value">{boardArticle?.articleComments || 0}</Typography>
+								<Typography className="stat-value">{article?.articleComments || 0}</Typography>
 							</Stack>
 						</Stack>
 					</Stack>
 
-					{/* View Details Button */}
-					<Stack className="view-details-button">
-						<Typography className="button-text">View Full Details</Typography>
-						<ArrowForwardIcon className="button-icon" />
-					</Stack>
+					{/* Action Button - Career: Apply, Others: View Details */}
+					{isCareerCategory ? (
+						<Stack
+							className={`apply-button ${isApplied ? 'applied' : ''}`}
+							onClick={handleApply}
+						>
+							{isApplied ? (
+								<>
+									<CheckCircleIcon className="button-icon" />
+									<Typography className="button-text">Applied</Typography>
+								</>
+							) : (
+								<>
+									<Typography className="button-text">Apply Now</Typography>
+									<ArrowForwardIcon className="button-icon" />
+								</>
+							)}
+						</Stack>
+					) : (
+						<Stack className="view-details-button">
+							<Typography className="button-text">View Full Details</Typography>
+							<ArrowForwardIcon className="button-icon" />
+						</Stack>
+					)}
 				</Stack>
 			</Stack>
 		</Link>

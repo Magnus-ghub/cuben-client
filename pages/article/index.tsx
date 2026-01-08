@@ -1,3 +1,4 @@
+// index.tsx - Modified for Article terminology and consistency
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
@@ -107,7 +108,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 		},
 		onError: (error) => {
 			console.error('Articles fetch error:', error);
-			sweetMixinErrorAlert('Error loading opportunities: ' + error.message);
+			sweetMixinErrorAlert('Error loading articles: ' + error.message);
 		},
 	});
 
@@ -199,7 +200,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 
 			await articlesRefetch({ input: searchCommunity });
 			await refetchCounts(); // Refresh counts after like
-			await sweetTopSmallSuccessAlert('success', 800);
+			await sweetTopSmallSuccessAlert('Liked!', 800);
 		} catch (err: any) {
 			console.error('Like error:', err);
 			sweetMixinErrorAlert(err.message);
@@ -211,21 +212,21 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	if (device === 'mobile') {
-		return <h1>OPPORTUNITIES PAGE MOBILE</h1>;
+		return <h1>ARTICLES PAGE MOBILE</h1>;
 	}
 
 	return (
-		<div id="opportunities-page">
+		<div id="articles-page">
 			<div className="container">
 				<TabContext value={searchCommunity.search.articleCategory}>
 					{/* Hero Header Section */}
-					<Stack className="opportunities-hero">
+					<Stack className="articles-hero">
 						<Stack className="hero-content">
 							<Stack className="hero-left">
 								<Typography className="hero-subtitle">Discover Your Future</Typography>
-								<Typography className="hero-title">University Opportunities Hub</Typography>
+								<Typography className="hero-title">University Articles Hub</Typography>
 								<Typography className="hero-description">
-									Explore career opportunities, campus events, latest news, and educational resources all in one
+									Explore career articles, campus events, latest news, and educational resources all in one
 									place
 								</Typography>
 							</Stack>
@@ -235,7 +236,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 										<Box className="stat-icon-box career">💼</Box>
 										<Stack className="stat-info">
 											<Typography className="stat-number">{categoryCounts[ArticleCategory.CAREER]}</Typography>
-											<Typography className="stat-label">Career Posts</Typography>
+											<Typography className="stat-label">Career Articles</Typography>
 										</Stack>
 									</Stack>
 									<Stack className="hero-stat-item">
@@ -358,11 +359,11 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 											<Typography>Loading {category.toLowerCase()}...</Typography>
 										</Stack>
 									) : (
-										<Stack className="opportunities-grid">
+										<Stack className="articles-grid">
 											{articles.length > 0 ? (
 												articles.map((article: Article) => (
 													<ArticleCard
-														boardArticle={article}
+														article={article}
 														likeArticleHandler={likeArticleHandler}
 														key={article._id}
 													/>
@@ -411,7 +412,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 							/>
 							<Typography className="pagination-info">
 								Showing page {searchCommunity.page} of {Math.ceil(totalCount / searchCommunity.limit)} • Total{' '}
-								{totalCount} posts
+								{totalCount} articles
 							</Typography>
 						</Stack>
 					)}
