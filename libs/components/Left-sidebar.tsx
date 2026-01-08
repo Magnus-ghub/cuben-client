@@ -1,36 +1,29 @@
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
-import { Box, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Box, Stack, Dialog, DialogContent, DialogActions, Button, Skeleton } from '@mui/material'; // MODIFIED: Skeleton qo'shildi loading uchun
 import {
 	HelpCircle,
 	Heart,
 	History,
 	ShoppingBag,
-	Monitor,
-	Book,
-	House,
 	Calendar,
 	Notebook,
 	LogOut,
-	Users,
 	Briefcase,
-	Newspaper,
 	GraduationCap,
 	MessageSquare,
 	BookmarkIcon,
 	InfoIcon,
-	PenSquare,
-	BellDot,
-	Store,
 	LayoutList,
 } from 'lucide-react';
 import { logOut } from '../auth';
 import React, { useState, useEffect } from 'react';
 import { userVar } from '../apollo/store';
-import { useReactiveVar } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { REACT_APP_API_URL } from '../config';
 import { Snackbar, Alert } from '@mui/material';
+import { GET_ARTICLES, GET_PRODUCTS } from '../apollo/user/query';
 
 const LeftSidebar = () => {
 	const device = useDeviceDetect();
@@ -39,6 +32,32 @@ const LeftSidebar = () => {
 	const [logoutOpen, setLogoutOpen] = useState(false);
 	const [comingSoonOpen, setComingSoonOpen] = useState(false);
 	const [imageError, setImageError] = useState(false);
+
+	/** APOLLO REQUESTS – MODIFIED: Skip if no user, loading state */
+    const { data: articlesData, loading: articlesLoading } = useQuery(GET_ARTICLES, { // Loading qo'shildi
+        variables: {
+            input: {
+                page: 1,
+                limit: 1,
+                search: {}
+            }
+        },
+        skip: !user?._id, // MODIFIED: User bo'lmasa skip
+    });
+
+    const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
+        variables: {
+            input: {
+                page: 1,
+                limit: 1,
+                search: {}
+            }
+        },
+        skip: !user?._id, // MODIFIED: Skip
+    });
+
+    const articlesCount = articlesData?.getArticles?.metaCounter[0]?.total || 0;
+    const productsCount = productsData?.getProducts?.metaCounter[0]?.total || 0;
 
 	// Reset image error when user changes
 	useEffect(() => {
@@ -55,9 +74,13 @@ const LeftSidebar = () => {
 		}
 	};
 
-	// Helper function to check if route is active
-	const isActive = (path: string) => {
-		return router.pathname === path;
+	// Helper function to check if route is active – MODIFIED: Query params uchun
+	const isActive = (path: string, queryKey?: string, queryValue?: string) => {
+		const baseActive = router.pathname === path;
+		if (queryKey && queryValue) {
+			return baseActive && router.query[queryKey] === queryValue;
+		}
+		return baseActive;
 	};
 
 	// Helper function to get user image with fallback
@@ -122,18 +145,27 @@ const LeftSidebar = () => {
 									<Box className="menu-text">Feed</Box>
 								</Stack>
 							</Link>
-							<Link href={'/community?articleCategory=NOTICE'}>
-								<Stack className={`menu-item ${router.query.articleCategory === 'NOTICE' ? 'active' : ''}`}>
+							<Link href={'/article?articleCategory=CAREER'}>
+								<Stack className={`menu-item ${isActive('/article', 'articleCategory', 'CAREER') ? 'active' : ''}`}>
 									<Briefcase size={20} className="menu-icon" />
 									<Box className="menu-text">Opportunities</Box>
-									<Box className="menu-count">24</Box>
+									{/* MODIFIED: Loading da Skeleton, duplicate fetch oldini olish */}
+									{articlesLoading ? (
+										<Skeleton variant="text" sx={{ fontSize: '0.875rem', width: 20, height: 16 }} />
+									) : (
+										<Box className="menu-count">{articlesCount}</Box>
+									)}
 								</Stack>
 							</Link>
 							<Link href={'/product'}>
 								<Stack className={`menu-item ${isActive('/product') && !router.query.category ? 'active' : ''}`}>
 									<ShoppingBag size={20} className="menu-icon" />
 									<Box className="menu-text">Marketplace</Box>
-									<Box className="menu-count">245</Box>
+									{productsLoading ? (
+										<Skeleton variant="text" sx={{ fontSize: '0.875rem', width: 20, height: 16 }} />
+									) : (
+										<Box className="menu-count">{productsCount}</Box>
+									)}
 								</Stack>
 							</Link>
 							<Stack className="menu-item " onClick={() => setComingSoonOpen(true)} sx={{ cursor: 'pointer' }}>

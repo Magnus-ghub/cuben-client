@@ -1,6 +1,4 @@
 export enum ArticleCategory {
-	COMMUNITY = 'COMMUNITY', 
-	MARKET = 'MARKET', 
 	CAREER = 'CAREER', 
 	KNOWLEDGE = 'KNOWLEDGE', 
 	EVENTS = 'EVENTS', 

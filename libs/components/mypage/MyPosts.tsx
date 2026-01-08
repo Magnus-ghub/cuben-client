@@ -67,7 +67,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const handleArticleClick = (articleId: string) => {
-		router.push(`/community/detail?articleId=${articleId}`);
+		router.push(`/article/detail?articleId=${articleId}`);
 	};
 
 	const handleEditArticle = (articleId: string, e: React.MouseEvent) => {

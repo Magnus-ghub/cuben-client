@@ -45,7 +45,7 @@ const FeatureJobs = () => {
 				<Box className="card-header">
 					<Briefcase size={20} className="header-icon" />
 					<h3>Featured Jobs</h3>
-					<Link href="/community" className="view-all-link">
+					<Link href="/article" className="view-all-link">
 						View All
 					</Link>
 				</Box>

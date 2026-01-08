@@ -42,7 +42,7 @@ const Events = () => {
 				<Box className="card-header">
 					<Calendar size={20} className="header-icon" />
 					<h3>Upcoming Events</h3>
-					<Link href="/community" className="view-all-link">
+					<Link href="/article" className="view-all-link">
 						View All
 					</Link>
 				</Box>
