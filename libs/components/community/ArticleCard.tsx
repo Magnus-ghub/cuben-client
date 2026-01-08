@@ -44,13 +44,13 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 				icon: '🎉',
 				label: 'Event',
 			},
-			[ArticleCategory.KNOWLEDGE]: {
+			[ArticleCategory.ANNOUNCEMENTS]: {
 				bg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 				color: '#3b82f6',
 				icon: '📰',
 				label: 'News',
 			},
-			[ArticleCategory.HELP]: {
+			[ArticleCategory.KNOWLEDGE]: {
 				bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
 				color: '#8b5cf6',
 				icon: '📚',

@@ -42,7 +42,7 @@ const GET_CATEGORY_COUNTS = gql`
 				total
 			}
 		}
-		helpCount: getArticles(input: { page: 1, limit: 1, search: { articleCategory: HELP } }) {
+		announcementsCount: getArticles(input: { page: 1, limit: 1, search: { articleCategory: ANNOUNCEMENTS } }) {
 			metaCounter {
 				total
 			}
@@ -75,7 +75,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 		[ArticleCategory.CAREER]: 0,
 		[ArticleCategory.EVENTS]: 0,
 		[ArticleCategory.KNOWLEDGE]: 0,
-		[ArticleCategory.HELP]: 0,
+		[ArticleCategory.ANNOUNCEMENTS]: 0,
 	});
 
 	/** APOLLO REQUESTS **/
@@ -89,7 +89,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 				[ArticleCategory.CAREER]: data?.careerCount?.metaCounter[0]?.total || 0,
 				[ArticleCategory.EVENTS]: data?.eventsCount?.metaCounter[0]?.total || 0,
 				[ArticleCategory.KNOWLEDGE]: data?.knowledgeCount?.metaCounter[0]?.total || 0,
-				[ArticleCategory.HELP]: data?.helpCount?.metaCounter[0]?.total || 0,
+				[ArticleCategory.ANNOUNCEMENTS]: data?.announcementsCount?.metaCounter[0]?.total || 0,
 			});
 		},
 	});
@@ -214,7 +214,6 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 	if (device === 'mobile') {
 		return <h1>ARTICLES PAGE MOBILE</h1>;
 	}
-
 	return (
 		<div id="articles-page">
 			<div className="container">
@@ -224,10 +223,9 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 						<Stack className="hero-content">
 							<Stack className="hero-left">
 								<Typography className="hero-subtitle">Discover Your Future</Typography>
-								<Typography className="hero-title">University Articles Hub</Typography>
+								<Typography className="hero-title">Your Smart Campus Companion</Typography>
 								<Typography className="hero-description">
-									Explore career articles, campus events, latest news, and educational resources all in one
-									place
+									An official platform where university staff share announcements, events, and academic resources.
 								</Typography>
 							</Stack>
 							<Stack className="hero-right">
@@ -249,15 +247,15 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 									<Stack className="hero-stat-item">
 										<Box className="stat-icon-box news">📰</Box>
 										<Stack className="stat-info">
-											<Typography className="stat-number">{categoryCounts[ArticleCategory.KNOWLEDGE]}</Typography>
+											<Typography className="stat-number">{categoryCounts[ArticleCategory.ANNOUNCEMENTS]}</Typography>
 											<Typography className="stat-label">News</Typography>
 										</Stack>
 									</Stack>
 									<Stack className="hero-stat-item">
 										<Box className="stat-icon-box resources">📚</Box>
 										<Stack className="stat-info">
-											<Typography className="stat-number">{categoryCounts[ArticleCategory.HELP]}</Typography>
-											<Typography className="stat-label">Resources</Typography>
+											<Typography className="stat-number">{categoryCounts[ArticleCategory.KNOWLEDGE]}</Typography>
+											<Typography className="stat-label">Knowledge</Typography>
 										</Stack>
 									</Stack>
 								</Stack>
@@ -313,7 +311,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.EVENTS ? 'active' : ''}`}
 									/>
 									<Tab
-										value={ArticleCategory.KNOWLEDGE}
+										value={ArticleCategory.ANNOUNCEMENTS}
 										label={
 											<Stack className="tab-label-content">
 												<Stack className="tab-label-left">
@@ -321,7 +319,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 													<Typography className="tab-text">University News</Typography>
 												</Stack>
 												<Chip
-													label={getCategoryCount(ArticleCategory.KNOWLEDGE)}
+													label={getCategoryCount(ArticleCategory.ANNOUNCEMENTS)}
 													size="small"
 													className="tab-badge"
 												/>
@@ -330,21 +328,21 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.KNOWLEDGE ? 'active' : ''}`}
 									/>
 									<Tab
-										value={ArticleCategory.HELP}
+										value={ArticleCategory.KNOWLEDGE}
 										label={
 											<Stack className="tab-label-content">
 												<Stack className="tab-label-left">
 													<SchoolIcon className="tab-icon" />
-													<Typography className="tab-text">Resources</Typography>
+													<Typography className="tab-text">Knowledge</Typography>
 												</Stack>
 												<Chip
-													label={getCategoryCount(ArticleCategory.HELP)}
+													label={getCategoryCount(ArticleCategory.KNOWLEDGE)}
 													size="small"
 													className="tab-badge"
 												/>
 											</Stack>
 										}
-										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.HELP ? 'active' : ''}`}
+										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.ANNOUNCEMENTS ? 'active' : ''}`}
 									/>
 								</TabList>
 							</Stack>

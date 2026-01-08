@@ -1,8 +1,8 @@
 export enum ArticleCategory {
 	CAREER = 'CAREER', 
+	ANNOUNCEMENTS = 'ANNOUNCEMENTS',
 	KNOWLEDGE = 'KNOWLEDGE', 
 	EVENTS = 'EVENTS', 
-	HELP = 'HELP',
 }
 
 export enum ArticleStatus {
