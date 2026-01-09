@@ -11,44 +11,61 @@ import { REACT_APP_API_URL } from '../../config';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { useReactiveVar } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
+import { FollowInquiry } from '../../types/follow/follow.input';
+import { Follower } from '../../types/follow/follow';
+import { T } from '../../types/common';
 
 interface PostCardProps {
 	post: Post;
+	initialInput: FollowInquiry;
 	likePostHandler: any;
 	savePostHandler: any;
+	subscribeHandler: any;
+	unsubscribeHandler: any;
 	onCommentClick: (post: Post) => void;
-	followHandler?: (memberId: string) => Promise<void>;
 }
 
 const PostCard = (props: PostCardProps) => {
-	const { post, likePostHandler, savePostHandler, onCommentClick, followHandler } = props;
+	const { initialInput, post, likePostHandler, savePostHandler, onCommentClick, unsubscribeHandler, subscribeHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const [isFollowing, setIsFollowing] = useState<boolean>(false);
 
-	// Properly check if following - check array exists, has length, and myFollowing is true
-	const getFollowStatus = () => {
-		const meFollowed = post?.memberData?.meFollowed;
-		return (
-			meFollowed &&
-			Array.isArray(meFollowed) &&
-			meFollowed.length > 0 &&
-			meFollowed[0]?.myFollowing === true
-		);
-	};
+	/** APOLLO REQUESTS **/
+	// Apollo request o'chirildi, chunki post.memberData.meFollowed mavjud
 
-	// Local state for optimistic follow update
-	const [isFollowing, setIsFollowing] = useState<boolean>(getFollowStatus());
-	const [isFollowLoading, setIsFollowLoading] = useState(false);
-
-	// Update local state when post data changes
+	/** LIFECYCLES **/
 	useEffect(() => {
-		setIsFollowing(getFollowStatus());
+		// Check if current user is following this post's author from post data
+		if (post?.memberData?.meFollowed && post.memberData.meFollowed.length > 0) {
+			setIsFollowing(post.memberData.meFollowed[0]?.myFollowing || false);
+		} else {
+			setIsFollowing(false);
+		}
 	}, [post?.memberData?.meFollowed]);
 
 	/** HANDLERS **/
+	const handleFollowClick = async () => {
+		if (!user?._id || !post?.memberData?._id) return;
+
+		try {
+			if (isFollowing) {
+				await unsubscribeHandler(post.memberData._id);
+			} else {
+				await subscribeHandler(post.memberData._id);
+			}
+			// Update local state immediately for better UX
+			setIsFollowing(!isFollowing);
+		} catch (error) {
+			console.error('Error handling follow:', error);
+			// Revert state on error
+			setIsFollowing(isFollowing);
+		}
+	};
+
 	const getAuthorImage = () => {
 		if (post?.memberData?.memberImage) {
 			return `${REACT_APP_API_URL}/${post.memberData.memberImage}`;
@@ -67,51 +84,10 @@ const PostCard = (props: PostCardProps) => {
 		return moment(date).fromNow();
 	};
 
-	const handleFollowClick = async (e: React.MouseEvent) => {
-		e.stopPropagation(); // Prevent event bubbling
-
-		if (!user?._id) {
-			// User not logged in
-			router.push('/account/join');
-			return;
-		}
-
-		if (!post?.memberData?._id) return;
-
-		// Don't allow following yourself
-		if (user._id === post.memberData._id) return;
-
-		if (!followHandler) return;
-
-		setIsFollowLoading(true);
-
-		// Optimistic update
-		const previousState = isFollowing;
-		setIsFollowing(!isFollowing);
-
-		try {
-			await followHandler(post.memberData._id);
-		} catch (err) {
-			// Rollback on error
-			setIsFollowing(previousState);
-			console.error('Follow error:', err);
-		} finally {
-			setIsFollowLoading(false);
-		}
-	};
-
 	const postImages = getPostImages();
 	const isLiked = post.meLiked?.liked || false;
 	const isSaved = post.meLiked?.saved || false;
 	const isOwnPost = user?._id === post?.memberData?._id;
-
-	console.log('PostCard Follow Status:', {
-		postId: post._id,
-		authorId: post?.memberData?._id,
-		meFollowed: post?.memberData?.meFollowed,
-		isFollowing,
-		isOwnPost,
-	});
 
 	return (
 		<Box className="post-card">
@@ -135,7 +111,7 @@ const PostCard = (props: PostCardProps) => {
 					<Button
 						className={`follow-btn ${isFollowing ? 'following' : ''}`}
 						onClick={handleFollowClick}
-						disabled={isFollowLoading || !user?._id}
+						disabled={!user?._id}
 						startIcon={isFollowing ? <UserCheck size={16} /> : <UserPlus size={16} />}
 					>
 						<span>{isFollowing ? 'Following' : 'Follow'}</span>
@@ -224,6 +200,16 @@ const PostCard = (props: PostCardProps) => {
 			</Box>
 		</Box>
 	);
+};
+
+PostCard.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 5,
+		search: {
+			followingId: undefined, //?????
+		},
+	},
 };
 
 export default PostCard;

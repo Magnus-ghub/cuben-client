@@ -9,22 +9,20 @@ import { LIKE_TARGET_POST, SAVE_TARGET_POST } from '../../apollo/user/mutation';
 import { SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { GET_POSTS } from '../../apollo/user/query';
 import { Direction, Message } from '../../enums/common.enum';
-import { REACT_APP_API_URL } from '../../config';
+import { Messages, REACT_APP_API_URL } from '../../config';
 import { userVar } from '../../apollo/store';
 import PostCard from '../community/Postcard';
 import { PostsInquiry } from '../../types/post/post.input';
 import { Post } from '../../types/post/post';
 import { T } from '../../types/common';
 import CommentModal from '../common/CommentModal';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 const MainSection = ({ initialInput }: any) => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const { query } = router;
-
-	/** STATES **/
 	const [posts, setPosts] = useState<Post[]>([]);
 	const [searchFilter, setSearchFilter] = useState<PostsInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
@@ -36,8 +34,6 @@ const MainSection = ({ initialInput }: any) => {
 	const [commentModalOpen, setCommentModalOpen] = useState(false);
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
-
-	console.log('Modal state:', { commentModalOpen, selectedPost: selectedPost?._id });
 
 	if (postCategory) initialInput.search.postCategory = postCategory;
 
@@ -186,109 +182,37 @@ const MainSection = ({ initialInput }: any) => {
 	};
 
 	// FIXED: Follow/Unfollow Handler with proper state detection
-	const followHandler = async (memberId: string) => {
+	const subscribeHandler = async (id: string, refetch: any, query: any) => {
 		try {
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-			if (!memberId) return;
+			if (!id) throw new Error(Messages.error1);
+			if (!user._id) throw new Error(Messages.error2);
 
-			// Find current follow status from post data
-			const targetPost = posts.find((post) => post.memberData?._id === memberId);
-			if (!targetPost) return;
-
-			// Check meFollowed array - if it exists and has myFollowing: true, we're following
-			const isCurrentlyFollowing =
-				targetPost?.memberData?.meFollowed &&
-				Array.isArray(targetPost.memberData.meFollowed) &&
-				targetPost.memberData.meFollowed.length > 0 &&
-				targetPost.memberData.meFollowed[0]?.myFollowing === true;
-
-			console.log('Follow Handler - Current Status:', {
-				memberId,
-				isCurrentlyFollowing,
-				meFollowed: targetPost?.memberData?.meFollowed,
+			await subscribe({
+				variables: {
+					input: id,
+				},
 			});
-
-			// OPTIMISTIC UPDATE
-			setPosts((prevPosts) =>
-				prevPosts.map((post) => {
-					if (post.memberData?._id === memberId) {
-						return {
-							...post,
-							memberData: {
-								...post.memberData,
-								memberFollowers: isCurrentlyFollowing
-									? Math.max(0, (post.memberData.memberFollowers || 1) - 1)
-									: (post.memberData.memberFollowers || 0) + 1,
-								meFollowed: isCurrentlyFollowing
-									? [] // Unfollow - empty array
-									: [
-											{
-												followingId: memberId,
-												followerId: user._id,
-												myFollowing: true,
-											},
-									  ],
-							},
-						};
-					}
-					return post;
-				})
-			);
-
-			// Backend request with proper action
-			if (isCurrentlyFollowing) {
-				console.log('Calling UNSUBSCRIBE for:', memberId);
-				await unsubscribe({ variables: { input: memberId } });
-			} else {
-				console.log('Calling SUBSCRIBE for:', memberId);
-				await subscribe({ variables: { input: memberId } });
-			}
-
-			// Success feedback
-			// await sweetTopSmallSuccessAlert(isCurrentlyFollowing ? 'Unfollowed' : 'Following', 800);
+			await sweetTopSmallSuccessAlert('Followed!', 800);
+			await refetch({ input: query });
 		} catch (err: any) {
-			console.log('ERROR, followHandler:', err);
+			sweetErrorHandling(err).then();
+		}
+	};
 
-			// Rollback on error - revert to original state
-			const targetPost = posts.find((post) => post.memberData?._id === memberId);
-			if (!targetPost) return;
+	const unsubscribeHandler = async (id: string, refetch: any, query: any) => {
+		try {
+			if (!id) throw new Error(Messages.error1);
+			if (!user._id) throw new Error(Messages.error2);
 
-			const wasFollowing =
-				targetPost?.memberData?.meFollowed &&
-				Array.isArray(targetPost.memberData.meFollowed) &&
-				targetPost.memberData.meFollowed.length > 0 &&
-				targetPost.memberData.meFollowed[0]?.myFollowing === true;
-
-			setPosts((prevPosts) =>
-				prevPosts.map((post) => {
-					if (post.memberData?._id === memberId) {
-						return {
-							...post,
-							memberData: {
-								...post.memberData,
-								memberFollowers: wasFollowing
-									? (post.memberData.memberFollowers || 0) + 1
-									: Math.max(0, (post.memberData.memberFollowers || 1) - 1),
-								meFollowed: wasFollowing
-									? [
-											{
-												followingId: memberId,
-												followerId: user._id,
-												myFollowing: true,
-											},
-									  ]
-									: [],
-							},
-						};
-					}
-					return post;
-				})
-			);
-
-			// Show error only if it's not a duplicate error (which means already following)
-			if (!err.message?.includes('E11000') && !err.message?.includes('duplicate')) {
-				sweetMixinErrorAlert(err.message).then();
-			}
+			await unsubscribe({
+				variables: {
+					input: id,
+				},
+			});
+			await sweetTopSmallSuccessAlert('Unfollowed!', 800);
+			await refetch({ input: query });
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
 		}
 	};
 
@@ -419,7 +343,8 @@ const MainSection = ({ initialInput }: any) => {
 								likePostHandler={likePostHandler}
 								savePostHandler={savePostHandler}
 								onCommentClick={handleCommentClick}
-								followHandler={followHandler}
+								subscribeHandler={subscribeHandler}
+								unsubscribeHandler={unsubscribeHandler}
 							/>
 						))
 					) : (
