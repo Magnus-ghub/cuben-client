@@ -1,3 +1,4 @@
+// CommentModal.tsx (refactored with classNames)
 import React, { useState, useEffect } from 'react';
 import { 
   Dialog, 
@@ -204,17 +205,14 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      // Optimistic update
       setComments((prev) => prev.filter((c) => c._id !== commentId));
       setTotalComments((prev) => Math.max(0, prev - 1));
-
       handleMenuClose(commentId);
-
       await updateComment({
         variables: {
           input: {
             _id: commentId,
-            commentStatus: 'DELETE', // Assuming you have a DELETE status
+            commentStatus: 'DELETE', 
           },
         },
       });
@@ -227,7 +225,6 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
       }
     } catch (err: any) {
       console.error('ERROR, handleDeleteComment:', err);
-      // Refetch to revert changes
       await commentsRefetch({ input: commentInquiry });
       sweetErrorHandling(err).then();
     }
@@ -292,96 +289,56 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '16px',
-          maxHeight: '90vh',
-          m: 2,
-        },
-      }}
+      className="comment-modal-dialog"
     >
-      <DialogContent sx={{ p: 0 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '80vh' }}>
+      <DialogContent className="comment-modal-content">
+        <Box className="comment-modal-main-box">
           {/* Header */}
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: '1px solid #e5e7eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Avatar src={getAuthorImage(post.memberData?.memberImage)} sx={{ width: 40, height: 40 }} />
-              <Box>
-                <Typography sx={{ fontSize: '15px', fontWeight: 600, color: '#1f2937' }}>
+          <Box className="comment-modal-header">
+            <Box className="comment-modal-header-left">
+              <Avatar src={getAuthorImage(post.memberData?.memberImage)} className="comment-modal-author-avatar" />
+              <Box className="comment-modal-author-info">
+                <Typography className="comment-modal-author-name">
                   {post.memberData?.memberNick || 'Anonymous'}
                 </Typography>
-                <Typography sx={{ fontSize: '13px', color: '#6b7280' }}>{formatTimestamp(post.createdAt)}</Typography>
+                <Typography className="comment-modal-author-time">
+                  {formatTimestamp(post.createdAt)}
+                </Typography>
               </Box>
             </Box>
-            <IconButton onClick={onClose} sx={{ color: '#6b7280' }}>
+            <IconButton onClick={onClose} className="comment-modal-close-btn">
               <X size={20} />
             </IconButton>
           </Box>
 
           {/* Post Content */}
-          <Box
-            sx={{
-              p: 2.5,
-              borderBottom: '1px solid #e5e7eb',
-              maxHeight: '300px',
-              overflowY: 'auto',
-            }}
-          >
-            <Typography sx={{ fontSize: '15px', fontWeight: 600, color: '#1f2937', mb: 1 }}>
+          <Box className="comment-modal-post-content">
+            <Typography className="comment-modal-post-title">
               {post.postTitle}
             </Typography>
             {post.postContent && (
-              <Typography sx={{ fontSize: '14px', color: '#1f2937', mb: 1.5, lineHeight: 1.6 }}>
+              <Typography className="comment-modal-post-text">
                 {post.postContent}
               </Typography>
             )}
 
             {/* Post Images */}
             {postImages.length > 0 && (
-              <Box
-                sx={{
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  mt: 2,
-                }}
-              >
+              <Box className="comment-modal-post-images-container">
                 {postImages.length === 1 ? (
                   <img
                     src={postImages[0]}
                     alt="post"
-                    style={{
-                      width: '100%',
-                      maxHeight: '200px',
-                      objectFit: 'cover',
-                    }}
+                    className="comment-modal-single-image"
                   />
                 ) : (
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      gap: '8px',
-                    }}
-                  >
+                  <Box className="comment-modal-multi-images-grid">
                     {postImages.slice(0, 4).map((img, index) => (
                       <img
                         key={index}
                         src={img}
                         alt={`post-${index}`}
-                        style={{
-                          width: '100%',
-                          height: '150px',
-                          objectFit: 'cover',
-                          borderRadius: '8px',
-                        }}
+                        className="comment-modal-multi-image"
                       />
                     ))}
                   </Box>
@@ -389,53 +346,32 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
               </Box>
             )}
 
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 2,
-                mt: 2,
-                fontSize: '13px',
-                color: '#6b7280',
-              }}
-            >
-              <span>{post.postLikes || 0} likes</span>
-              <span>{totalComments} comments</span>
+            <Box className="comment-modal-post-stats">
+              <span className="comment-modal-likes">{post.postLikes || 0} likes</span>
+              <span className="comment-modal-comments">{totalComments} comments</span>
             </Box>
           </Box>
 
           {/* Comments List */}
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: 'auto',
-              p: 2,
-              '&::-webkit-scrollbar': {
-                width: '6px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#d1d5db',
-                borderRadius: '3px',
-              },
-            }}
-          >
+          <Box className="comment-modal-comments-list">
             {commentsLoading && comments.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 4, color: '#6b7280' }}>
-                <Typography>Loading comments...</Typography>
+              <Box className="comment-modal-loading-box">
+                <Typography className="comment-modal-loading-text">Loading comments...</Typography>
               </Box>
             ) : comments && comments.length > 0 ? (
-              <Stack spacing={2.5}>
+              <Stack spacing={2.5} className="comment-modal-comments-stack">
                 {comments.map((comment: Comment) => (
-                  <Box key={comment._id}>
-                    <Box sx={{ display: 'flex', gap: 1.5 }}>
+                  <Box key={comment._id} className="comment-item-wrapper">
+                    <Box className="comment-item-main">
                       <Avatar
                         src={getAuthorImage(comment.memberData?.memberImage, comment._id)}
                         onError={() => handleImageError(comment._id)}
-                        sx={{ width: 36, height: 36, flexShrink: 0 }}
+                        className="comment-item-avatar"
                       />
-                      <Box sx={{ flex: 1 }}>
+                      <Box className="comment-item-content">
                         {editingCommentId === comment._id ? (
                           // Edit Mode
-                          <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                          <Box className="comment-edit-container">
                             <TextField
                               fullWidth
                               multiline
@@ -444,33 +380,21 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
                               onChange={(e) => setEditText(e.target.value)}
                               onKeyDown={(e) => handleEditKeyPress(e, comment._id)}
                               autoFocus
-                              sx={{
-                                '& .MuiOutlinedInput-root': {
-                                  borderRadius: '12px',
-                                  background: '#fff',
-                                  fontSize: '14px',
-                                },
-                              }}
+                              className="comment-edit-field"
                             />
-                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                            <Box className="comment-edit-buttons">
                               <IconButton
                                 size="small"
                                 onClick={() => handleUpdateComment(comment._id)}
                                 disabled={!editText.trim()}
-                                sx={{
-                                  color: '#10b981',
-                                  '&:hover': { background: 'rgba(16, 185, 129, 0.1)' },
-                                }}
+                                className="comment-edit-confirm-btn"
                               >
                                 <Check size={18} />
                               </IconButton>
                               <IconButton
                                 size="small"
                                 onClick={handleCancelEdit}
-                                sx={{
-                                  color: '#ef4444',
-                                  '&:hover': { background: 'rgba(239, 68, 68, 0.1)' },
-                                }}
+                                className="comment-edit-cancel-btn"
                               >
                                 <XIcon size={18} />
                               </IconButton>
@@ -479,62 +403,29 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
                         ) : (
                           // View Mode
                           <>
-                            <Box
-                              sx={{
-                                background: '#f3f4f6',
-                                borderRadius: '16px',
-                                p: 1.5,
-                                position: 'relative',
-                              }}
-                            >
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <Typography
-                                  sx={{
-                                    fontSize: '14px',
-                                    fontWeight: 600,
-                                    color: '#1f2937',
-                                    mb: 0.5,
-                                  }}
-                                >
+                            <Box className="comment-view-bubble">
+                              <Box className="comment-view-header">
+                                <Typography className="comment-view-author">
                                   {comment.memberData?.memberNick || 'Anonymous'}
                                 </Typography>
                                 {user?._id === comment.memberId && (
                                   <IconButton
                                     size="small"
                                     onClick={(e) => handleMenuOpen(e, comment._id)}
-                                    sx={{
-                                      color: '#6b7280',
-                                      padding: '4px',
-                                      '&:hover': { background: 'rgba(0,0,0,0.05)' },
-                                    }}
+                                    className="comment-menu-btn"
                                   >
                                     <MoreVertical size={16} />
                                   </IconButton>
                                 )}
                               </Box>
-                              <Typography
-                                sx={{
-                                  fontSize: '14px',
-                                  color: '#374151',
-                                  lineHeight: 1.5,
-                                }}
-                              >
+                              <Typography className="comment-view-text">
                                 {comment.commentContent}
                               </Typography>
                             </Box>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                gap: 2,
-                                mt: 0.5,
-                                ml: 1.5,
-                                fontSize: '12px',
-                                color: '#6b7280',
-                              }}
-                            >
-                              <span>{formatTimestamp(comment.createdAt)}</span>
+                            <Box className="comment-view-footer">
+                              <span className="comment-view-time">{formatTimestamp(comment.createdAt)}</span>
                               {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-                                <span>(edited)</span>
+                                <span className="comment-view-edited">(edited)</span>
                               )}
                             </Box>
 
@@ -543,36 +434,19 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
                               anchorEl={anchorEl[comment._id]}
                               open={Boolean(anchorEl[comment._id])}
                               onClose={() => handleMenuClose(comment._id)}
-                              PaperProps={{
-                                sx: {
-                                  borderRadius: '12px',
-                                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                  minWidth: '160px',
-                                },
-                              }}
+                              className="comment-menu"
                             >
                               <MenuItem
                                 onClick={() => handleEditClick(comment)}
-                                sx={{
-                                  fontSize: '14px',
-                                  gap: 1.5,
-                                  py: 1,
-                                  '&:hover': { background: '#f3f4f6' },
-                                }}
+                                className="comment-menu-edit"
                               >
                                 <Edit2 size={16} />
                                 Edit
                               </MenuItem>
-                              <Divider sx={{ my: 0.5 }} />
+                              <Divider className="comment-menu-divider" />
                               <MenuItem
                                 onClick={() => handleDeleteComment(comment._id)}
-                                sx={{
-                                  fontSize: '14px',
-                                  gap: 1.5,
-                                  py: 1,
-                                  color: '#ef4444',
-                                  '&:hover': { background: 'rgba(239, 68, 68, 0.1)' },
-                                }}
+                                className="comment-menu-delete"
                               >
                                 <Trash2 size={16} />
                                 Delete
@@ -586,30 +460,17 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
                 ))}
               </Stack>
             ) : (
-              <Box sx={{ textAlign: 'center', py: 4, color: '#6b7280' }}>
-                <Typography>No comments yet. Be the first to comment!</Typography>
+              <Box className="comment-modal-no-comments-box">
+                <Typography className="comment-modal-no-comments-text">No comments yet. Be the first to comment!</Typography>
               </Box>
             )}
           </Box>
 
           {/* Comment Input */}
-          <Box
-            sx={{
-              p: 2,
-              borderTop: '1px solid #e5e7eb',
-              background: '#fff',
-            }}
-          >
-            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
-              <Avatar src={getUserImageSrc()} sx={{ width: 36, height: 36, flexShrink: 0 }} />
-              <Box
-                sx={{
-                  flex: 1,
-                  display: 'flex',
-                  gap: 1,
-                  alignItems: 'flex-end',
-                }}
-              >
+          <Box className="comment-modal-input-section">
+            <Box className="comment-input-main">
+              <Avatar src={getUserImageSrc()} className="comment-input-avatar" />
+              <Box className="comment-input-container">
                 <TextField
                   fullWidth
                   multiline
@@ -619,46 +480,12 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
                   onChange={(e) => setCommentText(e.target.value)}
                   onKeyPress={handleKeyPress}
                   disabled={!user?._id}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '20px',
-                      background: '#f3f4f6',
-                      fontSize: '14px',
-                      '& fieldset': {
-                        borderColor: 'transparent',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#e5e7eb',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#667eea',
-                        borderWidth: '2px',
-                      },
-                    },
-                  }}
+                  className="comment-input-field"
                 />
                 <IconButton
                   onClick={handleSendComment}
                   disabled={!commentText.trim() || !user?._id}
-                  sx={{
-                    background:
-                      commentText.trim() && user?._id
-                        ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                        : '#e5e7eb',
-                    color: '#fff',
-                    width: 40,
-                    height: 40,
-                    '&:hover': {
-                      background:
-                        commentText.trim() && user?._id
-                          ? 'linear-gradient(135deg, #5568d3 0%, #653a8b 100%)'
-                          : '#e5e7eb',
-                    },
-                    '&.Mui-disabled': {
-                      background: '#e5e7eb',
-                      color: '#9ca3af',
-                    },
-                  }}
+                  className="comment-input-send-btn"
                 >
                   <Send size={18} />
                 </IconButton>

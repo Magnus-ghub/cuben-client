@@ -1,10 +1,8 @@
 export enum ProductType {
-	BOOK = 'BOOK',
-	NOTE = 'NOTE',
-	ELECTRONIC = 'ELECTRONIC',
-	FASHION = 'FASHION',
-	ACCESSORY = 'ACCESSORY',
-	HOME = 'HOME',
+	EDU = 'EDU', 
+	TECH = 'TECH', 
+	STYLE = 'STYLE', 
+	HOME = 'HOME', 
 	SERVICE = 'SERVICE',
 	OTHER = 'OTHER',
 }
@@ -17,20 +15,20 @@ export enum ProductStatus {
 }
 
 export enum ProductCondition {
-    NEW = "NEW",
-    LIKE_NEW = "LIKE_NEW",
-    GOOD = "GOOD",
-    USED = "USED",
-    BAD = "BAD",
+	NEW = 'NEW',
+	LIKE_NEW = 'LIKE_NEW',
+	GOOD = 'GOOD',
+	USED = 'USED',
+	BAD = 'BAD',
 }
 
 export enum ProductLocation {
-	DORMITORY = 'DORMITORY', 
-	MAIN_GATE = 'MAIN_GATE', 
-	LIBRARY = 'LIBRARY', 
-	CAFETERIA = 'CAFETERIA', 
+	DORMITORY = 'DORMITORY',
+	MAIN_GATE = 'MAIN_GATE',
+	LIBRARY = 'LIBRARY',
+	CAFETERIA = 'CAFETERIA',
 	SPORT_CENTER = 'SPORT_CENTER',
-	STUDENT_CENTER = 'STUDENT_CENTER', 
-	BUS_STOP = 'BUS_STOP', 
+	STUDENT_CENTER = 'STUDENT_CENTER',
+	BUS_STOP = 'BUS_STOP',
 	OTHER = 'OTHER',
 }

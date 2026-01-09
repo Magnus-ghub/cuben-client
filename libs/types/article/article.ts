@@ -1,7 +1,8 @@
 import { ArticleCategory, ArticleStatus } from '../../enums/article.enum'; 
 import { Member } from '../member/member';
 import { MeLiked } from '../like/like'; 
-import { TotalCounter } from '../product/product';
+import { TotalCounter } from '../common';
+
 
 
 export interface Article { 

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Stack, Box, IconButton, Typography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Product } from '../../types/product/product';
 import { REACT_APP_API_URL } from '../../config';
@@ -21,8 +23,14 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const [isLiked, setIsLiked] = useState(false);
-	const [isSaved, setIsSaved] = useState(false);
+	
+	const [isLiked, setIsLiked] = useState(product?.meLiked?.liked || false);
+	const [isSaved, setIsSaved] = useState(product?.meLiked?.saved || false);
+
+	useEffect(() => {
+		setIsLiked(product?.meLiked?.liked || false);
+		setIsSaved(product?.meLiked?.saved || false);
+	}, [product]);
 
 	/** HANDLERS **/
 	const goProductDetailPage = (productId: string) => {
@@ -33,34 +41,32 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 		e.stopPropagation();
 		if (likeProductHandler) {
 			likeProductHandler(user, product?._id);
+			setIsLiked(!isLiked);
 		}
-		setIsLiked(!isLiked);
 	};
 
 	const handleSaveClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (saveProductHandler) {
 			saveProductHandler(user, product?._id);
+			setIsSaved(!isSaved);
 		}
-		setIsLiked(!isLiked);
 	};
 
 	if (device === 'mobile') {
 		return <div>PRODUCT CARD MOBILE</div>;
 	} else {
 		return (
-			<Stack 
-				className="product-big-card-box" 
-				onClick={() => goProductDetailPage(product?._id)}
-			>
+			<Stack className="product-big-card-box" onClick={() => goProductDetailPage(product?._id)}>
 				{/* Image Section */}
-				<Box
-					component={'div'}
-					className={'card-img'}
-				>
-					<img 
-						src={`${REACT_APP_API_URL}/${product?.productImages?.[0]}`} 
-						alt={product?.productTitle}
+				<Box component={'div'} className={'card-img'}>
+					<img
+						src={
+							product?.productImages?.length > 0
+								? `${REACT_APP_API_URL}/${product.productImages[0]}`
+								: '/img/default-product.png'
+						}
+						alt={product?.productTitle || 'product image'}
 					/>
 
 					{/* Status Badge - Top (Like New, Excellent, etc.) */}
@@ -72,9 +78,7 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 					)}
 
 					{/* Price Tag - Bottom */}
-					<div className={'price'}>
-						₩{product?.productPrice?.toLocaleString()}
-					</div>
+					<div className={'price'}>₩{product?.productPrice?.toLocaleString()}</div>
 				</Box>
 
 				{/* Info Section */}
@@ -92,18 +96,6 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 								<img src="/img/icons/category.svg" alt="" />
 								<span>{product.productType}</span>
 							</div>
-							{product?.productType && (
-								<div>
-									<img src="/img/icons/type.svg" alt="" />
-									<span>{product.productType}</span>
-								</div>
-							)}
-							{product?.productBrand && (
-								<div>
-									<img src="/img/icons/brand.svg" alt="" />
-									<span>{product.productBrand}</span>
-								</div>
-							)}
 						</div>
 					)}
 
@@ -111,41 +103,46 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 					<div className={'bott'}>
 						{/* Tags (Available, Negotiable, etc.) */}
 						<div className="tags-box">
-							{product?.productStatus === 'ACTIVE' ? (
-								<p>Available</p>
-							) : (
-								<span>Sold</span>
-							)}
-							{product?.productNegotiable && <p>Negotiable</p>}
+							{product?.productStatus === 'ACTIVE' ? <p>Available</p> : <span>Sold</span>}
+							<p>Negotiable</p>
 						</div>
 
-						{/* Action Buttons (Views + Likes) */}
+						{/* Action Buttons (Views + Likes + Save) */}
 						<div className="buttons-box">
 							{/* Views */}
 							<IconButton color={'default'} size="small">
 								<RemoveRedEyeIcon />
 							</IconButton>
-							<Typography className="view-cnt">
-								{product?.productViews || 0}
-							</Typography>
+							<Typography className="view-cnt">{product?.productViews || 0}</Typography>
 
 							{/* Likes */}
-							<IconButton
-								color={'default'}
-								size="small"
+							<IconButton 
+								color={'default'} 
+								size="small" 
 								onClick={handleLikeClick}
+								disabled={!user?._id}
 							>
-								{product?.meLiked && product?.meLiked[0]?.myFavorite ? (
-									<FavoriteIcon className="liked" />
-								) : isLiked ? (
+								{isLiked ? (
 									<FavoriteIcon className="liked" />
 								) : (
 									<FavoriteBorderIcon />
 								)}
 							</IconButton>
-							<Typography className="view-cnt">
-								{(product?.productLikes || 0) + (isLiked ? 1 : 0)}
-							</Typography>
+							<Typography className="view-cnt">{product?.productLikes || 0}</Typography>
+
+							{/* Save */}
+							<IconButton 
+								color={'default'} 
+								size="small" 
+								onClick={handleSaveClick}
+								disabled={!user?._id}
+							>
+								{isSaved ? (
+									<BookmarkIcon className="saved" />
+								) : (
+									<BookmarkBorderIcon />
+								)}
+							</IconButton>
 						</div>
 					</div>
 				</Box>

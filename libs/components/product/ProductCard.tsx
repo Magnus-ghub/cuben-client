@@ -16,7 +16,7 @@ import { userVar } from '../../apollo/store';
 interface ProductTypeCard {
 	product: Product;
 	likeProductHandler?: any;
-	saveProductHandler?: any; // Added for save functionality
+	saveProductHandler?: any; 
 	myFavorites?: boolean;
 	recentlyVisited?: boolean;
 	savedItems?: boolean;
@@ -27,14 +27,18 @@ const ProductCard = (props: ProductTypeCard) => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	
-	// Product image path
 	const imagePath: string = product?.productImages[0]
 		? `${REACT_APP_API_URL}/${product?.productImages[0]}`
-		: '/img/product/default-product.jpg';
+		: '/img/default-product.png';
 
 	// Fix: Single object access for meLiked (no [0])
 	const isLiked = product.meLiked?.liked || false;
 	const isSaved = product.meLiked?.saved || false;
+
+	// Format price with commas
+	const formatPrice = (price: number) => {
+		return new Intl.NumberFormat('en-US').format(price);
+	};
 
 	if (device === 'mobile') {
 		return <div>Product card</div>;
@@ -58,6 +62,15 @@ const ProductCard = (props: ProductTypeCard) => {
 								<Typography component="p">{product?.productCondition || 'N/A'}</Typography>
 							</Stack>
 						</Stack>
+
+						{/* Price Tag */}
+						{product?.productPrice && (
+							<Stack className="price-tag">
+								<Typography className="price">
+									${formatPrice(product.productPrice)}
+								</Typography>
+							</Stack>
+						)}
 					</div>
 				</Link>
 
@@ -81,7 +94,7 @@ const ProductCard = (props: ProductTypeCard) => {
 						</Stack>
 					</Stack>
 
-					{/* Description - Hard coded short version */}
+					{/* Description */}
 					{product?.productDesc && (
 						<Typography className="card-description">
 							{product.productDesc.length > 60 
@@ -133,7 +146,7 @@ const ProductCard = (props: ProductTypeCard) => {
 							</Stack>
 							<Stack className="stat-item">
 								<FavoriteIcon
-									className={`stat-icon ${isLiked ? 'favorited' : ''}`} // Fix: Use isLiked
+									className={`stat-icon ${isLiked ? 'favorited' : ''}`}
 								/>
 								<Typography className="stat-text">{product?.productLikes}</Typography>
 							</Stack>
@@ -144,7 +157,7 @@ const ProductCard = (props: ProductTypeCard) => {
 							<IconButton
 								className="action-btn"
 								onClick={() => likeProductHandler(user, product?._id)}
-								disabled={recentlyVisited || !user?._id} // Added auth check
+								disabled={recentlyVisited || !user?._id}
 							>
 								{isLiked ? (
 									<FavoriteIcon className="favorited" />
@@ -156,7 +169,7 @@ const ProductCard = (props: ProductTypeCard) => {
 							{/* Save Button */}
 							<IconButton
 								className="action-btn"
-								onClick={() => saveProductHandler(user, product?._id)} // Use prop if available
+								onClick={() => saveProductHandler(user, product?._id)}
 								disabled={!user?._id}
 							>
 								{isSaved ? (

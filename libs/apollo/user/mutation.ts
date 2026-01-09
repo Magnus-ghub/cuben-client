@@ -268,6 +268,32 @@ export const UPDATE_PRODUCT = gql`
 	}
 `;
 
+export const REMOVE_PRODUCT = gql`
+	mutation RemoveProduct($input: String!) {
+		removeProduct(productId: $input) {
+			_id
+			productType
+			productStatus
+			productLocation
+			productAddress
+			productTitle
+			productDesc
+			productPrice
+			productViews
+			productLikes
+			productSaves
+			productImages
+			productCondition
+			memberId
+			isSold
+			soldAt
+			deletedAt
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
 export const LIKE_TARGET_PRODUCT = gql`
 	mutation LikeTargetProduct($input: String!) {
 		likeTargetProduct(productId: $input) {
