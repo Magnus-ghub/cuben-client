@@ -44,18 +44,6 @@ const Filter = (props: FilterType) => {
 	// Product types
 	const productTypes = ['BOOK', 'NOTE', 'ELECTRONIC', 'FASHION', 'ACCESSORY', 'HOME', 'SERVICE', 'OTHER'];
 	
-	// Locations
-	const locations = [
-		'DORMITORY',
-		'MAIN_GATE',
-		'LIBRARY',
-		'CAFETERIA',
-		'SPORT_CENTER',
-		'STUDENT_CENTER',
-		'BUS_STOP',
-		'OTHER',
-	];
-	
 	// Conditions
 	const conditions = ['NEW', 'LIKE_NEW', 'GOOD', 'USED', 'BAD'];
 
@@ -213,44 +201,6 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Collapse>
 			</Stack>
-
-			{/* Location Filter */}
-			<Stack className="filter-section">
-				<Button
-					className="section-header"
-					onClick={() => setExpandLocation(!expandLocation)}
-					fullWidth
-				>
-					<Typography className="section-title">Location</Typography>
-					{selectedLocations.length > 0 && (
-						<Chip label={selectedLocations.length} size="small" className="count-chip" />
-					)}
-					<ExpandMoreIcon
-						sx={{
-							transform: expandLocation ? 'rotate(180deg)' : 'rotate(0deg)',
-							transition: 'transform 0.3s ease',
-						}}
-					/>
-				</Button>
-				<Collapse in={expandLocation}>
-					<Stack className="options-list">
-						{locations.map((location) => (
-							<Stack className="option-item" key={location}>
-								<Checkbox
-									id={location}
-									size="small"
-									checked={selectedLocations.includes(location)}
-									onChange={() => handleLocationChange(location)}
-								/>
-								<label htmlFor={location}>
-									<Typography className="option-label">{formatLabel(location)}</Typography>
-								</label>
-							</Stack>
-						))}
-					</Stack>
-				</Collapse>
-			</Stack>
-
 			{/* Condition Filter */}
 			<Stack className="filter-section">
 				<Button

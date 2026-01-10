@@ -6,11 +6,12 @@ import { useRouter } from 'next/router';
 import { T } from '../../types/common';
 import { Article } from '../../types/article/article';
 import { ArticlesInquiry } from '../../types/article/article.input';
-import { GET_ARTICLES } from '../../apollo/user/query'; // Added real query
+import { GET_POSTS } from '../../apollo/user/query'; 
 import { useQuery } from '@apollo/client';
 import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
 import { Direction } from '../../enums/common.enum';
+import { Post } from '../../types/post/post';
 
 const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -29,21 +30,21 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 		}
 	);
 	
-	const [memberArticles, setMemberArticles] = useState<Article[]>([]);
+	const [memberArticles, setMemberArticles] = useState<Post[]>([]);
 
 	/** APOLLO REQUESTS **/
 	const {
-		loading: getArticlesLoading,
-		data: getArticlesData,
-		error: getArticlesError,
-		refetch: getArticlesRefetch,
-	} = useQuery(GET_ARTICLES, {
+		loading: getPostsLoading,
+		data: getPostsData,
+		error: getPostError,
+		refetch: getPostsRefetch,
+	} = useQuery(GET_POSTS, {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setMemberArticles(data?.getArticles?.list || []);
-			setTotal(data?.getArticles?.metaCounter?.total || 0); // Single total
+			setMemberArticles(data?.getPosts?.list || []);
+			setTotal(data?.getPosts?.metaCounter?.total || 0); 
 		},
 		onError: (error) => {
 			console.error('MyArticles Error:', error);
@@ -58,7 +59,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 	}, [memberId]);
 
 	useEffect(() => {
-		getArticlesRefetch({ input: searchFilter });
+		getPostsRefetch({ input: searchFilter });
 	}, [searchFilter]);
 
 	/** HANDLERS **/
@@ -66,19 +67,19 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
-	const handleArticleClick = (articleId: string) => {
-		router.push(`/article/detail?articleId=${articleId}`);
+	const handleArticleClick = (postId: string) => {
+		router.push(`/post/detail?postId=${postId}`);
 	};
 
-	const handleEditArticle = (articleId: string, e: React.MouseEvent) => {
+	const handleEditArticle = (postId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		router.push(`/mypage?category=writeArticle&articleId=${articleId}`);
+		router.push(`/mypage?category=writeArticle&articleId=${postId}`);
 	};
 
-	const handleDeleteArticle = (articleId: string, e: React.MouseEvent) => {
+	const handleDeleteArticle = (postId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
 		// TODO: Implement delete mutation
-		console.log('Delete article:', articleId);
+		console.log('Delete article:', postId);
 	};
 
 	const formatDate = (date: Date | string) => {
@@ -123,50 +124,49 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 				) : (
 					<>
-						{memberArticles?.map((article: Article) => {
-							const imagePath = article?.articleImage
-								? `${REACT_APP_API_URL}/${article.articleImage}`
+						{memberArticles?.map((post: Post) => {
+							const imagePath = post?.postImages
+								? `${REACT_APP_API_URL}/${post.postImages}`
 								: '/img/banner/community.webp';
 
+								const getPostImages = () => {
+										if (post?.postImages && Array.isArray(post.postImages)) {
+											return post.postImages.map((img) => `${REACT_APP_API_URL}/${img}`);
+										}
+										return [];
+									};
 							return (
 								<Box
-									key={article._id}
+									key={post._id}
 									className="article-card"
-									onClick={() => handleArticleClick(article._id)}
+									onClick={() => handleArticleClick(post._id)}
 								>
 									{/* Article Image */}
 									<Box className="article-image">
-										<img src={imagePath} alt={article.articleTitle} />
-										<Box className="image-overlay">
-											<Chip label={article.articleCategory} className="category-chip" size="small" />
-										</Box>
+										<img src={imagePath} alt={post.postTitle} />
 									</Box>
 
 									{/* Article Content */}
 									<Box className="article-content">
-										<h3 className="article-title">{article.articleTitle}</h3>
+										<h3 className="article-title">{post.postTitle}</h3>
 										<p className="article-description">
-											{article.articleContent?.substring(0, 120)}
-											{article.articleContent?.length > 120 && '...'}
+											{post.postContent?.substring(0, 120)}
+											{post.postContent?.length > 120 && '...'}
 										</p>
 
 										{/* Stats Row */}
 										<Stack className="article-stats">
 											<Box className="stat-item">
-												<Eye size={16} />
-												<span>{article.articleViews || 0}</span>
-											</Box>
-											<Box className="stat-item">
 												<Heart size={16} />
-												<span>{article.articleLikes || 0}</span>
+												<span>{post.postLikes || 0}</span>
 											</Box>
 											<Box className="stat-item">
 												<MessageSquare size={16} />
-												<span>{article.articleComments || 0}</span>
+												<span>{post.postComments || 0}</span>
 											</Box>
 											<Box className="stat-item date">
 												<Calendar size={16} />
-												<span>{formatDate(article.createdAt)}</span>
+												<span>{formatDate(post.createdAt)}</span>
 											</Box>
 										</Stack>
 
@@ -175,14 +175,14 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 											<IconButton
 												size="small"
 												className="action-btn edit"
-												onClick={(e) => handleEditArticle(article._id, e)}
+												onClick={(e) => handleEditArticle(post._id, e)}
 											>
 												<Edit size={16} />
 											</IconButton>
 											<IconButton
 												size="small"
 												className="action-btn delete"
-												onClick={(e) => handleDeleteArticle(article._id, e)}
+												onClick={(e) => handleDeleteArticle(post._id, e)}
 											>
 												<Trash2 size={16} />
 											</IconButton>
@@ -191,14 +191,6 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 											</IconButton>
 										</Stack>
 									</Box>
-
-									{/* Performance Indicator */}
-									{article.articleViews > 100 && (
-										<Box className="trending-badge">
-											<TrendingUp size={14} />
-											<span>Trending</span>
-										</Box>
-									)}
 								</Box>
 							);
 						})}

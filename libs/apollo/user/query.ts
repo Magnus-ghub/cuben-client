@@ -66,6 +66,7 @@ export const GET_MEMBER = gql`
 			memberDesc
 			memberProducts
 			memberArticles
+			memberPosts
 			memberFollowers
 			memberFollowings
 			memberPoints
@@ -79,7 +80,6 @@ export const GET_MEMBER = gql`
 			createdAt
 			updatedAt
 			accessToken
-			memberPosts
 			meLiked {
 				liked
 				saved

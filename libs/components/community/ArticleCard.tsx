@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Stack, Typography, Avatar, Chip, Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
@@ -261,9 +261,9 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 								}}
 							>
 								{isLiked ? (
-									<ThumbUpAltIcon className="stat-icon liked" />
+									<FavoriteIcon className="stat-icon liked" />
 								) : (
-									<ThumbUpOffAltIcon className="stat-icon" />
+									<FavoriteBorderIcon className="stat-icon" />
 								)}
 								<Typography className="stat-value">{article?.articleLikes || 0}</Typography>
 							</Stack>

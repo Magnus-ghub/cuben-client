@@ -72,7 +72,6 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 					{/* Status Badge - Top (Like New, Excellent, etc.) */}
 					{product?.productCondition && (
 						<div className={'status'}>
-							<img src="/img/icons/check.svg" alt="" />
 							<span>{product.productCondition}</span>
 						</div>
 					)}

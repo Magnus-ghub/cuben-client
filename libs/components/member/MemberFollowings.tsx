@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Box, Button, Pagination, Stack, Avatar, Chip } from '@mui/material';
+import { Box, Button, Pagination, Stack, Avatar, Chip, CircularProgress } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
@@ -7,7 +7,9 @@ import { useQuery, useReactiveVar } from '@apollo/client';
 import { Following } from '../../types/follow/follow';
 import { REACT_APP_API_URL } from '../../config';
 import { userVar } from '../../apollo/store';
-import { Users, UserCheck, Heart, UserPlus, Search, Filter } from 'lucide-react';
+import { Users, UserCheck, Heart, UserPlus } from 'lucide-react';
+import { GET_MEMBER_FOLLOWINGS } from '../../apollo/user/query';
+import { T } from '../../types/common';
 
 interface MemberFollowingsProps {
 	initialInput?: FollowInquiry;
@@ -20,7 +22,11 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	const { initialInput, subscribeHandler, unsubscribeHandler, redirectToMemberPageHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const user = useReactiveVar(userVar);
 	const [total, setTotal] = useState<number>(0);
+	const [memberFollowings, setMemberFollowings] = useState<Following[]>([]);
+	
+	// Default follow inquiry with proper initialization
 	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(
 		initialInput || {
 			page: 1,
@@ -30,41 +36,78 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 			},
 		}
 	);
-	const [memberFollowings, setMemberFollowings] = useState<Following[]>([]);
-	const [searchText, setSearchText] = useState<string>('');
-	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	// TODO: Add your GraphQL query here
-	// const { data, loading, refetch } = useQuery(GET_FOLLOWINGS, {
-	//   variables: { input: followInquiry },
-	// });
+	const {
+		loading: getMemberFollowingsLoading,
+		data: getMemberFollowingsData,
+		error: getMemberFollowingsError,
+		refetch: getMemberFollowingsRefetch,
+	} = useQuery(GET_MEMBER_FOLLOWINGS, {
+		fetchPolicy: 'network-only',
+		variables: { input: followInquiry },
+		skip: !followInquiry?.search?.followerId, // Skip if no followerId
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			console.log('GET_MEMBER_FOLLOWINGS Response:', data); // Debugging
+			if (data?.getMemberFollowings) {
+				setMemberFollowings(data.getMemberFollowings.list || []);
+				setTotal(data.getMemberFollowings.metaCounter?.[0]?.total || 0);
+			}
+		},
+		onError: (error) => {
+			console.error('GET_MEMBER_FOLLOWINGS Error:', error);
+		},
+	});
 
 	/** LIFECYCLES **/
+	// Set followerId based on router query or logged in user
 	useEffect(() => {
-		if (router.query.memberId) {
-			setFollowInquiry({ ...followInquiry, search: { followerId: router.query.memberId as string } });
-		} else {
-			setFollowInquiry({ ...followInquiry, search: { followerId: user?._id || '' } });
+		const memberId = router.query.memberId as string;
+		
+		if (memberId) {
+			// If viewing another member's page, use their ID
+			console.log('Setting followerId from router:', memberId);
+			setFollowInquiry((prev) => ({
+				...prev,
+				page: 1, // Reset to page 1
+				search: { followerId: memberId },
+			}));
+		} else if (user?._id) {
+			// If on own page, use logged in user's ID
+			console.log('Setting followerId from user:', user._id);
+			setFollowInquiry((prev) => ({
+				...prev,
+				page: 1, // Reset to page 1
+				search: { followerId: user._id },
+			}));
 		}
 	}, [router.query.memberId, user?._id]);
 
+	// Refetch when followInquiry changes
 	useEffect(() => {
-		// TODO: Fetch followings data
-		// if (data?.getFollowings) {
-		//   setMemberFollowings(data.getFollowings.list);
-		//   setTotal(data.getFollowings.metaCounter[0]?.total || 0);
-		// }
+		if (followInquiry?.search?.followerId) {
+			console.log('Refetching with inquiry:', followInquiry);
+			getMemberFollowingsRefetch({ input: followInquiry });
+		}
 	}, [followInquiry]);
 
 	/** HANDLERS **/
-	const paginationHandler = (event: ChangeEvent<unknown>, value: number) => {
-		setFollowInquiry({ ...followInquiry, page: value });
+	const paginationHandler = async (event: ChangeEvent<unknown>, value: number) => {
+		setFollowInquiry((prev) => ({ ...prev, page: value }));
 	};
 
-	const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-		setSearchText(event.target.value);
-	};
+	// Loading state
+	if (getMemberFollowingsLoading) {
+		return (
+			<Box className="modern-followers-container">
+				<Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+					<CircularProgress size={48} />
+					<p style={{ marginTop: '16px', color: '#6b7280' }}>Loading followings...</p>
+				</Stack>
+			</Box>
+		);
+	}
 
 	if (device === 'mobile') {
 		return <div>FOLLOWINGS MOBILE</div>;
@@ -84,28 +127,8 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 					</Box>
 				</Box>
 				<Box className="header-right">
-					<Chip
-						icon={<UserPlus size={16} />}
-						label={`${total} Following`}
-						className="total-chip"
-					/>
+					<Chip icon={<UserPlus size={16} />} label={`${total} Following`} className="total-chip" />
 				</Box>
-			</Stack>
-
-			{/* Search & Filter Bar */}
-			<Stack className="search-filter-bar">
-				<Box className="search-box">
-					<Search size={20} />
-					<input
-						type="text"
-						placeholder="Search following..."
-						value={searchText}
-						onChange={handleSearchChange}
-					/>
-				</Box>
-				<Button className="filter-button" startIcon={<Filter size={18} />}>
-					Filter
-				</Button>
 			</Stack>
 
 			{/* Followings List */}
@@ -132,11 +155,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 										className="profile-section"
 										onClick={() => redirectToMemberPageHandler(following?.followingData?._id)}
 									>
-										<Avatar
-											src={imagePath}
-											alt={following?.followingData?.memberNick}
-											className="follower-avatar"
-										/>
+										<Avatar src={imagePath} alt={following?.followingData?.memberNick} className="follower-avatar" />
 										<Box className="profile-info">
 											<h4 className="follower-name">{following?.followingData?.memberNick}</h4>
 											<p className="follower-username">@{following?.followingData?.memberNick?.toLowerCase()}</p>
@@ -144,7 +163,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 									</Box>
 
 									{/* Middle Section - Stats */}
-									<Stack className="stats-section">
+									<Stack className="stats-section" flexDirection={'row'}>
 										<Box className="stat-item">
 											<Users size={18} />
 											<Box className="stat-info">
@@ -159,17 +178,6 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 												<span className="stat-value">{following?.followingData?.memberFollowings || 0}</span>
 											</Box>
 										</Box>
-										<Box className="stat-item">
-											<Heart 
-												size={18} 
-												fill={following?.meLiked?.[0]?.myFavorite ? '#ec4899' : 'none'}
-												color={following?.meLiked?.[0]?.myFavorite ? '#ec4899' : 'currentColor'}
-											/>
-											<Box className="stat-info">
-												<span className="stat-label">Likes</span>
-												<span className="stat-value">{following?.followingData?.memberLikes || 0}</span>
-											</Box>
-										</Box>
 									</Stack>
 
 									{/* Right Section - Action Button */}
@@ -180,7 +188,13 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 													variant="outlined"
 													className="unfollow-button"
 													startIcon={<UserCheck size={18} />}
-													onClick={() => unsubscribeHandler(following?.followingData?._id, null, followInquiry)}
+													onClick={() =>
+														unsubscribeHandler(
+															following?.followingData?._id,
+															getMemberFollowingsRefetch,
+															followInquiry
+														)
+													}
 												>
 													Following
 												</Button>
@@ -189,7 +203,13 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 													variant="contained"
 													className="follow-button"
 													startIcon={<Users size={18} />}
-													onClick={() => subscribeHandler(following?.followingData?._id, null, followInquiry)}
+													onClick={() =>
+														subscribeHandler(
+															following?.followingData?._id,
+															getMemberFollowingsRefetch,
+															followInquiry
+														)
+													}
 												>
 													Follow
 												</Button>
@@ -219,6 +239,16 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 			)}
 		</Box>
 	);
+};
+
+MemberFollowings.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 10,
+		search: {
+			followerId: '',
+		},
+	},
 };
 
 export default MemberFollowings;

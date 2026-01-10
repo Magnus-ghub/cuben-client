@@ -291,7 +291,7 @@
 						transition: color 0.2s ease;
 
 						&.liked {
-							color: #667eea;
+							color: #e80926;
 						}
 					}
 
@@ -307,7 +307,7 @@
 						cursor: pointer;
 
 						&:hover {
-							background: rgba(102, 126, 234, 0.12);
+							background: rgba(237, 81, 91, 0.12);
 
 							.stat-icon {
 								color: #667eea;
@@ -320,7 +320,7 @@
 
 						&.liked {
 							.stat-icon {
-								color: #667eea;
+								color: #e90e33;
 							}
 
 							.stat-value {

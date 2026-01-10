@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination, Stack, Box, Chip, IconButton, Avatar } from '@mui/material';
+import { Pagination, Stack, Box, Chip, IconButton, CircularProgress } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { T } from '../../types/common';
 import { useRouter } from 'next/router';
 import { Product } from '../../types/product/product';
 import { ProductsInquiry } from '../../types/product/product.input';
-import { GET_PRODUCTS } from '../../apollo/user/query'; 
-import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS } from '../../apollo/user/query';
+import { REMOVE_PRODUCT } from '../../apollo/user/mutation';
+import { useQuery, useMutation, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../apollo/store';
 import { Package, Calendar, Eye, Heart, Edit, Trash2, MoreVertical, DollarSign, MapPin, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
-import { Direction } from '../../enums/common.enum';
+import { Direction, Message } from '../../enums/common.enum';
+import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } from '../../sweetAlert';
 
 const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const { memberId } = router.query;
+	const user = useReactiveVar(userVar); // Get logged in user
+	
 	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
 		initialInput || {
 			page: 1,
@@ -28,10 +32,12 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		}
 	);
 	
-	const [agentProducts, setAgentProducts] = useState<Product[]>([]);
+	const [userProducts, setUserProducts] = useState<Product[]>([]);
 	const [total, setTotal] = useState<number>(0);
 
 	/** APOLLO REQUESTS **/
+	const [removeProduct] = useMutation(REMOVE_PRODUCT);
+
 	const {
 		loading: getProductsLoading,
 		data: getProductsData,
@@ -41,9 +47,10 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
+		skip: !user?._id, // Don't fetch until user is loaded
 		onCompleted: (data: T) => {
-			setAgentProducts(data?.getProducts?.list || []);
-			setTotal(data?.getProducts?.metaCounter?.total || 0); 
+			setUserProducts(data?.getProducts?.list || []);
+			setTotal(data?.getProducts?.metaCounter?.total || 0);
 		},
 		onError: (error) => {
 			console.error('MyProducts Error:', error);
@@ -51,17 +58,21 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	});
 
 	/** LIFECYCLES **/
+	// Set user's memberId when user is loaded
 	useEffect(() => {
-		if (memberId) {
+		if (user?._id) {
 			setSearchFilter({
 				...searchFilter,
-				search: { ...searchFilter.search, memberId: memberId as string },
+				search: { ...searchFilter.search, memberId: user._id },
 			});
 		}
-	}, [memberId]);
+	}, [user?._id]);
 
+	// Refetch when searchFilter changes
 	useEffect(() => {
-		getProductsRefetch({ input: searchFilter });
+		if (user?._id && searchFilter.search.memberId) {
+			getProductsRefetch({ input: searchFilter });
+		}
 	}, [searchFilter]);
 
 	/** HANDLERS **/
@@ -70,7 +81,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const handleProductClick = (productId: string) => {
-		router.push(`/product/${productId}`);
+		router.push(`/product/detail?id=${productId}`);
 	};
 
 	const handleEditProduct = (productId: string, e: React.MouseEvent) => {
@@ -78,10 +89,29 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		router.push(`/mypage?category=addNewProduct&productId=${productId}`);
 	};
 
-	const handleDeleteProduct = (productId: string, e: React.MouseEvent) => {
+	const handleDeleteProduct = async (productId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		// TODO: Implement delete mutation
-		console.log('Delete product:', productId);
+		
+		try {
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			const confirmed = await sweetConfirmAlert(
+				'Are you sure you want to delete this product? This action cannot be undone.'
+			);
+			if (!confirmed) return;
+
+			await removeProduct({
+				variables: { input: productId },
+			});
+
+			// Refetch products after deletion
+			await getProductsRefetch({ input: searchFilter });
+			
+			await sweetTopSmallSuccessAlert('Product deleted successfully!', 800);
+		} catch (err: any) {
+			console.error('Delete Product Error:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
 	};
 
 	const formatDate = (date: Date | string) => {
@@ -93,9 +123,9 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat('en-US', {
+		return new Intl.NumberFormat('ko-KR', {
 			style: 'currency',
-			currency: 'USD',
+			currency: 'KRW',
 			minimumFractionDigits: 0,
 		}).format(price);
 	};
@@ -108,6 +138,18 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		};
 		return colors[status] || '#94a3b8';
 	};
+
+	// Loading state
+	if (!user?._id || getProductsLoading) {
+		return (
+			<Box className="modern-content-container">
+				<Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+					<CircularProgress size={48} />
+					<p style={{ marginTop: '16px', color: '#6b7280' }}>Loading your products...</p>
+				</Stack>
+			</Box>
+		);
+	}
 
 	if (device === 'mobile') {
 		return <div>MY PRODUCTS MOBILE</div>;
@@ -133,7 +175,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 			{/* Products Grid */}
 			<Box className="products-grid">
-				{agentProducts?.length === 0 ? (
+				{userProducts?.length === 0 ? (
 					<Box className="empty-state">
 						<Box className="empty-icon">
 							<Package size={64} />
@@ -143,17 +185,13 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 				) : (
 					<>
-						{agentProducts?.map((product: Product) => {
+						{userProducts?.map((product: Product) => {
 							const imagePath = product?.productImages?.[0]
 								? `${REACT_APP_API_URL}/${product.productImages[0]}`
 								: '/img/product/macbookpro.jpeg';
 
 							return (
-								<Box
-									key={product._id}
-									className="product-card"
-									onClick={() => handleProductClick(product._id)}
-								>
+								<Box key={product._id} className="product-card" onClick={() => handleProductClick(product._id)}>
 									{/* Product Image */}
 									<Box className="product-image">
 										<img src={imagePath} alt={product.productTitle} />
@@ -217,6 +255,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 												size="small"
 												className="action-btn edit"
 												onClick={(e) => handleEditProduct(product._id, e)}
+												title="Edit Product"
 											>
 												<Edit size={16} />
 											</IconButton>
@@ -224,10 +263,11 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 												size="small"
 												className="action-btn delete"
 												onClick={(e) => handleDeleteProduct(product._id, e)}
+												title="Delete Product"
 											>
 												<Trash2 size={16} />
 											</IconButton>
-											<IconButton size="small" className="action-btn more">
+											<IconButton size="small" className="action-btn more" title="More Options">
 												<MoreVertical size={16} />
 											</IconButton>
 										</Stack>
@@ -240,7 +280,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			</Box>
 
 			{/* Pagination */}
-			{agentProducts.length > 0 && (
+			{userProducts.length > 0 && (
 				<Stack className="pagination-section">
 					<Pagination
 						count={Math.ceil(total / searchFilter.limit)}
@@ -255,6 +295,18 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			)}
 		</Box>
 	);
+};
+
+MyProducts.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 8,
+		sort: 'createdAt',
+		direction: Direction.DESC,
+		search: {
+			memberId: '',
+		},
+	},
 };
 
 export default MyProducts;

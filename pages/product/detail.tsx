@@ -21,7 +21,7 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../libs/apollo/store';
 import { Product } from '../../libs/types/product/product';
-import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT, UPDATE_PRODUCT, REMOVE_PRODUCT } from '../../libs/apollo/user/mutation'; // Added UPDATE_PRODUCT, REMOVE_PRODUCT
+import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT, UPDATE_PRODUCT, REMOVE_PRODUCT } from '../../libs/apollo/user/mutation';
 import { GET_PRODUCT, GET_PRODUCTS } from '../../libs/apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
@@ -30,7 +30,6 @@ import { REACT_APP_API_URL } from '../../libs/config';
 import moment from 'moment';
 import Link from 'next/link';
 import ProductBigCard from '../../libs/components/common/ProductBigCard';
-
 
 SwiperCore.use([Autoplay, Navigation, SwiperPagination]);
 
@@ -47,17 +46,16 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const [productId, setProductId] = useState<string | null>(null);
 	const [product, setProduct] = useState<Product | null>(null);
 	const [slideImage, setSlideImage] = useState<string>('');
-	const [destinationProducts, setDestinationProducts] = useState<Product[]>([]);
-	const [isSaved, setIsSaved] = useState(false); // State for save toggle
+	const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+	const [isSaved, setIsSaved] = useState(false);
 	const [contactName, setContactName] = useState<string>('');
 	const [contactMessage, setContactMessage] = useState<string>('');
 
-	// Check if current user is the product owner
 	const isOwner = user?._id === product?.memberId;
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
-	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT); // Added for save
+	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT);
 	const [updateProduct] = useMutation(UPDATE_PRODUCT);
 	const [removeProduct] = useMutation(REMOVE_PRODUCT);
 
@@ -69,11 +67,16 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 	} = useQuery(GET_PRODUCT, {
 		fetchPolicy: 'network-only',
 		variables: { input: productId },
+		skip: !productId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			if (data?.getProduct) setProduct(data?.getProduct);
-			if (data?.getProduct) setSlideImage(data?.getProduct?.productImages[0]);
-			if (data?.getProduct?.meLiked?.saved) setIsSaved(data.getProduct.meLiked.saved); // Fix: Single meLiked.saved
+			if (data?.getProduct) {
+				setProduct(data?.getProduct);
+				setSlideImage(data?.getProduct?.productImages[0]);
+				if (data?.getProduct?.meLiked) {
+					setIsSaved(data.getProduct.meLiked.saved || false);
+				}
+			}
 		},
 	});
 
@@ -87,85 +90,157 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		variables: {
 			input: {
 				page: 1,
-				limit: 5, 
+				limit: 8,
 				sort: 'createdAt',
 				direction: Direction.DESC,
 				search: {
-					productTypeList: product?.productType ? [product?.productType] : [],
-					locationList: product?.productLocation ? [product?.productLocation] : [],
+					typeList: product?.productType ? [product.productType] : undefined,
 				},
 			},
 		},
-		skip: !productId || !product,
+		skip: !product?.productType,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			if (data?.getProducts?.list) {
-				const similarProducts = data.getProducts.list.filter((p: Product) => p._id !== product?._id).slice(0, 4);
-				setDestinationProducts(similarProducts);
+				const similarProducts = data.getProducts.list
+					.filter((p: Product) => p._id !== product?._id)
+					.slice(0, 4);
+				setCategoryProducts(similarProducts);
 			}
 		},
 	});
-
 
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.id) {
 			setProductId(router.query.id as string);
 		}
-	}, [router]);
+	}, [router.query.id]);
+
+	useEffect(() => {
+		if (product?.productType) {
+			getProductsRefetch({
+				input: {
+					page: 1,
+					limit: 8,
+					sort: 'createdAt',
+					direction: Direction.DESC,
+					search: {
+						typeList: [product.productType],
+					},
+				},
+			});
+		}
+	}, [product?.productType]);
 
 	/** HANDLERS **/
 	const changeImageHandler = (image: string) => {
 		setSlideImage(image);
 	};
 
+	// FIXED: Like handler - Optimistic update without full refetch
 	const likeProductHandler = async (user: T, id: string) => {
 		try {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
-			await likeTargetProduct({
-				variables: { productId: id }, // Fix: productId, not input
-			});
-
-			await getProductRefetch({ input: id });
-
-			await getProductsRefetch({
-				input: {
-					page: 1,
-					limit: 4,
-					sort: 'createdAt',
-					direction: Direction.DESC,
-					search: {
-						locationList: [product?.productLocation],
+			// Optimistic UI update
+			if (product && product._id === id) {
+				const isLiked = product.meLiked?.liked || false;
+				setProduct({
+					...product,
+					meLiked: {
+						...product.meLiked,
+						liked: !isLiked,
 					},
-				},
+					productLikes: isLiked ? product.productLikes - 1 : product.productLikes + 1,
+				});
+			}
+
+			// Update similar products optimistically
+			setCategoryProducts((prev) =>
+				prev.map((p) => {
+					if (p._id === id) {
+						const isLiked = p.meLiked?.liked || false;
+						return {
+							...p,
+							meLiked: {
+								...p.meLiked,
+								liked: !isLiked,
+							},
+							productLikes: isLiked ? p.productLikes - 1 : p.productLikes + 1,
+						};
+					}
+					return p;
+				})
+			);
+
+			// API call
+			await likeTargetProduct({
+				variables: { input: id },
 			});
 
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			console.log('ERROR, likeProductHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
+			// Revert on error
+			if (productId) {
+				await getProductRefetch({ input: productId });
+			}
 		}
 	};
 
-	// Added save handler
+	// FIXED: Save handler - Optimistic update
 	const saveProductHandler = async (user: T, id: string) => {
 		try {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
+			// Optimistic UI update
+			const newSavedState = !isSaved;
+			setIsSaved(newSavedState);
+
+			if (product && product._id === id) {
+				setProduct({
+					...product,
+					meLiked: {
+						...product.meLiked,
+						saved: newSavedState,
+					},
+				});
+			}
+
+			// Update similar products optimistically
+			setCategoryProducts((prev) =>
+				prev.map((p) => {
+					if (p._id === id) {
+						return {
+							...p,
+							meLiked: {
+								...p.meLiked,
+								saved: newSavedState,
+							},
+						};
+					}
+					return p;
+				})
+			);
+
+			// API call
 			await saveTargetProduct({
-				variables: { productId: id },
+				variables: { input: id },
 			});
 
-			setIsSaved(!isSaved); // Toggle local state
-			await getProductRefetch({ input: id });
-
-			await sweetTopSmallSuccessAlert('Saved successfully!', 800);
+			await sweetTopSmallSuccessAlert(newSavedState ? 'Saved!' : 'Unsaved!', 800);
 		} catch (err: any) {
 			console.log('ERROR, saveProductHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
+			// Revert on error
+			setIsSaved(!isSaved);
+			if (productId) {
+				await getProductRefetch({ input: productId });
+			}
 		}
 	};
 
@@ -189,7 +264,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		setContactMessage('');
 	};
 
-	// New: Update product handler (example: simple update, extend as needed)
 	const updateProductHandler = async (updateInput: any) => {
 		try {
 			if (!productId) return;
@@ -207,13 +281,14 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		}
 	};
 
-	// New: Delete product handler
 	const deleteProductHandler = async () => {
 		try {
 			if (!productId) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
-			const confirmed = await sweetConfirmAlert('Are you sure you want to delete this product? This action cannot be undone.');
+			const confirmed = await sweetConfirmAlert(
+				'Are you sure you want to delete this product? This action cannot be undone.'
+			);
 			if (!confirmed) return;
 
 			await removeProduct({
@@ -221,7 +296,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 			});
 
 			await sweetTopSmallSuccessAlert('Product deleted successfully!', 800);
-			router.push('/product'); // Redirect to products list after delete
+			router.push('/product');
 		} catch (err: any) {
 			console.log('ERROR, deleteProductHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
@@ -306,7 +381,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Brand</Typography>
-										<Typography className="detail-value">N/A</Typography> {/* Hardcoded or from desc */}
+										<Typography className="detail-value">N/A</Typography>
 									</Stack>
 									<Stack className="detail-row">
 										<Typography className="detail-label">Status</Typography>
@@ -398,9 +473,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 												<VerifiedIcon className="verified-icon" />
 											)}
 										</Stack>
-										<Typography className="seller-username">
-											@{product?.memberData?.memberNick?.toLowerCase()}
-										</Typography>
+										<Typography className="seller-username">@{product?.memberData?.memberNick?.toLowerCase()}</Typography>
 										<Stack className="seller-stats">
 											<Typography className="seller-listings">
 												{product?.memberData?.memberProducts || 0} active listings
@@ -411,7 +484,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								</Stack>
 							</Stack>
 
-							{/* Owner Actions - Visible only if isOwner */}
+							{/* Owner Actions */}
 							{isOwner && (
 								<Stack className="owner-actions-card">
 									<Typography className="card-title">Owner Actions</Typography>
@@ -420,7 +493,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 											variant="outlined"
 											startIcon={<EditIcon />}
 											className="owner-edit-btn"
-											onClick={() => router.push(`/product/edit/${productId}`)} // Assuming edit route exists
+											onClick={() => router.push(`/product/edit/${productId}`)}
 											fullWidth
 										>
 											Edit Product
@@ -475,12 +548,12 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 					</Stack>
 
 					{/* Similar Products */}
-					{destinationProducts.length !== 0 && (
+					{categoryProducts.length > 0 && (
 						<Stack className="similar-products-config">
 							<Stack className="title-pagination-box">
 								<Stack className="title-box">
 									<Typography className="main-title">Similar Products</Typography>
-									<Typography className="sub-title">Other items from {product?.productLocation}</Typography>
+									<Typography className="sub-title">Other items from {product?.productType}</Typography>
 								</Stack>
 								<Stack className="pagination-box">
 									<WestIcon className="swiper-similar-prev" />
@@ -502,13 +575,13 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 										el: '.swiper-similar-pagination',
 									}}
 								>
-									{destinationProducts.map((product: Product) => {
+									{categoryProducts.map((product: Product) => {
 										return (
 											<SwiperSlide className="similar-products-slide" key={product?._id}>
 												<ProductBigCard
 													product={product}
 													likeProductHandler={likeProductHandler}
-													saveProductHandler={saveProductHandler} // Added prop
+													saveProductHandler={saveProductHandler}
 													key={product?._id}
 												/>
 											</SwiperSlide>

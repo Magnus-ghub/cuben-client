@@ -53,6 +53,7 @@ const MyPage: NextPage = () => {
 		posts: 0,
 		products: 0,
 		followers: 0,
+		followings: 0,
 		views: 0,
 		likes: 0,
 	});
@@ -77,6 +78,7 @@ const MyPage: NextPage = () => {
 					posts: member.memberPosts || 0,
 					products: member.memberProducts || 0,
 					followers: member.memberFollowers || 0,
+					followings: member.memberFollowings || 0,
 					views: member.memberViews || 0,
 					likes: member.memberLikes || 0,
 				});
@@ -172,7 +174,7 @@ const MyPage: NextPage = () => {
 			id: 'followings',
 			label: 'Following',
 			icon: <UserPlus size={18} />,
-			count: null,
+			count: stats.followings,
 		},
 	];
 
