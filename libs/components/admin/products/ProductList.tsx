@@ -178,13 +178,6 @@ export const ProductPanelList = (props: ProductPanelListType) => {
                                         {product.memberData?.memberNick}
                                     </Typography>
                                 </TableCell>
-
-                                <TableCell align="center">
-                                    <Box className="status-badge inactive" sx={{ fontSize: '11px' }}>
-                                        {product.productLocation}
-                                    </Box>
-                                </TableCell>
-
                                 <TableCell align="center">
                                     <Typography sx={{ fontSize: '13px', color: '#6366f1', fontWeight: 600 }}>
                                         {product.productType}

@@ -3,6 +3,7 @@ import { Stack, Typography, Avatar, IconButton } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import PlaceIcon from '@mui/icons-material/Place';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Product } from '../../types/product/product';
@@ -106,8 +107,7 @@ const ProductCard = (props: ProductTypeCard) => {
 					{/* Location */}
 					<Stack className="card-location">
 						<Typography className="location-text">
-							{product?.productLocation}
-							{product?.productAddress && `, ${product.productAddress}`}
+							📍 {product?.productAddress || 'No Address'}
 						</Typography>
 					</Stack>
 

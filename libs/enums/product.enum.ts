@@ -22,13 +22,3 @@ export enum ProductCondition {
 	BAD = 'BAD',
 }
 
-export enum ProductLocation {
-	DORMITORY = 'DORMITORY',
-	MAIN_GATE = 'MAIN_GATE',
-	LIBRARY = 'LIBRARY',
-	CAFETERIA = 'CAFETERIA',
-	SPORT_CENTER = 'SPORT_CENTER',
-	STUDENT_CENTER = 'STUDENT_CENTER',
-	BUS_STOP = 'BUS_STOP',
-	OTHER = 'OTHER',
-}

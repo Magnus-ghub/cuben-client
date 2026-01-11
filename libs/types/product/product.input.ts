@@ -1,9 +1,8 @@
 import { Direction } from "../../enums/common.enum";
-import { ProductLocation, ProductStatus, ProductType, ProductCondition } from "../../enums/product.enum"; // Added ProductCondition
+import { ProductStatus, ProductType, ProductCondition } from "../../enums/product.enum"; 
 
 export interface ProductInput {
 	productType: ProductType;
-	productLocation: ProductLocation;
 	productAddress?: string;
 	productTitle: string;
 	productPrice: number;
@@ -15,7 +14,6 @@ export interface ProductInput {
 
 interface ProductSearch { 
 	memberId?: string;
-	locationList?: ProductLocation[];
 	typeList?: ProductType[];
 	condition?: ProductCondition; 
 	options?: string[]; 
@@ -46,7 +44,6 @@ export interface AgentProductsInquiry {
 
 interface AllProductSearch { 
 	productStatus?: ProductStatus;
-	productLocationList?: ProductLocation[];
 }
 
 export interface AllProductsInquiry {

@@ -1,4 +1,4 @@
-import { ProductCondition, ProductLocation, ProductStatus, ProductType } from "../../enums/product.enum";
+import { ProductCondition, ProductStatus, ProductType } from "../../enums/product.enum";
 import { TotalCounter } from "../common";
 import { MeLiked } from "../like/like"; 
 import { Member } from "../member/member";
@@ -8,7 +8,6 @@ export interface Product {
 	productType: ProductType;
 	productStatus: ProductStatus;
 	productCondition: ProductCondition;
-	productLocation: ProductLocation;
 	productTitle: string;
 	productAddress?: string;
 	productPrice: number;

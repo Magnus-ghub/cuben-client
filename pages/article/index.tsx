@@ -1,9 +1,7 @@
-// index.tsx - Modified for Article terminology and consistency
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Stack, Tab, Typography, Pagination, Chip, Box } from '@mui/material';
-import Link from 'next/link';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { T } from '../../libs/types/common';
 import { ArticlesInquiry } from '../../libs/types/article/article.input';
@@ -24,7 +22,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Article } from '../../libs/types/article/article';
 import ArticleCard from '../../libs/components/community/ArticleCard';
 
-// Query for getting all category counts
 const GET_CATEGORY_COUNTS = gql`
 	query GetCategoryCounts {
 		careerCount: getArticles(input: { page: 1, limit: 1, search: { articleCategory: CAREER } }) {

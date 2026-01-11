@@ -220,10 +220,10 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 										{/* Title & Location */}
 										<Box className="product-header">
 											<h3 className="product-title">{product.productTitle}</h3>
-											{product.productLocation && (
+											{product.productAddress && (
 												<Box className="product-location">
 													<MapPin size={14} />
-													<span>{product.productLocation}</span>
+													<span>{product.productAddress}</span>
 												</Box>
 											)}
 										</Box>

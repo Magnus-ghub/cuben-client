@@ -323,7 +323,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<Typography className="crumb">Marketplace</Typography>
 						</Link>
 						<Typography className="separator">/</Typography>
-						<Typography className="crumb">{product?.productLocation}</Typography>
+						<Typography className="crumb">{product?.productAddress}</Typography>
 						<Typography className="separator">/</Typography>
 						<Typography className="crumb active">{product?.productTitle}</Typography>
 					</Stack>
@@ -406,7 +406,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Stack className="location-card">
 									<LocationOnIcon className="location-icon" />
 									<Stack className="location-info">
-										<Typography className="location-name">{product?.productLocation}</Typography>
+										<Typography className="location-name">{product?.productAddress}</Typography>
 										<Typography className="location-detail">
 											{product?.productAddress || 'Contact seller for exact meetup location'}
 										</Typography>

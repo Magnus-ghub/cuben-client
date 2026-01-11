@@ -216,10 +216,10 @@ const History: NextPage = () => {
 									<Box className="item-content">
 										<h3 className="item-title">{product.productTitle}</h3>
 
-										{product.productLocation && (
+										{product.productAddress && (
 											<Box className="item-location">
 												<MapPin size={14} />
-												<span>{product.productLocation}</span>
+												<span>{product.productAddress}</span>
 											</Box>
 										)}
 

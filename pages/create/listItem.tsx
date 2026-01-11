@@ -23,7 +23,7 @@ import {
 	Tag,
 	Info,
 } from 'lucide-react';
-import { ProductCondition, ProductLocation, ProductType } from '../../libs/enums/product.enum';
+import { ProductCondition, ProductType } from '../../libs/enums/product.enum';
 import { CREATE_PRODUCT } from '../../libs/apollo/user/mutation';
 
 const ListItem: NextPage = () => {
@@ -34,7 +34,7 @@ const ListItem: NextPage = () => {
 	// Form State
 	const [productType, setProductType] = useState<ProductType>(ProductType.OTHER);
 	const [productCondition, setProductCondition] = useState<ProductCondition>(ProductCondition.GOOD);
-	const [productLocation, setProductLocation] = useState<ProductLocation>(ProductLocation.OTHER);
+	const [productAddress, setProductAddress] = useState<string>('');
 	const [productName, setProductName] = useState<string>('');
 	const [productPrice, setProductPrice] = useState<string>('');
 	const [productDescription, setProductDescription] = useState<string>('');
@@ -138,7 +138,7 @@ const ListItem: NextPage = () => {
 					input: {
 						productType,
 						productCondition,
-						productLocation,
+						productAddress,
 						productName,
 						productPrice: Number(productPrice),
 						productDescription,
@@ -159,11 +159,9 @@ const ListItem: NextPage = () => {
 	}
 
 	const productTypes = [
-		{ value: ProductType.BOOK, label: '📚 Books & Textbooks', icon: '📚' },
-		{ value: ProductType.NOTE, label: '📓 Notes & Study Materials', icon: '📓' },
-		{ value: ProductType.ELECTRONIC, label: '💻 Electronics', icon: '💻' },
-		{ value: ProductType.FASHION, label: '👕 Fashion & Clothing', icon: '👕' },
-		{ value: ProductType.ACCESSORY, label: '🎒 Accessories', icon: '🎒' },
+		{ value: ProductType.EDU, label: '📚 Books & Textbooks', icon: '📚' },
+		{ value: ProductType.TECH, label: '💻 Electronics', icon: '💻' },
+		{ value: ProductType.STYLE, label: '👕 Fashion & Clothing', icon: '👕' },
 		{ value: ProductType.HOME, label: '🏠 Home & Living', icon: '🏠' },
 		{ value: ProductType.SERVICE, label: '⚙️ Services', icon: '⚙️' },
 		{ value: ProductType.OTHER, label: '📦 Other', icon: '📦' },
@@ -175,17 +173,6 @@ const ListItem: NextPage = () => {
 		{ value: ProductCondition.GOOD, label: '👍 Good', color: '#f59e0b' },
 		{ value: ProductCondition.USED, label: '🔄 Used', color: '#94a3b8' },
 		{ value: ProductCondition.BAD, label: '⚠️ Needs Repair', color: '#ef4444' },
-	];
-
-	const locations = [
-		{ value: ProductLocation.DORMITORY, label: '🏢 Dormitory' },
-		{ value: ProductLocation.MAIN_GATE, label: '🚪 Main Gate' },
-		{ value: ProductLocation.LIBRARY, label: '📚 Library' },
-		{ value: ProductLocation.CAFETERIA, label: '🍽️ Cafeteria' },
-		{ value: ProductLocation.SPORT_CENTER, label: '⚽ Sport Center' },
-		{ value: ProductLocation.STUDENT_CENTER, label: '🎓 Student Center' },
-		{ value: ProductLocation.BUS_STOP, label: '🚌 Bus Stop' },
-		{ value: ProductLocation.OTHER, label: '📍 Other Location' },
 	];
 
 	return (
@@ -317,9 +304,9 @@ const ListItem: NextPage = () => {
 							Pickup Location
 						</label>
 						<FormControl fullWidth>
-							<Select
-								value={productLocation}
-								onChange={(e) => setProductLocation(e.target.value as ProductLocation)}
+							{/* <Select
+								value={productAddress}
+								onChange={(e) 
 								className="select-input"
 							>
 								{locations.map((loc) => (
@@ -327,7 +314,7 @@ const ListItem: NextPage = () => {
 										{loc.label}
 									</MenuItem>
 								))}
-							</Select>
+							</Select> */}
 						</FormControl>
 					</Box>
 

@@ -16,7 +16,7 @@ import { AllProductsInquiry } from '../../../libs/types/product/product.input';
 import { Product } from '../../../libs/types/product/product';
 import { REMOVE_PRODUCT_BY_ADMIN, UPDATE_PRODUCT_BY_ADMIN } from '../../../libs/apollo/admin/mutation';
 import { GET_ALL_PRODUCTS_BY_ADMIN } from '../../../libs/apollo/admin/query';
-import { ProductLocation, ProductStatus } from '../../../libs/enums/product.enum';
+import { ProductStatus } from '../../../libs/enums/product.enum';
 import { ProductUpdate } from '../../../libs/types/product/product.update';
 import { ProductPanelList } from '../../../libs/components/admin/products/ProductList';
 
@@ -119,18 +119,6 @@ const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
 
         const newInquiry = { ...productsInquiry, page: 1 };
 
-        if (newValue !== 'ALL') {
-            newInquiry.search = {
-                ...newInquiry.search,
-                // Diqqat! Backend [ProductLocation] massiv kutmoqda
-                productLocationList: [newValue as ProductLocation], 
-            };
-        } else {
-            // Bo'shatish uchun delete ishlatish o'rniga yangi obyekt berish xavfsizroq
-            const { productLocationList, ...restSearch } = newInquiry.search;
-            newInquiry.search = restSearch;
-        }
-
         setProductsInquiry(newInquiry);
     } catch (err: any) {
         console.log('searchTypeHandler: ', err.message);
@@ -194,11 +182,6 @@ const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
                                 sx={{ minWidth: 200, height: 40 }}
                             >
                                 <MenuItem value="ALL" onClick={() => searchTypeHandler('ALL')}>Barcha hududlar</MenuItem>
-                                {Object.values(ProductLocation).map((loc) => (
-                                    <MenuItem key={loc} value={loc} onClick={() => searchTypeHandler(loc)}>
-                                        {loc}
-                                    </MenuItem>
-                                ))}
                             </Select>
                         </Stack>
                     </Stack>

@@ -86,7 +86,7 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 					<strong className={'title'}>{product?.productTitle}</strong>
 
 					{/* Description (Location/Address) */}
-					<p className={'desc'}>{product?.productLocation || product?.productDesc}</p>
+					<p className={'desc'}>{product?.productAddress || product?.productDesc}</p>
 
 					{/* Options (Category, Type, etc.) */}
 					{product?.productType && (

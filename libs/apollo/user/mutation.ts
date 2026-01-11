@@ -140,7 +140,6 @@ export const CREATE_PRODUCT = gql`
 			_id
 			productType
 			productStatus
-			productLocation
 			productAddress
 			productTitle
 			productDesc
@@ -207,7 +206,6 @@ export const UPDATE_PRODUCT = gql`
 			_id
 			productType
 			productStatus
-			productLocation
 			productAddress
 			productTitle
 			productDesc
@@ -274,7 +272,6 @@ export const REMOVE_PRODUCT = gql`
 			_id
 			productType
 			productStatus
-			productLocation
 			productAddress
 			productTitle
 			productDesc
@@ -300,7 +297,6 @@ export const LIKE_TARGET_PRODUCT = gql`
 			_id
 			productType
 			productStatus
-			productLocation
 			productAddress
 			productTitle
 			productDesc
@@ -330,7 +326,6 @@ export const SAVE_TARGET_PRODUCT = gql`
 			_id
 			productType
 			productStatus
-			productLocation
 			productAddress
 			productTitle
 			productDesc
