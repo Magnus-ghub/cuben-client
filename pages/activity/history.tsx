@@ -20,7 +20,7 @@ const History: NextPage = () => {
 	const router = useRouter();
 	const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
 	const [total, setTotal] = useState<number>(0);
-	const [searchHistory, setSearchHistory] = useState<T>({ page: 1, limit: 8 });
+	const [searchHistory, setSearchHistory] = useState<T>({ page: 1, limit: 6 });
 
 	/** APOLLO REQUESTS **/
 	const {
@@ -208,7 +208,7 @@ const History: NextPage = () => {
 										<img src={imagePath} alt={product.productTitle} />
 										<Box className="time-badge">
 											<Clock size={12} />
-											<span>{formatDate(product.createdAt)}</span>
+											<span>{formatDate(product.createdAt.toString())}</span>
 										</Box>
 									</Box>
 

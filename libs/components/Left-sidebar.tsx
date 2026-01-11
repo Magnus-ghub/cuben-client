@@ -23,7 +23,9 @@ import { useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { REACT_APP_API_URL } from '../config';
 import { Snackbar, Alert } from '@mui/material';
-import { GET_ARTICLES, GET_PRODUCTS } from '../apollo/user/query';
+import { GET_ARTICLES, GET_MEMBER, GET_PRODUCTS } from '../apollo/user/query';
+import { T } from '../types/common';
+import { sweetErrorHandling } from '../sweetAlert';
 
 const LeftSidebar = () => {
 	const device = useDeviceDetect();
@@ -33,31 +35,59 @@ const LeftSidebar = () => {
 	const [comingSoonOpen, setComingSoonOpen] = useState(false);
 	const [imageError, setImageError] = useState(false);
 
+	const [stats, setStats] = useState({
+		followers: 0,
+		followings: 0,
+	});
+
+	const {
+		loading: getMemberLoading,
+		data: getMemberData,
+		error: getMemberError,
+		refetch: getMemberRefetch,
+	} = useQuery(GET_MEMBER, {
+		variables: { input: user?._id || '' },
+		fetchPolicy: 'cache-and-network',
+		skip: !user?._id,
+		onCompleted: (data: T) => {
+			const member = data?.getMember;
+			if (member) {
+				setStats({
+					followers: member.memberFollowers || 0,
+					followings: member.memberFollowings || 0,
+				});
+			}
+		},
+		onError: (error) => {
+			sweetErrorHandling(error);
+		},
+	});
+
 	/** APOLLO REQUESTS – MODIFIED: Skip if no user, loading state */
-    const { data: articlesData, loading: articlesLoading } = useQuery(GET_ARTICLES, { // Loading qo'shildi
-        variables: {
-            input: {
-                page: 1,
-                limit: 1,
-                search: {}
-            }
-        },
-        skip: !user?._id, // MODIFIED: User bo'lmasa skip
-    });
+	const { data: articlesData, loading: articlesLoading } = useQuery(GET_ARTICLES, {
+		variables: {
+			input: {
+				page: 1,
+				limit: 1,
+				search: {},
+			},
+		},
+		skip: !user?._id, // MODIFIED: User bo'lmasa skip
+	});
 
-    const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
-        variables: {
-            input: {
-                page: 1,
-                limit: 1,
-                search: {}
-            }
-        },
-        skip: !user?._id, // MODIFIED: Skip
-    });
+	const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
+		variables: {
+			input: {
+				page: 1,
+				limit: 1,
+				search: {},
+			},
+		},
+		skip: !user?._id, // MODIFIED: Skip
+	});
 
-    const articlesCount = articlesData?.getArticles?.metaCounter[0]?.total || 0;
-    const productsCount = productsData?.getProducts?.metaCounter[0]?.total || 0;
+	const articlesCount = articlesData?.getArticles?.metaCounter[0]?.total || 0;
+	const productsCount = productsData?.getProducts?.metaCounter[0]?.total || 0;
 
 	// Reset image error when user changes
 	useEffect(() => {
@@ -122,11 +152,24 @@ const LeftSidebar = () => {
 
 								<Stack className="profile-stats">
 									<Stack className="stat-item">
-										<Box className="stat-number">125</Box>
+										{/* MODIFIED: getMemberLoading da Skeleton ko'rsatish, aks holda stats dan olish */}
+										<Box className="stat-number">
+											{getMemberLoading ? (
+												<Skeleton variant="text" sx={{ fontSize: '1.5rem', width: 40, height: 24 }} />
+											) : (
+												stats.followers
+											)}
+										</Box>
 										<Box className="stat-label">Followers</Box>
 									</Stack>
 									<Stack className="stat-item">
-										<Box className="stat-number">89</Box>
+										<Box className="stat-number">
+											{getMemberLoading ? (
+												<Skeleton variant="text" sx={{ fontSize: '1.5rem', width: 40, height: 24 }} />
+											) : (
+												stats.followings
+											)}
+										</Box>
 										<Box className="stat-label">Following</Box>
 									</Stack>
 								</Stack>

@@ -34,6 +34,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	
 	const [userProducts, setUserProducts] = useState<Product[]>([]);
 	const [total, setTotal] = useState<number>(0);
+	
 
 	/** APOLLO REQUESTS **/
 	const [removeProduct] = useMutation(REMOVE_PRODUCT);
