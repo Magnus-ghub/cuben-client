@@ -270,12 +270,14 @@ const MyPage: NextPage = () => {
 							</Box>
 						</Box>
 
-						<Link href="/settings" style={{ textDecoration: 'none' }}>
+					{user?.memberType === 'ADMIN' && (
+						<Link href="/_admin" style={{ textDecoration: 'none' }}>
 							<Box className={'settings-button'}>
 								<Settings size={20} />
-								<span>Settings</span>
+								<span>Admin Panel</span>
 							</Box>
 						</Link>
+					)}
 					</Box>
 
 					{/* Quick Stats Cards */}

@@ -9,21 +9,20 @@ import Select from '@mui/material/Select';
 import { TabContext } from '@mui/lab';
 import { MessageSquare, Filter } from 'lucide-react';
 import TablePagination from '@mui/material/TablePagination';
-import { AllBoardArticlesInquiry } from '../../../libs/types/article/article.input';
-import { BoardArticle } from '../../../libs/types/article/article';
-import { BoardArticleCategory, BoardArticleStatus } from '../../../libs/enums/article.enum';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
-import { BoardArticleUpdate } from '../../../libs/types/article/article.update';
 import { useMutation, useQuery } from '@apollo/client';
 import { T } from '../../../libs/types/common';
-import { REMOVE_BOARD_ARTICLE_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '../../../libs/apollo/admin/mutation';
-import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../libs/apollo/admin/query';
-import CommunityArticleList from '../../../libs/components/admin/article/CommunityArticleList';
+import { AllArticlesInquiry } from '../../../libs/types/article/article.input';
+import { Article } from '../../../libs/types/article/article';
+import { REMOVE_ARTICLE_BY_ADMIN, UPDATE_ARTICLE_BY_ADMIN } from '../../../libs/apollo/admin/mutation';
+import { GET_ALL_ARTICLES_BY_ADMIN } from '../../../libs/apollo/admin/query';
+import { ArticleCategory, ArticleStatus } from '../../../libs/enums/article.enum';
+import { ArticleUpdate } from '../../../libs/types/article/article.update';
 
 const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<any>([]);
-	const [communityInquiry, setCommunityInquiry] = useState<AllBoardArticlesInquiry>(initialInquiry);
-	const [articles, setArticles] = useState<BoardArticle[]>([]);
+	const [communityInquiry, setCommunityInquiry] = useState<AllArticlesInquiry>(initialInquiry);
+	const [articles, setArticles] = useState<Article[]>([]);
 	const [articleTotal, setArticleTotal] = useState<number>(0);
 	const [value, setValue] = useState(
 		communityInquiry?.search?.articleStatus ? communityInquiry?.search?.articleStatus : 'ALL',
@@ -31,15 +30,15 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [searchType, setSearchType] = useState('ALL');
 
 	/** APOLLO REQUESTS **/
-	const [updateBoardArticleByAdmin] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN);
-	const [removeBoardArticleByAdmin] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN);
+	const [updateBoardArticleByAdmin] = useMutation(UPDATE_ARTICLE_BY_ADMIN);
+	const [removeBoardArticleByAdmin] = useMutation(REMOVE_ARTICLE_BY_ADMIN);
 
 	const {
 		loading: getAllBoardArticlesByAdminLoading,
 		data: getAllBoardArticlesByAdminData,
 		error: getAllBoardArticlesByAdminError,
 		refetch: getAllBoardArticlesByAdminRefetch,
-	} = useQuery(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
+	} = useQuery(GET_ALL_ARTICLES_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: communityInquiry },
 		notifyOnNetworkStatusChange: true,
@@ -85,10 +84,10 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 
 		switch (newValue) {
 			case 'ACTIVE':
-				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: BoardArticleStatus.ACTIVE } });
+				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: ArticleStatus.ACTIVE } });
 				break;
 			case 'DELETE':
-				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: BoardArticleStatus.DELETE } });
+				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: ArticleStatus.DELETE } });
 				break;
 			default:
 				delete communityInquiry?.search?.articleStatus;
@@ -108,7 +107,7 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 					sort: 'createdAt',
 					search: {
 						...communityInquiry.search,
-						articleCategory: newValue as BoardArticleCategory,
+						articleCategory: newValue as ArticleCategory,
 					},
 				});
 			} else {
@@ -120,7 +119,7 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 		}
 	};
 
-	const updateArticleHandler = async (updateData: BoardArticleUpdate) => {
+	const updateArticleHandler = async (updateData: ArticleUpdate) => {
 		try {
 			await updateBoardArticleByAdmin({
 				variables: {
@@ -195,7 +194,7 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
                                 sx={{ minWidth: 200, height: 40, borderRadius: '10px' }}
                             >
                                 <MenuItem value="ALL" onClick={() => searchTypeHandler('ALL')}>Barcha ruknlar</MenuItem>
-                                {Object.values(BoardArticleCategory).map((cat) => (
+                                {Object.values(ArticleCategory).map((cat) => (
                                     <MenuItem key={cat} value={cat} onClick={() => searchTypeHandler(cat)}>
                                         {cat}
                                     </MenuItem>
@@ -204,14 +203,14 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
                         </Stack>
                     </Stack>
 
-                    <CommunityArticleList
+                    {/* <CommunityArticleList
                         articles={articles}
                         anchorEl={anchorEl}
                         menuIconClickHandler={menuIconClickHandler}
                         menuIconCloseHandler={menuIconCloseHandler}
                         updateArticleHandler={updateArticleHandler}
                         removeArticleHandler={removeArticleHandler}
-                    />
+                    /> */}
 
                     <TablePagination
                         rowsPerPageOptions={[10, 20, 40]}
