@@ -26,6 +26,28 @@ import { LogOut, Bell, ChevronDown, LayoutDashboard } from 'lucide-react';
 
 const drawerWidth = 280;
 
+const CubenLogo: React.FC = () => (
+	<svg width="55" height="55" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<defs>
+			<linearGradient id="cubeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+				<stop offset="0%" style={{ stopColor: '#667eea', stopOpacity: 1 }} />
+				<stop offset="100%" style={{ stopColor: '#764ba2', stopOpacity: 1 }} />
+			</linearGradient>
+		</defs>
+		<path
+			d="M 50 15 L 85 35 L 85 65 L 50 85 L 15 65 L 15 35 Z"
+			fill="none"
+			stroke="url(#cubeGradient)"
+			strokeWidth="6"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path d="M 50 15 L 50 50" stroke="url(#cubeGradient)" strokeWidth="6" strokeLinecap="round" />
+		<path d="M 15 35 L 50 50" stroke="url(#cubeGradient)" strokeWidth="6" strokeLinecap="round" />
+		<path d="M 85 35 L 50 50" stroke="url(#cubeGradient)" strokeWidth="6" strokeLinecap="round" />
+	</svg>
+);
+
 const withAdminLayout = (Component: ComponentType) => {
 	return (props: object) => {
 		const router = useRouter();
@@ -147,7 +169,7 @@ const withAdminLayout = (Component: ComponentType) => {
 				<Drawer className="admin-sidebar" variant="permanent">
 					<Box className="sidebar-header">
 						<Box className="logo-wrapper">
-							<img src="/img/logo/logoText.svg" alt="Cuben Logo" />
+							<CubenLogo />
 						</Box>
 					</Box>
 

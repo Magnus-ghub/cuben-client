@@ -163,6 +163,11 @@ const Top: React.FC = () => {
 		},
 	}));
 
+	useEffect(() => {
+		console.log('Current user:', user);
+		console.log('Member status:', user?.memberStatus);
+	}, [user]);
+
 	if (device === 'mobile') {
 		return <Stack className={'top'}></Stack>;
 	}
@@ -234,22 +239,16 @@ const Top: React.FC = () => {
 									>
 										🛒 List an Item
 									</MenuItem>
-									{/* <MenuItem
-										onClick={() => {
-											router.push('/jobs/create');
-											handleCreateMenuClose();
-										}}
-									>
-										💼 Post a Job
-									</MenuItem>
-									<MenuItem
-										onClick={() => {
-											router.push('/events/create');
-											handleCreateMenuClose();
-										}}
-									>
-										📅 Create Event
-									</MenuItem> */}
+									{user?.memberType === 'AGENT' && (
+										<MenuItem
+											onClick={() => {
+												router.push('/create/writePost');
+												handleCreateMenuClose();
+											}}
+										>
+											💼 Post a Job
+										</MenuItem>
+									)}
 								</StyledMenu>
 							</>
 						)}
