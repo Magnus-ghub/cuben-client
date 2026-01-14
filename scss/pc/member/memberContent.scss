@@ -71,9 +71,9 @@
 	}
 
 	// ============================================
-	// ARTICLES GRID LAYOUT
+	// POSTS GRID LAYOUT
 	// ============================================
-	.articles-grid {
+	.posts-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
 		gap: 24px;
@@ -120,8 +120,8 @@
 			}
 		}
 
-		// Article Card
-		.article-card {
+		// Post Card
+		.post-card {
 			position: relative;
 			background: #ffffff;
 			border: 1px solid #e2e8f0;
@@ -135,16 +135,16 @@
 				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 				transform: translateY(-4px);
 
-				.article-image img {
+				.post-image img {
 					transform: scale(1.05);
 				}
 
-				.article-actions {
+				.post-actions {
 					opacity: 1;
 				}
 			}
 
-			.article-image {
+			.post-image {
 				position: relative;
 				width: 100%;
 				height: 200px;
@@ -199,10 +199,10 @@
 				}
 			}
 
-			.article-content {
+			.post-content {
 				padding: 20px;
 
-				.article-title {
+				.post-title {
 					font-family: $font;
 					font-size: 16px;
 					font-weight: 700;
@@ -216,7 +216,7 @@
 					overflow: hidden;
 				}
 
-				.article-description {
+				.post-description {
 					font-family: $font;
 					font-size: 14px;
 					color: #64748b;
@@ -229,7 +229,7 @@
 					overflow: hidden;
 				}
 
-				.article-stats {
+				.post-stats {
 					display: flex;
 					gap: 16px;
 					padding: 16px 0;
@@ -260,10 +260,10 @@
 					}
 				}
 
-				.article-actions {
+				.post-actions {
 					display: flex;
 					gap: 8px;
-					opacity: 0;
+					opacity: 1;
 					transition: opacity 0.3s ease;
 
 					.action-btn {
@@ -528,7 +528,7 @@
 				.product-actions {
 					display: flex;
 					gap: 8px;
-					opacity: 0;
+					opacity: 1;
 					transition: opacity 0.3s ease;
 
 					.action-btn {
@@ -612,7 +612,7 @@
 // ============================================
 @media (max-width: 1200px) {
 	.modern-content-container {
-		.articles-grid {
+		.posts-grid {
 			grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 		}
 
@@ -632,7 +632,7 @@
 			gap: 16px;
 		}
 
-		.articles-grid,
+		.posts-grid,
 		.products-grid {
 			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 			gap: 16px;
@@ -659,7 +659,7 @@
 			}
 		}
 
-		.articles-grid,
+		.posts-grid,
 		.products-grid {
 			grid-template-columns: 1fr;
 

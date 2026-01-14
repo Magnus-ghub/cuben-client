@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination, Stack, Box, Chip, IconButton } from '@mui/material';
+import { Pagination, Stack, Box, Chip, IconButton, CircularProgress } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { T } from '../../types/common';
-import { Article } from '../../types/article/article';
 import { ArticlesInquiry } from '../../types/article/article.input';
-import { GET_POSTS } from '../../apollo/user/query'; 
-import { useQuery } from '@apollo/client';
+import { GET_POSTS } from '../../apollo/user/query';
+import { useQuery, useReactiveVar } from '@apollo/client'; // useReactiveVar qo'shing
+import { userVar } from '../../apollo/store'; // userVar import qiling
 import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
 import { Direction } from '../../enums/common.enum';
 import { Post } from '../../types/post/post';
 
-const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
+const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const user = useReactiveVar(userVar);
 	const [total, setTotal] = useState<number>(0);
-	const { memberId } = router.query;
+
 	const [searchFilter, setSearchFilter] = useState<ArticlesInquiry>(
 		initialInput || {
 			page: 1,
@@ -25,12 +26,12 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			sort: 'createdAt',
 			direction: Direction.DESC,
 			search: {
-				memberId: '',
+				memberId: '', // Bo'sh boshlaydi
 			},
-		}
+		},
 	);
-	
-	const [memberArticles, setMemberArticles] = useState<Post[]>([]);
+
+	const [userPosts, setUserPosts] = useState<Post[]>([]);
 
 	/** APOLLO REQUESTS **/
 	const {
@@ -42,24 +43,30 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
+		skip: !user?._id, // User yo'q bo'lsa query skip qiladi
 		onCompleted: (data: T) => {
-			setMemberArticles(data?.getPosts?.list || []);
-			setTotal(data?.getPosts?.metaCounter?.total || 0); 
+			setUserPosts(data?.getPosts?.list || []);
+			setTotal(data.getPosts.metaCounter?.[0]?.total || 0);
 		},
 		onError: (error) => {
-			console.error('MyArticles Error:', error);
+			console.error('MyPosts Error:', error);
 		},
 	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (memberId) {
-			setSearchFilter({ ...searchFilter, search: { memberId: memberId as string } });
+		if (user?._id) {
+			setSearchFilter({
+				...searchFilter,
+				search: { ...searchFilter.search, memberId: user._id },
+			});
 		}
-	}, [memberId]);
+	}, [user?._id]);
 
 	useEffect(() => {
-		getPostsRefetch({ input: searchFilter });
+		if (user?._id && searchFilter.search.memberId) {
+			getPostsRefetch({ input: searchFilter });
+		}
 	}, [searchFilter]);
 
 	/** HANDLERS **/
@@ -78,7 +85,6 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 
 	const handleDeleteArticle = (postId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		// TODO: Implement delete mutation
 		console.log('Delete article:', postId);
 	};
 
@@ -89,6 +95,17 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			year: 'numeric',
 		});
 	};
+
+	if (!user?._id || getPostsLoading) {
+		return (
+			<Box className="modern-content-container">
+				<Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+					<CircularProgress size={48} />
+					<p style={{ marginTop: '16px', color: '#6b7280' }}>Loading your posts...</p>
+				</Stack>
+			</Box>
+		);
+	}
 
 	if (device === 'mobile') {
 		return <div>MY ARTICLES MOBILE</div>;
@@ -113,8 +130,8 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			</Stack>
 
 			{/* Articles Grid */}
-			<Box className="articles-grid">
-				{memberArticles?.length === 0 ? (
+			<Box className="posts-grid">
+				{userPosts?.length === 0 ? (
 					<Box className="empty-state">
 						<Box className="empty-icon">
 							<FileText size={64} />
@@ -124,38 +141,28 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 				) : (
 					<>
-						{memberArticles?.map((post: Post) => {
+						{userPosts?.map((post: Post) => {
 							const imagePath = post?.postImages
 								? `${REACT_APP_API_URL}/${post.postImages}`
 								: '/img/banner/community.webp';
 
-								const getPostImages = () => {
-										if (post?.postImages && Array.isArray(post.postImages)) {
-											return post.postImages.map((img) => `${REACT_APP_API_URL}/${img}`);
-										}
-										return [];
-									};
 							return (
-								<Box
-									key={post._id}
-									className="article-card"
-									onClick={() => handleArticleClick(post._id)}
-								>
+								<Box key={post._id} className="post-card" onClick={() => handleArticleClick(post._id)}>
 									{/* Article Image */}
-									<Box className="article-image">
+									<Box className="post-image">
 										<img src={imagePath} alt={post.postTitle} />
 									</Box>
 
 									{/* Article Content */}
-									<Box className="article-content">
-										<h3 className="article-title">{post.postTitle}</h3>
-										<p className="article-description">
+									<Box className="post-content">
+										<h3 className="post-title">{post.postTitle}</h3>
+										<p className="post-description">
 											{post.postContent?.substring(0, 120)}
 											{post.postContent?.length > 120 && '...'}
 										</p>
 
 										{/* Stats Row */}
-										<Stack className="article-stats">
+										<Stack className="post-stats">
 											<Box className="stat-item">
 												<Heart size={16} />
 												<span>{post.postLikes || 0}</span>
@@ -171,7 +178,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 										</Stack>
 
 										{/* Action Buttons */}
-										<Stack className="article-actions">
+										<Stack className="post-actions">
 											<IconButton
 												size="small"
 												className="action-btn edit"
@@ -199,7 +206,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 			</Box>
 
 			{/* Pagination */}
-			{memberArticles.length > 0 && (
+			{userPosts.length > 0 && (
 				<Stack className="pagination-section">
 					<Pagination
 						count={Math.ceil(total / searchFilter.limit) || 1}
@@ -216,4 +223,16 @@ const MyArticles: NextPage = ({ initialInput, ...props }: any) => {
 	);
 };
 
-export default MyArticles;
+MyPosts.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 6,
+		sort: 'createdAt',
+		direction: Direction.DESC,
+		search: {
+			memberId: '',
+		},
+	},
+};
+
+export default MyPosts;

@@ -28,7 +28,7 @@ import {
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import Moment from 'react-moment';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
+import { CommentsInquiry } from '../../libs/types/comment/comment.input';
 import { Comment } from '../../libs/types/comment/comment';
 import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { Messages } from '../../libs/config';
@@ -37,7 +37,6 @@ import {
 	sweetErrorHandling,
 	sweetMixinErrorAlert,
 	sweetMixinSuccessAlert,
-	sweetTopSmallSuccessAlert,
 } from '../../libs/sweetAlert';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { GET_ARTICLE, GET_COMMENTS } from '../../libs/apollo/user/query';
@@ -45,6 +44,7 @@ import { CREATE_COMMENT, LIKE_TARGET_ARTICLE, UPDATE_COMMENT } from '../../libs/
 import { userVar } from '../../libs/apollo/store';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { Article } from '../../libs/types/article/article';
+import Link from 'next/link';
 
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
@@ -126,19 +126,6 @@ const ArticleDetail: NextPage = ({ initialInput }: any) => {
 	}, [articleId]);
 
 	/** HANDLERS **/
-	const handleLike = async (e: any) => {
-		e.stopPropagation();
-		e.preventDefault();
-		try {
-			if (!user._id) throw new Error(Messages.error2);
-			await likeTargetArticle({ variables: { input: articleId } });
-			await articleRefetch();
-			sweetTopSmallSuccessAlert('Liked!', 500);
-		} catch (err: any) {
-			sweetMixinErrorAlert(err.message);
-		}
-	};
-
 	const handleCreateComment = async () => {
 		if (!comment || wordsCnt > 100) return;
 		try {
@@ -265,16 +252,6 @@ const ArticleDetail: NextPage = ({ initialInput }: any) => {
 									<Box className="article-content">
 										<ToastViewerComponent markdown={article?.articleContent} />
 									</Box>
-									<Stack className="like-section">
-										<Button
-											variant={isLiked ? 'contained' : 'outlined'}
-											onClick={handleLike}
-											startIcon={isLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
-											className={`like-button ${isLiked ? 'liked' : ''}`}
-										>
-											Helpful ({article?.articleLikes})
-										</Button>
-									</Stack>
 								</Stack>
 							) : (
 								<Stack className="not-found-card">
@@ -436,7 +413,7 @@ const ArticleDetail: NextPage = ({ initialInput }: any) => {
 									View Profile
 								</Button>
 							</Stack>
-							<Stack className="support-card">
+							<Link href={"/cs?tab=contact"} className="support-card">
 								<Typography variant="subtitle1" className="support-title">
 									📞 Need Help?
 								</Typography>
@@ -446,7 +423,7 @@ const ArticleDetail: NextPage = ({ initialInput }: any) => {
 								<Button variant="contained" fullWidth className="contact-support-button">
 									Contact Support
 								</Button>
-							</Stack>
+							</Link>
 						</Stack>
 					) : null}
 				</Stack>

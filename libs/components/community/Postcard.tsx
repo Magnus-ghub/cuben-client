@@ -14,8 +14,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { FollowInquiry } from '../../types/follow/follow.input';
-import { Follower } from '../../types/follow/follow';
-import { T } from '../../types/common';
+import Link from 'next/link';
 
 interface PostCardProps {
 	post: Post;
@@ -34,12 +33,8 @@ const PostCard = (props: PostCardProps) => {
 	const user = useReactiveVar(userVar);
 	const [isFollowing, setIsFollowing] = useState<boolean>(false);
 
-	/** APOLLO REQUESTS **/
-	// Apollo request o'chirildi, chunki post.memberData.meFollowed mavjud
-
 	/** LIFECYCLES **/
 	useEffect(() => {
-		// Check if current user is following this post's author from post data
 		if (post?.memberData?.meFollowed && post.memberData.meFollowed.length > 0) {
 			setIsFollowing(post.memberData.meFollowed[0]?.myFollowing || false);
 		} else {
@@ -57,11 +52,9 @@ const PostCard = (props: PostCardProps) => {
 			} else {
 				await subscribeHandler(post.memberData._id);
 			}
-			// Update local state immediately for better UX
 			setIsFollowing(!isFollowing);
 		} catch (error) {
 			console.error('Error handling follow:', error);
-			// Revert state on error
 			setIsFollowing(isFollowing);
 		}
 	};
@@ -94,7 +87,7 @@ const PostCard = (props: PostCardProps) => {
 			{/* Post Header */}
 			<Box className="post-header">
 				<Avatar className="post-avatar" src={getAuthorImage()} alt={post?.memberData?.memberNick || 'User'} />
-				<Box className="post-author-info">
+				<Link  href={`/member?memberId=${post.memberData._id}`} className="post-author-info">
 					<Box className="author-name">
 						<span>{post?.memberData?.memberNick || 'Anonymous'}</span>
 						{post?.memberData?.memberType === 'AGENT' && <Award size={16} className="verified-badge" />}
@@ -104,9 +97,8 @@ const PostCard = (props: PostCardProps) => {
 						<span>•</span>
 						<span>{formatTimestamp(post?.createdAt)}</span>
 					</Box>
-				</Box>
+				</Link>
 
-				{/* Follow/Unfollow Button - Only show if not own post */}
 				{!isOwnPost && (
 					<Button
 						className={`follow-btn ${isFollowing ? 'following' : ''}`}

@@ -18,7 +18,7 @@ import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } fr
 const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const user = useReactiveVar(userVar); // Get logged in user
+	const user = useReactiveVar(userVar); 
 	
 	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
 		initialInput || {
@@ -48,10 +48,10 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
-		skip: !user?._id, // Don't fetch until user is loaded
+		skip: !user?._id, 
 		onCompleted: (data: T) => {
 			setUserProducts(data?.getProducts?.list || []);
-			setTotal(data?.getProducts?.metaCounter?.total || 0);
+			setTotal(data.getProducts.metaCounter?.[0]?.total || 0);
 		},
 		onError: (error) => {
 			console.error('MyProducts Error:', error);

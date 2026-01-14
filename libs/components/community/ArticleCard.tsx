@@ -77,7 +77,6 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 		return `${process.env.REACT_APP_API_URL || process.env.NEXT_PUBLIC_API_URL || ''}/${path}`;
 	};
 
-	// Apply button handler
 	const handleApply = async (e: any) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -87,9 +86,6 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 		// Show success alert
 		await sweetTopSmallSuccessAlert('Applied Successfully! 🎉', 1500);
 		setIsApplied(true);
-		
-		// Optional: Make API call here to save application
-		// await applyToJob({ variables: { articleId: article._id } });
 	};
 
 	// Navigate to detail page

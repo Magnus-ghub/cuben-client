@@ -44,10 +44,10 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			setMemberArticles(data?.getPosts?.list || []);
-			setTotal(data?.getPosts?.metaCounter?.total || 0); 
+			setTotal(data.getPosts.metaCounter?.[0]?.total || 0);
 		},
 		onError: (error) => {
-			console.error('MyArticles Error:', error);
+			console.error('MyPosts Error:', error);
 		},
 	});
 
@@ -69,17 +69,6 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 
 	const handleArticleClick = (postId: string) => {
 		router.push(`/post/detail?postId=${postId}`);
-	};
-
-	const handleEditArticle = (postId: string, e: React.MouseEvent) => {
-		e.stopPropagation();
-		router.push(`/mypage?category=writeArticle&articleId=${postId}`);
-	};
-
-	const handleDeleteArticle = (postId: string, e: React.MouseEvent) => {
-		e.stopPropagation();
-		// TODO: Implement delete mutation
-		console.log('Delete article:', postId);
 	};
 
 	const formatDate = (date: Date | string) => {
@@ -112,7 +101,7 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 			</Stack>
 
 			{/* Articles Grid */}
-			<Box className="articles-grid">
+			<Box className="posts-grid">
 				{memberArticles?.length === 0 ? (
 					<Box className="empty-state">
 						<Box className="empty-icon">
@@ -137,24 +126,24 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 							return (
 								<Box
 									key={post._id}
-									className="article-card"
+									className="post-card"
 									onClick={() => handleArticleClick(post._id)}
 								>
 									{/* Article Image */}
-									<Box className="article-image">
+									<Box className="post-image">
 										<img src={imagePath} alt={post.postTitle} />
 									</Box>
 
 									{/* Article Content */}
-									<Box className="article-content">
-										<h3 className="article-title">{post.postTitle}</h3>
-										<p className="article-description">
+									<Box className="post-content">
+										<h3 className="post-title">{post.postTitle}</h3>
+										<p className="post-description">
 											{post.postContent?.substring(0, 120)}
 											{post.postContent?.length > 120 && '...'}
 										</p>
 
 										{/* Stats Row */}
-										<Stack className="article-stats">
+										<Stack className="post-stats">
 											<Box className="stat-item">
 												<Heart size={16} />
 												<span>{post.postLikes || 0}</span>
@@ -167,27 +156,6 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 												<Calendar size={16} />
 												<span>{formatDate(post.createdAt)}</span>
 											</Box>
-										</Stack>
-
-										{/* Action Buttons */}
-										<Stack className="article-actions">
-											<IconButton
-												size="small"
-												className="action-btn edit"
-												onClick={(e) => handleEditArticle(post._id, e)}
-											>
-												<Edit size={16} />
-											</IconButton>
-											<IconButton
-												size="small"
-												className="action-btn delete"
-												onClick={(e) => handleDeleteArticle(post._id, e)}
-											>
-												<Trash2 size={16} />
-											</IconButton>
-											<IconButton size="small" className="action-btn more">
-												<MoreVertical size={16} />
-											</IconButton>
 										</Stack>
 									</Box>
 								</Box>

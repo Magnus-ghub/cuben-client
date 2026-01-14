@@ -159,7 +159,7 @@ const MyPage: NextPage = () => {
 			count: stats.products,
 		},
 		{
-			id: 'myArticles',
+			id: 'myPosts',
 			label: 'Posts',
 			icon: <FileText size={18} />,
 			count: stats.posts,
@@ -337,7 +337,7 @@ const MyPage: NextPage = () => {
 				<Box className={'content-wrapper'}>
 					<Box className={'content-area'}>
 						{category === 'myProducts' && <MyProducts />}
-						{category === 'myArticles' && <MyPosts />}
+						{category === 'myPosts' && <MyPosts />}
 						{category === 'myProfile' && <MyProfile />}
 						{category === 'followers' && (
 							<MemberFollowers

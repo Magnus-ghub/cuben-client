@@ -51,7 +51,7 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 		skip: !user?._id, // Don't fetch until user is loaded
 		onCompleted: (data: T) => {
 			setUserProducts(data?.getProducts?.list || []);
-			setTotal(data?.getProducts?.metaCounter?.total || 0);
+			setTotal(data.getProducts.metaCounter?.[0]?.total || 0);
 		},
 		onError: (error) => {
 			console.error('MyProducts Error:', error);
