@@ -6,8 +6,9 @@ import { useRouter } from 'next/router';
 import { T } from '../../types/common';
 import { Article } from '../../types/article/article';
 import { ArticlesInquiry } from '../../types/article/article.input';
-import { GET_POSTS } from '../../apollo/user/query'; 
-import { useQuery } from '@apollo/client';
+import { GET_POSTS } from '../../apollo/user/query';
+import { useQuery, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../apollo/store';
 import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
 import { Direction } from '../../enums/common.enum';
@@ -16,6 +17,7 @@ import { Post } from '../../types/post/post';
 const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const user = useReactiveVar(userVar); // Get logged in user
 	const [total, setTotal] = useState<number>(0);
 	const { memberId } = router.query;
 	const [searchFilter, setSearchFilter] = useState<ArticlesInquiry>(
@@ -27,10 +29,10 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 			search: {
 				memberId: '',
 			},
-		}
+		},
 	);
-	
-	const [memberArticles, setMemberArticles] = useState<Post[]>([]);
+
+	const [memberPosts, setMemberPosts] = useState<Post[]>([]);
 
 	/** APOLLO REQUESTS **/
 	const {
@@ -43,7 +45,7 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setMemberArticles(data?.getPosts?.list || []);
+			setMemberPosts(data?.getPosts?.list || []);
 			setTotal(data.getPosts.metaCounter?.[0]?.total || 0);
 		},
 		onError: (error) => {
@@ -54,12 +56,17 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (memberId) {
-			setSearchFilter({ ...searchFilter, search: { memberId: memberId as string } });
+			setSearchFilter((prev) => ({
+				...prev,
+				search: { memberId: memberId as string }
+			}));
 		}
 	}, [memberId]);
 
 	useEffect(() => {
-		getPostsRefetch({ input: searchFilter });
+		if (searchFilter.search.memberId) {
+			getPostsRefetch({ input: searchFilter });
+		}
 	}, [searchFilter]);
 
 	/** HANDLERS **/
@@ -67,8 +74,10 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
-	const handleArticleClick = (postId: string) => {
-		router.push(`/post/detail?postId=${postId}`);
+	const handlePostClick = (postId: string) => {
+		// MainSection'dagi PostCard'larni bosganda qaysi page'ga ketishini tekshiring
+		// Agar Post detail page `/community` yoki boshqa route bo'lsa, o'zgartiring
+		router.push(`/community#${postId}`); // yoki `/post/${postId}` yoki boshqa route
 	};
 
 	const formatDate = (date: Date | string) => {
@@ -80,7 +89,7 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	if (device === 'mobile') {
-		return <div>MY ARTICLES MOBILE</div>;
+		return <div>MY POSTS MOBILE</div>;
 	}
 
 	return (
@@ -100,9 +109,9 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 				</Box>
 			</Stack>
 
-			{/* Articles Grid */}
+			{/* Posts Grid */}
 			<Box className="posts-grid">
-				{memberArticles?.length === 0 ? (
+				{memberPosts?.length === 0 ? (
 					<Box className="empty-state">
 						<Box className="empty-icon">
 							<FileText size={64} />
@@ -112,29 +121,20 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 				) : (
 					<>
-						{memberArticles?.map((post: Post) => {
-							const imagePath = post?.postImages
-								? `${REACT_APP_API_URL}/${post.postImages}`
-								: '/img/banner/community.webp';
+						{memberPosts?.map((post: Post) => {
+							const imagePath =
+								post?.postImages?.length > 0
+									? `${REACT_APP_API_URL}/${post.postImages[0]}`
+									: '/img/banner/community.webp';
 
-								const getPostImages = () => {
-										if (post?.postImages && Array.isArray(post.postImages)) {
-											return post.postImages.map((img) => `${REACT_APP_API_URL}/${img}`);
-										}
-										return [];
-									};
 							return (
-								<Box
-									key={post._id}
-									className="post-card"
-									onClick={() => handleArticleClick(post._id)}
-								>
-									{/* Article Image */}
+								<Box key={post._id} className="post-card" onClick={() => handlePostClick(post._id)}>
+									{/* Post Image */}
 									<Box className="post-image">
 										<img src={imagePath} alt={post.postTitle} />
 									</Box>
 
-									{/* Article Content */}
+									{/* Post Content */}
 									<Box className="post-content">
 										<h3 className="post-title">{post.postTitle}</h3>
 										<p className="post-description">
@@ -166,7 +166,7 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 			</Box>
 
 			{/* Pagination */}
-			{memberArticles.length > 0 && (
+			{memberPosts.length > 0 && (
 				<Stack className="pagination-section">
 					<Pagination
 						count={Math.ceil(total / searchFilter.limit) || 1}

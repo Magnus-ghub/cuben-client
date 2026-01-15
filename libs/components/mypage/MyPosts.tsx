@@ -193,9 +193,6 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 											>
 												<Trash2 size={16} />
 											</IconButton>
-											<IconButton size="small" className="action-btn more">
-												<MoreVertical size={16} />
-											</IconButton>
 										</Stack>
 									</Box>
 								</Box>

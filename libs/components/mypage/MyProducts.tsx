@@ -268,9 +268,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 											>
 												<Trash2 size={16} />
 											</IconButton>
-											<IconButton size="small" className="action-btn more" title="More Options">
-												<MoreVertical size={16} />
-											</IconButton>
 										</Stack>
 									</Box>
 								</Box>

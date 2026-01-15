@@ -11,8 +11,6 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -21,7 +19,7 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../libs/apollo/store';
 import { Product } from '../../libs/types/product/product';
-import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT, UPDATE_PRODUCT, REMOVE_PRODUCT } from '../../libs/apollo/user/mutation';
+import { LIKE_TARGET_PRODUCT, SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
 import { GET_PRODUCT, GET_PRODUCTS } from '../../libs/apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
@@ -56,8 +54,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
 	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT);
-	const [updateProduct] = useMutation(UPDATE_PRODUCT);
-	const [removeProduct] = useMutation(REMOVE_PRODUCT);
 
 	const {
 		loading: getProductLoading,
@@ -264,45 +260,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		setContactMessage('');
 	};
 
-	const updateProductHandler = async (updateInput: any) => {
-		try {
-			if (!productId) return;
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-
-			await updateProduct({
-				variables: { input: { _id: productId, ...updateInput } },
-			});
-
-			await getProductRefetch({ input: productId });
-			await sweetTopSmallSuccessAlert('Product updated successfully!', 800);
-		} catch (err: any) {
-			console.log('ERROR, updateProductHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
-
-	const deleteProductHandler = async () => {
-		try {
-			if (!productId) return;
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-
-			const confirmed = await sweetConfirmAlert(
-				'Are you sure you want to delete this product? This action cannot be undone.'
-			);
-			if (!confirmed) return;
-
-			await removeProduct({
-				variables: { input: productId },
-			});
-
-			await sweetTopSmallSuccessAlert('Product deleted successfully!', 800);
-			router.push('/product');
-		} catch (err: any) {
-			console.log('ERROR, deleteProductHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
-
 	if (getProductLoading) {
 		return (
 			<Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '1080px' }}>
@@ -483,35 +440,6 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 									</Stack>
 								</Stack>
 							</Stack>
-
-							{/* Owner Actions */}
-							{isOwner && (
-								<Stack className="owner-actions-card">
-									<Typography className="card-title">Owner Actions</Typography>
-									<Stack className="owner-actions">
-										<Button
-											variant="outlined"
-											startIcon={<EditIcon />}
-											className="owner-edit-btn"
-											onClick={() => router.push(`/product/edit/${productId}`)}
-											fullWidth
-										>
-											Edit Product
-										</Button>
-										<Button
-											variant="outlined"
-											startIcon={<DeleteIcon />}
-											className="owner-delete-btn"
-											onClick={deleteProductHandler}
-											fullWidth
-											color="error"
-										>
-											Delete Product
-										</Button>
-									</Stack>
-								</Stack>
-							)}
-
 							{/* Contact Form */}
 							<Stack className="contact-card">
 								<Typography className="card-title">Contact Seller</Typography>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination, Stack, Box, Chip, IconButton, CircularProgress } from '@mui/material';
+import { Pagination, Stack, Box, Chip, CircularProgress } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { T } from '../../types/common';
 import { useRouter } from 'next/router';
@@ -10,7 +10,15 @@ import { GET_PRODUCTS } from '../../apollo/user/query';
 import { REMOVE_PRODUCT } from '../../apollo/user/mutation';
 import { useQuery, useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
-import { Package, Calendar, Eye, Heart, Edit, Trash2, MoreVertical, DollarSign, MapPin, TrendingUp } from 'lucide-react';
+import {
+	Package,
+	Calendar,
+	Eye,
+	Heart,
+	DollarSign,
+	MapPin,
+	TrendingUp,
+} from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
 import { Direction, Message } from '../../enums/common.enum';
 import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } from '../../sweetAlert';
@@ -18,8 +26,9 @@ import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } fr
 const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const user = useReactiveVar(userVar); // Get logged in user
-	
+	const user = useReactiveVar(userVar); 
+	const { memberId } = router.query;
+
 	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
 		initialInput || {
 			page: 1,
@@ -29,12 +38,11 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 			search: {
 				memberId: '',
 			},
-		}
+		},
 	);
-	
+
 	const [userProducts, setUserProducts] = useState<Product[]>([]);
 	const [total, setTotal] = useState<number>(0);
-	
 
 	/** APOLLO REQUESTS **/
 	const [removeProduct] = useMutation(REMOVE_PRODUCT);
@@ -48,7 +56,7 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
-		skip: !user?._id, // Don't fetch until user is loaded
+		skip: !user?._id,
 		onCompleted: (data: T) => {
 			setUserProducts(data?.getProducts?.list || []);
 			setTotal(data.getProducts.metaCounter?.[0]?.total || 0);
@@ -59,15 +67,14 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 	});
 
 	/** LIFECYCLES **/
-	// Set user's memberId when user is loaded
 	useEffect(() => {
-		if (user?._id) {
-			setSearchFilter({
-				...searchFilter,
-				search: { ...searchFilter.search, memberId: user._id },
-			});
+		if (memberId) {
+			setSearchFilter((prev) => ({
+				...prev,
+				search: { memberId: memberId as string },
+			}));
 		}
-	}, [user?._id]);
+	}, [memberId]);
 
 	// Refetch when searchFilter changes
 	useEffect(() => {
@@ -92,12 +99,12 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 	const handleDeleteProduct = async (productId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		
+
 		try {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			const confirmed = await sweetConfirmAlert(
-				'Are you sure you want to delete this product? This action cannot be undone.'
+				'Are you sure you want to delete this product? This action cannot be undone.',
 			);
 			if (!confirmed) return;
 
@@ -107,7 +114,7 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 			// Refetch products after deletion
 			await getProductsRefetch({ input: searchFilter });
-			
+
 			await sweetTopSmallSuccessAlert('Product deleted successfully!', 800);
 		} catch (err: any) {
 			console.error('Delete Product Error:', err.message);
@@ -248,29 +255,6 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 												<span>{formatDate(product.createdAt)}</span>
 											</Box>
 										</Stack>
-
-										{/* Action Buttons */}
-										<Stack className="product-actions">
-											<IconButton
-												size="small"
-												className="action-btn edit"
-												onClick={(e) => handleEditProduct(product._id, e)}
-												title="Edit Product"
-											>
-												<Edit size={16} />
-											</IconButton>
-											<IconButton
-												size="small"
-												className="action-btn delete"
-												onClick={(e) => handleDeleteProduct(product._id, e)}
-												title="Delete Product"
-											>
-												<Trash2 size={16} />
-											</IconButton>
-											<IconButton size="small" className="action-btn more" title="More Options">
-												<MoreVertical size={16} />
-											</IconButton>
-										</Stack>
 									</Box>
 								</Box>
 							);
@@ -300,7 +284,7 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 MemberProducts.defaultProps = {
 	initialInput: {
 		page: 1,
-		limit: 8,
+		limit: 6,
 		sort: 'createdAt',
 		direction: Direction.DESC,
 		search: {

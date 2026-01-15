@@ -115,6 +115,32 @@ const MemberMenu = (props: MemberMenuProps) => {
 									</Link>
 								</ListItem>
 							)}
+							{member?.memberType === 'ADMIN' && (
+								<ListItem className={category === 'articles' ? 'focus' : ''}>
+									<Link
+										href={{
+											pathname: '/member',
+											query: { ...router.query, category: 'articles' },
+										}}
+										scroll={false}
+										style={{ width: '100%' }}
+									>
+										<div className={'flex-box'}>
+											{category === 'articles' ? (
+												<img className={'com-icon'} src={'/img/icons/homeWhite.svg'} alt={'com-icon'} />
+											) : (
+												<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
+											)}
+											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+												Articles
+											</Typography>
+											<Typography className="count-title" variant="subtitle1">
+												{member?.memberArticles}
+											</Typography>
+										</div>
+									</Link>
+								</ListItem>
+							)}
 							{member?._id && (
 								<ListItem className={category === 'posts' ? 'focus' : ''}>
 									<Link
@@ -135,7 +161,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 												Posts
 											</Typography>
 											<Typography className="count-title" variant="subtitle1">
-												{member?.memberProducts}
+												{member?.memberPosts}
 											</Typography>
 										</div>
 									</Link>

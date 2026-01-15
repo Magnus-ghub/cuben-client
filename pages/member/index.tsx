@@ -15,6 +15,7 @@ import { SUBSCRIBE, UNSUBSCRIBE } from '../../libs/apollo/user/mutation';
 import MemberPosts from '../../libs/components/member/MemberPosts';
 import MemberMenu from '../../libs/components/member/MemberMenu';
 import MemberProducts from '../../libs/components/member/MemberProducts';
+import MemberArticles from '../../libs/components/member/MemberArticles';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -105,6 +106,7 @@ const MemberPage: NextPage = () => {
 							<Stack className="main-config" mb={'76px'}>
 								<Stack className={'list-config'}>
 									{category === 'products' && <MemberProducts />}
+									{category === 'articles' && <MemberArticles />}
 									{category === 'followers' && (
 										<MemberFollowers
 											subscribeHandler={subscribeHandler}
