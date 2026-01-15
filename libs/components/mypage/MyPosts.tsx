@@ -142,9 +142,10 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 				) : (
 					<>
 						{userPosts?.map((post: Post) => {
-							const imagePath = post?.postImages
-								? `${REACT_APP_API_URL}/${post.postImages}`
-								: '/img/banner/community.webp';
+							const imagePath =
+								post?.postImages?.length > 0
+									? `${REACT_APP_API_URL}/${post.postImages[0]}`
+									: '/img/banner/community.webp';
 
 							return (
 								<Box key={post._id} className="post-card" onClick={() => handleArticleClick(post._id)}>

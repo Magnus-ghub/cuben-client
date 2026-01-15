@@ -75,9 +75,7 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const handlePostClick = (postId: string) => {
-		// MainSection'dagi PostCard'larni bosganda qaysi page'ga ketishini tekshiring
-		// Agar Post detail page `/community` yoki boshqa route bo'lsa, o'zgartiring
-		router.push(`/community#${postId}`); // yoki `/post/${postId}` yoki boshqa route
+		router.push(`/#${postId}`);
 	};
 
 	const formatDate = (date: Date | string) => {

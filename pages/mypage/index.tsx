@@ -25,7 +25,6 @@ import {
 	Users,
 	UserPlus,
 	ShoppingBag,
-	Award,
 	Edit,
 	Crown,
 	Mail,
@@ -35,6 +34,8 @@ import {
 	Activity,
 } from 'lucide-react';
 import { T } from '../../libs/types/common';
+import MyArticles from '../../libs/components/mypage/MyArticles';
+import { MemberType } from '../../libs/enums/member.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -52,6 +53,7 @@ const MyPage: NextPage = () => {
 	const [stats, setStats] = useState({
 		posts: 0,
 		products: 0,
+		articles: 0,
 		followers: 0,
 		followings: 0,
 		views: 0,
@@ -77,6 +79,7 @@ const MyPage: NextPage = () => {
 				setStats({
 					posts: member.memberPosts || 0,
 					products: member.memberProducts || 0,
+					articles: member.memberArticles || 0,
 					followers: member.memberFollowers || 0,
 					followings: member.memberFollowings || 0,
 					views: member.memberViews || 0,
@@ -164,6 +167,17 @@ const MyPage: NextPage = () => {
 			icon: <FileText size={18} />,
 			count: stats.posts,
 		},
+		...(user?.memberType === MemberType.ADMIN
+        ? [
+              {
+                  id: 'myArticles',
+                  label: 'Articles',
+                  icon: <FileText size={18} />,
+                  count: stats.articles,
+              },
+          ]
+        : []),
+
 		{
 			id: 'followers',
 			label: 'Followers',
@@ -338,6 +352,7 @@ const MyPage: NextPage = () => {
 					<Box className={'content-area'}>
 						{category === 'myProducts' && <MyProducts />}
 						{category === 'myPosts' && <MyPosts />}
+						{category === 'myArticles' && <MyArticles />}
 						{category === 'myProfile' && <MyProfile />}
 						{category === 'followers' && (
 							<MemberFollowers
