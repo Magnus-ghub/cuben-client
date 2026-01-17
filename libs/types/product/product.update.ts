@@ -6,7 +6,7 @@ export interface ProductUpdate {
 	productStatus?: ProductStatus;
 	productCondition?: ProductCondition; 
 	productAddress?: string;
-	productTitle?: string;
+	productName?: string;
 	productPrice?: number;
 	productImages?: string[];
 	productDesc?: string;

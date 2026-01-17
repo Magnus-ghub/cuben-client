@@ -8,7 +8,7 @@ export interface Product {
 	productType: ProductType;
 	productStatus: ProductStatus;
 	productCondition: ProductCondition;
-	productTitle: string;
+	productName: string;
 	productAddress?: string;
 	productPrice: number;
 	productViews: number;

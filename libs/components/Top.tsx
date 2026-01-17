@@ -237,7 +237,7 @@ const Top: React.FC = () => {
 											handleCreateMenuClose();
 										}}
 									>
-										🛒 List an Item
+										🛒 Sell Item
 									</MenuItem>
 									{user?.memberType === 'AGENT' && (
 										<MenuItem

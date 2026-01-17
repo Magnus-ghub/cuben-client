@@ -25,7 +25,7 @@ const PopularProducts = () => {
 
 	const featuredProducts = data?.getProducts?.list?.map((product: Product) => ({
 		id: product._id,
-		title: product.productTitle,
+		title: product.productName,
 		price: `₩${product.productPrice?.toLocaleString() || 'Negotiable'}`,
 		condition: product.productCondition || 'Good',
 		seller: product.memberData?.memberNick || 'Unknown Seller',

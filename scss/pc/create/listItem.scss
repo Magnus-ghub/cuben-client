@@ -5,7 +5,7 @@
 // ============================================
 .list-item-page {
 	width: 100%;
-	min-height: calc(auto - 64px);
+	min-height: calc(100vh - 64px);
 	background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 	padding: 0;
 
@@ -161,10 +161,6 @@
 					font-weight: 700;
 					color: #1f2937;
 
-					.emoji {
-						font-size: 18px;
-					}
-
 					.char-count {
 						margin-left: auto;
 						font-size: 12px;
@@ -173,167 +169,243 @@
 					}
 				}
 
-				// Select Input
-				.select-input {
-					.MuiOutlinedInput-root {
-						border-radius: 12px;
-						background: #f8fafc;
-						border: 2px solid #e2e8f0;
-						font-family: $font;
-						transition: all 0.3s ease;
+				// Select Wrapper
+				.select-wrapper {
+					position: relative;
 
-						&:hover {
-							border-color: #cbd5e1;
-							background: #ffffff;
-						}
-
-						&.Mui-focused {
-							background: #ffffff;
-							border-color: #10b981;
-							box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-						}
-					}
-				}
-
-				// Text Input
-				.text-input {
-					.MuiOutlinedInput-root {
-						border-radius: 12px;
-						background: #f8fafc;
-						border: 2px solid #e2e8f0;
-						font-family: $font;
-						transition: all 0.3s ease;
-
-						&:hover {
-							border-color: #cbd5e1;
-							background: #ffffff;
-						}
-
-						&.Mui-focused {
-							background: #ffffff;
-							border-color: #10b981;
-							box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-						}
-
-						input,
-						textarea {
-							font-family: $font;
-						}
-					}
-				}
-
-				// Images Grid
-				.images-grid {
-					display: grid;
-					grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-					gap: 12px;
-
-					.image-preview {
-						position: relative;
+					.select-description {
 						width: 100%;
-						aspect-ratio: 1;
-						border-radius: 12px;
-						overflow: hidden;
+						height: 48px;
+						padding: 0 40px 0 16px;
 						border: 2px solid #e2e8f0;
+						border-radius: 12px;
 						background: #f8fafc;
+						font-family: $font;
+						font-size: 14px;
+						color: #1f2937;
+						outline: none;
+						cursor: pointer;
+						transition: all 0.3s ease;
+						appearance: none;
 
-						img {
-							width: 100%;
-							height: 100%;
-							object-fit: cover;
+						&:hover {
+							border-color: #cbd5e1;
+							background: #ffffff;
 						}
 
-						.remove-img-btn {
-							position: absolute;
-							top: 8px;
-							right: 8px;
-							background: rgba(239, 68, 68, 0.9) !important;
-							color: #ffffff !important;
-							padding: 6px !important;
-							backdrop-filter: blur(10px);
-
-							&:hover {
-								background: #ef4444 !important;
-								transform: scale(1.1);
-							}
-
-							svg {
-								width: 14px;
-								height: 14px;
-							}
+						&:focus {
+							background: #ffffff;
+							border-color: #10b981;
 						}
 
-						.cover-chip {
-							position: absolute;
-							bottom: 8px;
-							left: 8px;
-							background: rgba(16, 185, 129, 0.9) !important;
-							color: #ffffff !important;
-							font-family: $font !important;
-							font-weight: 600 !important;
-							backdrop-filter: blur(10px);
+						option {
+							padding: 10px;
 						}
 					}
 
+					.divider {
+						position: absolute;
+						right: 40px;
+						top: 50%;
+						transform: translateY(-50%);
+						width: 1px;
+						height: 24px;
+						background: #e2e8f0;
+					}
+
+					.arrow-down {
+						position: absolute;
+						right: 16px;
+						top: 50%;
+						transform: translateY(-50%);
+						width: 12px;
+						height: 12px;
+						pointer-events: none;
+					}
+				}
+
+				// Description Input
+				.description-input {
+					width: 100%;
+					height: 48px;
+					padding: 0 16px;
+					border: 2px solid #e2e8f0;
+					border-radius: 12px;
+					background: #f8fafc;
+					font-family: $font;
+					font-size: 14px;
+					color: #1f2937;
+					outline: none;
+					transition: all 0.3s ease;
+
+					&::placeholder {
+						color: #94a3b8;
+					}
+
+					&:hover {
+						border-color: #cbd5e1;
+						background: #ffffff;
+					}
+
+					&:focus {
+						background: #ffffff;
+						border-color: #10b981;
+					}
+
+					// Remove number input arrows
+					&::-webkit-outer-spin-button,
+					&::-webkit-inner-spin-button {
+						-webkit-appearance: none;
+						margin: 0;
+					}
+
+					&[type='number'] {
+						-moz-appearance: textfield;
+						appearance: textfield;
+					}
+				}
+
+				// Description Text
+				.description-text {
+					width: 100%;
+					padding: 12px 16px;
+					border: 2px solid #e2e8f0;
+					border-radius: 12px;
+					background: #f8fafc;
+					font-family: $font;
+					font-size: 14px;
+					color: #1f2937;
+					outline: none;
+					resize: vertical;
+					transition: all 0.3s ease;
+					min-height: 80px;
+
+					&::placeholder {
+						color: #94a3b8;
+					}
+
+					&:hover {
+						border-color: #cbd5e1;
+						background: #ffffff;
+					}
+
+					&:focus {
+						background: #ffffff;
+						border-color: #10b981;
+					}
+				}
+
+				// Images Box (YANGI: Rasm yuklash uchun grid va card style)
+				.images-box {
+					display: flex;
+					flex-direction: column;
+					gap: 16px;
+
+					// Upload Box - Kichik card shaklida (padding kamaytirildi, kompakt)
 					.upload-box {
-						width: 100%;
-						aspect-ratio: 1;
-						border: 2px dashed #cbd5e1;
-						border-radius: 12px;
-						background: #f8fafc;
 						display: flex;
 						align-items: center;
 						justify-content: center;
+						gap: 12px;
+						padding: 16px 20px;  // Kichikroq padding (oldin 40px edi)
+						border: 2px dashed #cbd5e1;
+						border-radius: 12px;
+						background: #f8fafc;
 						transition: all 0.3s ease;
 						cursor: pointer;
+						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);  // Card shadow qo'shildi
+						min-height: 60px;  // Kompakt balandlik
 
 						&:hover {
 							border-color: #10b981;
 							background: rgba(16, 185, 129, 0.05);
+							box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
 						}
 
-						.upload-label {
-							display: flex;
-							flex-direction: column;
-							align-items: center;
-							gap: 8px;
-							cursor: pointer;
-							text-align: center;
-							padding: 20px;
+						// Icon va text kompakt
+						svg {
+							width: 20px;
+							height: 20px;
+							color: #94a3b8;
+						}
 
-							svg {
-								color: #94a3b8;
-							}
-
-							p {
-								font-family: $font;
-								font-size: 13px;
-								font-weight: 600;
-								color: #64748b;
-								margin: 0;
-							}
+						p {
+							font-family: $font;
+							font-size: 14px;
+							color: #64748b;
+							margin: 0;
+							font-weight: 500;
 						}
 					}
-				}
 
-				// Error Message
-				.error-msg {
-					display: flex;
-					align-items: center;
-					gap: 6px;
-					color: #ef4444;
-					font-family: $font;
-					font-size: 13px;
-					margin-top: -4px;
+					// Gallery Box - 4 ta rasm uchun grid
+					.gallery-box {
+						display: grid;
+						grid-template-columns: repeat(4, 1fr);  // 4 ta rasm
+						gap: 12px;
 
-					svg {
-						flex-shrink: 0;
+						.image-box {
+							position: relative;
+							aspect-ratio: 1;
+							border-radius: 12px;
+							overflow: hidden;
+							border: 2px solid #e2e8f0;
+							background: #f8fafc;
+							transition: all 0.3s ease;
+
+							img {
+								width: 100%;
+								height: 100%;
+								object-fit: cover;
+							}
+
+							&:hover {
+								border-color: #10b981;
+								transform: scale(1.02);
+							}
+
+							// Remove Button (yangi qo'shildi)
+							.remove-img-btn {
+								position: absolute;
+								top: 6px;
+								right: 6px;
+								background: rgba(239, 68, 68, 0.9) !important;
+								color: #ffffff !important;
+								border-radius: 50%;
+								width: 24px;
+								height: 24px;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								transition: all 0.2s ease;
+
+								&:hover {
+									background: #ef4444 !important;
+									transform: scale(1.1);
+								}
+							}
+
+							// Cover Chip
+							.cover-chip {
+								position: absolute;
+								bottom: 6px;
+								left: 6px;
+								background: rgba(16, 185, 129, 0.9) !important;
+								color: #ffffff !important;
+								font-family: $font !important;
+								font-weight: 600 !important;
+								font-size: 10px !important;
+								padding: 4px 8px !important;
+								border-radius: 6px !important;
+								backdrop-filter: blur(10px);
+							}
+						}
 					}
 				}
 			}
 
-			// Two Column Row
-			.two-column-row {
+			// Config Row
+			.config-row {
 				display: grid;
 				grid-template-columns: repeat(2, 1fr);
 				gap: 16px;
@@ -345,7 +417,7 @@
 
 			// Submit Section
 			.submit-section {
-				padding-top: 8px;
+				padding-top: 16px;
 				border-top: 2px solid #f1f5f9;
 
 				.submit-btn {
@@ -474,6 +546,8 @@
 
 @media (max-width: 960px) {
 	.list-item-page {
+		padding: 24px 0 40px;
+
 		.page-header {
 			padding: 16px 24px;
 
@@ -504,8 +578,20 @@
 					}
 				}
 
-				.two-column-row {
+				.config-row {
 					grid-template-columns: 1fr;
+				}
+
+				// Images responsive
+				.images-box {
+					.gallery-box {
+						grid-template-columns: repeat(3, 1fr);  // 3 ta rasm
+					}
+
+					.upload-box {
+						padding: 14px 16px;  // Yanada kichik
+						min-height: 50px;
+					}
 				}
 			}
 		}
@@ -546,8 +632,25 @@
 				}
 
 				.form-group {
-					.images-grid {
-						grid-template-columns: repeat(2, 1fr);
+					.images-box {
+						.gallery-box {
+							grid-template-columns: repeat(2, 1fr);  // 2 ta rasm
+						}
+
+						.upload-box {
+							padding: 12px 14px;  // Eng kichik
+							min-height: 45px;
+							gap: 8px;
+
+							svg {
+								width: 16px;
+								height: 16px;
+							}
+
+							p {
+								font-size: 13px;
+							}
+						}
 					}
 				}
 			}

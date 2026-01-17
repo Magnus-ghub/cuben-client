@@ -282,7 +282,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 						<Typography className="separator">/</Typography>
 						<Typography className="crumb">{product?.productAddress}</Typography>
 						<Typography className="separator">/</Typography>
-						<Typography className="crumb active">{product?.productTitle}</Typography>
+						<Typography className="crumb active">{product?.productName}</Typography>
 					</Stack>
 
 					<Stack className="detail-layout">
@@ -293,7 +293,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Box className="main-image">
 									<img
 										src={slideImage ? `${REACT_APP_API_URL}/${slideImage}` : '/img/default-product.png'}
-										alt={product?.productTitle}
+										alt={product?.productName}
 									/>
 									<Stack className="image-badges">
 										<Chip label={product?.productCondition?.toUpperCase()} className="condition-chip" />
@@ -376,7 +376,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 						<Stack className="right-column">
 							{/* Product Header */}
 							<Stack className="product-header">
-								<Typography className="product-title">{product?.productTitle}</Typography>
+								<Typography className="product-title">{product?.productName}</Typography>
 								<Stack className="product-meta">
 									<Chip label={product?.productType} className="category-chip" />
 									<Typography className="post-date">Posted {moment(product?.createdAt).fromNow()}</Typography>
@@ -456,7 +456,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Stack className="form-group">
 									<Typography className="input-label">Message</Typography>
 									<textarea
-										placeholder={`Hi, I'm interested in ${product?.productTitle}...`}
+										placeholder={`Hi, I'm interested in ${product?.productName}...`}
 										className="form-textarea"
 										rows={4}
 										value={contactMessage}

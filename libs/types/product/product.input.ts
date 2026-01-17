@@ -4,7 +4,8 @@ import { ProductStatus, ProductType, ProductCondition } from "../../enums/produc
 export interface ProductInput {
 	productType: ProductType;
 	productAddress?: string;
-	productTitle: string;
+	productCondition: string;
+	productName: string;
 	productPrice: number;
 	productImages: string[]; 
 	productDesc?: string;

@@ -55,7 +55,7 @@ const ProductCard = (props: ProductTypeCard) => {
 					className="card-image-link"
 				>
 					<div className="card-image-wrapper">
-						<img src={imagePath} alt={product?.productTitle} className="card-image" />
+						<img src={imagePath} alt={product?.productName} className="card-image" />
 						
 						{/* Badges */}
 						<Stack className="badge-container">
@@ -86,7 +86,7 @@ const ProductCard = (props: ProductTypeCard) => {
 							}}
 							className="card-title-link"
 						>
-							<Typography className="card-title">{product?.productTitle}</Typography>
+							<Typography className="card-title">{product?.productName}</Typography>
 						</Link>
 						<Stack className="category-badge">
 							<Typography component="p">

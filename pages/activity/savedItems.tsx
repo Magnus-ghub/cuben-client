@@ -269,13 +269,13 @@ const SavedItems: NextPage = () => {
 							return (
 								<Box key={product._id} className="saved-item-card" onClick={() => handleItemClick(product._id, 'product')} style={{ cursor: 'pointer' }}>
 									<Box className="item-image">
-										<img src={imagePath} alt={product.productTitle} />
+										<img src={imagePath} alt={product.productName} />
 										<Box className="saved-badge">
 											<Bookmark size={16} fill="#10b981" color="#10b981" />
 										</Box>
 									</Box>
 									<Box className="item-content">
-										<h3 className="item-title">{product.productTitle}</h3>
+										<h3 className="item-title">{product.productName}</h3>
 										{product.productAddress && (
 											<Box className="item-location">
 												<MapPin size={14} />

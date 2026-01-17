@@ -1,6 +1,7 @@
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
-import { Button, Pagination, Stack, Typography, Menu, MenuItem } from '@mui/material';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import { Button, Pagination, Stack, Typography, Menu, MenuItem, Fab } from '@mui/material';
 import { NextPage } from 'next';
 import { useEffect, useState, MouseEvent } from 'react';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
@@ -75,7 +76,6 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
-			// Optimistic update - like qilishdan oldin UI ni yangilash
 			setProducts((prevProducts) =>
 				prevProducts.map((product) => {
 					if (product._id === id) {
@@ -93,7 +93,6 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 				})
 			);
 
-			// Backend request
 			await likeTargetProduct({
 				variables: { input: id },
 			});
@@ -101,7 +100,6 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			console.log('ERROR, likeProductHandler:', err.message);
-			// Error bo'lsa, eski holatga qaytarish
 			await getProductsRefetch({ input: searchFilter });
 			sweetMixinErrorAlert(err.message).then();
 		}
@@ -112,7 +110,6 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
-			// Optimistic update - save qilishdan oldin UI ni yangilash
 			setProducts((prevProducts) =>
 				prevProducts.map((product) => {
 					if (product._id === id) {
@@ -129,7 +126,6 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 				})
 			);
 
-			// Backend request
 			await saveTargetProduct({
 				variables: { input: id },
 			});
@@ -137,7 +133,6 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 			await sweetTopSmallSuccessAlert('Saved successfully!', 800);
 		} catch (err: any) {
 			console.log('ERROR, saveProductHandler:', err.message);
-			// Error bo'lsa, eski holatga qaytarish
 			await getProductsRefetch({ input: searchFilter });
 			sweetMixinErrorAlert(err.message).then();
 		}
@@ -187,6 +182,10 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 		}
 		setSortingOpen(false);
 		setAnchorEl(null);
+	};
+
+	const handleSellItemClick = () => {
+		router.push('/create/listItem');
 	};
 
 	if (device === 'mobile') {
@@ -310,7 +309,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 										)}
 									</Stack>
 
-									{/* Updated Pagination - Article Style */}
+									{/* Pagination */}
 									{totalCount > 0 && (
 										<Stack className="pagination-container">
 											<Pagination
@@ -338,7 +337,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 												}}
 											/>
 											<Typography className="pagination-info">
-												Total{' '} {totalCount} product{totalCount !== 1 ? 's' : ''}
+												Total {totalCount} product{totalCount !== 1 ? 's' : ''}
 											</Typography>
 										</Stack>
 									)}
@@ -347,6 +346,35 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 						</Stack>
 					</Stack>
 				</Stack>
+
+				{/* Floating Action Button - Sell Item */}
+				<Fab
+					className="sell-item-fab"
+					color="primary"
+					aria-label="sell item"
+					onClick={handleSellItemClick}
+					sx={{
+						position: 'fixed',
+						bottom: 42,
+						right: 42,
+						width: 64,
+						height: 64,
+						background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+						boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+						zIndex: 1000,
+						transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+						'&:hover': {
+							background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
+							boxShadow: '0 12px 32px rgba(102, 126, 234, 0.5)',
+							transform: 'translateY(-4px) scale(1.05)',
+						},
+						'&:active': {
+							transform: 'translateY(-2px) scale(1.02)',
+						},
+					}}
+				>
+					<AddRoundedIcon sx={{ fontSize: 32, color: '#fff' }} />
+				</Fab>
 			</div>
 		);
 	}

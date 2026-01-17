@@ -1,191 +1,183 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { Box, Stack, Button, TextField, MenuItem, Select, FormControl, Chip, Avatar, IconButton, InputAdornment } from '@mui/material';
+import {
+	Box,
+	Stack,
+	Button,
+	Chip,
+	Avatar,
+	IconButton,
+	Typography,
+	TextField,
+	FormControl,
+	Select,
+	MenuItem,
+	InputAdornment,
+} from '@mui/material';
+import { X, Package, Send, Image as ImageIcon, Tag, Info, DollarSign } from 'lucide-react';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { useReactiveVar, useMutation } from '@apollo/client';
+import { getJwtToken } from '../../libs/auth';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
-import { sweetErrorHandling, sweetTopSuccessAlert } from '../../libs/sweetAlert';
-import { getJwtToken } from '../../libs/auth';
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../libs/sweetAlert';
 import { REACT_APP_API_URL } from '../../libs/config';
 import axios from 'axios';
-import { 
-	Package, 
-	Upload, 
-	Send, 
-	X, 
-	AlertCircle,
-	DollarSign,
-	MapPin,
-	Star,
-	Image as ImageIcon,
-	Tag,
-	Info,
-} from 'lucide-react';
 import { ProductCondition, ProductType } from '../../libs/enums/product.enum';
 import { CREATE_PRODUCT } from '../../libs/apollo/user/mutation';
+import { ProductInput } from '../../libs/types/product/product.input';
 
-const ListItem: NextPage = () => {
+const ListItem: NextPage = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
+	const inputRef = useRef<any>(null);
 
 	// Form State
-	const [productType, setProductType] = useState<ProductType>(ProductType.OTHER);
-	const [productCondition, setProductCondition] = useState<ProductCondition>(ProductCondition.GOOD);
-	const [productAddress, setProductAddress] = useState<string>('');
-	const [productName, setProductName] = useState<string>('');
-	const [productPrice, setProductPrice] = useState<string>('');
-	const [productDescription, setProductDescription] = useState<string>('');
-	const [productImages, setProductImages] = useState<string[]>([]);
-	const [uploadingImages, setUploadingImages] = useState<boolean>(false);
-
-	// Validation State
-	const [errors, setErrors] = useState({
-		name: '',
-		price: '',
-		description: '',
-		images: '',
-	});
+	const [insertProductData, setInsertProductData] = useState<ProductInput>(initialValues);
 
 	/** APOLLO REQUESTS **/
 	const [createProduct, { loading }] = useMutation(CREATE_PRODUCT);
 
 	/** HANDLERS **/
-	const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+	async function uploadImages() {
 		try {
-			const files = event.target.files;
-			if (!files || files.length === 0) return;
+			const formData = new FormData();
+			const selectedFiles = inputRef.current.files;
 
-			// Max 5 images
-			if (productImages.length + files.length > 5) {
-				await sweetErrorHandling(new Error('Maximum 5 images allowed'));
-				return;
+			if (selectedFiles.length === 0) return false;
+			if (selectedFiles.length > 4) throw new Error('Cannot upload more than 4 images!');
+
+			// Dinamik files va map (estate loyihasidagi kabi)
+			const numFiles = selectedFiles.length;
+			const filesArray = Array(4).fill(null);
+			const mapObj: any = {};
+			for (let i = 0; i < 4; i++) {
+				mapObj[i] = [`variables.files.${i}`];
 			}
 
-			setUploadingImages(true);
+			formData.append(
+				'operations',
+				JSON.stringify({
+					query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) { 
+						imagesUploader(files: $files, target: $target)
+					}`,
+					variables: {
+						files: filesArray,
+						target: 'product',
+					},
+				}),
+			);
 
-			const uploadPromises = Array.from(files).map(async (file) => {
-				// Validate size (5MB)
-				if (file.size > 5 * 1024 * 1024) {
-					throw new Error('Each image should be less than 5MB');
-				}
+			formData.append('map', JSON.stringify(mapObj));
 
-				const formData = new FormData();
-				formData.append('image', file);
+			for (let i = 0; i < numFiles; i++) {
+				formData.append(i.toString(), selectedFiles[i]);
+			}
 
-				const token = getJwtToken();
-				const response = await axios.post(`${REACT_APP_API_URL}/upload`, formData, {
+			// AUTH HEADER (estate loyihasidagi kabi)
+			const token = getJwtToken();
+			if (!token) throw new Error('Please log in to upload images');
+
+			const response = await axios.post(
+				`${process.env.REACT_APP_API_GRAPHQL_URL || `${REACT_APP_API_URL}/graphql`}`,
+				formData,
+				{
 					headers: {
 						'Content-Type': 'multipart/form-data',
+						'apollo-require-preflight': true,
 						Authorization: `Bearer ${token}`,
 					},
-				});
-
-				return response.data.url;
-			});
-
-			const uploadedUrls = await Promise.all(uploadPromises);
-			setProductImages([...productImages, ...uploadedUrls]);
-			await sweetTopSuccessAlert('Images uploaded successfully!', 2000);
-		} catch (err: any) {
-			await sweetErrorHandling(err);
-		} finally {
-			setUploadingImages(false);
-		}
-	};
-
-	const removeImage = (index: number) => {
-		setProductImages(productImages.filter((_, i) => i !== index));
-	};
-
-	const validateForm = (): boolean => {
-		const newErrors = { name: '', price: '', description: '', images: '' };
-
-		if (!productName.trim()) {
-			newErrors.name = 'Product name is required';
-		} else if (productName.length < 3) {
-			newErrors.name = 'Name must be at least 3 characters';
-		}
-
-		if (!productPrice.trim()) {
-			newErrors.price = 'Price is required';
-		} else if (isNaN(Number(productPrice)) || Number(productPrice) <= 0) {
-			newErrors.price = 'Please enter a valid price';
-		}
-
-		if (!productDescription.trim()) {
-			newErrors.description = 'Description is required';
-		} else if (productDescription.length < 10) {
-			newErrors.description = 'Description must be at least 10 characters';
-		}
-
-		if (productImages.length === 0) {
-			newErrors.images = 'At least one image is required';
-		}
-
-		setErrors(newErrors);
-		return !newErrors.name && !newErrors.price && !newErrors.description && !newErrors.images;
-	};
-
-	const handleSubmit = async () => {
-		try {
-			if (!validateForm()) return;
-
-			await createProduct({
-				variables: {
-					input: {
-						productType,
-						productCondition,
-						productAddress,
-						productName,
-						productPrice: Number(productPrice),
-						productDescription,
-						productImages,
-					},
 				},
-			});
+			);
 
-			await sweetTopSuccessAlert('Product listed successfully!', 2000);
-			router.push('/marketplace');
+			if (!response.data.data?.imagesUploader) {
+				throw new Error('Upload failed: No images returned');
+			}
+
+			const responseImages = response.data.data.imagesUploader.filter((url: string) => url); // Null'larni filter
+			console.log('+responseImages: ', responseImages);
+
+			// Eski + yangi images
+			const newImages = [...(insertProductData.productImages || []), ...responseImages];
+			setInsertProductData({ ...insertProductData, productImages: newImages });
+
+			await sweetMixinSuccessAlert('Images uploaded successfully!');
+
+			inputRef.current.value = ''; // Reset
 		} catch (err: any) {
-			await sweetErrorHandling(err);
+			console.log('err: ', err.message || err);
+			await sweetMixinErrorAlert(err.message || 'Upload failed');
+			if (inputRef.current) inputRef.current.value = '';
 		}
+	}
+
+	// Remove image funksiyasi (estate loyihasidagi kabi)
+	const removeImage = (index: number) => {
+		const newImages = insertProductData.productImages.filter((_: any, i: number) => i !== index);
+		setInsertProductData({ ...insertProductData, productImages: newImages });
 	};
+
+	const doDisabledCheck = () => {
+		if (
+			insertProductData.productName === '' ||
+			insertProductData.productPrice === 0 || // @ts-ignore
+			insertProductData.productType === '' || // @ts-ignore
+			insertProductData.productCondition === '' ||
+			insertProductData.productDesc === ''
+		) {
+			return true;
+		}
+		return false;
+	};
+
+	const insertProductHandler = useCallback(async () => {
+		try {
+			await createProduct({
+				variables: { input: insertProductData },
+			});
+			await sweetMixinSuccessAlert('Product has been created successfully');
+			router.push('/product');
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		}
+	}, [insertProductData]);
+
+	console.log('+insertProductData', insertProductData);
 
 	if (device === 'mobile') {
 		return <div>LIST ITEM MOBILE</div>;
 	}
 
 	const productTypes = [
-		{ value: ProductType.EDU, label: '📚 Books & Textbooks', icon: '📚' },
-		{ value: ProductType.TECH, label: '💻 Electronics', icon: '💻' },
-		{ value: ProductType.STYLE, label: '👕 Fashion & Clothing', icon: '👕' },
-		{ value: ProductType.HOME, label: '🏠 Home & Living', icon: '🏠' },
-		{ value: ProductType.SERVICE, label: '⚙️ Services', icon: '⚙️' },
-		{ value: ProductType.OTHER, label: '📦 Other', icon: '📦' },
+		{ value: ProductType.EDU, label: '📚 Books & Textbooks' },
+		{ value: ProductType.TECH, label: '💻 Electronics' },
+		{ value: ProductType.STYLE, label: '👕 Fashion & Clothing' },
+		{ value: ProductType.HOME, label: '🏠 Home & Living' },
+		{ value: ProductType.SERVICE, label: '⚙️ Services' },
+		{ value: ProductType.OTHER, label: '📦 Other' },
 	];
 
 	const conditions = [
-		{ value: ProductCondition.NEW, label: '✨ Brand New', color: '#10b981' },
-		{ value: ProductCondition.LIKE_NEW, label: '⭐ Like New', color: '#3b82f6' },
-		{ value: ProductCondition.GOOD, label: '👍 Good', color: '#f59e0b' },
-		{ value: ProductCondition.USED, label: '🔄 Used', color: '#94a3b8' },
-		{ value: ProductCondition.BAD, label: '⚠️ Needs Repair', color: '#ef4444' },
+		{ value: ProductCondition.NEW, label: 'Brand New' },
+		{ value: ProductCondition.LIKE_NEW, label: 'Like New' },
+		{ value: ProductCondition.GOOD, label: 'Good' },
+		{ value: ProductCondition.USED, label: 'Used' },
+		{ value: ProductCondition.BAD, label: 'Needs Repair' },
 	];
 
 	return (
 		<Box className="list-item-page">
-			{/* Header */}
+			{/* Header (estate loyihasidagi kabi) */}
 			<Box className="page-header">
 				<Box className="header-content">
 					<Box className="header-icon">
 						<Package size={24} />
 					</Box>
 					<Box>
-						<h1>List an Item</h1>
-						<p>Sell your items to the community</p>
+						<Typography variant="h4">List an Item</Typography>
+						<Typography variant="body2">Sell your items to the community</Typography>
 					</Box>
 				</Box>
 				<IconButton className="close-btn" onClick={() => router.back()}>
@@ -198,33 +190,28 @@ const ListItem: NextPage = () => {
 				<Box className="main-form-card">
 					{/* Seller Section */}
 					<Box className="seller-section">
-						<Avatar 
-							src={user?.memberImage || '/img/profile/defaultUser.svg'} 
-							className="seller-avatar"
-						/>
+						<Avatar src={user?.memberImage || '/img/profile/defaultUser.svg'} className="seller-avatar" />
 						<Box className="seller-info">
-							<h3>{user?.memberNick || 'Seller'}</h3>
-							<p>@{user?.memberNick?.toLowerCase() || 'user'}</p>
+							<Typography variant="h6">{user?.memberNick || 'Seller'}</Typography>
+							<Typography variant="body2">@{user?.memberNick?.toLowerCase() || 'user'}</Typography>
 						</Box>
-						<Chip 
-							icon={<Tag size={14} />}
-							label="Selling on Marketplace" 
-							className="selling-chip"
-						/>
+						<Chip icon={<Tag size={14} />} label="Selling on Marketplace" className="selling-chip" />
 					</Box>
 
 					{/* Product Type */}
 					<Box className="form-group">
-						<label className="form-label">
-							<span className="emoji">📦</span>
-							Product Category
-						</label>
+						<label className="form-label">Product Category</label>
 						<FormControl fullWidth>
 							<Select
-								value={productType}
-								onChange={(e) => setProductType(e.target.value as ProductType)}
+								value={insertProductData.productType || 'select'}
+								onChange={({ target: { value } }) =>
+									setInsertProductData({ ...insertProductData, productType: value as ProductType })
+								}
 								className="select-input"
 							>
+								<MenuItem disabled value="select">
+									Select Category
+								</MenuItem>
 								{productTypes.map((type) => (
 									<MenuItem key={type.value} value={type.value}>
 										{type.label}
@@ -236,35 +223,27 @@ const ListItem: NextPage = () => {
 
 					{/* Product Name */}
 					<Box className="form-group">
-						<label className="form-label">
-							<span className="emoji">✏️</span>
-							Product Name
-						</label>
+						<label className="form-label">Product Name</label>
 						<TextField
 							fullWidth
 							placeholder="e.g., MacBook Pro 2023, Calculus Textbook..."
-							value={productName}
-							onChange={(e) => setProductName(e.target.value)}
-							error={!!errors.name}
-							helperText={errors.name}
+							value={insertProductData.productName}
+							onChange={({ target: { value } }) => setInsertProductData({ ...insertProductData, productName: value })}
 							className="text-input"
 						/>
 					</Box>
 
-					{/* Price and Condition Row */}
+					{/* Price and Condition Row (two-column-row ga o'zgartirildi) */}
 					<Stack className="two-column-row">
 						<Box className="form-group">
-							<label className="form-label">
-								<span className="emoji">💰</span>
-								Price (KRW)
-							</label>
+							<label className="form-label">Price (KRW)</label>
 							<TextField
 								fullWidth
 								placeholder="Enter price"
-								value={productPrice}
-								onChange={(e) => setProductPrice(e.target.value)}
-								error={!!errors.price}
-								helperText={errors.price}
+								value={insertProductData.productPrice || ''}
+								onChange={({ target: { value } }) =>
+									setInsertProductData({ ...insertProductData, productPrice: parseInt(value) || 0 })
+								}
 								className="text-input"
 								InputProps={{
 									startAdornment: (
@@ -277,16 +256,18 @@ const ListItem: NextPage = () => {
 						</Box>
 
 						<Box className="form-group">
-							<label className="form-label">
-								<span className="emoji">⭐</span>
-								Condition
-							</label>
+							<label className="form-label">Condition</label>
 							<FormControl fullWidth>
 								<Select
-									value={productCondition}
-									onChange={(e) => setProductCondition(e.target.value as ProductCondition)}
+									value={insertProductData.productCondition || 'select'}
+									onChange={({ target: { value } }) =>
+										setInsertProductData({ ...insertProductData, productCondition: value as ProductCondition })
+									}
 									className="select-input"
 								>
+									<MenuItem disabled value="select">
+										Select Condition
+									</MenuItem>
 									{conditions.map((cond) => (
 										<MenuItem key={cond.value} value={cond.value}>
 											{cond.label}
@@ -297,95 +278,94 @@ const ListItem: NextPage = () => {
 						</Box>
 					</Stack>
 
-					{/* Location */}
+					{/* Pickup Location - OPTIONAL */}
 					<Box className="form-group">
 						<label className="form-label">
-							<span className="emoji">📍</span>
-							Pickup Location
-						</label>
-						<FormControl fullWidth>
-							{/* <Select
-								value={productAddress}
-								onChange={(e) 
-								className="select-input"
-							>
-								{locations.map((loc) => (
-									<MenuItem key={loc.value} value={loc.value}>
-										{loc.label}
-									</MenuItem>
-								))}
-							</Select> */}
-						</FormControl>
-					</Box>
-
-					{/* Description */}
-					<Box className="form-group">
-						<label className="form-label">
-							<span className="emoji">📝</span>
-							Description
-							<span className="char-count">{productDescription.length}/500</span>
+							Pickup Location (Optional)
+							<span className="char-count">{(insertProductData.productAddress || '').length}/500</span>
 						</label>
 						<TextField
 							fullWidth
 							multiline
-							rows={6}
-							placeholder="Describe your item: condition, features, reason for selling..."
-							value={productDescription}
-							onChange={(e) => setProductDescription(e.target.value)}
-							error={!!errors.description}
-							helperText={errors.description}
+							placeholder="Pickup location (optional): campus, nearby station, or area"
+							value={insertProductData.productAddress || ''}
+							onChange={({ target: { value } }) =>
+								setInsertProductData({ ...insertProductData, productAddress: value })
+							}
 							className="text-input"
 							inputProps={{ maxLength: 500 }}
 						/>
 					</Box>
 
+					{/* Description */}
+					<Box className="form-group">
+						<label className="form-label">
+							Description
+							<span className="char-count">{(insertProductData.productDesc || '').length}/500</span>
+						</label>
+						<TextField
+							fullWidth
+							multiline
+							placeholder="Describe your item: condition, features, reason for selling..."
+							value={insertProductData.productDesc || ''}
+							onChange={({ target: { value } }) => setInsertProductData({ ...insertProductData, productDesc: value })}
+							className="text-input"
+							inputProps={{ maxLength: 500 }}
+						/>
+					</Box>
+
+					{/* Image Upload (images-grid ga o'zgartirildi, estate loyihasidagi kabi) */}
 					{/* Image Upload */}
 					<Box className="form-group">
 						<label className="form-label">
-							<span className="emoji">📷</span>
-							Product Images
-							<span className="char-count">{productImages.length}/5</span>
+							Product Images (Optional)
+							<span className="char-count">{insertProductData.productImages?.length || 0}/4</span>
 						</label>
-						
-						{/* Image Grid */}
-						<Box className="images-grid">
-							{productImages.map((image, index) => (
-								<Box key={index} className="image-preview">
-									<img src={`${REACT_APP_API_URL}/${image}`} alt={`Product ${index + 1}`} />
-									<IconButton 
-										className="remove-img-btn"
-										onClick={() => removeImage(index)}
-									>
-										<X size={16} />
-									</IconButton>
-									{index === 0 && <Chip label="Cover" size="small" className="cover-chip" />}
-								</Box>
-							))}
-							
-							{productImages.length < 5 && (
-								<Box className="upload-box">
-									<input
-										type="file"
-										accept="image/*"
-										multiple
-										onChange={handleImageUpload}
-										style={{ display: 'none' }}
-										id="images-upload"
-										disabled={uploadingImages}
-									/>
-									<label htmlFor="images-upload" className="upload-label">
-										<ImageIcon size={32} />
-										<p>{uploadingImages ? 'Uploading...' : 'Add Photos'}</p>
-									</label>
-								</Box>
+
+						<Stack className="images-box">
+							{' '}
+							{/* images-grid o'rniga images-box */}
+							{/* Upload Box - Kichik card */}
+							<Stack className="upload-box" onClick={() => inputRef.current?.click()}>
+								{' '}
+								{/* Hover uchun onClick qo'shildi */}
+								<ImageIcon size={20} /> {/* Kichikroq icon */}
+								<p>Add Photos</p> {/* Kompakt text */}
+								<input
+									ref={inputRef}
+									type="file"
+									accept="image/jpg, image/jpeg, image/png"
+									multiple
+									onChange={uploadImages}
+									style={{ display: 'none' }}
+									id="product-images-upload"
+								/>
+							</Stack>
+							{/* Gallery */}
+							{insertProductData.productImages && insertProductData.productImages.length > 0 && (
+								<Stack className="gallery-box">
+									{' '}
+									{/* image-preview o'rniga image-box */}
+									{insertProductData.productImages.map((image: string, index: number) => {
+										const imagePath: string = `${REACT_APP_API_URL}/${image}`;
+										return (
+											<Stack key={index} className="image-box">
+												{' '}
+												{/* image-preview o'rniga */}
+												<img src={imagePath} alt={`Product ${index + 1}`} />
+												<IconButton
+													className="remove-img-btn" // SCSS'da style qo'shildi
+													onClick={() => removeImage(index)}
+												>
+													<X size={16} />
+												</IconButton>
+												{index === 0 && <Chip label="Cover" size="small" className="cover-chip" />}
+											</Stack>
+										);
+									})}
+								</Stack>
 							)}
-						</Box>
-						{errors.images && (
-							<Box className="error-msg">
-								<AlertCircle size={14} />
-								<span>{errors.images}</span>
-							</Box>
-						)}
+						</Stack>
 					</Box>
 
 					{/* Submit Button */}
@@ -394,8 +374,8 @@ const ListItem: NextPage = () => {
 							variant="contained"
 							className="submit-btn"
 							startIcon={<Send size={18} />}
-							onClick={handleSubmit}
-							disabled={loading || uploadingImages}
+							onClick={insertProductHandler}
+							disabled={loading || doDisabledCheck()}
 							fullWidth
 						>
 							{loading ? 'Publishing...' : 'List Product for Sale'}
@@ -405,7 +385,7 @@ const ListItem: NextPage = () => {
 
 				{/* Sidebar Tips */}
 				<Box className="sidebar-card">
-					<h3>💡 Listing Tips</h3>
+					<Typography variant="h6">💡 Listing Tips</Typography>
 					<ul>
 						<li>Add clear photos from multiple angles</li>
 						<li>Be honest about item condition</li>
@@ -417,14 +397,26 @@ const ListItem: NextPage = () => {
 					<Box className="info-box">
 						<Info size={18} />
 						<Box>
-							<h4>Safe Trading</h4>
-							<p>Meet in public places on campus. Check items before payment.</p>
+							<Typography variant="subtitle2">Safe Trading</Typography>
+							<Typography variant="caption">Meet in public places on campus. Check items before payment.</Typography>
 						</Box>
 					</Box>
 				</Box>
 			</Stack>
 		</Box>
 	);
+};
+
+ListItem.defaultProps = {
+	initialValues: {
+		productName: '',
+		productPrice: 0,
+		productType: '',
+		productCondition: '',
+		productAddress: '',
+		productDesc: '',
+		productImages: [],
+	},
 };
 
 export default withLayoutMain(ListItem);

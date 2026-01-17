@@ -262,13 +262,13 @@ const Favorites: NextPage = () => {
 							return (
 								<Box key={product._id} className="saved-item-card" onClick={() => handleItemClick(product._id, 'product')} style={{ cursor: 'pointer' }}>
 									<Box className="item-image">
-										<img src={imagePath} alt={product.productTitle} />
+										<img src={imagePath} alt={product.productName} />
 										<Box className="favorite-badge">
 											<Heart size={16} fill="#ec4899" color="#ec4899" />
 										</Box>
 									</Box>
 									<Box className="item-content">
-										<h3 className="item-title">{product.productTitle}</h3>
+										<h3 className="item-title">{product.productName}</h3>
 										{product.productAddress && (
 											<Box className="item-location">
 												<MapPin size={14} />

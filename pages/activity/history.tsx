@@ -205,7 +205,7 @@ const History: NextPage = () => {
 								>
 									{/* Image */}
 									<Box className="item-image">
-										<img src={imagePath} alt={product.productTitle} />
+										<img src={imagePath} alt={product.productName} />
 										<Box className="time-badge">
 											<Clock size={12} />
 											<span>{formatDate(product.createdAt.toString())}</span>
@@ -214,7 +214,7 @@ const History: NextPage = () => {
 
 									{/* Content */}
 									<Box className="item-content">
-										<h3 className="item-title">{product.productTitle}</h3>
+										<h3 className="item-title">{product.productName}</h3>
 
 										{product.productAddress && (
 											<Box className="item-location">

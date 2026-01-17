@@ -66,7 +66,7 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 								? `${REACT_APP_API_URL}/${product.productImages[0]}`
 								: '/img/default-product.png'
 						}
-						alt={product?.productTitle || 'product image'}
+						alt={product?.productName || 'product image'}
 					/>
 
 					{/* Status Badge - Top (Like New, Excellent, etc.) */}
@@ -83,7 +83,7 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 				{/* Info Section */}
 				<Box component={'div'} className={'info'}>
 					{/* Title */}
-					<strong className={'title'}>{product?.productTitle}</strong>
+					<strong className={'title'}>{product?.productName}</strong>
 
 					{/* Description (Location/Address) */}
 					<p className={'desc'}>{product?.productAddress || product?.productDesc}</p>

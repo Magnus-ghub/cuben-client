@@ -44,7 +44,7 @@ export const UPDATE_PRODUCT_BY_ADMIN = gql`
 			productType
 			productStatus
 			productAddress
-			productTitle
+			productName
 			productPrice
 			productViews
 			productLikes
@@ -66,7 +66,7 @@ export const REMOVE_PRODUCT_BY_ADMIN = gql`
 			productType
 			productStatus
 			productAddress
-			productTitle
+			productName
 			productPrice
 			productViews
 			productLikes

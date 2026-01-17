@@ -135,30 +135,26 @@ export const UPDATE_MEMBER = gql`
  *************************/
 
 export const CREATE_PRODUCT = gql`
-	mutation UpdateProduct($input: ProductUpdate!) {
-		updateProduct(input: $input) {
+	mutation CreateProduct($input: ProductInput!) {
+		createProduct(input: $input) {
 			_id
 			productType
 			productStatus
+			productName
 			productAddress
-			productTitle
-			productDesc
+			productSaves
 			productPrice
 			productViews
 			productLikes
-			productImages
-			productCondition
+			productDesc
 			memberId
-			isSold
 			soldAt
 			deletedAt
 			createdAt
 			updatedAt
-			productSaves
-			meLiked {
-				liked
-				saved
-			}
+			productImages
+			productCondition
+			isSold
 			memberData {
 				_id
 				memberType
@@ -171,7 +167,6 @@ export const CREATE_PRODUCT = gql`
 				memberAddress
 				memberDesc
 				memberProducts
-				memberPosts
 				memberArticles
 				memberFollowers
 				memberFollowings
@@ -186,15 +181,10 @@ export const CREATE_PRODUCT = gql`
 				createdAt
 				updatedAt
 				accessToken
-				meLiked {
-					liked
-					saved
-				}
-				meFollowed {
-					followingId
-					followerId
-					myFollowing
-				}
+			}
+			meLiked {
+				liked
+				saved
 			}
 		}
 	}
@@ -207,7 +197,7 @@ export const UPDATE_PRODUCT = gql`
 			productType
 			productStatus
 			productAddress
-			productTitle
+			productName
 			productDesc
 			productPrice
 			productViews
@@ -273,7 +263,7 @@ export const REMOVE_PRODUCT = gql`
 			productType
 			productStatus
 			productAddress
-			productTitle
+			productName
 			productDesc
 			productPrice
 			productViews
@@ -298,7 +288,7 @@ export const LIKE_TARGET_PRODUCT = gql`
 			productType
 			productStatus
 			productAddress
-			productTitle
+			productName
 			productDesc
 			productPrice
 			productViews
@@ -327,7 +317,7 @@ export const SAVE_TARGET_PRODUCT = gql`
 			productType
 			productStatus
 			productAddress
-			productTitle
+			productName
 			productDesc
 			productPrice
 			productViews

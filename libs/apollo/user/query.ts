@@ -104,7 +104,7 @@ export const GET_PRODUCT = gql`
 			productType
 			productStatus
 			productAddress
-			productTitle
+			productName
 			productDesc
 			productPrice
 			productViews
@@ -161,7 +161,7 @@ export const GET_PRODUCTS = gql`
 				productType
 				productStatus
 				productAddress
-				productTitle
+				productName
 				productDesc
 				productPrice
 				productViews
@@ -223,7 +223,7 @@ export const GET_VISITED = gql`
 				productType
 				productStatus
 				productAddress
-				productTitle
+				productName
 				productDesc
 				productPrice
 				productViews
@@ -294,7 +294,7 @@ export const GET_SAVED_PRODUCTS = gql`
 				productType
 				productStatus
 				productAddress
-				productTitle
+				productName
 				productDesc
 				productPrice
 				productViews
@@ -356,7 +356,7 @@ export const GET_FAVORITE_PRODUCTS = gql`
 				productType
 				productStatus
 				productAddress
-				productTitle
+				productName
 				productDesc
 				productPrice
 				productViews

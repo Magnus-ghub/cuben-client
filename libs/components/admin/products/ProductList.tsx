@@ -158,7 +158,7 @@ export const ProductPanelList = (props: ProductPanelListType) => {
                                         />
                                         <Box>
                                             <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#1e293b' }}>
-                                                {product.productTitle}
+                                                {product.productName}
                                             </Typography>
                                             <Typography sx={{ fontSize: '12px', color: '#94a3b8' }}>
                                                 ID: {product._id.toString().slice(-5)}

@@ -201,7 +201,7 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 								<Box key={product._id} className="product-card" onClick={() => handleProductClick(product._id)}>
 									{/* Product Image */}
 									<Box className="product-image">
-										<img src={imagePath} alt={product.productTitle} />
+										<img src={imagePath} alt={product.productName} />
 										<Box className="image-overlay">
 											<Chip
 												label={product.productStatus}
@@ -225,7 +225,7 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 									<Box className="product-content">
 										{/* Title & Location */}
 										<Box className="product-header">
-											<h3 className="product-title">{product.productTitle}</h3>
+											<h3 className="product-title">{product.productName}</h3>
 											{product.productAddress && (
 												<Box className="product-location">
 													<MapPin size={14} />
