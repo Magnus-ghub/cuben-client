@@ -59,7 +59,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	});
 
 	/** LIFECYCLES **/
-	// Set user's memberId when user is loaded
 	useEffect(() => {
 		if (user?._id) {
 			setSearchFilter({
@@ -69,7 +68,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		}
 	}, [user?._id]);
 
-	// Refetch when searchFilter changes
 	useEffect(() => {
 		if (user?._id && searchFilter.search.memberId) {
 			getProductsRefetch({ input: searchFilter });
@@ -87,7 +85,8 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 	const handleEditProduct = (productId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		router.push(`/mypage?category=addNewProduct&productId=${productId}`);
+		// Fixed: Pass type and id parameters
+		router.push(`/common/updateItem?type=product&id=${productId}`);
 	};
 
 	const handleDeleteProduct = async (productId: string, e: React.MouseEvent) => {
@@ -105,7 +104,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 				variables: { input: productId },
 			});
 
-			// Refetch products after deletion
 			await getProductsRefetch({ input: searchFilter });
 			
 			await sweetTopSmallSuccessAlert('Product deleted successfully!', 800);
@@ -130,7 +128,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			minimumFractionDigits: 0,
 		}).format(price);
 	};
-
+	
 	const getStatusColor = (status: string) => {
 		const colors: { [key: string]: string } = {
 			ACTIVE: '#10b981',
@@ -140,7 +138,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		return colors[status] || '#94a3b8';
 	};
 
-	// Loading state
 	if (!user?._id || getProductsLoading) {
 		return (
 			<Box className="modern-content-container">
@@ -158,7 +155,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 	return (
 		<Box className="modern-content-container">
-			{/* Header Section */}
 			<Stack className="content-header">
 				<Box className="header-left">
 					<Box className="title-icon">
@@ -174,7 +170,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 				</Box>
 			</Stack>
 
-			{/* Products Grid */}
 			<Box className="products-grid">
 				{userProducts?.length === 0 ? (
 					<Box className="empty-state">
@@ -193,7 +188,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 							return (
 								<Box key={product._id} className="product-card" onClick={() => handleProductClick(product._id)}>
-									{/* Product Image */}
 									<Box className="product-image">
 										<img src={imagePath} alt={product.productName} />
 										<Box className="image-overlay">
@@ -215,9 +209,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 										)}
 									</Box>
 
-									{/* Product Content */}
 									<Box className="product-content">
-										{/* Title & Location */}
 										<Box className="product-header">
 											<h3 className="product-title">{product.productName}</h3>
 											{product.productAddress && (
@@ -228,13 +220,11 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 											)}
 										</Box>
 
-										{/* Price */}
 										<Box className="product-price">
 											<DollarSign size={18} />
 											<span>{formatPrice(product.productPrice)}</span>
 										</Box>
 
-										{/* Stats Row */}
 										<Stack className="product-stats">
 											<Box className="stat-item">
 												<Eye size={16} />
@@ -250,7 +240,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 											</Box>
 										</Stack>
 
-										{/* Action Buttons */}
 										<Stack className="product-actions">
 											<IconButton
 												size="small"
@@ -277,7 +266,6 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 				)}
 			</Box>
 
-			{/* Pagination */}
 			{userProducts.length > 0 && (
 				<Stack className="pagination-section">
 					<Pagination

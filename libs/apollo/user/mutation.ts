@@ -423,6 +423,52 @@ export const UPDATE_POST = gql`
 	}
 `;
 
+export const REMOVE_POST = gql`
+	mutation RemovePost($input: String!) {
+		removePost(postId: $input) {
+			_id
+			postStatus
+			postTitle
+			postContent
+			postImages
+			postLikes
+			postComments
+			postSaves
+			memberId
+			createdAt
+			updatedAt
+			memberData {
+				_id
+				memberType
+				memberStatus
+				memberAuthType
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProducts
+				memberPosts
+				memberArticles
+				memberFollowers
+				memberFollowings
+				memberPoints
+				memberLikes
+				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
+				deletedAt
+				createdAt
+				updatedAt
+				accessToken
+			}
+		}
+	}
+`;
+
 export const LIKE_TARGET_POST = gql`
 	mutation LikeTargetPost($input: String!) {
 		likeTargetPost(postId: $input) {
@@ -551,6 +597,26 @@ export const UPDATE_ARTICLE = gql`
 				liked
 				saved
 			}
+		}
+	}
+`;
+
+export const REMOVE_ARTICLE = gql`
+	mutation RemoveArticle($input: String!) {
+		removeArticle(articleId: $input) {
+			_id
+			articleCategory
+			articleStatus
+			articleTitle
+			articleContent
+			articleImage
+			articleViews
+			articleLikes
+			articleSaves
+			articleComments
+			memberId
+			createdAt
+			updatedAt
 		}
 	}
 `;

@@ -167,7 +167,7 @@ const MyPage: NextPage = () => {
 			icon: <FileText size={18} />,
 			count: stats.posts,
 		},
-		...(user?.memberType === MemberType.ADMIN
+		...(user?.memberType === MemberType.AGENT
         ? [
               {
                   id: 'myArticles',
@@ -274,7 +274,7 @@ const MyPage: NextPage = () => {
 								<Stack className={'contact-info'}>
 									<Box className={'contact-item'}>
 										<Mail size={16} />
-										<span>{user?.memberPhone || 'phone@example.com'}</span> {/* memberPhone instead of email */}
+										<span>{user?.memberEmail || 'phone@example.com'}</span> {/* memberPhone instead of email */}
 									</Box>
 									<Box className={'contact-item'}>
 										<Phone size={16} />

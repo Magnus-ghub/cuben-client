@@ -6,13 +6,15 @@ import { useRouter } from 'next/router';
 import { T } from '../../types/common';
 import { ArticlesInquiry } from '../../types/article/article.input';
 import { GET_ARTICLES } from '../../apollo/user/query';
-import { useQuery, useReactiveVar } from '@apollo/client'; 
-import { userVar } from '../../apollo/store'; 
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../apollo/store';
 import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
-import { Direction } from '../../enums/common.enum';
+import { Direction, Message } from '../../enums/common.enum';
 import { Article } from '../../types/article/article';
 import { ArticleCategory } from '../../enums/article.enum';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { REMOVE_ARTICLE } from '../../apollo/user/mutation';
 
 const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -66,6 +68,8 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	/** APOLLO REQUESTS **/
+	const [removeArticle] = useMutation(REMOVE_ARTICLE);
+
 	const {
 		loading: getArticlesLoading,
 		data: getArticlesData,
@@ -75,7 +79,7 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
-		skip: !user?._id, 
+		skip: !user?._id,
 		onCompleted: (data: T) => {
 			setUserArticles(data?.getArticles?.list || []);
 			setTotal(data.getArticles.metaCounter?.[0]?.total || 0);
@@ -121,9 +125,28 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 		router.push(`/mypage?category=writeArticle&articleId=${articleId}`);
 	};
 
-	const handleDeleteArticle = (articleId: string, e: React.MouseEvent) => {
+	const handleDeleteArticle = async (articleId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		console.log('Delete article:', articleId);
+
+		try {
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			const confirmed = await sweetConfirmAlert(
+				'Are you sure you want to delete this article? This action cannot be undone.',
+			);
+			if (!confirmed) return;
+
+			await removeArticle({
+				variables: { input: articleId },
+			});
+
+			await getArticlesRefetch({ input: searchFilter });
+
+			await sweetTopSmallSuccessAlert('Article deleted successfully!', 800);
+		} catch (err: any) {
+			console.error('Delete Article Error:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
 	};
 
 	const formatDate = (date: Date | string) => {
@@ -181,9 +204,7 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 					<>
 						{userArticles?.map((article: Article) => {
 							const categoryStyle = getCategoryStyles(article?.articleCategory);
-							const imagePath = article?.articleImage
-								? `${REACT_APP_API_URL}/${article.articleImage}`
-								: null;
+							const imagePath = article?.articleImage ? `${REACT_APP_API_URL}/${article.articleImage}` : null;
 
 							return (
 								<Box key={article._id} className="post-card" onClick={() => handleArticleClick(article)}>
@@ -225,7 +246,7 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 												</Box>
 											</Box>
 										)}
-										
+
 										{/* Category Badge Overlay */}
 										{imagePath && (
 											<Box

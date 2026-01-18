@@ -6,7 +6,6 @@ import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
-import { Editor } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
 import { getJwtToken } from '../../libs/auth';
@@ -27,7 +26,6 @@ const WritePost: NextPage = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const editorRef = useRef<Editor>(null);
 	const inputRef = useRef<HTMLInputElement>(null);  
 
 	// Modal State
@@ -143,54 +141,8 @@ const WritePost: NextPage = () => {
 			isValid = false;
 		}
 
-		const content = editorRef.current?.getInstance().getMarkdown();
-		if (!content || content.trim().length < 10) {
-			newErrors.content = 'Content must be at least 10 characters';
-			isValid = false;
-		}
-
 		setErrors(newErrors);
 		return isValid;
-	};
-
-	const handleSubmit = async () => {
-		try {
-			setErrors({ title: '', content: '' });
-
-			if (!validateForm()) {
-				return;
-			}
-
-			const postContent = editorRef.current?.getInstance().getMarkdown();
-
-			if (!postContent || !postTitle) {
-				throw new Error(Message.INSERT_ALL_INPUTS);
-			}
-
-			await createPost({
-				variables: {
-					input: {
-						postTitle,
-						postContent,
-						postImages: postImages,  
-					},
-				},
-			});
-
-			await sweetTopSuccessAlert('Post is created successfully', 700);
-			setOpen(false);
-			setTimeout(() => {
-				router.push({
-					pathname: '/',
-					query: {
-						category: 'myPosts',
-					},
-				});
-			}, 300);
-		} catch (err: any) {
-			console.log(err);
-			sweetErrorHandling(err).then();
-		}
 	};
 
 	if (device === 'mobile') {
@@ -302,25 +254,6 @@ const WritePost: NextPage = () => {
 							)}
 						</Stack>
 					</Box>
-
-					{/* Editor */}
-					<Box className={`editor-wrapper ${errors.content ? 'error' : ''}`}>
-						<Editor
-							ref={editorRef}
-							initialValue=" "
-							placeholder="Write your post content here..."
-							previewStyle="vertical"
-							height="300px"
-							initialEditType="markdown"
-							useCommandShortcut={true}
-							hideModeSwitch={true}
-							toolbarItems={[
-								['heading', 'bold', 'italic'],
-								['ul', 'ol'],
-								['link', 'code'],
-							]}
-						/>
-					</Box>
 					{errors.content && (
 						<Box className="error-msg">
 							<AlertCircle size={14} />
@@ -338,14 +271,6 @@ const WritePost: NextPage = () => {
 						disabled={loading || uploadingImages}
 					>
 						Cancel
-					</Button>
-					<Button
-						variant="contained"
-						className="post-btn"
-						onClick={handleSubmit}
-						disabled={loading || uploadingImages || !postTitle.trim()}
-					>
-						{loading ? 'Publishing...' : 'Post'}
 					</Button>
 				</Box>
 			</Box>

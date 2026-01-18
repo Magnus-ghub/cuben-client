@@ -4,29 +4,34 @@ import { Pagination, Stack, Box, Chip, IconButton, CircularProgress } from '@mui
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { T } from '../../types/common';
-import { ArticlesInquiry } from '../../types/article/article.input';
+import { PostsInquiry } from '../../types/post/post.input';
 import { GET_POSTS } from '../../apollo/user/query';
-import { useQuery, useReactiveVar } from '@apollo/client'; // useReactiveVar qo'shing
-import { userVar } from '../../apollo/store'; // userVar import qiling
-import { FileText, Calendar, Eye, MessageSquare, Heart, Edit, Trash2, MoreVertical, TrendingUp } from 'lucide-react';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../apollo/store';
+import { FileText, Calendar, MessageSquare, Heart, Edit, Trash2 } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
-import { Direction } from '../../enums/common.enum';
+import { Direction, Message } from '../../enums/common.enum';
 import { Post } from '../../types/post/post';
+import CommentModal from '../common/CommentModal';
+import { REMOVE_POST } from '../../apollo/user/mutation';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [total, setTotal] = useState<number>(0);
+	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+	const [commentModalOpen, setCommentModalOpen] = useState(false);
 
-	const [searchFilter, setSearchFilter] = useState<ArticlesInquiry>(
+	const [searchFilter, setSearchFilter] = useState<PostsInquiry>(
 		initialInput || {
 			page: 1,
 			limit: 6,
 			sort: 'createdAt',
 			direction: Direction.DESC,
 			search: {
-				memberId: '', // Bo'sh boshlaydi
+				memberId: '',
 			},
 		},
 	);
@@ -34,6 +39,8 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	const [userPosts, setUserPosts] = useState<Post[]>([]);
 
 	/** APOLLO REQUESTS **/
+	const [removePost] = useMutation(REMOVE_POST);
+
 	const {
 		loading: getPostsLoading,
 		data: getPostsData,
@@ -43,7 +50,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
-		skip: !user?._id, // User yo'q bo'lsa query skip qiladi
+		skip: !user?._id,
 		onCompleted: (data: T) => {
 			setUserPosts(data?.getPosts?.list || []);
 			setTotal(data.getPosts.metaCounter?.[0]?.total || 0);
@@ -74,18 +81,51 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
-	const handleArticleClick = (postId: string) => {
-		router.push(`/post/detail?postId=${postId}`);
+	const handlePostClick = (post: Post) => {
+		console.log('Comment clicked for post:', post._id);
+		setSelectedPost(post);
+		setCommentModalOpen(true);
 	};
 
-	const handleEditArticle = (postId: string, e: React.MouseEvent) => {
-		e.stopPropagation();
-		router.push(`/mypage?category=writeArticle&articleId=${postId}`);
+	const handleCommentAdded = async () => {
+		try {
+			const { data } = await getPostsRefetch({ input: searchFilter });
+			if (data?.getPosts?.list) {
+				setUserPosts(data.getPosts.list);
+			}
+		} catch (err) {
+			console.error('Error refetching posts:', err);
+		}
 	};
 
-	const handleDeleteArticle = (postId: string, e: React.MouseEvent) => {
+	const handleEditPost = (postId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		console.log('Delete article:', postId);
+		router.push(`/mypage?category=updateItem&postId=${postId}`);
+	};
+
+	const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
+		e.stopPropagation();
+
+		try {
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			const confirmed = await sweetConfirmAlert(
+				'Are you sure you want to delete this post? This action cannot be undone.',
+			);
+			if (!confirmed) return;
+
+			await removePost({
+				variables: { input: postId },
+			});
+
+			// Refetch products after deletion
+			await getPostsRefetch({ input: searchFilter });
+
+			await sweetTopSmallSuccessAlert('Post deleted successfully!', 800);
+		} catch (err: any) {
+			console.error('Delete Post Error:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
 	};
 
 	const formatDate = (date: Date | string) => {
@@ -108,7 +148,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	}
 
 	if (device === 'mobile') {
-		return <div>MY ARTICLES MOBILE</div>;
+		return <div>MY POSTS MOBILE</div>;
 	}
 
 	return (
@@ -121,7 +161,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 					<Box>
 						<h2 className="section-title">My Posts</h2>
-						<p className="section-subtitle">Manage your published articles</p>
+						<p className="section-subtitle">Manage your published posts</p>
 					</Box>
 				</Box>
 				<Box className="header-right">
@@ -129,7 +169,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 				</Box>
 			</Stack>
 
-			{/* Articles Grid */}
+			{/* Posts Grid */}
 			<Box className="posts-grid">
 				{userPosts?.length === 0 ? (
 					<Box className="empty-state">
@@ -145,16 +185,16 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 							const imagePath =
 								post?.postImages?.length > 0
 									? `${REACT_APP_API_URL}/${post.postImages[0]}`
-									: '/img/banner/community.webp';
+									: '/img/default-product.png';
 
 							return (
-								<Box key={post._id} className="post-card" onClick={() => handleArticleClick(post._id)}>
-									{/* Article Image */}
+								<Box key={post._id} className="post-card" onClick={() => handlePostClick(post)}>
+									{/* Post Image */}
 									<Box className="post-image">
 										<img src={imagePath} alt={post.postTitle} />
 									</Box>
 
-									{/* Article Content */}
+									{/* Post Content */}
 									<Box className="post-content">
 										<h3 className="post-title">{post.postTitle}</h3>
 										<p className="post-description">
@@ -169,7 +209,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 												<span>{post.postLikes || 0}</span>
 											</Box>
 											<Box className="stat-item">
-												<MessageSquare size={16} />
+												<MessageSquare size={16} style={{ cursor: 'pointer' }} />
 												<span>{post.postComments || 0}</span>
 											</Box>
 											<Box className="stat-item date">
@@ -183,14 +223,14 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 											<IconButton
 												size="small"
 												className="action-btn edit"
-												onClick={(e) => handleEditArticle(post._id, e)}
+												onClick={(e) => handleEditPost(post._id, e)}
 											>
 												<Edit size={16} />
 											</IconButton>
 											<IconButton
 												size="small"
 												className="action-btn delete"
-												onClick={(e) => handleDeleteArticle(post._id, e)}
+												onClick={(e) => handleDeletePost(post._id, e)}
 											>
 												<Trash2 size={16} />
 											</IconButton>
@@ -217,6 +257,14 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 					/>
 				</Stack>
 			)}
+
+			{/* Comment Modal */}
+			<CommentModal
+				open={commentModalOpen}
+				onClose={() => setCommentModalOpen(false)}
+				post={selectedPost}
+				onCommentAdded={handleCommentAdded}
+			/>
 		</Box>
 	);
 };

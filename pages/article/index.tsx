@@ -34,12 +34,12 @@ const GET_CATEGORY_COUNTS = gql`
 				total
 			}
 		}
-		knowledgeCount: getArticles(input: { page: 1, limit: 1, search: { articleCategory: KNOWLEDGE } }) {
+		announcementsCount: getArticles(input: { page: 1, limit: 1, search: { articleCategory: ANNOUNCEMENTS } }) {
 			metaCounter {
 				total
 			}
 		}
-		announcementsCount: getArticles(input: { page: 1, limit: 1, search: { articleCategory: ANNOUNCEMENTS } }) {
+		knowledgeCount: getArticles(input: { page: 1, limit: 1, search: { articleCategory: KNOWLEDGE } }) {
 			metaCounter {
 				total
 			}
@@ -71,8 +71,8 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 	const [categoryCounts, setCategoryCounts] = useState({
 		[ArticleCategory.CAREER]: 0,
 		[ArticleCategory.EVENTS]: 0,
-		[ArticleCategory.KNOWLEDGE]: 0,
 		[ArticleCategory.ANNOUNCEMENTS]: 0,
+		[ArticleCategory.KNOWLEDGE]: 0,
 	});
 
 	/** APOLLO REQUESTS **/
@@ -85,17 +85,14 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 			setCategoryCounts({
 				[ArticleCategory.CAREER]: data?.careerCount?.metaCounter[0]?.total || 0,
 				[ArticleCategory.EVENTS]: data?.eventsCount?.metaCounter[0]?.total || 0,
-				[ArticleCategory.KNOWLEDGE]: data?.knowledgeCount?.metaCounter[0]?.total || 0,
 				[ArticleCategory.ANNOUNCEMENTS]: data?.announcementsCount?.metaCounter[0]?.total || 0,
+				[ArticleCategory.KNOWLEDGE]: data?.knowledgeCount?.metaCounter[0]?.total || 0,
 			});
 		},
 	});
 
 	// Fetch articles for current category
-	const {
-		loading: getArticlesLoading,
-		refetch: articlesRefetch,
-	} = useQuery(GET_ARTICLES, {
+	const { loading: getArticlesLoading, refetch: articlesRefetch } = useQuery(GET_ARTICLES, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchCommunity },
 		notifyOnNetworkStatusChange: true,
@@ -118,7 +115,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 					query: { articleCategory: ArticleCategory.CAREER },
 				},
 				undefined,
-				{ shallow: true }
+				{ shallow: true },
 			);
 		}
 	}, []);
@@ -157,7 +154,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 				query: { articleCategory: value },
 			},
 			undefined,
-			{ shallow: true }
+			{ shallow: true },
 		);
 
 		try {
@@ -196,7 +193,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 			});
 
 			await articlesRefetch({ input: searchCommunity });
-			await refetchCounts(); // Refresh counts after like
+			await refetchCounts(); 
 			await sweetTopSmallSuccessAlert('Liked!', 800);
 		} catch (err: any) {
 			console.error('Like error:', err);
@@ -281,14 +278,12 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 													<WorkOutlineIcon className="tab-icon" />
 													<Typography className="tab-text">Career & Jobs</Typography>
 												</Stack>
-												<Chip
-													label={getCategoryCount(ArticleCategory.CAREER)}
-													size="small"
-													className="tab-badge"
-												/>
+												<Chip label={getCategoryCount(ArticleCategory.CAREER)} size="small" className="tab-badge" />
 											</Stack>
 										}
-										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.CAREER ? 'active' : ''}`}
+										className={`category-tab ${
+											searchCommunity.search.articleCategory === ArticleCategory.CAREER ? 'active' : ''
+										}`}
 									/>
 									<Tab
 										value={ArticleCategory.EVENTS}
@@ -298,14 +293,12 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 													<EventIcon className="tab-icon" />
 													<Typography className="tab-text">Campus Events</Typography>
 												</Stack>
-												<Chip
-													label={getCategoryCount(ArticleCategory.EVENTS)}
-													size="small"
-													className="tab-badge"
-												/>
+												<Chip label={getCategoryCount(ArticleCategory.EVENTS)} size="small" className="tab-badge" />
 											</Stack>
 										}
-										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.EVENTS ? 'active' : ''}`}
+										className={`category-tab ${
+											searchCommunity.search.articleCategory === ArticleCategory.EVENTS ? 'active' : ''
+										}`}
 									/>
 									<Tab
 										value={ArticleCategory.ANNOUNCEMENTS}
@@ -322,7 +315,9 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 												/>
 											</Stack>
 										}
-										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.KNOWLEDGE ? 'active' : ''}`}
+										className={`category-tab ${
+											searchCommunity.search.articleCategory === ArticleCategory.ANNOUNCEMENTS ? 'active' : ''
+										}`}
 									/>
 									<Tab
 										value={ArticleCategory.KNOWLEDGE}
@@ -332,14 +327,12 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 													<SchoolIcon className="tab-icon" />
 													<Typography className="tab-text">Knowledge</Typography>
 												</Stack>
-												<Chip
-													label={getCategoryCount(ArticleCategory.KNOWLEDGE)}
-													size="small"
-													className="tab-badge"
-												/>
+												<Chip label={getCategoryCount(ArticleCategory.KNOWLEDGE)} size="small" className="tab-badge" />
 											</Stack>
 										}
-										className={`category-tab ${searchCommunity.search.articleCategory === ArticleCategory.ANNOUNCEMENTS ? 'active' : ''}`}
+										className={`category-tab ${
+											searchCommunity.search.articleCategory === ArticleCategory.KNOWLEDGE ? 'active' : ''
+										}`}
 									/>
 								</TabList>
 							</Stack>
@@ -357,11 +350,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 										<Stack className="articles-grid">
 											{articles.length > 0 ? (
 												articles.map((article: Article) => (
-													<ArticleCard
-														article={article}
-														likeArticleHandler={likeArticleHandler}
-														key={article._id}
-													/>
+													<ArticleCard article={article} likeArticleHandler={likeArticleHandler} key={article._id} />
 												))
 											) : (
 												<Stack className="empty-state">
@@ -369,14 +358,12 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 														{category === ArticleCategory.CAREER
 															? '💼'
 															: category === ArticleCategory.EVENTS
-																? '🎉'
-																: category === ArticleCategory.KNOWLEDGE
-																	? '📰'
-																	: '📚'}
+															? '🎉'
+															: category === ArticleCategory.KNOWLEDGE
+															? '📰'
+															: '📚'}
 													</Box>
-													<Typography className="empty-title">
-														No {category.toLowerCase()} available
-													</Typography>
+													<Typography className="empty-title">No {category.toLowerCase()} available</Typography>
 													<Typography className="empty-text">Check back soon for new updates</Typography>
 												</Stack>
 											)}
