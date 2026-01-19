@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
-import { BoardArticleCategory } from '../../enums/article.enum';
+import { ArticleCategory } from '../../enums/article.enum';
 import { Editor } from '@toast-ui/react-editor';
 import { getJwtToken } from '../../auth';
 import { REACT_APP_API_URL } from '../../config';
@@ -13,7 +13,7 @@ const TuiEditor = () => {
 	const editorRef = useRef<Editor>(null),
 		token = getJwtToken(),
 		router = useRouter();
-	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.KNOWLEDGE);
+	const [articleCategory, setArticleCategory] = useState<ArticleCategory>(ArticleCategory.KNOWLEDGE);
 
 	/** APOLLO REQUESTS **/
 
@@ -98,12 +98,12 @@ const TuiEditor = () => {
 							displayEmpty
 							inputProps={{ 'aria-label': 'Without label' }}
 						>
-							<MenuItem value={BoardArticleCategory.CAREER}>
+							<MenuItem value={ArticleCategory.CAREER}>
 								<span>Free</span>
 							</MenuItem>
-							<MenuItem value={BoardArticleCategory.COMMUNITY}>Humor</MenuItem>
-							<MenuItem value={BoardArticleCategory.EVENTS}>News</MenuItem>
-							<MenuItem value={BoardArticleCategory.HELP}>Recommendation</MenuItem>
+							<MenuItem value={ArticleCategory.CAREER}>Humor</MenuItem>
+							<MenuItem value={ArticleCategory.EVENTS}>News</MenuItem>
+							<MenuItem value={ArticleCategory.ANNOUNCEMENTS}>Recommendation</MenuItem>
 						</Select>
 					</FormControl>
 				</Box>

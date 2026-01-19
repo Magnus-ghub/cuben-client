@@ -47,7 +47,7 @@ import { Article } from '../../libs/types/article/article';
 import Link from 'next/link';
 
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
-
+ 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'])),

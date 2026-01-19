@@ -1,45 +1,36 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { Box, Stack, Button, TextField, Chip, Avatar, IconButton, Modal, Backdrop } from '@mui/material';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import { useReactiveVar, useMutation } from '@apollo/client';
-import withLayoutMain from '../../libs/components/layout/LayoutHome';
-import { userVar } from '../../libs/apollo/store';
-import dynamic from 'next/dynamic';
-import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
-const Editor = dynamic(
-	async () => {
-		const mod = await import('@toast-ui/react-editor');
-		return mod.Editor;
-	},
-	{
-		ssr: false,
-		loading: () => <div style={{ height: '300px', background: '#f8fafc', borderRadius: '8px' }} />,
-	}
-);
-if (typeof window !== 'undefined') {
-	require('@toast-ui/editor/dist/toastui-editor.css');
-}
-import { getJwtToken } from '../../libs/auth';
-import { REACT_APP_API_URL } from '../../libs/config';
+import { Box, Stack, Button, TextField, Chip, Avatar, IconButton, Modal, Backdrop, CircularProgress } from '@mui/material';
+import useDeviceDetect from '../../../libs/hooks/useDeviceDetect';
+import { useReactiveVar, useMutation, useQuery } from '@apollo/client';
+import withLayoutMain from '../../../libs/components/layout/LayoutHome';
+import { userVar } from '../../../libs/apollo/store';
+import { Editor } from '@toast-ui/react-editor';
+import '@toast-ui/editor/dist/toastui-editor.css';
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
+import { getJwtToken } from '../../../libs/auth';
+import { REACT_APP_API_URL } from '../../../libs/config';
 import axios from 'axios';
-import { CREATE_POST } from '../../libs/apollo/user/mutation';
+import { UPDATE_POST } from '../../../libs/apollo/user/mutation';
+import { GET_POST } from '../../../libs/apollo/user/query';
 import { 
 	FileText, 
 	Image as ImageIcon, 
-	Send, 
+	Save, 
 	X, 
 	AlertCircle,
 	Sparkles,
+	Edit3,
 } from 'lucide-react';
-import { Message } from '../../libs/enums/common.enum';
+import { Message } from '../../../libs/enums/common.enum';
 
-const WritePost: NextPage = () => {
+const UpdatePost: NextPage = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const editorRef = useRef<any>(null);
+	const { postId } = router.query;
+	const editorRef = useRef<Editor>(null);
 	const inputRef = useRef<HTMLInputElement>(null); 
 
 	// Modal State
@@ -48,7 +39,7 @@ const WritePost: NextPage = () => {
 	// Form State
 	const [postTitle, setPostTitle] = useState<string>('');
 	const [postContent, setPostContent] = useState<string>('');
-	const [postImages, setPostImages] = useState<string[]>([]);  
+	const [postImages, setPostImages] = useState<string[]>([]);
 	const [uploadingImages, setUploadingImages] = useState<boolean>(false);
 	const [errors, setErrors] = useState({ title: '', content: '' });
 
@@ -56,20 +47,46 @@ const WritePost: NextPage = () => {
 	const [editorHeight, setEditorHeight] = useState<string>('200px');
 
 	/** APOLLO REQUESTS **/
-	const [createPost, { loading }] = useMutation(CREATE_POST);
+	const [updatePost, { loading: updateLoading }] = useMutation(UPDATE_POST);
+
+	const {
+		loading: getPostLoading,
+		data: getPostData,
+		error: getPostError,
+	} = useQuery(GET_POST, {
+		variables: { input: postId },
+		fetchPolicy: 'network-only',
+		skip: !postId,
+		onCompleted: (data) => {
+			if (data?.getPost) {
+				const post = data.getPost;
+				setPostTitle(post.postTitle || '');
+				setPostContent(post.postContent || '');
+				setPostImages(post.postImages || []);
+				
+				// Set editor content after a brief delay
+				setTimeout(() => {
+					if (editorRef.current) {
+						editorRef.current.getInstance().setMarkdown(post.postContent || '');
+					}
+				}, 100);
+			}
+		},
+		onError: (error) => {
+			console.error('Error fetching post:', error);
+			sweetMixinErrorAlert('Failed to load post data');
+		},
+	});
 
 	// Monitor content changes for dynamic height
 	useEffect(() => {
-		if (typeof window === 'undefined') return;
-		
-		const editor = editorRef.current?.getInstance?.();
+		const editor = editorRef.current?.getInstance();
 		if (!editor) return;
 
 		const updateHeight = () => {
 			const markdown = editor.getMarkdown();
 			const lines = markdown.split('\n').length;
 			
-			// Calculate height based on content
 			let newHeight = '200px';
 			if (lines > 5) newHeight = '250px';
 			if (lines > 10) newHeight = '300px';
@@ -80,19 +97,18 @@ const WritePost: NextPage = () => {
 			setPostContent(markdown);
 		};
 
-		// Listen to editor changes
 		editor.on('change', updateHeight);
 
 		return () => {
-			editor.off('change', updateHeight);
+			editor.off('change');
 		};
-	}, [editorRef.current]);
+	}, []);
 
 	/** HANDLERS **/
 	const handleClose = () => {
 		setOpen(false);
 		setTimeout(() => {
-			router.back();
+			router.push('/mypage?category=myPosts');
 		}, 300);
 	};
 
@@ -149,10 +165,8 @@ const WritePost: NextPage = () => {
 				throw new Error('Upload failed: No images returned');
 			}
 
-			const responseImages = response.data.data.imagesUploader.filter((url: string) => url);  
-			console.log('+responseImages: ', responseImages);
+			const responseImages = response.data.data.imagesUploader.filter((url: string) => url);
 
-			// Eski + yangi images (max 3)
 			const newImages = [...postImages, ...responseImages].slice(0, 3);
 			setPostImages(newImages);
 
@@ -190,7 +204,7 @@ const WritePost: NextPage = () => {
 			isValid = false;
 		}
 
-		const content = editorRef.current?.getInstance?.()?.getMarkdown?.() || '';
+		const content = editorRef.current?.getInstance().getMarkdown();
 		if (!content || content.trim().length < 10) {
 			newErrors.content = 'Content must be at least 10 characters';
 			isValid = false;
@@ -208,31 +222,27 @@ const WritePost: NextPage = () => {
 				return;
 			}
 
-			const postContent = editorRef.current?.getInstance?.()?.getMarkdown?.() || '';
+			const postContent = editorRef.current?.getInstance().getMarkdown();
 
 			if (!postContent || !postTitle) {
 				throw new Error(Message.INSERT_ALL_INPUTS);
 			}
 
-			await createPost({
+			await updatePost({
 				variables: {
 					input: {
+						_id: postId,
 						postTitle,
 						postContent,
-						postImages: postImages, 
+						postImages: postImages,
 					},
 				},
 			});
 
-			await sweetTopSuccessAlert('Post is created successfully', 700);
+			await sweetTopSuccessAlert('Post updated successfully', 700);
 			setOpen(false);
 			setTimeout(() => {
-				router.push({
-					pathname: '/',
-					query: {
-						category: 'myPosts',
-					},
-				});
+				router.push('/mypage?category=myPosts');
 			}, 300);
 		} catch (err: any) {
 			console.log(err);
@@ -258,7 +268,33 @@ const WritePost: NextPage = () => {
 	};
 
 	if (device === 'mobile') {
-		return <div>WRITE POST MOBILE</div>;
+		return <div>UPDATE POST MOBILE</div>;
+	}
+
+	if (getPostLoading) {
+		return (
+			<Modal open={open} onClose={handleClose}>
+				<Box className="write-post-modal-content">
+					<Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+						<CircularProgress size={48} />
+						<p style={{ marginTop: '16px', color: '#6b7280' }}>Loading post...</p>
+					</Stack>
+				</Box>
+			</Modal>
+		);
+	}
+
+	if (getPostError) {
+		return (
+			<Modal open={open} onClose={handleClose}>
+				<Box className="write-post-modal-content">
+					<Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+						<AlertCircle size={48} color="#ef4444" />
+						<p style={{ marginTop: '16px', color: '#ef4444' }}>Failed to load post</p>
+					</Stack>
+				</Box>
+			</Modal>
+		);
 	}
 
 	return (
@@ -280,10 +316,10 @@ const WritePost: NextPage = () => {
 				{/* Modal Header */}
 				<Box className="modal-header">
 					<Box className="header-left">
-						<Box className="header-icon">
-							<FileText size={20} />
+						<Box className="header-icon edit-mode">
+							<Edit3 size={20} />
 						</Box>
-						<h2>Create Post</h2>
+						<h2>Edit Post</h2>
 					</Box>
 					<IconButton className="close-btn" onClick={handleClose}>
 						<X size={20} />
@@ -301,10 +337,10 @@ const WritePost: NextPage = () => {
 						<Box className="author-info">
 							<h3>{user?.memberNick || 'Anonymous'}</h3>
 							<Chip 
-								icon={<Sparkles size={12} />}
-								label="Public" 
+								icon={<Edit3 size={12} />}
+								label="Editing" 
 								size="small"
-								className="visibility-chip"
+								className="visibility-chip editing"
 							/>
 						</Box>
 					</Box>
@@ -337,25 +373,26 @@ const WritePost: NextPage = () => {
 					<Box className={`editor-wrapper ${errors.content ? 'error' : ''}`}>
 						<Box className="editor-header">
 							<span className="editor-label">Post Content</span>
+							<span className="content-counter">
+								{postContent.length} characters
+							</span>
 						</Box>
-						{typeof window !== 'undefined' && (
-							<Editor
-								ref={editorRef}
-								initialValue=" "
-								placeholder="Share your thoughts, experiences, or knowledge..."
-								previewStyle="vertical"
-								height={editorHeight}
-								initialEditType="markdown"
-								useCommandShortcut={true}
-								hideModeSwitch={true}
-								toolbarItems={[
-									['heading', 'bold', 'italic', 'strike'],
-									['hr', 'quote'],
-									['ul', 'ol', 'task'],
-									['link', 'code', 'codeblock'],
-								]}
-							/>
-						)}
+						<Editor
+							ref={editorRef}
+							initialValue=" "
+							placeholder="Share your thoughts, experiences, or knowledge..."
+							previewStyle="vertical"
+							height={editorHeight}
+							initialEditType="markdown"
+							useCommandShortcut={true}
+							hideModeSwitch={true}
+							toolbarItems={[
+								['heading', 'bold', 'italic', 'strike'],
+								['hr', 'quote'],
+								['ul', 'ol', 'task'],
+								['link', 'code', 'codeblock'],
+							]}
+						/>
 					</Box>
 					{errors.content && (
 						<Box className="error-msg">
@@ -425,8 +462,8 @@ const WritePost: NextPage = () => {
 				<Box className="modal-footer">
 					<Box className="footer-info">
 						{(postTitle || postContent || postImages.length > 0) && (
-							<span className="draft-indicator">
-								● Draft saved
+							<span className="draft-indicator edit-mode">
+								● Editing mode
 							</span>
 						)}
 					</Box>
@@ -435,18 +472,18 @@ const WritePost: NextPage = () => {
 							variant="text"
 							className="cancel-btn"
 							onClick={handleClose}
-							disabled={loading || uploadingImages}
+							disabled={updateLoading || uploadingImages}
 						>
 							Cancel
 						</Button>
 						<Button
 							variant="contained"
-							className="post-btn"
+							className="post-btn update-btn"
 							onClick={handleSubmit}
-							disabled={loading || uploadingImages || !postTitle.trim()}
-							startIcon={loading ? null : <Send size={16} />}
+							disabled={updateLoading || uploadingImages || !postTitle.trim()}
+							startIcon={updateLoading ? null : <Save size={16} />}
 						>
-							{loading ? 'Publishing...' : 'Publish Post'}
+							{updateLoading ? 'Updating...' : 'Update Post'}
 						</Button>
 					</Box>
 				</Box>
@@ -455,4 +492,4 @@ const WritePost: NextPage = () => {
 	);
 };
 
-export default withLayoutMain(WritePost);
+export default withLayoutMain(UpdatePost);

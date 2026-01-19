@@ -242,7 +242,7 @@ const Top: React.FC = () => {
 									{user?.memberType === 'AGENT' && (
 										<MenuItem
 											onClick={() => {
-												router.push('/create/writePost');
+												router.push('/create/postJob');
 												handleCreateMenuClose();
 											}}
 										>
