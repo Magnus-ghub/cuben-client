@@ -696,7 +696,6 @@ export const GET_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
-			articleSaves
 			articleComments
 			memberId
 			createdAt
@@ -749,7 +748,6 @@ export const GET_ARTICLES = gql`
 				articleImage
 				articleViews
 				articleLikes
-				articleSaves
 				articleComments
 				memberId
 				createdAt
@@ -794,62 +792,6 @@ export const GET_ARTICLES = gql`
 	}
 `;
 
-export const GET_SAVED_ARTICLES = gql`
-	query GetSavedArticles($input: AllArticlesInquiry!) {
-		getSavedArticles(input: $input) {
-			list {
-				_id
-				articleCategory
-				articleStatus
-				articleTitle
-				articleContent
-				articleImage
-				articleViews
-				articleLikes
-				articleSaves
-				articleComments
-				memberId
-				createdAt
-				updatedAt
-				meLiked {
-					liked
-					saved
-				}
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberProducts
-					memberPosts
-					memberArticles
-					memberFollowers
-					memberFollowings
-					memberPoints
-					memberLikes
-					memberViews
-					memberComments
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
-				}
-			}
-			metaCounter {
-				total
-			}
-		}
-	}
-`;
 
 export const GET_FAVORITE_ARTICLES = gql`
 	query GetLikedArticles($input: AllArticlesInquiry!) {
@@ -863,7 +805,6 @@ export const GET_FAVORITE_ARTICLES = gql`
 				articleImage
 				articleViews
 				articleLikes
-				articleSaves
 				articleComments
 				memberId
 				createdAt

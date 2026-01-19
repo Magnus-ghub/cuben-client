@@ -536,7 +536,6 @@ export const CREATE_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
-			articleSaves
 			articleComments
 			memberId
 			createdAt
@@ -588,7 +587,6 @@ export const UPDATE_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
-			articleSaves
 			articleComments
 			memberId
 			createdAt
@@ -612,7 +610,6 @@ export const REMOVE_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
-			articleSaves
 			articleComments
 			memberId
 			createdAt
@@ -632,7 +629,6 @@ export const LIKE_TARGET_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
-			articleSaves
 			articleComments
 			memberId
 			createdAt
@@ -656,7 +652,6 @@ export const SAVE_TARGET_ARTICLE = gql`
 			articleImage
 			articleViews
 			articleLikes
-			articleSaves
 			articleComments
 			memberId
 			createdAt

@@ -106,6 +106,7 @@ const MemberPage: NextPage = () => {
 							<Stack className="main-config" mb={'76px'}>
 								<Stack className={'list-config'}>
 									{category === 'products' && <MemberProducts />}
+									{category === 'posts' && <MemberPosts />}
 									{category === 'articles' && <MemberArticles />}
 									{category === 'followers' && (
 										<MemberFollowers
@@ -121,7 +122,6 @@ const MemberPage: NextPage = () => {
 											redirectToMemberPageHandler={redirectToMemberPageHandler}
 										/>
 									)}
-									{category === 'posts' && <MemberPosts />}
 								</Stack>
 							</Stack>
 						</Stack>

@@ -17,7 +17,7 @@ import { Post } from '../../types/post/post';
 const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const user = useReactiveVar(userVar); // Get logged in user
+	const user = useReactiveVar(userVar); 
 	const [total, setTotal] = useState<number>(0);
 	const { memberId } = router.query;
 	const [searchFilter, setSearchFilter] = useState<ArticlesInquiry>(

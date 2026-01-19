@@ -142,7 +142,7 @@ const AddArticle: NextPage = ({ initialValues, ...props }: any) => {
                 variables: { input: submitData },
             });
             await sweetMixinSuccessAlert('Article has been created successfully');
-            router.push('/article'); // Assuming redirect to articles list
+            router.push('/article'); 
         } catch (err: any) {
             sweetErrorHandling(err).then();
         }

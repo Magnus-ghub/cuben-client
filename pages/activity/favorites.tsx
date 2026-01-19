@@ -10,10 +10,12 @@ import { Heart, Eye, Calendar, MapPin, Trash2, MessageSquare, FileText } from 'l
 import { Product } from '../../libs/types/product/product';
 import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import { T } from '../../libs/types/common';
-import { LIKE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
+import { LIKE_TARGET_PRODUCT, LIKE_TARGET_POST, LIKE_TARGET_ARTICLE } from '../../libs/apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { GET_FAVORITE_PRODUCTS, GET_FAVORITE_POSTS, GET_FAVORITE_ARTICLES } from '../../libs/apollo/user/query';
 import moment from 'moment';
+import { Post } from '../../libs/types/post/post';
+import { Article } from '../../libs/types/article/article';
 
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -39,12 +41,14 @@ const Favorites: NextPage = () => {
 
 	// States for each content type
 	const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
-	const [favoritePosts, setFavoritePosts] = useState<any[]>([]);
-	const [favoriteArticles, setFavoriteArticles] = useState<any[]>([]);
+	const [favoritePosts, setFavoritePosts] = useState<Post[]>([]);
+	const [favoriteArticles, setFavoriteArticles] = useState<Article[]>([]);
 	const [totals, setTotals] = useState({ products: 0, posts: 0, articles: 0 });
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
+	const [likeTargetPost] = useMutation(LIKE_TARGET_POST);
+	const [likeTargetArticle] = useMutation(LIKE_TARGET_ARTICLE);
 
 	// Products Query
 	const {
@@ -125,13 +129,16 @@ const Favorites: NextPage = () => {
 				return;
 			}
 
-			// TODO: Implement mutations for posts and articles
+			// Execute the appropriate mutation based on type
 			if (type === 'product') {
 				await likeTargetProduct({ variables: { input: itemId } });
 				await refetchProducts({ input: searchParams });
-			} else {
-				sweetMixinErrorAlert('Feature coming soon for this content type!');
-				return;
+			} else if (type === 'post') {
+				await likeTargetPost({ variables: { input: itemId } });
+				await refetchPosts({ input: searchParams });
+			} else if (type === 'article') {
+				await likeTargetArticle({ variables: { input: itemId } });
+				await refetchArticles({ input: searchParams });
 			}
 
 			sweetTopSmallSuccessAlert('Removed from favorites!', 800);
@@ -144,8 +151,8 @@ const Favorites: NextPage = () => {
 	const handleItemClick = (itemId: string, type: 'product' | 'post' | 'article') => {
 		const routes = {
 			product: '/product/detail',
-			post: '/community/detail',
-			article: '/blog/detail',
+			post: '/',
+			article: '/article/detail',
 		};
 		router.push({ pathname: routes[type], query: { id: itemId } });
 	};
@@ -304,13 +311,13 @@ const Favorites: NextPage = () => {
 							<Box className="empty-icon"><MessageSquare size={64} /></Box>
 							<h3>No Favorite Posts</h3>
 							<p>Start adding posts you love</p>
-							<button onClick={() => router.push('/community')} 
+							<button onClick={() => router.push('/')} 
 								style={{ marginTop: '20px', padding: '12px 24px', background: '#ec4899', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
 								Browse Community
 							</button>
 						</Box>
 					) : (
-						favoritePosts.map((post: any) => {
+						favoritePosts.map((post: Post) => {
 							const imagePath = post?.postImages?.[0] ? `${REACT_APP_API_URL}/${post.postImages[0]}` : '/img/banner/post.webp';
 							return (
 								<Box key={post._id} className="saved-item-card" onClick={() => handleItemClick(post._id, 'post')} style={{ cursor: 'pointer' }}>
@@ -350,13 +357,13 @@ const Favorites: NextPage = () => {
 							<Box className="empty-icon"><FileText size={64} /></Box>
 							<h3>No Favorite Articles</h3>
 							<p>Start adding articles you love</p>
-							<button onClick={() => router.push('/blog')} 
+							<button onClick={() => router.push('/article')} 
 								style={{ marginTop: '20px', padding: '12px 24px', background: '#ec4899', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
 								Browse Articles
 							</button>
 						</Box>
 					) : (
-						favoriteArticles.map((article: any) => {
+						favoriteArticles.map((article: Article) => {
 							const imagePath = article?.articleImage ? `${REACT_APP_API_URL}/${article.articleImage}` : '/img/banner/article.webp';
 							return (
 								<Box key={article._id} className="saved-item-card article" onClick={() => handleItemClick(article._id, 'article')} style={{ cursor: 'pointer' }}>

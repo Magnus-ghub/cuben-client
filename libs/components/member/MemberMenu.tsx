@@ -115,7 +115,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 									</Link>
 								</ListItem>
 							)}
-							{member?.memberType === 'ADMIN' && (
+							{member?.memberType === 'AGENT' && (
 								<ListItem className={category === 'articles' ? 'focus' : ''}>
 									<Link
 										href={{

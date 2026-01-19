@@ -11,10 +11,11 @@ import { Bookmark, Eye, Heart, Calendar, MapPin, Trash2, MessageSquare, FileText
 import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import { T } from '../../libs/types/common';
 import { Product } from '../../libs/types/product/product';
-import { GET_SAVED_PRODUCTS, GET_SAVED_POSTS, GET_SAVED_ARTICLES } from '../../libs/apollo/user/query';
+import { GET_SAVED_PRODUCTS, GET_SAVED_POSTS } from '../../libs/apollo/user/query';
 import { SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import moment from 'moment';
+import { Post } from '../../libs/types/post/post';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -46,9 +47,8 @@ const SavedItems: NextPage = () => {
 
 	// States for each content type
 	const [savedProducts, setSavedProducts] = useState<Product[]>([]);
-	const [savedPosts, setSavedPosts] = useState<any[]>([]);
-	const [savedArticles, setSavedArticles] = useState<any[]>([]);
-	const [totals, setTotals] = useState({ products: 0, posts: 0, articles: 0 });
+	const [savedPosts, setSavedPosts] = useState<Post[]>([]);
+	const [totals, setTotals] = useState({ products: 0, posts: 0});
 
 	/** APOLLO REQUESTS **/
 	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT);
@@ -88,31 +88,13 @@ const SavedItems: NextPage = () => {
 		},
 	});
 
-	// Articles Query
-	const {
-		loading: articlesLoading,
-		refetch: refetchArticles,
-	} = useQuery(GET_SAVED_ARTICLES, {
-		fetchPolicy: 'network-only',
-		variables: { input: searchParams },
-		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setSavedArticles(data?.getSavedArticles?.list || []);
-			setTotals((prev) => ({ ...prev, articles: data?.getSavedArticles?.metaCounter?.[0]?.total || 0 }));
-		},
-		onError: (error) => {
-			console.error('Articles Error:', error);
-		},
-	});
-
 	/** LIFECYCLE **/
 	useEffect(() => {
 		if (user?._id) {
 			if (activeTab === 0) refetchProducts({ input: searchParams });
 			else if (activeTab === 1) refetchPosts({ input: searchParams });
-			else if (activeTab === 2) refetchArticles({ input: searchParams });
 		}
-	}, [searchParams, activeTab, user?._id, refetchProducts, refetchPosts, refetchArticles]);
+	}, [searchParams, activeTab, user?._id, refetchProducts, refetchPosts]);
 
 	/** HANDLERS **/
 	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -168,8 +150,8 @@ const SavedItems: NextPage = () => {
 		return moment(date).format('MMM D, YYYY');
 	};
 
-	const isLoading = productsLoading || postsLoading || articlesLoading;
-	const currentTotal = [totals.products, totals.posts, totals.articles][activeTab];
+	const isLoading = productsLoading || postsLoading;
+	const currentTotal = [totals.products, totals.posts][activeTab];
 
 	if (isLoading && searchParams.page === 1) {
 		return (
@@ -246,7 +228,6 @@ const SavedItems: NextPage = () => {
 				<Tabs value={activeTab} onChange={handleTabChange} className="custom-tabs">
 					<Tab label={<Box className="tab-label"><Bookmark size={16} /><span>Products ({totals.products})</span></Box>} />
 					<Tab label={<Box className="tab-label"><MessageSquare size={16} /><span>Posts ({totals.posts})</span></Box>} />
-					<Tab label={<Box className="tab-label"><FileText size={16} /><span>Articles ({totals.articles})</span></Box>} />
 				</Tabs>
 			</Box>
 
@@ -311,13 +292,13 @@ const SavedItems: NextPage = () => {
 							<Box className="empty-icon"><MessageSquare size={64} /></Box>
 							<h3>No Saved Posts</h3>
 							<p>Start bookmarking posts</p>
-							<button onClick={() => router.push('/community')} 
+							<button onClick={() => router.push('/')} 
 								style={{ marginTop: '20px', padding: '12px 24px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
 								Browse Community
 							</button>
 						</Box>
 					) : (
-						savedPosts.map((post: any) => {
+						savedPosts.map((post: Post) => {
 							const imagePath = post?.postImages?.[0] ? `${REACT_APP_API_URL}/${post.postImages[0]}` : '/img/banner/post.webp';
 							return (
 								<Box key={post._id} className="saved-item-card" onClick={() => handleItemClick(post._id, 'post')} style={{ cursor: 'pointer' }}>
@@ -336,52 +317,6 @@ const SavedItems: NextPage = () => {
 										</Stack>
 										<Box className="item-actions">
 											<IconButton size="small" className="remove-btn" onClick={(e) => handleRemoveItem(post._id, 'post', e)} title="Remove">
-												<Trash2 size={16} />
-											</IconButton>
-										</Box>
-									</Box>
-								</Box>
-							);
-						})
-					)}
-				</Box>
-			</TabPanel>
-
-			{/* Articles Tab */}
-			<TabPanel value={activeTab} index={2}>
-				<Box className="saved-items-grid">
-					{savedArticles.length === 0 ? (
-						<Box className="empty-state">
-							<Box className="empty-icon"><FileText size={64} /></Box>
-							<h3>No Saved Articles</h3>
-							<p>Start bookmarking articles</p>
-							<button onClick={() => router.push('/blog')} 
-								style={{ marginTop: '20px', padding: '12px 24px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-								Browse Articles
-							</button>
-						</Box>
-					) : (
-						savedArticles.map((article: any) => {
-							const imagePath = article?.articleImage ? `${REACT_APP_API_URL}/${article.articleImage}` : '/img/banner/article.webp';
-							return (
-								<Box key={article._id} className="saved-item-card article" onClick={() => handleItemClick(article._id, 'article')} style={{ cursor: 'pointer' }}>
-									<Box className="item-image">
-										<img src={imagePath} alt={article.articleTitle} />
-										<Box className="saved-badge">
-											<Bookmark size={16} fill="#10b981" color="#10b981" />
-										</Box>
-										<Chip label={article.articleCategory} className="category-chip" size="small" />
-									</Box>
-									<Box className="item-content">
-										<h3 className="item-title">{article.articleTitle}</h3>
-										<p className="article-excerpt">{article.articleContent?.substring(0, 100)}...</p>
-										<Stack className="item-stats">
-											<Box className="stat-item"><Eye size={14} /><span>{article.articleViews || 0}</span></Box>
-											<Box className="stat-item"><Heart size={14} /><span>{article.articleLikes || 0}</span></Box>
-											<Box className="stat-item date"><Calendar size={14} /><span>{formatDate(article.createdAt)}</span></Box>
-										</Stack>
-										<Box className="item-actions">
-											<IconButton size="small" className="remove-btn" onClick={(e) => handleRemoveItem(article._id, 'article', e)} title="Remove">
 												<Trash2 size={16} />
 											</IconButton>
 										</Box>
