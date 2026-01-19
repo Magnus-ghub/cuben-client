@@ -792,7 +792,6 @@ export const GET_ARTICLES = gql`
 	}
 `;
 
-
 export const GET_FAVORITE_ARTICLES = gql`
 	query GetLikedArticles($input: AllArticlesInquiry!) {
 		getLikedArticles(input: $input) {
@@ -907,65 +906,65 @@ export const GET_COMMENTS = gql`
 
 export const GET_MEMBER_FOLLOWERS = gql`
 	query GetMemberFollowers($input: FollowInquiry!) {
-    getMemberFollowers(input: $input) {
-        list {
-            _id
-            followingId
-            followerId
-            createdAt
-            updatedAt
-            meLiked {
-                liked
-                saved
-            }
-            meFollowed {
-                followingId
-                followerId
-                myFollowing
-            }
-            followerData {
-                _id
-                memberType
-                memberStatus
-                memberAuthType
-                memberPhone
-                memberNick
-                memberFullName
-                memberImage
-                memberAddress
-                memberDesc
-                memberProducts
-                memberPosts
-                memberArticles
-                memberFollowers
-                memberFollowings
-                memberPoints
-                memberLikes
-                memberViews
-                memberComments
-                memberRank
-                memberWarnings
-                memberBlocks
-                deletedAt
-                createdAt
-                updatedAt
-                accessToken
-                meLiked {
-                    liked
-                    saved
-                }
-                meFollowed {
-                    followingId
-                    followerId
-                    myFollowing
-                }
-            }
-        }
-        metaCounter {
-            total
-        }
-    }
-}
+		getMemberFollowers(input: $input) {
+			list {
+				_id
+				followingId
+				followerId
+				createdAt
+				updatedAt
+				meLiked {
+					liked
+					saved
+				}
+				meFollowed {
+					followingId
+					followerId
+					myFollowing
+				}
+				followerData {
+					_id
+					memberType
+					memberStatus
+					memberAuthType
+					memberPhone
+					memberNick
+					memberFullName
+					memberImage
+					memberAddress
+					memberDesc
+					memberProducts
+					memberPosts
+					memberArticles
+					memberFollowers
+					memberFollowings
+					memberPoints
+					memberLikes
+					memberViews
+					memberComments
+					memberRank
+					memberWarnings
+					memberBlocks
+					deletedAt
+					createdAt
+					updatedAt
+					accessToken
+					meLiked {
+						liked
+						saved
+					}
+					meFollowed {
+						followingId
+						followerId
+						myFollowing
+					}
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
 `;
 
 export const GET_MEMBER_FOLLOWINGS = gql`

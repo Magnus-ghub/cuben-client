@@ -16,6 +16,7 @@ import { GET_FAVORITE_PRODUCTS, GET_FAVORITE_POSTS, GET_FAVORITE_ARTICLES } from
 import moment from 'moment';
 import { Post } from '../../libs/types/post/post';
 import { Article } from '../../libs/types/article/article';
+import { ArticleCategory } from '../../libs/enums/article.enum';
 
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -39,12 +40,6 @@ const Favorites: NextPage = () => {
 	const [activeTab, setActiveTab] = useState<number>(0);
 	const [searchParams, setSearchParams] = useState<T>({ page: 1, limit: 6 });
 
-	// States for each content type
-	const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
-	const [favoritePosts, setFavoritePosts] = useState<Post[]>([]);
-	const [favoriteArticles, setFavoriteArticles] = useState<Article[]>([]);
-	const [totals, setTotals] = useState({ products: 0, posts: 0, articles: 0 });
-
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
 	const [likeTargetPost] = useMutation(LIKE_TARGET_POST);
@@ -53,71 +48,123 @@ const Favorites: NextPage = () => {
 	// Products Query
 	const {
 		loading: productsLoading,
+		data: productsData,
 		refetch: refetchProducts,
+		error: productsError,
 	} = useQuery(GET_FAVORITE_PRODUCTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchParams },
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setFavoriteProducts(data?.getLikedProducts?.list || []);
-			setTotals((prev) => ({ ...prev, products: data?.getLikedProducts?.metaCounter?.[0]?.total || 0 }));
-		},
-		onError: (error) => {
-			console.error('Products Error:', error);
-			sweetMixinErrorAlert('Error loading products: ' + error.message);
-		},
 	});
 
 	// Posts Query
 	const {
 		loading: postsLoading,
+		data: postsData,
 		refetch: refetchPosts,
+		error: postsError,
 	} = useQuery(GET_FAVORITE_POSTS, {
 		fetchPolicy: 'network-only',
-		variables: { input: searchParams },
+		variables: { input: { ...searchParams, search: {} } },
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setFavoritePosts(data?.getLikedPosts?.list || []);
-			setTotals((prev) => ({ ...prev, posts: data?.getLikedPosts?.metaCounter?.[0]?.total || 0 }));
-		},
-		onError: (error) => {
-			console.error('Posts Error:', error);
-		},
 	});
 
 	// Articles Query
 	const {
 		loading: articlesLoading,
+		data: articlesData,
 		refetch: refetchArticles,
+		error: articlesError,
 	} = useQuery(GET_FAVORITE_ARTICLES, {
 		fetchPolicy: 'network-only',
-		variables: { input: searchParams },
+		variables: { input: { ...searchParams, search: {} } },
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setFavoriteArticles(data?.getLikedArticles?.list || []);
-			setTotals((prev) => ({ ...prev, articles: data?.getLikedArticles?.metaCounter?.[0]?.total || 0 }));
-		},
-		onError: (error) => {
-			console.error('Articles Error:', error);
-		},
 	});
+
+	const getCategoryStyles = (category: string) => {
+		const styles: any = {
+			[ArticleCategory.CAREER]: {
+				bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+				color: '#f59e0b',
+				icon: '💼',
+				label: 'Career',
+			},
+			[ArticleCategory.EVENTS]: {
+				bg: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+				color: '#ec4899',
+				icon: '🎉',
+				label: 'Event',
+			},
+			[ArticleCategory.ANNOUNCEMENTS]: {
+				bg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+				color: '#3b82f6',
+				icon: '📰',
+				label: 'News',
+			},
+			[ArticleCategory.KNOWLEDGE]: {
+				bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+				color: '#8b5cf6',
+				icon: '📚',
+				label: 'Resource',
+			},
+		};
+		return styles[category] || styles[ArticleCategory.CAREER];
+	};
+
+	const getImageUrl = (path: string) => {
+		if (!path) return '';
+		if (path.startsWith('http://') || path.startsWith('https://')) {
+			return path;
+		}
+		return `${REACT_APP_API_URL}/${path}`;
+	};
+
+	// Derived state from query data
+	const favoriteProducts: Product[] = productsData?.getLikedProducts?.list || [];
+	const favoritePosts: Post[] = postsData?.getLikedPosts?.list || [];
+	const favoriteArticles: Article[] = articlesData?.getLikedArticles?.list || [];
+	const totals = {
+		products: productsData?.getLikedProducts?.metaCounter?.[0]?.total || 0,
+		posts: postsData?.getLikedPosts?.metaCounter?.[0]?.total || 0,
+		articles: articlesData?.getLikedArticles?.metaCounter?.[0]?.total || 0,
+	};
+
+	// Error handling with useEffect
+	useEffect(() => {
+		if (productsError) {
+			console.error('Products Error:', productsError);
+			sweetMixinErrorAlert('Error loading products: ' + productsError.message);
+		}
+	}, [productsError]);
+
+	useEffect(() => {
+		if (postsError) {
+			console.error('Posts Error:', postsError);
+		}
+	}, [postsError]);
+
+	useEffect(() => {
+		if (articlesError) {
+			console.error('Articles Error:', articlesError);
+		}
+	}, [articlesError]);
 
 	/** LIFECYCLE */
 	useEffect(() => {
 		if (user?._id) {
 			if (activeTab === 0) refetchProducts({ input: searchParams });
-			else if (activeTab === 1) refetchPosts({ input: searchParams });
-			else if (activeTab === 2) refetchArticles({ input: searchParams });
+			else if (activeTab === 1) refetchPosts({ input: { ...searchParams, search: {} } });
+			else if (activeTab === 2) refetchArticles({ input: { ...searchParams, search: {} } });
 		}
 	}, [searchParams, activeTab, user?._id, refetchProducts, refetchPosts, refetchArticles]);
 
 	/** HANDLERS **/
-	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+	const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
 		setActiveTab(newValue);
 		setSearchParams({ page: 1, limit: 6 });
 	};
 
-	const paginationHandler = (event: React.ChangeEvent<unknown>, value: number) => {
+	const paginationHandler = (_event: React.ChangeEvent<unknown>, value: number) => {
 		setSearchParams({ ...searchParams, page: value });
 	};
 
@@ -128,17 +175,15 @@ const Favorites: NextPage = () => {
 				sweetMixinErrorAlert(Messages.error2 || 'Please log in!');
 				return;
 			}
-
-			// Execute the appropriate mutation based on type
 			if (type === 'product') {
 				await likeTargetProduct({ variables: { input: itemId } });
 				await refetchProducts({ input: searchParams });
 			} else if (type === 'post') {
 				await likeTargetPost({ variables: { input: itemId } });
-				await refetchPosts({ input: searchParams });
+				await refetchPosts({ input: { ...searchParams, search: {} } });
 			} else if (type === 'article') {
 				await likeTargetArticle({ variables: { input: itemId } });
-				await refetchArticles({ input: searchParams });
+				await refetchArticles({ input: { ...searchParams, search: {} } });
 			}
 
 			sweetTopSmallSuccessAlert('Removed from favorites!', 800);
@@ -177,7 +222,9 @@ const Favorites: NextPage = () => {
 				<Stack sx={{ justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
 					<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
 						<Heart size={48} style={{ animation: 'pulse 1.5s ease-in-out infinite', color: '#ec4899' }} />
-						<Typography variant="body1" color="text.secondary">Loading your favorites...</Typography>
+						<Typography variant="body1" color="text.secondary">
+							Loading your favorites...
+						</Typography>
 					</Box>
 				</Stack>
 			</Box>
@@ -214,7 +261,9 @@ const Favorites: NextPage = () => {
 	if (device === 'mobile') {
 		return (
 			<Box className="saved-content-page">
-				<Typography variant="h6" textAlign="center" mt={4}>Mobile version coming soon...</Typography>
+				<Typography variant="h6" textAlign="center" mt={4}>
+					Mobile version coming soon...
+				</Typography>
 			</Box>
 		);
 	}
@@ -244,9 +293,30 @@ const Favorites: NextPage = () => {
 			{/* Tabs */}
 			<Box className="tabs-container">
 				<Tabs value={activeTab} onChange={handleTabChange} className="custom-tabs">
-					<Tab label={<Box className="tab-label"><Heart size={16} /><span>Products ({totals.products})</span></Box>} />
-					<Tab label={<Box className="tab-label"><MessageSquare size={16} /><span>Posts ({totals.posts})</span></Box>} />
-					<Tab label={<Box className="tab-label"><FileText size={16} /><span>Articles ({totals.articles})</span></Box>} />
+					<Tab
+						label={
+							<Box className="tab-label">
+								<Heart size={16} />
+								<span>Products ({totals.products})</span>
+							</Box>
+						}
+					/>
+					<Tab
+						label={
+							<Box className="tab-label">
+								<MessageSquare size={16} />
+								<span>Posts ({totals.posts})</span>
+							</Box>
+						}
+					/>
+					<Tab
+						label={
+							<Box className="tab-label">
+								<FileText size={16} />
+								<span>Articles ({totals.articles})</span>
+							</Box>
+						}
+					/>
 				</Tabs>
 			</Box>
 
@@ -255,19 +325,40 @@ const Favorites: NextPage = () => {
 				<Box className="saved-items-grid">
 					{favoriteProducts.length === 0 ? (
 						<Box className="empty-state">
-							<Box className="empty-icon"><Heart size={64} /></Box>
+							<Box className="empty-icon">
+								<Heart size={64} />
+							</Box>
 							<h3>No Favorite Products</h3>
 							<p>Start adding products you love</p>
-							<button onClick={() => router.push('/product')} 
-								style={{ marginTop: '20px', padding: '12px 24px', background: '#ec4899', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+							<button
+								onClick={() => router.push('/product')}
+								style={{
+									marginTop: '20px',
+									padding: '12px 24px',
+									background: '#ec4899',
+									color: 'white',
+									border: 'none',
+									borderRadius: '8px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: 600,
+								}}
+							>
 								Browse Products
 							</button>
 						</Box>
 					) : (
 						favoriteProducts.map((product: Product) => {
-							const imagePath = product?.productImages?.[0] ? `${REACT_APP_API_URL}/${product.productImages[0]}` : '/img/banner/product.webp';
+							const imagePath = product?.productImages?.[0]
+								? `${REACT_APP_API_URL}/${product.productImages[0]}`
+								: '/img/banner/product.webp';
 							return (
-								<Box key={product._id} className="saved-item-card" onClick={() => handleItemClick(product._id, 'product')} style={{ cursor: 'pointer' }}>
+								<Box
+									key={product._id}
+									className="saved-item-card"
+									onClick={() => handleItemClick(product._id, 'product')}
+									style={{ cursor: 'pointer' }}
+								>
 									<Box className="item-image">
 										<img src={imagePath} alt={product.productName} />
 										<Box className="favorite-badge">
@@ -286,12 +377,26 @@ const Favorites: NextPage = () => {
 											<span>{formatPrice(product.productPrice)}</span>
 										</Box>
 										<Stack className="item-stats">
-											<Box className="stat-item"><Eye size={14} /><span>{product.productViews || 0}</span></Box>
-											<Box className="stat-item"><Heart size={14} /><span>{product.productLikes || 0}</span></Box>
-											<Box className="stat-item date"><Calendar size={14} /><span>{formatDate(product.createdAt)}</span></Box>
+											<Box className="stat-item">
+												<Eye size={14} />
+												<span>{product.productViews || 0}</span>
+											</Box>
+											<Box className="stat-item">
+												<Heart size={14} />
+												<span>{product.productLikes || 0}</span>
+											</Box>
+											<Box className="stat-item date">
+												<Calendar size={14} />
+												<span>{formatDate(product.createdAt)}</span>
+											</Box>
 										</Stack>
 										<Box className="item-actions">
-											<IconButton size="small" className="remove-btn" onClick={(e) => handleRemoveFavorite(product._id, 'product', e)} title="Remove">
+											<IconButton
+												size="small"
+												className="remove-btn"
+												onClick={(e) => handleRemoveFavorite(product._id, 'product', e)}
+												title="Remove"
+											>
 												<Trash2 size={16} />
 											</IconButton>
 										</Box>
@@ -308,19 +413,40 @@ const Favorites: NextPage = () => {
 				<Box className="saved-items-grid">
 					{favoritePosts.length === 0 ? (
 						<Box className="empty-state">
-							<Box className="empty-icon"><MessageSquare size={64} /></Box>
+							<Box className="empty-icon">
+								<MessageSquare size={64} />
+							</Box>
 							<h3>No Favorite Posts</h3>
 							<p>Start adding posts you love</p>
-							<button onClick={() => router.push('/')} 
-								style={{ marginTop: '20px', padding: '12px 24px', background: '#ec4899', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+							<button
+								onClick={() => router.push('/')}
+								style={{
+									marginTop: '20px',
+									padding: '12px 24px',
+									background: '#ec4899',
+									color: 'white',
+									border: 'none',
+									borderRadius: '8px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: 600,
+								}}
+							>
 								Browse Community
 							</button>
 						</Box>
 					) : (
 						favoritePosts.map((post: Post) => {
-							const imagePath = post?.postImages?.[0] ? `${REACT_APP_API_URL}/${post.postImages[0]}` : '/img/banner/post.webp';
+							const imagePath = post?.postImages?.[0]
+								? `${REACT_APP_API_URL}/${post.postImages[0]}`
+								: '/img/banner/post.webp';
 							return (
-								<Box key={post._id} className="saved-item-card" onClick={() => handleItemClick(post._id, 'post')} style={{ cursor: 'pointer' }}>
+								<Box
+									key={post._id}
+									className="saved-item-card"
+									onClick={() => handleItemClick(post._id, 'post')}
+									style={{ cursor: 'pointer' }}
+								>
 									<Box className="item-image">
 										<img src={imagePath} alt={post.postTitle} />
 										<Box className="favorite-badge">
@@ -329,15 +455,27 @@ const Favorites: NextPage = () => {
 									</Box>
 									<Box className="item-content">
 										<h3 className="item-title">{post.postTitle}</h3>
-										<Box className="item-stats">
-											<Stack className="item-stats">
-												<Box className="stat-item"><Eye size={14} /><span>{post.postLikes || 0}</span></Box>
-												<Box className="stat-item"><MessageSquare size={14} /><span>{post.postComments || 0}</span></Box>
-												<Box className="stat-item date"><Calendar size={14} /><span>{formatDate(post.createdAt)}</span></Box>
-											</Stack>
-										</Box>
+										<Stack className="item-stats">
+											<Box className="stat-item">
+												<Heart size={14} />
+												<span>{post.postLikes || 0}</span>
+											</Box>
+											<Box className="stat-item">
+												<MessageSquare size={14} />
+												<span>{post.postComments || 0}</span>
+											</Box>
+											<Box className="stat-item date">
+												<Calendar size={14} />
+												<span>{formatDate(post.createdAt)}</span>
+											</Box>
+										</Stack>
 										<Box className="item-actions">
-											<IconButton size="small" className="remove-btn" onClick={(e) => handleRemoveFavorite(post._id, 'post', e)} title="Remove">
+											<IconButton
+												size="small"
+												className="remove-btn"
+												onClick={(e) => handleRemoveFavorite(post._id, 'post', e)}
+												title="Remove"
+											>
 												<Trash2 size={16} />
 											</IconButton>
 										</Box>
@@ -354,36 +492,117 @@ const Favorites: NextPage = () => {
 				<Box className="saved-items-grid">
 					{favoriteArticles.length === 0 ? (
 						<Box className="empty-state">
-							<Box className="empty-icon"><FileText size={64} /></Box>
+							<Box className="empty-icon">
+								<FileText size={64} />
+							</Box>
 							<h3>No Favorite Articles</h3>
 							<p>Start adding articles you love</p>
-							<button onClick={() => router.push('/article')} 
-								style={{ marginTop: '20px', padding: '12px 24px', background: '#ec4899', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+							<button
+								onClick={() => router.push('/article')}
+								style={{
+									marginTop: '20px',
+									padding: '12px 24px',
+									background: '#ec4899',
+									color: 'white',
+									border: 'none',
+									borderRadius: '8px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: 600,
+								}}
+							>
 								Browse Articles
 							</button>
 						</Box>
 					) : (
 						favoriteArticles.map((article: Article) => {
-							const imagePath = article?.articleImage ? `${REACT_APP_API_URL}/${article.articleImage}` : '/img/banner/article.webp';
+							const categoryStyle = getCategoryStyles(article?.articleCategory);
+							const hasImage = !!article?.articleImage;
+							const imagePath = hasImage ? getImageUrl(article.articleImage) : null;
 							return (
-								<Box key={article._id} className="saved-item-card article" onClick={() => handleItemClick(article._id, 'article')} style={{ cursor: 'pointer' }}>
-									<Box className="item-image">
-										<img src={imagePath} alt={article.articleTitle} />
-										<Box className="favorite-badge">
+								<Box
+									key={article._id}
+									className="saved-item-card article"
+									onClick={() => handleItemClick(article._id, 'article')}
+									style={{ cursor: 'pointer', borderRadius: '8px' }}
+								>
+									<Box className="item-image" style={{ position: 'relative' }}>
+										{hasImage ? (
+											<>
+												<img
+													src={imagePath}
+													alt={article.articleTitle}
+													style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+													onError={(e: any) => {
+														e.target.onerror = null;
+														e.target.style.display = 'none';
+														// Fallback to placeholder on error
+														const placeholder = e.target.parentElement;
+														placeholder.style.background = categoryStyle.bg;
+														placeholder.style.display = 'flex';
+														placeholder.style.alignItems = 'center';
+														placeholder.style.justifyContent = 'center';
+														placeholder.innerHTML = `
+															<div style="text-align: center; color: white;">
+																<div style="font-size: 48px; margin-bottom: 8px;">${categoryStyle.icon}</div>
+																<div style="font-weight: bold;">${categoryStyle.label}</div>
+															</div>
+														`;
+													}}
+												/>
+											</>
+										) : (
+											<Box
+												sx={{
+													background: categoryStyle.bg,
+													display: 'flex',
+													flexDirection: 'column',
+													alignItems: 'center',
+													justifyContent: 'center',
+													height: '100%',
+													color: 'white',
+													fontSize: '48px',
+													position: 'relative',
+												}}
+											>
+												<Typography sx={{ fontSize: '48px', mb: 1 }}>{categoryStyle.icon}</Typography>
+												<Typography sx={{ fontWeight: 'bold', fontSize: '14px' }}>{categoryStyle.label}</Typography>
+											</Box>
+										)}
+										<Box className="favorite-badge" style={{ position: 'absolute', top: 8, right: 8 }}>
 											<Heart size={16} fill="#ec4899" color="#ec4899" />
 										</Box>
-										<Chip label={article.articleCategory} className="category-chip" size="small" />
+										<Chip
+											label={article.articleCategory}
+											className="category-chip"
+											size="small"
+											sx={{ position: 'absolute', bottom: 8, left: 8 }}
+										/>
 									</Box>
 									<Box className="item-content">
 										<h3 className="item-title">{article.articleTitle}</h3>
 										<p className="article-excerpt">{article.articleContent?.substring(0, 100)}...</p>
 										<Stack className="item-stats">
-											<Box className="stat-item"><Eye size={14} /><span>{article.articleViews || 0}</span></Box>
-											<Box className="stat-item"><Heart size={14} /><span>{article.articleLikes || 0}</span></Box>
-											<Box className="stat-item date"><Calendar size={14} /><span>{formatDate(article.createdAt)}</span></Box>
+											<Box className="stat-item">
+												<Eye size={14} />
+												<span>{article.articleViews || 0}</span>
+											</Box>
+											<Box className="stat-item">
+												<Heart size={14} />
+												<span>{article.articleLikes || 0}</span>
+											</Box>
+											<Box className="stat-item date">
+												<Calendar size={14} />
+												<span>{formatDate(article.createdAt)}</span>
+											</Box>
 										</Stack>
 										<Box className="item-actions">
-											<IconButton size="small" className="remove-btn" onClick={(e) => handleRemoveFavorite(article._id, 'article', e)} title="Remove">
+											<IconButton
+												size="small"
+												className="remove-btn"
+												onClick={(e) => handleRemoveFavorite(article._id, 'article', e)}
+												title="Remove"
+											>
 												<Trash2 size={16} />
 											</IconButton>
 										</Box>

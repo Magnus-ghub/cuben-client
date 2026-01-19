@@ -59,19 +59,6 @@ const History: NextPage = () => {
 		setSearchHistory(newSearch);
 	};
 
-	const handleClearHistory = async () => {
-		// TODO: Backend mutation kerak - barcha ko'rilgan mahsulotlarni o'chirish
-		console.log('Clear all history');
-		sweetMixinErrorAlert('Feature coming soon!');
-	};
-
-	const handleRemoveItem = async (productId: string, e: React.MouseEvent) => {
-		e.stopPropagation();
-		// TODO: Backend mutation kerak - bitta ko'rilgan mahsulotni o'chirish
-		console.log('Remove from history:', productId);
-		sweetMixinErrorAlert('Feature coming soon!');
-	};
-
 	const handleProductClick = (productId: string) => {
 		router.push({
 			pathname: '/product/detail',
@@ -159,9 +146,6 @@ const History: NextPage = () => {
 						label={`${total} Item${total !== 1 ? 's' : ''}`}
 						className="total-chip"
 					/>
-					<IconButton className="clear-btn" onClick={handleClearHistory} title="Clear all history">
-						<RefreshCw size={18} />
-					</IconButton>
 				</Box>
 			</Stack>
 
@@ -237,17 +221,6 @@ const History: NextPage = () => {
 												<span>{product.productLikes}</span>
 											</Box>
 										</Stack>
-
-										<Box className="item-actions">
-											<IconButton
-												size="small"
-												className="remove-btn"
-												onClick={(e) => handleRemoveItem(product._id, e)}
-												title="Remove from history"
-											>
-												<Trash2 size={16} />
-											</IconButton>
-										</Box>
 									</Box>
 								</Box>
 							);

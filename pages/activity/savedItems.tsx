@@ -7,15 +7,15 @@ import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../libs/apollo/store';
-import { Bookmark, Eye, Heart, Calendar, MapPin, Trash2, MessageSquare, FileText } from 'lucide-react';
+import { Bookmark, Eye, Heart, Calendar, MapPin, Trash2, MessageSquare } from 'lucide-react';
 import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import { T } from '../../libs/types/common';
 import { Product } from '../../libs/types/product/product';
-import { GET_SAVED_PRODUCTS, GET_SAVED_POSTS } from '../../libs/apollo/user/query';
-import { SAVE_TARGET_PRODUCT } from '../../libs/apollo/user/mutation';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import moment from 'moment';
 import { Post } from '../../libs/types/post/post';
+import { GET_SAVED_PRODUCTS, GET_SAVED_POSTS } from '../../libs/apollo/user/query';
+import { SAVE_TARGET_PRODUCT, SAVE_TARGET_POST } from '../../libs/apollo/user/mutation';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import CommentModal from '../../libs/components/common/CommentModal';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -44,55 +44,64 @@ const SavedItems: NextPage = () => {
 	const user = useReactiveVar(userVar);
 	const [activeTab, setActiveTab] = useState<number>(0);
 	const [searchParams, setSearchParams] = useState<T>({ page: 1, limit: 6 });
-
-	// States for each content type
-	const [savedProducts, setSavedProducts] = useState<Product[]>([]);
-	const [savedPosts, setSavedPosts] = useState<Post[]>([]);
-	const [totals, setTotals] = useState({ products: 0, posts: 0});
+	const [commentModalOpen, setCommentModalOpen] = useState(false);
+	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
 	/** APOLLO REQUESTS **/
 	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT);
+	const [saveTargetPost] = useMutation(SAVE_TARGET_POST);
 
 	// Products Query
 	const {
 		loading: productsLoading,
+		data: productsData,
 		refetch: refetchProducts,
+		error: productsError,
 	} = useQuery(GET_SAVED_PRODUCTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchParams },
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setSavedProducts(data?.getSavedProducts?.list || []);
-			setTotals((prev) => ({ ...prev, products: data?.getSavedProducts?.metaCounter?.[0]?.total || 0 }));
-		},
-		onError: (error) => {
-			console.error('Products Error:', error);
-			sweetMixinErrorAlert('Error loading products: ' + error.message);
-		},
 	});
 
 	// Posts Query
 	const {
 		loading: postsLoading,
+		data: postsData,
 		refetch: refetchPosts,
+		error: postsError,
 	} = useQuery(GET_SAVED_POSTS, {
 		fetchPolicy: 'network-only',
-		variables: { input: searchParams },
+		variables: { input: { ...searchParams, search: {} } },
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setSavedPosts(data?.getSavedPosts?.list || []);
-			setTotals((prev) => ({ ...prev, posts: data?.getSavedPosts?.metaCounter?.[0]?.total || 0 }));
-		},
-		onError: (error) => {
-			console.error('Posts Error:', error);
-		},
 	});
+
+	// Derived state from query data
+	const savedProducts: Product[] = productsData?.getSavedProducts?.list || [];
+	const savedPosts: Post[] = postsData?.getSavedPosts?.list || [];
+	const totals = {
+		products: productsData?.getSavedProducts?.metaCounter?.[0]?.total || 0,
+		posts: postsData?.getSavedPosts?.metaCounter?.[0]?.total || 0,
+	};
+
+	// Error handling with useEffect
+	useEffect(() => {
+		if (productsError) {
+			console.error('Products Error:', productsError);
+			sweetMixinErrorAlert('Error loading products: ' + productsError.message);
+		}
+	}, [productsError]);
+
+	useEffect(() => {
+		if (postsError) {
+			console.error('Posts Error:', postsError);
+		}
+	}, [postsError]);
 
 	/** LIFECYCLE **/
 	useEffect(() => {
 		if (user?._id) {
 			if (activeTab === 0) refetchProducts({ input: searchParams });
-			else if (activeTab === 1) refetchPosts({ input: searchParams });
+			else if (activeTab === 1) refetchPosts({ input: { ...searchParams, search: {} } });
 		}
 	}, [searchParams, activeTab, user?._id, refetchProducts, refetchPosts]);
 
@@ -106,7 +115,19 @@ const SavedItems: NextPage = () => {
 		setSearchParams({ ...searchParams, page: value });
 	};
 
-	const handleRemoveItem = async (itemId: string, type: 'product' | 'post' | 'article', e: React.MouseEvent) => {
+	const handleCommentAdded = async () => {
+		try {
+			// Refetch saved posts to update comment counts after adding a comment
+			if (activeTab === 1 && user?._id) {
+				await refetchPosts({ input: { ...searchParams, search: {} } });
+			}
+			setCommentModalOpen(false);
+		} catch (err) {
+			console.error('Error refetching saved posts:', err);
+		}
+	};
+
+	const handleRemoveItem = async (itemId: string, type: 'product' | 'post', e: React.MouseEvent) => {
 		e.stopPropagation();
 		try {
 			if (!user?._id) {
@@ -114,13 +135,12 @@ const SavedItems: NextPage = () => {
 				return;
 			}
 
-			// TODO: Implement mutations for posts and articles
 			if (type === 'product') {
 				await saveTargetProduct({ variables: { productId: itemId } });
 				await refetchProducts({ input: searchParams });
-			} else {
-				sweetMixinErrorAlert('Feature coming soon for this content type!');
-				return;
+			} else if (type === 'post') {
+				await saveTargetPost({ variables: { input: itemId } });
+				await refetchPosts({ input: { ...searchParams, search: {} } });
 			}
 
 			sweetTopSmallSuccessAlert('Removed from saved items!', 800);
@@ -130,13 +150,18 @@ const SavedItems: NextPage = () => {
 		}
 	};
 
-	const handleItemClick = (itemId: string, type: 'product' | 'post' | 'article') => {
+	const handleItemClick = (itemId: string, type: 'product' | 'post') => {
 		const routes = {
 			product: '/product/detail',
 			post: '/community/detail',
-			article: '/blog/detail',
 		};
 		router.push({ pathname: routes[type], query: { id: itemId } });
+	};
+
+	const handlePostClick = (post: Post) => {
+		console.log('Comment clicked for post:', post._id);
+		setSelectedPost(post);
+		setCommentModalOpen(true);
 	};
 
 	const formatPrice = (price: number) => {
@@ -147,7 +172,11 @@ const SavedItems: NextPage = () => {
 	};
 
 	const formatDate = (date: Date | string) => {
-		return moment(date).format('MMM D, YYYY');
+		return new Date(date).toLocaleDateString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric',
+		});
 	};
 
 	const isLoading = productsLoading || postsLoading;
@@ -159,7 +188,9 @@ const SavedItems: NextPage = () => {
 				<Stack sx={{ justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
 					<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
 						<Bookmark size={48} style={{ animation: 'pulse 1.5s ease-in-out infinite', color: '#10b981' }} />
-						<Typography variant="body1" color="text.secondary">Loading saved items...</Typography>
+						<Typography variant="body1" color="text.secondary">
+							Loading saved items...
+						</Typography>
 					</Box>
 				</Stack>
 			</Box>
@@ -196,7 +227,9 @@ const SavedItems: NextPage = () => {
 	if (device === 'mobile') {
 		return (
 			<Box className="saved-content-page">
-				<Typography variant="h6" textAlign="center" mt={4}>Mobile version coming soon...</Typography>
+				<Typography variant="h6" textAlign="center" mt={4}>
+					Mobile version coming soon...
+				</Typography>
 			</Box>
 		);
 	}
@@ -226,8 +259,22 @@ const SavedItems: NextPage = () => {
 			{/* Tabs */}
 			<Box className="tabs-container">
 				<Tabs value={activeTab} onChange={handleTabChange} className="custom-tabs">
-					<Tab label={<Box className="tab-label"><Bookmark size={16} /><span>Products ({totals.products})</span></Box>} />
-					<Tab label={<Box className="tab-label"><MessageSquare size={16} /><span>Posts ({totals.posts})</span></Box>} />
+					<Tab
+						label={
+							<Box className="tab-label">
+								<Bookmark size={16} />
+								<span>Products ({totals.products})</span>
+							</Box>
+						}
+					/>
+					<Tab
+						label={
+							<Box className="tab-label">
+								<MessageSquare size={16} />
+								<span>Posts ({totals.posts})</span>
+							</Box>
+						}
+					/>
 				</Tabs>
 			</Box>
 
@@ -236,19 +283,40 @@ const SavedItems: NextPage = () => {
 				<Box className="saved-items-grid">
 					{savedProducts.length === 0 ? (
 						<Box className="empty-state">
-							<Box className="empty-icon"><Bookmark size={64} /></Box>
+							<Box className="empty-icon">
+								<Bookmark size={64} />
+							</Box>
 							<h3>No Saved Products</h3>
 							<p>Start bookmarking products</p>
-							<button onClick={() => router.push('/product')} 
-								style={{ marginTop: '20px', padding: '12px 24px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+							<button
+								onClick={() => router.push('/product')}
+								style={{
+									marginTop: '20px',
+									padding: '12px 24px',
+									background: '#10b981',
+									color: 'white',
+									border: 'none',
+									borderRadius: '8px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: 600,
+								}}
+							>
 								Browse Products
 							</button>
 						</Box>
 					) : (
 						savedProducts.map((product: Product) => {
-							const imagePath = product?.productImages?.[0] ? `${REACT_APP_API_URL}/${product.productImages[0]}` : '/img/banner/product.webp';
+							const imagePath = product?.productImages?.[0]
+								? `${REACT_APP_API_URL}/${product.productImages[0]}`
+								: '/img/banner/product.webp';
 							return (
-								<Box key={product._id} className="saved-item-card" onClick={() => handleItemClick(product._id, 'product')} style={{ cursor: 'pointer' }}>
+								<Box
+									key={product._id}
+									className="saved-item-card"
+									onClick={() => handleItemClick(product._id, 'product')}
+									style={{ cursor: 'pointer' }}
+								>
 									<Box className="item-image">
 										<img src={imagePath} alt={product.productName} />
 										<Box className="saved-badge">
@@ -267,12 +335,26 @@ const SavedItems: NextPage = () => {
 											<span>{formatPrice(product.productPrice)}</span>
 										</Box>
 										<Stack className="item-stats">
-											<Box className="stat-item"><Eye size={14} /><span>{product.productViews || 0}</span></Box>
-											<Box className="stat-item"><Heart size={14} /><span>{product.productLikes || 0}</span></Box>
-											<Box className="stat-item date"><Calendar size={14} /><span>{formatDate(product.createdAt)}</span></Box>
+											<Box className="stat-item">
+												<Eye size={14} />
+												<span>{product.productViews || 0}</span>
+											</Box>
+											<Box className="stat-item">
+												<Heart size={14} />
+												<span>{product.productLikes || 0}</span>
+											</Box>
+											<Box className="stat-item date">
+												<Calendar size={14} />
+												<span>{formatDate(product.createdAt)}</span>
+											</Box>
 										</Stack>
 										<Box className="item-actions">
-											<IconButton size="small" className="remove-btn" onClick={(e) => handleRemoveItem(product._id, 'product', e)} title="Remove">
+											<IconButton
+												size="small"
+												className="remove-btn"
+												onClick={(e) => handleRemoveItem(product._id, 'product', e)}
+												title="Remove"
+											>
 												<Trash2 size={16} />
 											</IconButton>
 										</Box>
@@ -289,37 +371,83 @@ const SavedItems: NextPage = () => {
 				<Box className="saved-items-grid">
 					{savedPosts.length === 0 ? (
 						<Box className="empty-state">
-							<Box className="empty-icon"><MessageSquare size={64} /></Box>
+							<Box className="empty-icon">
+								<MessageSquare size={64} />
+							</Box>
 							<h3>No Saved Posts</h3>
 							<p>Start bookmarking posts</p>
-							<button onClick={() => router.push('/')} 
-								style={{ marginTop: '20px', padding: '12px 24px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+							<button
+								onClick={() => router.push('/')}
+								style={{
+									marginTop: '20px',
+									padding: '12px 24px',
+									background: '#10b981',
+									color: 'white',
+									border: 'none',
+									borderRadius: '8px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: 600,
+								}}
+							>
 								Browse Community
 							</button>
 						</Box>
 					) : (
 						savedPosts.map((post: Post) => {
-							const imagePath = post?.postImages?.[0] ? `${REACT_APP_API_URL}/${post.postImages[0]}` : '/img/banner/post.webp';
+							const imagePath = post?.postImages?.[0]
+								? `${REACT_APP_API_URL}/${post.postImages[0]}`
+								: '/img/banner/post.webp';
 							return (
-								<Box key={post._id} className="saved-item-card" onClick={() => handleItemClick(post._id, 'post')} style={{ cursor: 'pointer' }}>
-									<Box className="item-image">
+								<Box
+									key={post._id}
+									className="post-card"
+									onClick={() => handlePostClick(post)}
+									style={{ cursor: 'pointer' }}
+								>
+									{/* Post Image */}
+									<Box className="post-image">
 										<img src={imagePath} alt={post.postTitle} />
 										<Box className="saved-badge">
 											<Bookmark size={16} fill="#10b981" color="#10b981" />
 										</Box>
 									</Box>
-									<Box className="item-content">
-										<h3 className="item-title">{post.postTitle}</h3>
-										<Stack className="item-stats">
-											<Box className="stat-item"><Heart size={14} /><span>{post.postLikes || 0}</span></Box>
-											<Box className="stat-item"><MessageSquare size={14} /><span>{post.postComments || 0}</span></Box>
-											<Box className="stat-item date"><Calendar size={14} /><span>{formatDate(post.createdAt)}</span></Box>
+
+									{/* Post Content */}
+									<Box className="post-content">
+										<h3 className="post-title">{post.postTitle}</h3>
+										<p className="post-description">
+											{post.postContent?.substring(0, 120)}
+											{post.postContent?.length > 120 && '...'}
+										</p>
+
+										{/* Stats Row */}
+										<Stack className="post-stats">
+											<Box className="stat-item">
+												<Heart size={16} />
+												<span>{post.postLikes || 0}</span>
+											</Box>
+											<Box className="stat-item">
+												<MessageSquare size={16} />
+												<span>{post.postComments || 0}</span>
+											</Box>
+											<Box className="stat-item date">
+												<Calendar size={16} />
+												<span>{formatDate(post.createdAt)}</span>
+											</Box>
 										</Stack>
-										<Box className="item-actions">
-											<IconButton size="small" className="remove-btn" onClick={(e) => handleRemoveItem(post._id, 'post', e)} title="Remove">
+
+										{/* Action Buttons */}
+										<Stack className="post-actions">
+											<IconButton
+												size="small"
+												className="action-btn remove-btn"
+												onClick={(e) => handleRemoveItem(post._id, 'post', e)}
+												title="Remove"
+											>
 												<Trash2 size={16} />
 											</IconButton>
-										</Box>
+										</Stack>
 									</Box>
 								</Box>
 							);
@@ -342,6 +470,13 @@ const SavedItems: NextPage = () => {
 					/>
 				</Stack>
 			)}
+
+			<CommentModal
+				open={commentModalOpen}
+				onClose={() => setCommentModalOpen(false)}
+				post={selectedPost}
+				onCommentAdded={handleCommentAdded}
+			/>
 		</Box>
 	);
 };
