@@ -2,125 +2,166 @@ import React, { useCallback, useState } from 'react';
 import {
 	IconButton,
 	Typography,
-	Checkbox,
+	Radio,
+	RadioGroup,
+	FormControlLabel,
 	Button,
 	Stack,
 	Tooltip,
 	Collapse,
 	Chip,
+	Checkbox,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import router from 'next/router';
-import { ProductsInquiry } from '../../types/product/product.input';
+import { ProductsInquiry, ProductSearch } from '../../types/product/product.input'; 
 import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { ProductCondition, ProductType } from '../../enums/product.enum';
 
 interface FilterType {
 	searchFilter: ProductsInquiry;
-	setSearchFilter: any;
+	setSearchFilter: React.Dispatch<React.SetStateAction<ProductsInquiry>>;
 	initialInput: ProductsInquiry;
 }
 
 const Filter = (props: FilterType) => {
 	const device = useDeviceDetect();
 	const { searchFilter, setSearchFilter, initialInput } = props;
-	const [searchText, setSearchText] = useState('');
+
+	const [searchText, setSearchText] = useState(searchFilter?.search?.text || ''); 
 	const [productPrice, setProductPrice] = useState({
-		start: 0,
-		end: 500000,
+		start: searchFilter?.search?.pricesRange?.start || 0,
+		end: searchFilter?.search?.pricesRange?.end || 500000,
 	});
-	const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-	const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-	const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+	const [selectedTypes, setSelectedTypes] = useState<ProductType[]>(searchFilter?.search?.typeList || []); 
+	const [selectedCondition, setSelectedCondition] = useState<ProductCondition | null>(searchFilter?.search?.condition || null); 
+	const [selectedOptions, setSelectedOptions] = useState<string[]>(searchFilter?.search?.options || []); 
 	
 	// Expand/Collapse states
 	const [expandType, setExpandType] = useState(true);
-	const [expandLocation, setExpandLocation] = useState(true);
+	const [expandOptions, setExpandOptions] = useState(true); 
 	const [expandCondition, setExpandCondition] = useState(true);
 	const [expandPrice, setExpandPrice] = useState(true);
 
-	// Product types
-	const productTypes = ['BOOK', 'NOTE', 'ELECTRONIC', 'FASHION', 'ACCESSORY', 'HOME', 'SERVICE', 'OTHER'];
+	// Product types from enum
+	const productTypes: ProductType[] = [
+		ProductType.EDU,
+		ProductType.TECH,
+		ProductType.STYLE,
+		ProductType.HOME,
+		ProductType.SERVICE,
+		ProductType.OTHER,
+	];
 	
-	// Conditions
-	const conditions = ['NEW', 'LIKE_NEW', 'GOOD', 'USED', 'BAD'];
+	// Conditions from enum (single select)
+	const conditions: ProductCondition[] = [
+		ProductCondition.NEW,
+		ProductCondition.LIKE_NEW,
+		ProductCondition.GOOD,
+		ProductCondition.USED,
+		ProductCondition.BAD,
+	];
 
 	/** HANDLERS **/
 	const handleReset = () => {
+		const resetSearch: ProductSearch = {
+			...initialInput.search,
+			text: '',
+			pricesRange: { start: 0, end: 500000 },
+			typeList: [],
+			condition: null,
+			options: [],
+		};
+		const resetFilter: ProductsInquiry = {
+			...initialInput,
+			search: resetSearch,
+		};
+		setSearchFilter(resetFilter);
 		setSearchText('');
 		setProductPrice({ start: 0, end: 500000 });
 		setSelectedTypes([]);
-		setSelectedLocations([]);
-		setSelectedConditions([]);
+		setSelectedCondition(null);
+		setSelectedOptions([]);
+		router.push(`/product?input=${JSON.stringify(resetFilter)}`, undefined, { scroll: false });
 	};
 
-	const handleTypeChange = (type: string) => {
+	const handleTypeChange = (type: ProductType) => {
 		setSelectedTypes((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]));
 	};
 
-	const handleLocationChange = (location: string) => {
-		setSelectedLocations((prev) =>
-			prev.includes(location) ? prev.filter((l) => l !== location) : [...prev, location]
+	const handleOptionChange = (option: string): void => {
+		setSelectedOptions((prev) =>
+			prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]
 		);
 	};
 
-	const handleConditionChange = (condition: string) => {
-		setSelectedConditions((prev) =>
-			prev.includes(condition) ? prev.filter((c) => c !== condition) : [...prev, condition]
-		);
+	const handleConditionChange = (condition: ProductCondition) => {
+		setSelectedCondition(condition); // Single value
+	};
+
+	const handleSearchChange = (value: string) => {
+		setSearchText(value);
+		const updatedSearch: ProductSearch = {
+			...searchFilter.search,
+			text: value,
+		};
+		const updatedFilter: ProductsInquiry = {
+			...searchFilter,
+			search: updatedSearch,
+		};
+		setSearchFilter(updatedFilter);
+		router.push(`/product?input=${JSON.stringify(updatedFilter)}`, undefined, { scroll: false });
 	};
 
 	const productPriceHandler = useCallback(
 		async (value: number, type: string) => {
-			if (type === 'start') {
-				await router.push(
-					`/product?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, start: value * 1 },
-						},
-					})}`,
-					`/product?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, start: value * 1 },
-						},
-					})}`,
-					{ scroll: false }
-				);
-			} else {
-				await router.push(
-					`/product?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, end: value * 1 },
-						},
-					})}`,
-					`/product?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, end: value * 1 },
-						},
-					})}`,
-					{ scroll: false }
-				);
-			}
+			const numValue = parseInt(value.toString(), 10);
+			if (isNaN(numValue) || numValue < 0) return;
+
+			const updatedPrices = type === 'start' 
+				? { ...productPrice, start: numValue }
+				: { ...productPrice, end: numValue };
+
+			setProductPrice(updatedPrices);
+
+			const updatedSearch: ProductSearch = {
+				...searchFilter.search,
+				pricesRange: updatedPrices,
+			};
+			const updatedFilter: ProductsInquiry = {
+				...searchFilter,
+				search: updatedSearch,
+			};
+			setSearchFilter(updatedFilter);
+			router.push(`/product?input=${JSON.stringify(updatedFilter)}`, undefined, { scroll: false });
 		},
-		[searchFilter]
+		[searchFilter, productPrice, setSearchFilter],
 	);
+
+	const handleApplyFilters = () => {
+		const updatedSearch: ProductSearch = {
+			...searchFilter.search,
+			typeList: selectedTypes,
+			condition: selectedCondition,
+			options: selectedOptions,
+		};
+		const updatedFilter: ProductsInquiry = {
+			...searchFilter,
+			search: updatedSearch,
+		};
+		setSearchFilter(updatedFilter);
+		router.push(`/product?input=${JSON.stringify(updatedFilter)}`, undefined, { scroll: false });
+	};
 
 	const formatLabel = (text: string) => {
 		return text.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 	};
 
 	const getTotalActiveFilters = () => {
-		return selectedTypes.length + selectedLocations.length + selectedConditions.length;
+		return selectedTypes.length + selectedOptions.length + (selectedCondition ? 1 : 0);
 	};
 
 	if (device === 'mobile') {
@@ -151,7 +192,7 @@ const Filter = (props: FilterType) => {
 				</Stack>
 			</Stack>
 
-			{/* Search Input */}
+			{/* Search Input (Real-time apply - 'text' field) */}
 			<Stack className="filter-section">
 				<Stack className="search-wrapper">
 					<SearchIcon className="search-icon" />
@@ -160,12 +201,12 @@ const Filter = (props: FilterType) => {
 						value={searchText}
 						className="search-input"
 						placeholder="Search products..."
-						onChange={(e) => setSearchText(e.target.value)}
+						onChange={(e) => handleSearchChange(e.target.value)} // Real-time
 					/>
 				</Stack>
 			</Stack>
 
-			{/* Product Type Filter */}
+			{/* Product Type Filter ('typeList' array from enum) */}
 			<Stack className="filter-section">
 				<Button
 					className="section-header"
@@ -201,7 +242,8 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Collapse>
 			</Stack>
-			{/* Condition Filter */}
+			
+			{/* Condition Filter (Single 'condition' from enum) */}
 			<Stack className="filter-section">
 				<Button
 					className="section-header"
@@ -209,8 +251,8 @@ const Filter = (props: FilterType) => {
 					fullWidth
 				>
 					<Typography className="section-title">Condition</Typography>
-					{selectedConditions.length > 0 && (
-						<Chip label={selectedConditions.length} size="small" className="count-chip" />
+					{selectedCondition && (
+						<Chip label={1} size="small" className="count-chip" />
 					)}
 					<ExpandMoreIcon
 						sx={{
@@ -221,24 +263,24 @@ const Filter = (props: FilterType) => {
 				</Button>
 				<Collapse in={expandCondition}>
 					<Stack className="options-list">
-						{conditions.map((condition) => (
-							<Stack className="option-item" key={condition}>
-								<Checkbox
-									id={condition}
-									size="small"
-									checked={selectedConditions.includes(condition)}
-									onChange={() => handleConditionChange(condition)}
+						<RadioGroup
+							value={selectedCondition || ''}
+							onChange={(e) => handleConditionChange(e.target.value as ProductCondition)}
+						>
+							{conditions.map((condition) => (
+								<FormControlLabel
+									key={condition}
+									value={condition}
+									control={<Radio size="small" />}
+									label={<Typography className="option-label">{formatLabel(condition)}</Typography>}
 								/>
-								<label htmlFor={condition}>
-									<Typography className="option-label">{formatLabel(condition)}</Typography>
-								</label>
-							</Stack>
-						))}
+							))}
+						</RadioGroup>
 					</Stack>
 				</Collapse>
 			</Stack>
 
-			{/* Price Range Filter */}
+			{/* Price Range Filter (Real-time apply - 'pricesRange') */}
 			<Stack className="filter-section">
 				<Button
 					className="section-header"
@@ -259,24 +301,16 @@ const Filter = (props: FilterType) => {
 							type="number"
 							placeholder="₩ Min"
 							min={0}
-							value={searchFilter?.search?.pricesRange?.start ?? 0}
-							onChange={(e: any) => {
-								if (e.target.value >= 0) {
-									productPriceHandler(e.target.value, 'start');
-								}
-							}}
+							value={productPrice.start}
+							onChange={(e: any) => productPriceHandler(parseInt(e.target.value) || 0, 'start')}
 							className="price-input"
 						/>
 						<Typography className="price-divider">—</Typography>
 						<input
 							type="number"
 							placeholder="₩ Max"
-							value={searchFilter?.search?.pricesRange?.end ?? 0}
-							onChange={(e: any) => {
-								if (e.target.value >= 0) {
-									productPriceHandler(e.target.value, 'end');
-								}
-							}}
+							value={productPrice.end}
+							onChange={(e: any) => productPriceHandler(parseInt(e.target.value) || 500000, 'end')}
 							className="price-input"
 						/>
 					</Stack>
@@ -284,8 +318,14 @@ const Filter = (props: FilterType) => {
 			</Stack>
 
 			{/* Apply Button */}
-			<Button variant="contained" fullWidth className="apply-btn">
-				Apply Filters
+			<Button 
+				variant="contained" 
+				fullWidth 
+				className="apply-btn"
+				onClick={handleApplyFilters}
+				disabled={getTotalActiveFilters() === 0}
+			>
+				Apply Filters ({getTotalActiveFilters() > 0 ? getTotalActiveFilters() : 0})
 			</Button>
 		</Stack>
 	);

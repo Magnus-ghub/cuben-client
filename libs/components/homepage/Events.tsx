@@ -92,7 +92,6 @@ const Events = () => {
 		);
 	}
 
-	// ✅ Agar ma'lumot yo'q bo'lsa
 	if (upcomingEvents.length === 0) {
 		return (
 			<Stack className="events-section">
@@ -126,7 +125,7 @@ const Events = () => {
 					{upcomingEvents.map((event) => (
 						<Link 
 							key={event.id} 
-							href={`/article?id=${event.id}`} 
+							href={`/article?articleCategory=EVENTS`} 
 							style={{ textDecoration: 'none' }}
 						>
 							<Box className="event-item">

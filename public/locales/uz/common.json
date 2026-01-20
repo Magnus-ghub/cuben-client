@@ -1,0 +1,72 @@
+{
+  "common": {
+    "search_placeholder": "Postlar, ishlar, mahsulotlar yoki talabalarni qidiring...",
+    "create": "Yaratish",
+    "write_post": "Post yozish",
+    "sell_item": "Mahsulot sotish",
+    "post_job": "Ish joylashtirish",
+    "apply_now": "Ariza yuborish",
+    "view_all": "Barchasini ko‘rish",
+    "save": "Saqlash",
+    "comment": "Izoh",
+    "liked": "Yoqdi"
+  },
+
+  "navigation": {
+    "home": "Bosh sahifa",
+    "feed": "Lenta",
+    "opportunities": "Imkoniyatlar",
+    "marketplace": "Bozor",
+    "messages": "Xabarlar",
+    "profile": "Profil",
+    "favorites": "Sevimlilar",
+    "recently_viewed": "Yaqinda ko‘rilganlar",
+    "saved_items": "Saqlanganlar",
+    "logout": "Chiqish"
+  },
+
+  "home": {
+    "welcome_title": "Cuben hamjamiyatiga xush kelibsiz",
+    "welcome_subtitle": "Talabalar bilan bog‘laning, imkoniyatlarni toping va mahsulotlarni bir joyda sotib oling",
+    "whats_on_mind": "Nima haqida o‘ylayapsiz?"
+  },
+
+  "categories": {
+    "career_jobs": "Karyera va ishlar",
+    "campus_events": "Kampus tadbirlari",
+    "university_news": "Universitet yangiliklari",
+    "knowledge": "Bilim"
+  },
+
+  "marketplace": {
+    "title": "Bozor",
+    "subtitle": "Talabalar tomonidan taklif qilinayotgan eng yaxshi mahsulotlar",
+    "filters": "Filtrlar",
+    "product_type": "Mahsulot turi",
+    "condition": "Holati",
+    "price_range": "Narx oralig‘i",
+    "apply_filters": "Filtrlarni qo‘llash",
+    "new": "Yangi",
+    "like_new": "Deyarli yangi",
+    "used": "Ishlatilgan",
+    "bad": "Yomon"
+  },
+
+  "profile": {
+    "total_views": "Jami ko‘rishlar",
+    "active_listings": "Faol e’lonlar",
+    "total_posts": "Jami postlar",
+    "engagement": "Faollik",
+    "update_profile": "Profilni yangilash",
+    "phone_number": "Telefon raqami",
+    "address": "Manzil"
+  },
+
+  "favorites": {
+    "title": "Sevimlilar",
+    "subtitle": "Siz yoqtirgan kontent",
+    "products": "Mahsulotlar",
+    "posts": "Postlar",
+    "articles": "Maqolalar"
+  }
+}

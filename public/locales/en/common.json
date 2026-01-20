@@ -1,22 +1,72 @@
 {
-  "Home": "Home",
-  "Products": "Products",
-  "Agents": "Agents",
-  "Community": "Community",
-  "My Page": "My Page",
-  "CS": "CS",
-  "Login": "Login",
-  "Register": "Register",
-  "Location": "Location",
-  "Product type": "Product type",
-  "Rooms": "Rooms",
-  "Advanced": "Advanced",
-  "Product Search": "Product Search",
-  "We are glad to see you again!": "We are glad to see you again!",
-  "Home / For Rent": "Home / For Rent",
-  "Agent Page": "Agent Page",
-  "my page": "my page",
-  "Community Detail": "Community Detail",
-  "Login/Signup": "Login/Signup",
-  "Member Page": "Member Page"
+  "common": {
+    "search_placeholder": "Search posts, jobs, products, or students...",
+    "create": "Create",
+    "write_post": "Write Post",
+    "sell_item": "Sell Item",
+    "post_job": "Post a Job",
+    "apply_now": "Apply Now",
+    "view_all": "View All",
+    "save": "Save",
+    "comment": "Comment",
+    "liked": "Liked"
+  },
+
+  "navigation": {
+    "home": "Home",
+    "feed": "Feed",
+    "opportunities": "Opportunities",
+    "marketplace": "Marketplace",
+    "messages": "Messages",
+    "profile": "Profile",
+    "favorites": "Favorites",
+    "recently_viewed": "Recently Viewed",
+    "saved_items": "Saved Items",
+    "logout": "Logout"
+  },
+
+  "home": {
+    "welcome_title": "Welcome to Cuben Community",
+    "welcome_subtitle": "Connect with students, discover opportunities, and trade items all in one place",
+    "whats_on_mind": "What's on your mind?"
+  },
+
+  "categories": {
+    "career_jobs": "Career & Jobs",
+    "campus_events": "Campus Events",
+    "university_news": "University News",
+    "knowledge": "Knowledge"
+  },
+
+  "marketplace": {
+    "title": "Marketplace",
+    "subtitle": "Discover great deals from fellow students",
+    "filters": "Filters",
+    "product_type": "Product Type",
+    "condition": "Condition",
+    "price_range": "Price Range",
+    "apply_filters": "Apply Filters",
+    "new": "New",
+    "like_new": "Like New",
+    "used": "Used",
+    "bad": "Bad"
+  },
+
+  "profile": {
+    "total_views": "Total Views",
+    "active_listings": "Active Listings",
+    "total_posts": "Total Posts",
+    "engagement": "Engagement",
+    "update_profile": "Update Profile",
+    "phone_number": "Phone Number",
+    "address": "Address"
+  },
+
+  "favorites": {
+    "title": "Favorites",
+    "subtitle": "Content you loved",
+    "products": "Products",
+    "posts": "Posts",
+    "articles": "Articles"
+  }
 }

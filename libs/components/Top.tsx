@@ -324,9 +324,9 @@ const Top: React.FC = () => {
 									<img className="img-flag" src={'/img/flag/langkr.png'} alt={'Korean Flag'} />
 									{t('Korean')}
 								</MenuItem>
-								<MenuItem disableRipple onClick={langChoice} id="ru">
-									<img className="img-flag" src={'/img/flag/langru.png'} alt={'Russian Flag'} />
-									{t('Russian')}
+								<MenuItem disableRipple onClick={langChoice} id="uz">
+									<img className="img-flag" src={'/img/flag/languz.png'} alt={'Uzbek Flag'} />
+									{t('Uzbek')}
 								</MenuItem>
 							</StyledMenu>
 						</Stack>

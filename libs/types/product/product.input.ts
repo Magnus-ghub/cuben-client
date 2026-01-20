@@ -13,7 +13,7 @@ export interface ProductInput {
 	
 }
 
-interface ProductSearch { 
+export interface ProductSearch { 
 	memberId?: string;
 	typeList?: ProductType[];
 	condition?: ProductCondition; 

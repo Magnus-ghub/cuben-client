@@ -1,22 +1,72 @@
 {
-  "Home": "홈",
-  "Products": "매물",
-  "Agents": "에이전트",
-  "Community": "커뮤니티",
-  "My Page": "마이 페이지",
-  "CS": "고객센터",
-  "Login": "로그인",
-  "Register": "가입",
-  "Location": "위치",
-  "Product type": "매물 유형",
-  "Rooms": "방",
-  "Advanced": "고급 필터",
-  "Product Search": "매물 찾기",
-  "We are glad to see you again!": "다시 만나서 반갑습니다!",
-  "Home / For Rent": "홈 / 임대용",
-  "Agent Page": "에이전트 페이지",
-  "my page": "마이 페이지",
-  "Community Detail": "커뮤니티 디테일",
-  "Login/Signup": "로그인/가입",
-  "Member Page": "멤버 페이지"
+  "common": {
+    "search_placeholder": "게시물, 채용, 상품 또는 학생 검색...",
+    "create": "만들기",
+    "write_post": "게시물 작성",
+    "sell_item": "상품 판매",
+    "post_job": "채용 공고",
+    "apply_now": "지원하기",
+    "view_all": "모두 보기",
+    "save": "저장",
+    "comment": "댓글",
+    "liked": "좋아요"
+  },
+
+  "navigation": {
+    "home": "홈",
+    "feed": "피드",
+    "opportunities": "기회",
+    "marketplace": "마켓플레이스",
+    "messages": "메시지",
+    "profile": "프로필",
+    "favorites": "즐겨찾기",
+    "recently_viewed": "최근 본 항목",
+    "saved_items": "저장된 항목",
+    "logout": "로그아웃"
+  },
+
+  "home": {
+    "welcome_title": "Cuben 커뮤니티에 오신 것을 환영합니다",
+    "welcome_subtitle": "학생들과 연결하고, 기회를 발견하며, 하나의 공간에서 거래하세요",
+    "whats_on_mind": "무슨 생각을 하고 계신가요?"
+  },
+
+  "categories": {
+    "career_jobs": "취업 및 커리어",
+    "campus_events": "캠퍼스 이벤트",
+    "university_news": "대학 소식",
+    "knowledge": "지식"
+  },
+
+  "marketplace": {
+    "title": "마켓플레이스",
+    "subtitle": "학생들이 제공하는 최고의 상품을 만나보세요",
+    "filters": "필터",
+    "product_type": "상품 유형",
+    "condition": "상태",
+    "price_range": "가격 범위",
+    "apply_filters": "필터 적용",
+    "new": "새 상품",
+    "like_new": "거의 새 상품",
+    "used": "중고",
+    "bad": "상태 나쁨"
+  },
+
+  "profile": {
+    "total_views": "총 조회수",
+    "active_listings": "활성 등록",
+    "total_posts": "총 게시물",
+    "engagement": "참여도",
+    "update_profile": "프로필 업데이트",
+    "phone_number": "전화번호",
+    "address": "주소"
+  },
+
+  "favorites": {
+    "title": "즐겨찾기",
+    "subtitle": "내가 좋아한 콘텐츠",
+    "products": "상품",
+    "posts": "게시물",
+    "articles": "아티클"
+  }
 }
