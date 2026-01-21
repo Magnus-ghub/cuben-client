@@ -741,12 +741,10 @@
 
 .option-item {
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  align-items: center; /* FIX */
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  cursor: pointer;
 }
 
 .option-item:hover {
