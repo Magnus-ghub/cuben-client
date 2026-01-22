@@ -5,21 +5,23 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { T } from '../../types/common';
 import { useRouter } from 'next/router';
 import { Product } from '../../types/product/product';
+import { ProductUpdate } from '../../types/product/product.update';
 import { ProductsInquiry } from '../../types/product/product.input';
 import { GET_PRODUCTS } from '../../apollo/user/query';
-import { REMOVE_PRODUCT } from '../../apollo/user/mutation';
+import { REMOVE_PRODUCT, UPDATE_PRODUCT } from '../../apollo/user/mutation';
 import { useQuery, useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
-import { Package, Calendar, Eye, Heart, Edit, Trash2, MoreVertical, DollarSign, MapPin, TrendingUp } from 'lucide-react';
+import { Package, Calendar, Eye, Heart, Edit, Trash2, DollarSign, MapPin, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
 import { Direction, Message } from '../../enums/common.enum';
 import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } from '../../sweetAlert';
 
+
 const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const user = useReactiveVar(userVar); 
-	
+	const user = useReactiveVar(userVar);
+
 	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
 		initialInput || {
 			page: 1,
@@ -29,15 +31,17 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			search: {
 				memberId: '',
 			},
-		}
+		},
 	);
-	
+
 	const [userProducts, setUserProducts] = useState<Product[]>([]);
 	const [total, setTotal] = useState<number>(0);
-	
+	const [editModalOpen, setEditModalOpen] = useState(false);
+	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
 	/** APOLLO REQUESTS **/
 	const [removeProduct] = useMutation(REMOVE_PRODUCT);
+	const [updateProduct] = useMutation(UPDATE_PRODUCT);
 
 	const {
 		loading: getProductsLoading,
@@ -48,7 +52,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
-		skip: !user?._id, 
+		skip: !user?._id,
 		onCompleted: (data: T) => {
 			setUserProducts(data?.getProducts?.list || []);
 			setTotal(data.getProducts.metaCounter?.[0]?.total || 0);
@@ -84,19 +88,37 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const handleEditProduct = (productId: string, e: React.MouseEvent) => {
-		e.stopPropagation();
-		// Fixed: Pass type and id parameters
-		router.push(`/common/updateItem?type=product&id=${productId}`);
+	e.stopPropagation();
+	router.push(`/mypage/updateItem?type=product&id=${productId}`);
+};
+
+	const handleUpdateProduct = async (updateData: ProductUpdate) => {
+		try {
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			await updateProduct({
+				variables: { input: updateData },
+			});
+
+			await getProductsRefetch({ input: searchFilter });
+
+			await sweetTopSmallSuccessAlert('Product updated successfully!', 800);
+			setEditModalOpen(false);
+			setSelectedProduct(null);
+		} catch (err: any) {
+			console.error('Update Product Error:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
 	};
 
 	const handleDeleteProduct = async (productId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		
+
 		try {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			const confirmed = await sweetConfirmAlert(
-				'Are you sure you want to delete this product? This action cannot be undone.'
+				'Are you sure you want to delete this product? This action cannot be undone.',
 			);
 			if (!confirmed) return;
 
@@ -105,7 +127,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			});
 
 			await getProductsRefetch({ input: searchFilter });
-			
+
 			await sweetTopSmallSuccessAlert('Product deleted successfully!', 800);
 		} catch (err: any) {
 			console.error('Delete Product Error:', err.message);
@@ -128,7 +150,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 			minimumFractionDigits: 0,
 		}).format(price);
 	};
-	
+
 	const getStatusColor = (status: string) => {
 		const colors: { [key: string]: string } = {
 			ACTIVE: '#10b981',
@@ -246,6 +268,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 												className="action-btn edit"
 												onClick={(e) => handleEditProduct(product._id, e)}
 												title="Edit Product"
+												aria-label="Edit Product"
 											>
 												<Edit size={16} />
 											</IconButton>
@@ -254,6 +277,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 												className="action-btn delete"
 												onClick={(e) => handleDeleteProduct(product._id, e)}
 												title="Delete Product"
+												aria-label="Delete Product"
 											>
 												<Trash2 size={16} />
 											</IconButton>

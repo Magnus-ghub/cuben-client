@@ -122,7 +122,7 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 
 	const handleEditArticle = (articleId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
-		router.push(`/mypage?category=writeArticle&articleId=${articleId}`);
+		router.push(`/mypage/updateItem?type=article&id=${articleId}`);
 	};
 
 	const handleDeleteArticle = async (articleId: string, e: React.MouseEvent) => {

@@ -99,9 +99,9 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const handleEditPost = (postId: string, e: React.MouseEvent) => {
-		e.stopPropagation();
-		router.push(`/mypage?category=updateItem&postId=${postId}`);
-	};
+	e.stopPropagation();
+	router.push(`mypage//updateItem?type=post&id=${postId}`);
+};
 
 	const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -220,11 +220,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 
 										{/* Action Buttons */}
 										<Stack className="post-actions">
-											<IconButton
-												size="small"
-												className="action-btn edit"
-												onClick={(e) => handleEditPost(post._id, e)}
-											>
+											<IconButton size="small" className="action-btn edit" onClick={(e) => handleEditPost(post._id, e)}>
 												<Edit size={16} />
 											</IconButton>
 											<IconButton

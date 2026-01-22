@@ -130,7 +130,7 @@ const FeatureJobs = () => {
 					{featuredJobs.map((job) => (
 						<Link 
 							key={job.id} 
-							href={`/article?id=${job.id}`} // ✅ Tuzatildi: Query param ishlatildi (?id=...)
+							href={`/article?id=${job.id}`} 
 							style={{ textDecoration: 'none' }}
 						>
 							<Box className="job-item">

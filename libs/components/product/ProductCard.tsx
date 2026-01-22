@@ -68,7 +68,7 @@ const ProductCard = (props: ProductTypeCard) => {
 						{product?.productPrice && (
 							<Stack className="price-tag">
 								<Typography className="price">
-									${formatPrice(product.productPrice)}
+										₩{formatPrice(product.productPrice)}
 								</Typography>
 							</Stack>
 						)}
