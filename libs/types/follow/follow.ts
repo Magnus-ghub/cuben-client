@@ -1,5 +1,7 @@
+import { TotalCounter } from '../common';
+import { MeLiked } from '../like/like';
 import { Member } from '../member/member';
-import { MeLiked, TotalCounter } from '../product/product';
+
 
 export interface MeFollowed {
 	followingId: string;

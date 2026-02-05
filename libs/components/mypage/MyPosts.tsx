@@ -41,6 +41,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	/** APOLLO REQUESTS **/
 	const [removePost] = useMutation(REMOVE_POST);
 
+	// 42-58 qatorlarni o'zgartiring:
 	const {
 		loading: getPostsLoading,
 		data: getPostsData,
@@ -51,14 +52,21 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setUserPosts(data?.getPosts?.list || []);
-			setTotal(data.getPosts.metaCounter?.[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('MyPosts Error:', error);
-		},
 	});
+
+	// 60-qatordan keyin qo'shing:
+	useEffect(() => {
+		if (getPostsData?.getPosts) {
+			setUserPosts(getPostsData.getPosts.list || []);
+			setTotal(getPostsData.getPosts.metaCounter?.[0]?.total || 0);
+		}
+	}, [getPostsData]);
+
+	useEffect(() => {
+		if (getPostError) {
+			console.error('MyPosts Error:', getPostError);
+		}
+	}, [getPostError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -99,9 +107,9 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const handleEditPost = (postId: string, e: React.MouseEvent) => {
-	e.stopPropagation();
-	router.push(`mypage//updateItem?type=post&id=${postId}`);
-};
+		e.stopPropagation();
+		router.push(`mypage//updateItem?type=post&id=${postId}`);
+	};
 
 	const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
 		e.stopPropagation();

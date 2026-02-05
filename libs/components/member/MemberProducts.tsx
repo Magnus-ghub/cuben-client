@@ -10,15 +10,7 @@ import { GET_PRODUCTS } from '../../apollo/user/query';
 import { REMOVE_PRODUCT } from '../../apollo/user/mutation';
 import { useQuery, useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
-import {
-	Package,
-	Calendar,
-	Eye,
-	Heart,
-	DollarSign,
-	MapPin,
-	TrendingUp,
-} from 'lucide-react';
+import { Package, Calendar, Eye, Heart, DollarSign, MapPin, TrendingUp } from 'lucide-react';
 import { REACT_APP_API_URL } from '../../config';
 import { Direction, Message } from '../../enums/common.enum';
 import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } from '../../sweetAlert';
@@ -26,7 +18,7 @@ import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } fr
 const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const user = useReactiveVar(userVar); 
+	const user = useReactiveVar(userVar);
 	const { memberId } = router.query;
 
 	const [searchFilter, setSearchFilter] = useState<ProductsInquiry>(
@@ -46,7 +38,6 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 
 	/** APOLLO REQUESTS **/
 	const [removeProduct] = useMutation(REMOVE_PRODUCT);
-
 	const {
 		loading: getProductsLoading,
 		data: getProductsData,
@@ -57,14 +48,21 @@ const MemberProducts: NextPage = ({ initialInput, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setUserProducts(data?.getProducts?.list || []);
-			setTotal(data.getProducts.metaCounter?.[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('MyProducts Error:', error);
-		},
 	});
+
+	// 66-qatordan keyin qo'shing:
+	useEffect(() => {
+		if (getProductsData?.getProducts) {
+			setUserProducts(getProductsData.getProducts.list || []);
+			setTotal(getProductsData.getProducts.metaCounter?.[0]?.total || 0);
+		}
+	}, [getProductsData]);
+
+	useEffect(() => {
+		if (getProductsError) {
+			console.error('MyProducts Error:', getProductsError);
+		}
+	}, [getProductsError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {

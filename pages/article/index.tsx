@@ -79,32 +79,49 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 	const [likeTargetArticle] = useMutation(LIKE_TARGET_ARTICLE);
 
 	// Fetch category counts
-	const { refetch: refetchCounts } = useQuery(GET_CATEGORY_COUNTS, {
+	const { data: categoryCountsData, refetch: refetchCounts } = useQuery(GET_CATEGORY_COUNTS, {
 		fetchPolicy: 'cache-and-network',
-		onCompleted: (data) => {
-			setCategoryCounts({
-				[ArticleCategory.CAREER]: data?.careerCount?.metaCounter[0]?.total || 0,
-				[ArticleCategory.EVENTS]: data?.eventsCount?.metaCounter[0]?.total || 0,
-				[ArticleCategory.ANNOUNCEMENTS]: data?.announcementsCount?.metaCounter[0]?.total || 0,
-				[ArticleCategory.KNOWLEDGE]: data?.knowledgeCount?.metaCounter[0]?.total || 0,
-			});
-		},
 	});
 
+	// useEffect for category counts
+	useEffect(() => {
+		if (categoryCountsData) {
+			setCategoryCounts({
+				[ArticleCategory.CAREER]: categoryCountsData?.careerCount?.metaCounter[0]?.total || 0,
+				[ArticleCategory.EVENTS]: categoryCountsData?.eventsCount?.metaCounter[0]?.total || 0,
+				[ArticleCategory.ANNOUNCEMENTS]: categoryCountsData?.announcementsCount?.metaCounter[0]?.total || 0,
+				[ArticleCategory.KNOWLEDGE]: categoryCountsData?.knowledgeCount?.metaCounter[0]?.total || 0,
+			});
+		}
+	}, [categoryCountsData]);
+
 	// Fetch articles for current category
-	const { loading: getArticlesLoading, refetch: articlesRefetch } = useQuery(GET_ARTICLES, {
+	const {
+		loading: getArticlesLoading,
+		data: getArticlesData,
+		error: getArticlesError,
+		refetch: articlesRefetch,
+	} = useQuery(GET_ARTICLES, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchCommunity },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setArticles(data?.getArticles?.list || []);
-			setTotalCount(data?.getArticles?.metaCounter[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('Articles fetch error:', error);
-			sweetMixinErrorAlert('Error loading articles: ' + error.message);
-		},
 	});
+
+	// useEffect for articles data
+	useEffect(() => {
+		if (getArticlesData?.getArticles) {
+			setArticles(getArticlesData.getArticles.list || []);
+			setTotalCount(getArticlesData.getArticles.metaCounter[0]?.total || 0);
+		}
+	}, [getArticlesData]);
+
+	// useEffect for articles error
+	useEffect(() => {
+		if (getArticlesError) {
+			console.error('Articles fetch error:', getArticlesError);
+			sweetMixinErrorAlert('Error loading articles: ' + getArticlesError.message);
+		}
+	}, [getArticlesError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -193,7 +210,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 			});
 
 			await articlesRefetch({ input: searchCommunity });
-			await refetchCounts(); 
+			await refetchCounts();
 			await sweetTopSmallSuccessAlert('Liked!', 800);
 		} catch (err: any) {
 			console.error('Like error:', err);

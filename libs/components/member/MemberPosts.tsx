@@ -17,7 +17,7 @@ import { Post } from '../../types/post/post';
 const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const user = useReactiveVar(userVar); 
+	const user = useReactiveVar(userVar);
 	const [total, setTotal] = useState<number>(0);
 	const { memberId } = router.query;
 	const [searchFilter, setSearchFilter] = useState<ArticlesInquiry>(
@@ -44,21 +44,28 @@ const MemberPosts: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMemberPosts(data?.getPosts?.list || []);
-			setTotal(data.getPosts.metaCounter?.[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('MyPosts Error:', error);
-		},
 	});
+
+	// 58-qatordan keyin qo'shing:
+	useEffect(() => {
+		if (getPostsData?.getPosts) {
+			setMemberPosts(getPostsData.getPosts.list || []);
+			setTotal(getPostsData.getPosts.metaCounter?.[0]?.total || 0);
+		}
+	}, [getPostsData]);
+
+	useEffect(() => {
+		if (getPostError) {
+			console.error('MyPosts Error:', getPostError);
+		}
+	}, [getPostError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (memberId) {
 			setSearchFilter((prev) => ({
 				...prev,
-				search: { memberId: memberId as string }
+				search: { memberId: memberId as string },
 			}));
 		}
 	}, [memberId]);

@@ -8,6 +8,7 @@ import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
 import dynamic from 'next/dynamic';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
+
 const Editor = dynamic(
 	async () => {
 		const mod = await import('@toast-ui/react-editor');
@@ -18,9 +19,11 @@ const Editor = dynamic(
 		loading: () => <div style={{ height: '300px', background: '#f8fafc', borderRadius: '8px' }} />,
 	}
 );
+
 if (typeof window !== 'undefined') {
 	require('@toast-ui/editor/dist/toastui-editor.css');
 }
+
 import { getJwtToken } from '../../libs/auth';
 import { REACT_APP_API_URL } from '../../libs/config';
 import axios from 'axios';
@@ -339,22 +342,23 @@ const WritePost: NextPage = () => {
 							<span className="editor-label">Post Content</span>
 						</Box>
 						{typeof window !== 'undefined' && (
-							<Editor
-								ref={editorRef}
-								initialValue=" "
-								placeholder="Share your thoughts, experiences, or knowledge..."
-								previewStyle="vertical"
-								height={editorHeight}
-								initialEditType="markdown"
-								useCommandShortcut={true}
-								hideModeSwitch={true}
-								toolbarItems={[
-									['heading', 'bold', 'italic', 'strike'],
-									['hr', 'quote'],
-									['ul', 'ol', 'task'],
-									['link', 'code', 'codeblock'],
-								]}
-							/>
+							<div ref={editorRef}>
+								<Editor
+									initialValue=" "
+									placeholder="Share your thoughts, experiences, or knowledge..."
+									previewStyle="vertical"
+									height={editorHeight}
+									initialEditType="markdown"
+									useCommandShortcut={true}
+									hideModeSwitch={true}
+									toolbarItems={[
+										['heading', 'bold', 'italic', 'strike'],
+										['hr', 'quote'],
+										['ul', 'ol', 'task'],
+										['link', 'code', 'codeblock'],
+									]}
+								/>
+							</div>
 						)}
 					</Box>
 					{errors.content && (

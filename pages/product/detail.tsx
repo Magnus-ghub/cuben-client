@@ -65,17 +65,20 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		variables: { input: productId },
 		skip: !productId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getProduct) {
-				setProduct(data?.getProduct);
-				setSlideImage(data?.getProduct?.productImages[0]);
-				if (data?.getProduct?.meLiked) {
-					setIsSaved(data.getProduct.meLiked.saved || false);
-				}
-			}
-		},
 	});
 
+	// useEffect qo'shing (61-qatordan keyin):
+	useEffect(() => {
+		if (getProductData?.getProduct) {
+			setProduct(getProductData.getProduct);
+			setSlideImage(getProductData.getProduct.productImages[0]);
+			if (getProductData.getProduct.meLiked) {
+				setIsSaved(getProductData.getProduct.meLiked.saved || false);
+			}
+		}
+	}, [getProductData]);
+
+	// 62-85 qatorlarni o'zgartiring:
 	const {
 		loading: getProductsLoading,
 		data: getProductsData,
@@ -96,15 +99,17 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		},
 		skip: !product?.productType,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getProducts?.list) {
-				const similarProducts = data.getProducts.list
-					.filter((p: Product) => p._id !== product?._id)
-					.slice(0, 4);
-				setCategoryProducts(similarProducts);
-			}
-		},
 	});
+
+	// useEffect qo'shing:
+	useEffect(() => {
+		if (getProductsData?.getProducts?.list) {
+			const similarProducts = getProductsData.getProducts.list
+				.filter((p: Product) => p._id !== product?._id)
+				.slice(0, 4);
+			setCategoryProducts(similarProducts);
+		}
+	}, [getProductsData, product?._id]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -168,7 +173,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 						};
 					}
 					return p;
-				})
+				}),
 			);
 
 			// API call
@@ -220,7 +225,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 						};
 					}
 					return p;
-				})
+				}),
 			);
 
 			// API call
@@ -430,7 +435,9 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 												<VerifiedIcon className="verified-icon" />
 											)}
 										</Stack>
-										<Typography className="seller-username">@{product?.memberData?.memberNick?.toLowerCase()}</Typography>
+										<Typography className="seller-username">
+											@{product?.memberData?.memberNick?.toLowerCase()}
+										</Typography>
 										<Stack className="seller-stats">
 											<Typography className="seller-listings">
 												{product?.memberData?.memberProducts || 0} active listings

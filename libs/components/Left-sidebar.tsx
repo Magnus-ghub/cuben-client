@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
-import { Box, Stack, Dialog, DialogContent, DialogActions, Button, Skeleton } from '@mui/material'; // MODIFIED: Skeleton qo'shildi loading uchun
+import { Box, Stack, Dialog, DialogContent, DialogActions, Button, Skeleton } from '@mui/material';
 import {
 	HelpCircle,
 	Heart,
@@ -40,6 +40,7 @@ const LeftSidebar = () => {
 		followings: 0,
 	});
 
+	// MODIFIED: onCompleted va onError olib tashlandi
 	const {
 		loading: getMemberLoading,
 		data: getMemberData,
@@ -49,19 +50,25 @@ const LeftSidebar = () => {
 		variables: { input: user?._id || '' },
 		fetchPolicy: 'cache-and-network',
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			const member = data?.getMember;
-			if (member) {
-				setStats({
-					followers: member.memberFollowers || 0,
-					followings: member.memberFollowings || 0,
-				});
-			}
-		},
-		onError: (error) => {
-			sweetErrorHandling(error);
-		},
 	});
+
+	// MODIFIED: onCompleted ni useEffect ga o'zgartirish
+	useEffect(() => {
+		if (getMemberData?.getMember) {
+			const member = getMemberData.getMember;
+			setStats({
+				followers: member.memberFollowers || 0,
+				followings: member.memberFollowings || 0,
+			});
+		}
+	}, [getMemberData]);
+
+	// MODIFIED: onError ni useEffect ga o'zgartirish
+	useEffect(() => {
+		if (getMemberError) {
+			sweetErrorHandling(getMemberError);
+		}
+	}, [getMemberError]);
 
 	/** APOLLO REQUESTS – MODIFIED: Skip if no user, loading state */
 	const { data: articlesData, loading: articlesLoading } = useQuery(GET_ARTICLES, {
@@ -72,7 +79,7 @@ const LeftSidebar = () => {
 				search: {},
 			},
 		},
-		skip: !user?._id, // MODIFIED: User bo'lmasa skip
+		skip: !user?._id,
 	});
 
 	const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
@@ -83,7 +90,7 @@ const LeftSidebar = () => {
 				search: {},
 			},
 		},
-		skip: !user?._id, // MODIFIED: Skip
+		skip: !user?._id,
 	});
 
 	const articlesCount = articlesData?.getArticles?.metaCounter[0]?.total || 0;
@@ -104,7 +111,7 @@ const LeftSidebar = () => {
 		}
 	};
 
-	// Helper function to check if route is active – MODIFIED: Query params uchun
+	// Helper function to check if route is active
 	const isActive = (path: string, queryKey?: string, queryValue?: string) => {
 		const baseActive = router.pathname === path;
 		if (queryKey && queryValue) {
@@ -152,7 +159,6 @@ const LeftSidebar = () => {
 
 								<Stack className="profile-stats">
 									<Stack className="stat-item">
-										{/* MODIFIED: getMemberLoading da Skeleton ko'rsatish, aks holda stats dan olish */}
 										<Box className="stat-number">
 											{getMemberLoading ? (
 												<Skeleton variant="text" sx={{ fontSize: '1.5rem', width: 40, height: 24 }} />
@@ -192,7 +198,6 @@ const LeftSidebar = () => {
 								<Stack className={`menu-item ${isActive('/article', 'articleCategory', 'CAREER') ? 'active' : ''}`}>
 									<Briefcase size={20} className="menu-icon" />
 									<Box className="menu-text">Opportunities</Box>
-									{/* MODIFIED: Loading da Skeleton, duplicate fetch oldini olish */}
 									{articlesLoading ? (
 										<Skeleton variant="text" sx={{ fontSize: '0.875rem', width: 20, height: 16 }} />
 									) : (
@@ -324,7 +329,7 @@ const LeftSidebar = () => {
 										>
 											Are you sure you want to log out?
 											<br />
-											You’ll need to sign in again to access your account.
+											You'll need to sign in again to access your account.
 										</Box>
 									</DialogContent>
 

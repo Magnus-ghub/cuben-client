@@ -10,7 +10,7 @@ import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
 import { SUBSCRIBE, UNSUBSCRIBE } from '../../libs/apollo/user/mutation';
-import { GET_MEMBER } from '../../libs/apollo/user/query'; 
+import { GET_MEMBER } from '../../libs/apollo/user/query';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import MyProducts from '../../libs/components/mypage/MyProducts';
 import MyPosts from '../../libs/components/mypage/MyPosts';
@@ -48,7 +48,7 @@ const MyPage: NextPage = () => {
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const category: any = router.query?.category ?? 'myProfile';
-	
+
 	// State for stats (from backend)
 	const [stats, setStats] = useState({
 		posts: 0,
@@ -64,6 +64,7 @@ const MyPage: NextPage = () => {
 	const [subscribe] = useMutation(SUBSCRIBE);
 	const [unsubscribe] = useMutation(UNSUBSCRIBE);
 
+	// 43-61 qatorlarni o'zgartiring:
 	const {
 		loading: getMemberLoading,
 		data: getMemberData,
@@ -73,24 +74,29 @@ const MyPage: NextPage = () => {
 		variables: { input: user?._id || '' },
 		fetchPolicy: 'cache-and-network',
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			const member = data?.getMember;
-			if (member) {
-				setStats({
-					posts: member.memberPosts || 0,
-					products: member.memberProducts || 0,
-					articles: member.memberArticles || 0,
-					followers: member.memberFollowers || 0,
-					followings: member.memberFollowings || 0,
-					views: member.memberViews || 0,
-					likes: member.memberLikes || 0,
-				});
-			}
-		},
-		onError: (error) => {
-			sweetErrorHandling(error);
-		},
 	});
+
+	// useEffect qo'shing (63-qatordan keyin):
+	useEffect(() => {
+		if (getMemberData?.getMember) {
+			const member = getMemberData.getMember;
+			setStats({
+				posts: member.memberPosts || 0,
+				products: member.memberProducts || 0,
+				articles: member.memberArticles || 0,
+				followers: member.memberFollowers || 0,
+				followings: member.memberFollowings || 0,
+				views: member.memberViews || 0,
+				likes: member.memberLikes || 0,
+			});
+		}
+	}, [getMemberData]);
+
+	useEffect(() => {
+		if (getMemberError) {
+			sweetErrorHandling(getMemberError);
+		}
+	}, [getMemberError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -168,15 +174,15 @@ const MyPage: NextPage = () => {
 			count: stats.posts,
 		},
 		...(user?.memberType === MemberType.AGENT
-        ? [
-              {
-                  id: 'myArticles',
-                  label: 'Articles',
-                  icon: <FileText size={18} />,
-                  count: stats.articles,
-              },
-          ]
-        : []),
+			? [
+					{
+						id: 'myArticles',
+						label: 'Articles',
+						icon: <FileText size={18} />,
+						count: stats.articles,
+					},
+			  ]
+			: []),
 
 		{
 			id: 'followers',
@@ -194,31 +200,31 @@ const MyPage: NextPage = () => {
 
 	// Quick stats for profile banner
 	const quickStats = [
-		{ 
-			label: 'Total Views', 
-			value: stats.views.toLocaleString(), 
-			icon: <Eye size={22} />, 
+		{
+			label: 'Total Views',
+			value: stats.views.toLocaleString(),
+			icon: <Eye size={22} />,
 			color: '#667eea',
 			gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 		},
-		{ 
-			label: 'Active Listings', 
-			value: stats.products.toString(), 
-			icon: <ShoppingBag size={22} />, 
+		{
+			label: 'Active Listings',
+			value: stats.products.toString(),
+			icon: <ShoppingBag size={22} />,
 			color: '#10b981',
 			gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 		},
-		{ 
-			label: 'Total Posts', 
-			value: stats.posts.toString(), 
-			icon: <FileText size={22} />, 
+		{
+			label: 'Total Posts',
+			value: stats.posts.toString(),
+			icon: <FileText size={22} />,
 			color: '#f59e0b',
 			gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
 		},
-		{ 
-			label: 'Engagement', 
-			value: `${stats.likes}%`, 
-			icon: <TrendingUp size={22} />, 
+		{
+			label: 'Engagement',
+			value: `${stats.likes}%`,
+			icon: <TrendingUp size={22} />,
 			color: '#ec4899',
 			gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
 		},
@@ -250,9 +256,9 @@ const MyPage: NextPage = () => {
 									</Box>
 								}
 							>
-								<Avatar 
-									src={user?.memberImage ? `${REACT_APP_API_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'} 
-									className={'hero-avatar'} 
+								<Avatar
+									src={user?.memberImage ? `${REACT_APP_API_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'}
+									className={'hero-avatar'}
 								/>
 							</Badge>
 
@@ -261,11 +267,7 @@ const MyPage: NextPage = () => {
 									<Box className={'name-row'}>
 										<h1>{user?.memberNick || 'User Name'}</h1>
 										{user?.memberType === 'AGENT' && (
-											<Chip 
-												icon={<Crown size={14} />}
-												label="Verified Agent"
-												className={'verified-chip'}
-											/>
+											<Chip icon={<Crown size={14} />} label="Verified Agent" className={'verified-chip'} />
 										)}
 									</Box>
 									<p className={'username'}>@{user?.memberNick?.toLowerCase() || 'username'}</p>
@@ -284,29 +286,27 @@ const MyPage: NextPage = () => {
 							</Box>
 						</Box>
 
-					{user?.memberType === 'ADMIN' && (
-						<Link href="/_admin" style={{ textDecoration: 'none' }}>
-							<Box className={'settings-button'}>
-								<Settings size={20} />
-								<span>Admin Panel</span>
-							</Box>
-						</Link>
-					)}
+						{user?.memberType === 'ADMIN' && (
+							<Link href="/_admin" style={{ textDecoration: 'none' }}>
+								<Box className={'settings-button'}>
+									<Settings size={20} />
+									<span>Admin Panel</span>
+								</Box>
+							</Link>
+						)}
 					</Box>
 
 					{/* Quick Stats Cards */}
 					<Box className={'stats-grid'}>
 						{quickStats.map((stat, index) => (
-							<Box 
-								key={index} 
+							<Box
+								key={index}
 								className={'stat-card'}
-								style={{ 
+								style={{
 									background: stat.gradient,
 								}}
 							>
-								<Box className={'stat-icon-wrapper'}>
-									{stat.icon}
-								</Box>
+								<Box className={'stat-icon-wrapper'}>{stat.icon}</Box>
 								<Box className={'stat-info'}>
 									<h3>{stat.value}</h3>
 									<p>{stat.label}</p>
@@ -323,21 +323,13 @@ const MyPage: NextPage = () => {
 				<Box className={'navigation-tabs'}>
 					<Box className={'tabs-container'}>
 						{navigationTabs.map((tab) => (
-							<Link
-								key={tab.id}
-								href={`/mypage?category=${tab.id}`}
-								style={{ textDecoration: 'none' }}
-							>
+							<Link key={tab.id} href={`/mypage?category=${tab.id}`} style={{ textDecoration: 'none' }}>
 								<Box className={`nav-tab ${category === tab.id ? 'active' : ''}`}>
 									<Box className={'tab-content'}>
 										{tab.icon}
 										<span>{tab.label}</span>
 										{tab.count !== null && tab.count > 0 && (
-											<Chip 
-												label={tab.count} 
-												size="small"
-												className={'tab-badge'}
-											/>
+											<Chip label={tab.count} size="small" className={'tab-badge'} />
 										)}
 									</Box>
 									{category === tab.id && <Box className={'active-indicator'} />}

@@ -42,6 +42,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
 	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT);
 
+	// 40-51 qatorlarni o'zgartiring:
 	const {
 		loading: getProductsLoading,
 		data: getProductsData,
@@ -51,11 +52,15 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setProducts(data?.getProducts?.list || []);
-			setTotalCount(data?.getProducts?.metaCounter[0]?.total || 0);
-		},
 	});
+
+	// useEffect qo'shing (53-qatordan keyin):
+	useEffect(() => {
+		if (getProductsData?.getProducts) {
+			setProducts(getProductsData.getProducts.list || []);
+			setTotalCount(getProductsData.getProducts.metaCounter[0]?.total || 0);
+		}
+	}, [getProductsData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -90,7 +95,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 						};
 					}
 					return product;
-				})
+				}),
 			);
 
 			await likeTargetProduct({
@@ -123,7 +128,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 						};
 					}
 					return product;
-				})
+				}),
 			);
 
 			await saveTargetProduct({

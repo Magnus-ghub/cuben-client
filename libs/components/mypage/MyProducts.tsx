@@ -16,7 +16,6 @@ import { REACT_APP_API_URL } from '../../config';
 import { Direction, Message } from '../../enums/common.enum';
 import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetMixinErrorAlert } from '../../sweetAlert';
 
-
 const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
@@ -43,6 +42,7 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	const [removeProduct] = useMutation(REMOVE_PRODUCT);
 	const [updateProduct] = useMutation(UPDATE_PRODUCT);
 
+	// 46-62 qatorlarni o'zgartiring:
 	const {
 		loading: getProductsLoading,
 		data: getProductsData,
@@ -53,14 +53,21 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setUserProducts(data?.getProducts?.list || []);
-			setTotal(data.getProducts.metaCounter?.[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('MyProducts Error:', error);
-		},
 	});
+
+	// 64-qatordan keyin qo'shing:
+	useEffect(() => {
+		if (getProductsData?.getProducts) {
+			setUserProducts(getProductsData.getProducts.list || []);
+			setTotal(getProductsData.getProducts.metaCounter?.[0]?.total || 0);
+		}
+	}, [getProductsData]);
+
+	useEffect(() => {
+		if (getProductsError) {
+			console.error('MyProducts Error:', getProductsError);
+		}
+	}, [getProductsError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -88,9 +95,9 @@ const MyProducts: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const handleEditProduct = (productId: string, e: React.MouseEvent) => {
-	e.stopPropagation();
-	router.push(`/mypage/updateItem?type=product&id=${productId}`);
-};
+		e.stopPropagation();
+		router.push(`/mypage/updateItem?type=product&id=${productId}`);
+	};
 
 	const handleUpdateProduct = async (updateData: ProductUpdate) => {
 		try {

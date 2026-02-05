@@ -25,7 +25,7 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 	const user = useReactiveVar(userVar);
 	const [total, setTotal] = useState<number>(0);
 	const [memberFollowers, setMemberFollowers] = useState<Follower[]>([]);
-	
+
 	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(
 		initialInput || {
 			page: 1,
@@ -33,10 +33,11 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 			search: {
 				followingId: '',
 			},
-		}
+		},
 	);
 
 	/** APOLLO REQUESTS **/
+	// 41-58 qatorlarni o'zgartiring:
 	const {
 		loading: getMemberFollowersLoading,
 		data: getMemberFollowersData,
@@ -45,36 +46,41 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 	} = useQuery(GET_MEMBER_FOLLOWERS, {
 		fetchPolicy: 'network-only',
 		variables: { input: followInquiry },
-		skip: !followInquiry?.search?.followingId, 
+		skip: !followInquiry?.search?.followingId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			console.log('GET_MEMBER_FOLLOWERS Response:', data);
-			if (data?.getMemberFollowers) {
-				setMemberFollowers(data.getMemberFollowers.list || []);
-				setTotal(data.getMemberFollowers.metaCounter?.[0]?.total || 0);
-			}
-		},
-		onError: (error) => {
-			console.error('GET_MEMBER_FOLLOWERS Error:', error);
-		},
 	});
+
+	// useEffect qo'shing (60-qatordan keyin):
+	useEffect(() => {
+		if (getMemberFollowersData?.getMemberFollowers) {
+			console.log('GET_MEMBER_FOLLOWERS Response:', getMemberFollowersData);
+			setMemberFollowers(getMemberFollowersData.getMemberFollowers.list || []);
+			setTotal(getMemberFollowersData.getMemberFollowers.metaCounter?.[0]?.total || 0);
+		}
+	}, [getMemberFollowersData]);
+
+	useEffect(() => {
+		if (getMemberFollowersError) {
+			console.error('GET_MEMBER_FOLLOWERS Error:', getMemberFollowersError);
+		}
+	}, [getMemberFollowersError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
 		const memberId = router.query.memberId as string;
-		
+
 		if (memberId) {
 			console.log('Setting followingId from router:', memberId);
 			setFollowInquiry((prev) => ({
 				...prev,
-				page: 1, 
+				page: 1,
 				search: { followingId: memberId },
 			}));
 		} else if (user?._id) {
 			console.log('Setting followingId from user:', user._id);
 			setFollowInquiry((prev) => ({
 				...prev,
-				page: 1, 
+				page: 1,
 				search: { followingId: user._id },
 			}));
 		}
@@ -184,11 +190,7 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 													className="unfollow-button"
 													startIcon={<UserCheck size={18} />}
 													onClick={() =>
-														unsubscribeHandler(
-															follower?.followerData?._id,
-															getMemberFollowersRefetch,
-															followInquiry
-														)
+														unsubscribeHandler(follower?.followerData?._id, getMemberFollowersRefetch, followInquiry)
 													}
 												>
 													Following

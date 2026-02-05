@@ -70,6 +70,7 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 	/** APOLLO REQUESTS **/
 	const [removeArticle] = useMutation(REMOVE_ARTICLE);
 
+	// 68-84 qatorlarni o'zgartiring:
 	const {
 		loading: getArticlesLoading,
 		data: getArticlesData,
@@ -80,14 +81,21 @@ const MyArtices: NextPage = ({ initialInput, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			setUserArticles(data?.getArticles?.list || []);
-			setTotal(data.getArticles.metaCounter?.[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('MyArticles Error:', error);
-		},
 	});
+
+	// 86-qatordan keyin qo'shing:
+	useEffect(() => {
+		if (getArticlesData?.getArticles) {
+			setUserArticles(getArticlesData.getArticles.list || []);
+			setTotal(getArticlesData.getArticles.metaCounter?.[0]?.total || 0);
+		}
+	}, [getArticlesData]);
+
+	useEffect(() => {
+		if (getArticlesError) {
+			console.error('MyArticles Error:', getArticlesError);
+		}
+	}, [getArticlesError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {

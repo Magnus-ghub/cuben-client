@@ -151,6 +151,9 @@ export const updateUserInfo = (jwtToken: any) => {
 		memberViews: claims.memberViews,
 		memberWarnings: claims.memberWarnings,
 		memberBlocks: claims.memberBlocks,
+		memberFollowers: claims.memberFollowers ?? 0,      // Qo'shildi
+		memberFollowings: claims.memberFollowings ?? 0,    // Qo'shildi
+		memberPosts: claims.memberPosts ?? 0,              // Qo'shildi
 	});
 };
 
@@ -186,5 +189,8 @@ const deleteUserInfo = () => {
 		memberViews: 0,
 		memberWarnings: 0,
 		memberBlocks: 0,
+		memberFollowers: 0,     // Qo'shildi
+		memberFollowings: 0,    // Qo'shildi
+		memberPosts: 0,         // Qo'shildi
 	});
 };

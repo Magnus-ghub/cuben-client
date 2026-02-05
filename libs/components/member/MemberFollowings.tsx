@@ -25,7 +25,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	const user = useReactiveVar(userVar);
 	const [total, setTotal] = useState<number>(0);
 	const [memberFollowings, setMemberFollowings] = useState<Following[]>([]);
-	
+
 	// Default follow inquiry with proper initialization
 	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(
 		initialInput || {
@@ -34,10 +34,12 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 			search: {
 				followerId: '',
 			},
-		}
+		},
 	);
 
 	/** APOLLO REQUESTS **/
+	// 41-58 qatorlarni o'zgartiring:
+	// 41-58 qatorlarni o'zgartiring:
 	const {
 		loading: getMemberFollowingsLoading,
 		data: getMemberFollowingsData,
@@ -46,25 +48,30 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	} = useQuery(GET_MEMBER_FOLLOWINGS, {
 		fetchPolicy: 'network-only',
 		variables: { input: followInquiry },
-		skip: !followInquiry?.search?.followerId, // Skip if no followerId
+		skip: !followInquiry?.search?.followerId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			console.log('GET_MEMBER_FOLLOWINGS Response:', data); // Debugging
-			if (data?.getMemberFollowings) {
-				setMemberFollowings(data.getMemberFollowings.list || []);
-				setTotal(data.getMemberFollowings.metaCounter?.[0]?.total || 0);
-			}
-		},
-		onError: (error) => {
-			console.error('GET_MEMBER_FOLLOWINGS Error:', error);
-		},
 	});
+
+	// useEffect qo'shing (60-qatordan keyin):
+	useEffect(() => {
+		if (getMemberFollowingsData?.getMemberFollowings) {
+			console.log('GET_MEMBER_FOLLOWINGS Response:', getMemberFollowingsData);
+			setMemberFollowings(getMemberFollowingsData.getMemberFollowings.list || []);
+			setTotal(getMemberFollowingsData.getMemberFollowings.metaCounter?.[0]?.total || 0);
+		}
+	}, [getMemberFollowingsData]);
+
+	useEffect(() => {
+		if (getMemberFollowingsError) {
+			console.error('GET_MEMBER_FOLLOWINGS Error:', getMemberFollowingsError);
+		}
+	}, [getMemberFollowingsError]);
 
 	/** LIFECYCLES **/
 	// Set followerId based on router query or logged in user
 	useEffect(() => {
 		const memberId = router.query.memberId as string;
-		
+
 		if (memberId) {
 			// If viewing another member's page, use their ID
 			console.log('Setting followerId from router:', memberId);
@@ -189,11 +196,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 													className="unfollow-button"
 													startIcon={<UserCheck size={18} />}
 													onClick={() =>
-														unsubscribeHandler(
-															following?.followingData?._id,
-															getMemberFollowingsRefetch,
-															followInquiry
-														)
+														unsubscribeHandler(following?.followingData?._id, getMemberFollowingsRefetch, followInquiry)
 													}
 												>
 													Following
@@ -204,11 +207,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 													className="follow-button"
 													startIcon={<Users size={18} />}
 													onClick={() =>
-														subscribeHandler(
-															following?.followingData?._id,
-															getMemberFollowingsRefetch,
-															followInquiry
-														)
+														subscribeHandler(following?.followingData?._id, getMemberFollowingsRefetch, followInquiry)
 													}
 												>
 													Follow

@@ -64,6 +64,7 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	/** APOLLO REQUESTS **/
+	// 66-79 qatorlarni o'zgartiring:
 	const {
 		loading: getArticlesLoading,
 		data: getArticlesData,
@@ -73,14 +74,21 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		fetchPolicy: 'network-only',
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMemberArticles(data?.getArticles?.list || []);
-			setTotal(data.getArticles.metaCounter?.[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('MyArticles Error:', error);
-		},
 	});
+
+	// useEffect qo'shing (81-qatordan keyin):
+	useEffect(() => {
+		if (getArticlesData?.getArticles) {
+			setMemberArticles(getArticlesData.getArticles.list || []);
+			setTotal(getArticlesData.getArticles.metaCounter?.[0]?.total || 0);
+		}
+	}, [getArticlesData]);
+
+	useEffect(() => {
+		if (getArticlesError) {
+			console.error('MyArticles Error:', getArticlesError);
+		}
+	}, [getArticlesError]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -156,9 +164,7 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 					<>
 						{memberArticles?.map((article: Article) => {
 							const categoryStyle = getCategoryStyles(article?.articleCategory);
-							const imagePath = article.articleImage
-								? `${REACT_APP_API_URL}/${article.articleImage}`
-								: null;
+							const imagePath = article.articleImage ? `${REACT_APP_API_URL}/${article.articleImage}` : null;
 
 							return (
 								<Box key={article._id} className="post-card" onClick={() => handleArticleClick(article)}>
@@ -200,7 +206,7 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 												</Box>
 											</Box>
 										)}
-										
+
 										{/* Category Badge Overlay */}
 										{imagePath && (
 											<Box

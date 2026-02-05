@@ -52,10 +52,14 @@ const MainSection = ({ initialInput }: any) => {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setPosts(data?.getPosts?.list || []);
-		},
 	});
+
+	// 61-qatordan keyin qo'shing:
+	useEffect(() => {
+		if (getPostsData?.getPosts?.list) {
+			setPosts(getPostsData.getPosts.list);
+		}
+	}, [getPostsData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -101,7 +105,7 @@ const MainSection = ({ initialInput }: any) => {
 						};
 					}
 					return post;
-				})
+				}),
 			);
 
 			await likeTargetPost({
@@ -125,7 +129,7 @@ const MainSection = ({ initialInput }: any) => {
 						};
 					}
 					return post;
-				})
+				}),
 			);
 
 			sweetMixinErrorAlert(err.message).then();
@@ -151,7 +155,7 @@ const MainSection = ({ initialInput }: any) => {
 						};
 					}
 					return post;
-				})
+				}),
 			);
 
 			await saveTargetPost({
@@ -174,7 +178,7 @@ const MainSection = ({ initialInput }: any) => {
 						};
 					}
 					return post;
-				})
+				}),
 			);
 
 			sweetMixinErrorAlert(err.message).then();

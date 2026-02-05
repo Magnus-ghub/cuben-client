@@ -35,16 +35,23 @@ const History: NextPage = () => {
 		},
 		notifyOnNetworkStatusChange: true,
 		skip: !user?._id,
-		onCompleted: (data: T) => {
-			console.log('Recently Viewed Data:', data);
-			setRecentlyViewed(data?.getVisited?.list || []);
-			setTotal(data?.getVisited?.metaCounter?.[0]?.total || 0);
-		},
-		onError: (error) => {
-			console.error('History Query Error:', error);
-			sweetMixinErrorAlert('Error loading history: ' + error.message);
-		},
 	});
+
+	// 47-qatordan keyin qo'shing:
+	useEffect(() => {
+		if (getVisitedData?.getVisited) {
+			console.log('Recently Viewed Data:', getVisitedData);
+			setRecentlyViewed(getVisitedData.getVisited.list || []);
+			setTotal(getVisitedData.getVisited.metaCounter?.[0]?.total || 0);
+		}
+	}, [getVisitedData]);
+
+	useEffect(() => {
+		if (getVisitedError) {
+			console.error('History Query Error:', getVisitedError);
+			sweetMixinErrorAlert('Error loading history: ' + getVisitedError.message);
+		}
+	}, [getVisitedError]);
 
 	/** LIFECYCLE */
 	useEffect(() => {
@@ -97,9 +104,7 @@ const History: NextPage = () => {
 			<Box className="saved-content-page">
 				<Stack sx={{ justifyContent: 'center', alignItems: 'center', height: '50vh', gap: 2 }}>
 					<Clock size={64} color="#667eea" />
-					<Typography variant="h5">
-						{getVisitedError ? 'An error occurred' : 'Please log in'}
-					</Typography>
+					<Typography variant="h5">{getVisitedError ? 'An error occurred' : 'Please log in'}</Typography>
 					<Typography color="text.secondary">
 						{getVisitedError?.message || 'Log in to view your browsing history'}
 					</Typography>
@@ -141,11 +146,7 @@ const History: NextPage = () => {
 					</Box>
 				</Box>
 				<Box className="header-right">
-					<Chip
-						icon={<Clock size={16} />}
-						label={`${total} Item${total !== 1 ? 's' : ''}`}
-						className="total-chip"
-					/>
+					<Chip icon={<Clock size={16} />} label={`${total} Item${total !== 1 ? 's' : ''}`} className="total-chip" />
 				</Box>
 			</Stack>
 
