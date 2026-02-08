@@ -11,13 +11,15 @@ import {
 	Collapse,
 	Chip,
 	Checkbox,
+	Slider,
+	Box,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import router from 'next/router';
-import { ProductsInquiry, ProductSearch } from '../../types/product/product.input'; 
+import { ProductsInquiry, ProductSearch } from '../../types/product/product.input';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { ProductCondition, ProductType } from '../../enums/product.enum';
 
@@ -33,17 +35,14 @@ const Filter = (props: FilterType) => {
 
 	// Local states
 	const [searchText, setSearchText] = useState<string>('');
-	const [productPrice, setProductPrice] = useState({
-		start: 0,
-		end: 500000,
-	});
+	const [productPrice, setProductPrice] = useState<[number, number]>([0, 10000000]);
 	const [selectedTypes, setSelectedTypes] = useState<ProductType[]>([]);
 	const [selectedCondition, setSelectedCondition] = useState<ProductCondition | null>(null);
-	
-	// Expand/Collapse states
-	const [expandType, setExpandType] = useState(true);
-	const [expandCondition, setExpandCondition] = useState(true);
-	const [expandPrice, setExpandPrice] = useState(true);
+
+	// Expand/Collapse states - Default collapsed for compact design
+	const [expandType, setExpandType] = useState(false);
+	const [expandCondition, setExpandCondition] = useState(false);
+	const [expandPrice, setExpandPrice] = useState(false);
 
 	// Debounce timer
 	const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
@@ -57,7 +56,7 @@ const Filter = (props: FilterType) => {
 		ProductType.SERVICE,
 		ProductType.OTHER,
 	];
-	
+
 	// Conditions from enum
 	const conditions: ProductCondition[] = [
 		ProductCondition.NEW,
@@ -71,10 +70,10 @@ const Filter = (props: FilterType) => {
 	useEffect(() => {
 		if (searchFilter?.search) {
 			setSearchText(searchFilter.search.text || '');
-			setProductPrice({
-				start: searchFilter.search.pricesRange?.start || 0,
-				end: searchFilter.search.pricesRange?.end || 500000,
-			});
+			setProductPrice([
+				searchFilter.search.pricesRange?.start || 0,
+				searchFilter.search.pricesRange?.end || 10000000,
+			]);
 			setSelectedTypes(searchFilter.search.typeList || []);
 			setSelectedCondition(searchFilter.search.condition || null);
 		}
@@ -82,20 +81,18 @@ const Filter = (props: FilterType) => {
 
 	/** HANDLERS **/
 	const handleReset = () => {
-		// Reset all local states
 		setSearchText('');
-		setProductPrice({ start: 0, end: 500000 });
+		setProductPrice([0, 10000000]);
 		setSelectedTypes([]);
 		setSelectedCondition(null);
 
-		// Reset filter
 		const resetSearch: ProductSearch = {
 			text: '',
-			pricesRange: { start: 0, end: 500000 },
+			pricesRange: { start: 0, end: 10000000 },
 			typeList: [],
 			condition: null,
 		};
-		
+
 		const resetFilter: ProductsInquiry = {
 			...initialInput,
 			page: 1,
@@ -111,7 +108,7 @@ const Filter = (props: FilterType) => {
 		const newTypes = selectedTypes.includes(type)
 			? selectedTypes.filter((t) => t !== type)
 			: [...selectedTypes, type];
-		
+
 		setSelectedTypes(newTypes);
 	};
 
@@ -130,12 +127,10 @@ const Filter = (props: FilterType) => {
 	const handleSearchChange = (value: string) => {
 		setSearchText(value);
 
-		// Clear previous timer
 		if (debounceTimer) {
 			clearTimeout(debounceTimer);
 		}
 
-		// Set new debounce timer
 		const timer = setTimeout(() => {
 			const updatedSearch: ProductSearch = {
 				...searchFilter.search,
@@ -148,56 +143,40 @@ const Filter = (props: FilterType) => {
 			};
 			setSearchFilter(updatedFilter);
 			router.push(`/product?input=${JSON.stringify(updatedFilter)}`, undefined, { scroll: false });
-		}, 500); // 500ms debounce
+		}, 500);
 
 		setDebounceTimer(timer);
 	};
 
-	// Price handler with debounce
-	const productPriceHandler = useCallback(
-		(value: string, type: 'start' | 'end') => {
-			const numValue = parseInt(value) || 0;
-			
-			if (numValue < 0) return;
+	// Price slider handler with debounce
+	const handlePriceChange = (event: Event, newValue: number | number[]) => {
+		const value = newValue as [number, number];
+		setProductPrice(value);
+	};
 
-			const updatedPrices = type === 'start' 
-				? { ...productPrice, start: numValue }
-				: { ...productPrice, end: numValue };
+	const handlePriceChangeCommitted = (event: Event | React.SyntheticEvent, newValue: number | number[]) => {
+		const value = newValue as [number, number];
 
-			// Validate: start should not be greater than end
-			if (type === 'start' && numValue > updatedPrices.end) {
-				updatedPrices.end = numValue;
-			}
-			if (type === 'end' && numValue < updatedPrices.start) {
-				updatedPrices.start = numValue;
-			}
+		if (debounceTimer) {
+			clearTimeout(debounceTimer);
+		}
 
-			setProductPrice(updatedPrices);
+		const timer = setTimeout(() => {
+			const updatedSearch: ProductSearch = {
+				...searchFilter.search,
+				pricesRange: { start: value[0], end: value[1] },
+			};
+			const updatedFilter: ProductsInquiry = {
+				...searchFilter,
+				page: 1,
+				search: updatedSearch,
+			};
+			setSearchFilter(updatedFilter);
+			router.push(`/product?input=${JSON.stringify(updatedFilter)}`, undefined, { scroll: false });
+		}, 300);
 
-			// Clear previous timer
-			if (debounceTimer) {
-				clearTimeout(debounceTimer);
-			}
-
-			// Debounce price update
-			const timer = setTimeout(() => {
-				const updatedSearch: ProductSearch = {
-					...searchFilter.search,
-					pricesRange: updatedPrices,
-				};
-				const updatedFilter: ProductsInquiry = {
-					...searchFilter,
-					page: 1,
-					search: updatedSearch,
-				};
-				setSearchFilter(updatedFilter);
-				router.push(`/product?input=${JSON.stringify(updatedFilter)}`, undefined, { scroll: false });
-			}, 800);
-
-			setDebounceTimer(timer);
-		},
-		[productPrice, searchFilter, debounceTimer],
-	);
+		setDebounceTimer(timer);
+	};
 
 	// Apply filters (for Type & Condition)
 	const handleApplyFilters = () => {
@@ -228,7 +207,7 @@ const Filter = (props: FilterType) => {
 		if (selectedTypes.length > 0) count += selectedTypes.length;
 		if (selectedCondition) count += 1;
 		if (searchText.trim()) count += 1;
-		if (productPrice.start !== 0 || productPrice.end !== 500000) count += 1;
+		if (productPrice[0] !== 0 || productPrice[1] !== 10000000) count += 1;
 		return count;
 	};
 
@@ -237,222 +216,242 @@ const Filter = (props: FilterType) => {
 		return new Intl.NumberFormat('ko-KR').format(price);
 	};
 
+	// Price marks for slider
+	const priceMarks = [
+		{ value: 0, label: '₩0' },
+		{ value: 2500000, label: '₩2.5M' },
+		{ value: 5000000, label: '₩5M' },
+		{ value: 7500000, label: '₩7.5M' },
+		{ value: 10000000, label: '₩10M' },
+	];
+
 	if (device === 'mobile') {
 		return <div>PRODUCTS FILTER</div>;
 	}
 
 	return (
-		<Stack className="filter-container">
+		<Stack className="filter-modern-container">
 			{/* Header */}
-			<Stack className="filter-header">
+			<Stack className="filter-modern-header">
 				<Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-					<FilterListIcon sx={{ color: '#667eea', fontSize: 24 }} />
-					<Typography className="filter-title">Filters</Typography>
-				</Stack>
-				<Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+					<FilterListIcon sx={{ color: '#667eea', fontSize: 22 }} />
+					<Typography className="filter-modern-title">Filters</Typography>
 					{getTotalActiveFilters() > 0 && (
-						<Chip
-							label={getTotalActiveFilters()}
-							size="small"
-							className="active-filters-chip"
-						/>
+						<Chip label={getTotalActiveFilters()} size="small" className="active-filters-chip" />
 					)}
-					<Tooltip title="Reset all filters" arrow>
-						<IconButton onClick={handleReset} className="reset-btn" size="small">
-							<RefreshIcon />
-						</IconButton>
-					</Tooltip>
 				</Stack>
+				<Tooltip title="Reset" arrow>
+					<IconButton onClick={handleReset} className="reset-btn" size="small">
+						<RefreshIcon fontSize="small" />
+					</IconButton>
+				</Tooltip>
 			</Stack>
 
-			{/* Search Input (Real-time with debounce) */}
-			<Stack className="filter-section">
-				<Stack className="search-wrapper">
-					<SearchIcon className="search-icon" />
+			{/* Search Input */}
+			<Stack className="filter-modern-section">
+				<Stack className="search-wrapper-modern">
+					<SearchIcon className="search-icon-modern" />
 					<input
 						type="text"
 						value={searchText}
-						className="search-input"
+						className="search-input-modern"
 						placeholder="Search products..."
 						onChange={(e) => handleSearchChange(e.target.value)}
 					/>
 				</Stack>
 			</Stack>
 
-			{/* Product Type Filter */}
-			<Stack className="filter-section">
-				<Button
-					className="section-header"
-					onClick={() => setExpandType(!expandType)}
-					fullWidth
-				>
-					<Typography className="section-title">Product Type</Typography>
+			{/* Price Range Filter - Vertical Slider (Carrot.kr style) */}
+			<Stack className="filter-modern-section">
+				<Button className="section-header-modern" onClick={() => setExpandPrice(!expandPrice)} fullWidth>
+					<Typography className="section-title-modern">Price Range</Typography>
+					<ExpandMoreIcon
+						sx={{
+							transform: expandPrice ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.3s ease',
+							fontSize: 20,
+						}}
+					/>
+				</Button>
+				<Collapse in={expandPrice}>
+					<Box className="price-slider-container">
+						<Stack sx={{ alignItems: 'center', gap: 2, py: 2 }}>
+							<Stack sx={{ flexDirection: 'row', gap: 2, width: '100%', justifyContent: 'space-between' }}>
+								<Stack sx={{ flex: 1, alignItems: 'center' }}>
+									<Typography className="price-label-modern">Min</Typography>
+									<Typography className="price-value-modern">₩{formatPrice(productPrice[0])}</Typography>
+								</Stack>
+								<Stack sx={{ flex: 1, alignItems: 'center' }}>
+									<Typography className="price-label-modern">Max</Typography>
+									<Typography className="price-value-modern">₩{formatPrice(productPrice[1])}</Typography>
+								</Stack>
+							</Stack>
+
+							<Box sx={{ width: '100%', px: 1 }}>
+								<Slider
+									value={productPrice}
+									onChange={handlePriceChange}
+									onChangeCommitted={handlePriceChangeCommitted}
+									valueLabelDisplay="auto"
+									valueLabelFormat={(value) => `₩${formatPrice(value)}`}
+									min={0}
+									max={10000000}
+									step={100000}
+									marks={priceMarks}
+									sx={{
+										color: '#667eea',
+										height: 6,
+										'& .MuiSlider-thumb': {
+											width: 18,
+											height: 18,
+											backgroundColor: '#fff',
+											border: '3px solid currentColor',
+											'&:hover, &.Mui-focusVisible': {
+												boxShadow: '0 0 0 8px rgba(102, 126, 234, 0.16)',
+											},
+										},
+										'& .MuiSlider-track': {
+											height: 6,
+											borderRadius: 3,
+										},
+										'& .MuiSlider-rail': {
+											height: 6,
+											borderRadius: 3,
+											opacity: 0.3,
+											backgroundColor: '#cbd5e1',
+										},
+										'& .MuiSlider-mark': {
+											display: 'none',
+										},
+										'& .MuiSlider-markLabel': {
+											fontSize: '10px',
+											color: '#94a3b8',
+											fontWeight: 500,
+											top: 28,
+										},
+										'& .MuiSlider-valueLabel': {
+											fontSize: 11,
+											fontWeight: 600,
+											top: -6,
+											backgroundColor: '#667eea',
+											borderRadius: 6,
+											padding: '4px 8px',
+										},
+									}}
+								/>
+							</Box>
+						</Stack>
+					</Box>
+				</Collapse>
+			</Stack>
+
+			{/* Product Type Filter - Compact Pills */}
+			<Stack className="filter-modern-section">
+				<Button className="section-header-modern" onClick={() => setExpandType(!expandType)} fullWidth>
+					<Typography className="section-title-modern">Category</Typography>
 					{selectedTypes.length > 0 && (
-						<Chip label={selectedTypes.length} size="small" className="count-chip" />
+						<Chip label={selectedTypes.length} size="small" className="count-chip-modern" />
 					)}
 					<ExpandMoreIcon
 						sx={{
 							transform: expandType ? 'rotate(180deg)' : 'rotate(0deg)',
 							transition: 'transform 0.3s ease',
+							fontSize: 20,
 						}}
 					/>
 				</Button>
 				<Collapse in={expandType}>
-					<Stack className="options-list">
+					<Stack className="pill-container">
 						{productTypes.map((type) => (
-							<Stack className="option-item" key={type}>
-								<Checkbox
-									id={`type-${type}`}
-									size="small"
-									checked={selectedTypes.includes(type)}
-									onChange={() => handleTypeChange(type)}
-									sx={{
-										color: '#667eea',
-										'&.Mui-checked': {
-											color: '#667eea',
-										},
-									}}
-								/>
-								<label htmlFor={`type-${type}`}>
-									<Typography className="option-label">{formatLabel(type)}</Typography>
-								</label>
-							</Stack>
+							<Chip
+								key={type}
+								label={formatLabel(type)}
+								onClick={() => handleTypeChange(type)}
+								className={`pill-chip ${selectedTypes.includes(type) ? 'pill-chip-selected' : ''}`}
+								sx={{
+									backgroundColor: selectedTypes.includes(type)
+										? '#667eea'
+										: 'transparent',
+									color: selectedTypes.includes(type) ? '#fff' : '#64748b',
+									border: `2px solid ${selectedTypes.includes(type) ? '#667eea' : '#e5e7eb'}`,
+									fontWeight: 600,
+									fontSize: '13px',
+									height: '32px',
+									'&:hover': {
+										backgroundColor: selectedTypes.includes(type) ? '#5568d3' : '#f3f4f6',
+										borderColor: selectedTypes.includes(type) ? '#5568d3' : '#cbd5e1',
+									},
+								}}
+							/>
 						))}
 					</Stack>
 				</Collapse>
 			</Stack>
-			
-			{/* Condition Filter (Single select) */}
-			<Stack className="filter-section">
-				<Button
-					className="section-header"
-					onClick={() => setExpandCondition(!expandCondition)}
-					fullWidth
-				>
-					<Typography className="section-title">Condition</Typography>
-					{selectedCondition && (
-						<Chip label="1" size="small" className="count-chip" />
-					)}
+
+			{/* Condition Filter - Compact Pills */}
+			<Stack className="filter-modern-section">
+				<Button className="section-header-modern" onClick={() => setExpandCondition(!expandCondition)} fullWidth>
+					<Typography className="section-title-modern">Condition</Typography>
+					{selectedCondition && <Chip label="1" size="small" className="count-chip-modern" />}
 					<ExpandMoreIcon
 						sx={{
 							transform: expandCondition ? 'rotate(180deg)' : 'rotate(0deg)',
 							transition: 'transform 0.3s ease',
+							fontSize: 20,
 						}}
 					/>
 				</Button>
 				<Collapse in={expandCondition}>
-					<Stack className="options-list">
-						<RadioGroup
-							value={selectedCondition || ''}
-							onChange={handleConditionChange}
-						>
-							{conditions.map((condition) => (
-								<FormControlLabel
-									key={condition}
-									value={condition}
-									control={
-										<Radio 
-											size="small"
-											sx={{
-												color: '#667eea',
-												'&.Mui-checked': {
-													color: '#667eea',
-												},
-											}}
-										/>
+					<Stack className="pill-container">
+						{conditions.map((condition) => (
+							<Chip
+								key={condition}
+								label={formatLabel(condition)}
+								onClick={() => {
+									if (selectedCondition === condition) {
+										setSelectedCondition(null);
+									} else {
+										setSelectedCondition(condition);
 									}
-									label={<Typography className="option-label">{formatLabel(condition)}</Typography>}
-									sx={{
-										'& .MuiFormControlLabel-label': {
-											fontSize: '14px',
-										},
-									}}
-								/>
-							))}
-						</RadioGroup>
-						{selectedCondition && (
-							<Button
-								size="small"
-								onClick={clearCondition}
-								sx={{
-									mt: 1,
-									fontSize: '12px',
-									textTransform: 'none',
-									color: '#667eea',
 								}}
-							>
-								Clear condition
-							</Button>
-						)}
-					</Stack>
-				</Collapse>
-			</Stack>
-
-			{/* Price Range Filter (Real-time with debounce) */}
-			<Stack className="filter-section">
-				<Button
-					className="section-header"
-					onClick={() => setExpandPrice(!expandPrice)}
-					fullWidth
-				>
-					<Typography className="section-title">Price Range</Typography>
-					<ExpandMoreIcon
-						sx={{
-							transform: expandPrice ? 'rotate(180deg)' : 'rotate(0deg)',
-							transition: 'transform 0.3s ease',
-						}}
-					/>
-				</Button>
-				<Collapse in={expandPrice}>
-					<Stack className="price-inputs">
-						<Stack sx={{ flex: 1 }}>
-							<Typography className="price-label">Min</Typography>
-							<input
-								type="number"
-								placeholder="₩ 0"
-								min={0}
-								value={productPrice.start}
-								onChange={(e) => productPriceHandler(e.target.value, 'start')}
-								className="price-input"
+								className={`pill-chip ${selectedCondition === condition ? 'pill-chip-selected' : ''}`}
+								sx={{
+									backgroundColor: selectedCondition === condition ? '#10b981' : 'transparent',
+									color: selectedCondition === condition ? '#fff' : '#64748b',
+									border: `2px solid ${selectedCondition === condition ? '#10b981' : '#e5e7eb'}`,
+									fontWeight: 600,
+									fontSize: '13px',
+									height: '32px',
+									'&:hover': {
+										backgroundColor: selectedCondition === condition ? '#059669' : '#f3f4f6',
+										borderColor: selectedCondition === condition ? '#059669' : '#cbd5e1',
+									},
+								}}
 							/>
-							<Typography className="price-display">₩{formatPrice(productPrice.start)}</Typography>
-						</Stack>
-						<Typography className="price-divider">—</Typography>
-						<Stack sx={{ flex: 1 }}>
-							<Typography className="price-label">Max</Typography>
-							<input
-								type="number"
-								placeholder="₩ 500,000"
-								min={0}
-								value={productPrice.end}
-								onChange={(e) => productPriceHandler(e.target.value, 'end')}
-								className="price-input"
-							/>
-							<Typography className="price-display">₩{formatPrice(productPrice.end)}</Typography>
-						</Stack>
+						))}
 					</Stack>
 				</Collapse>
 			</Stack>
 
 			{/* Apply Button */}
-			<Button 
-				variant="contained" 
-				fullWidth 
-				className="apply-btn"
+			<Button
+				variant="contained"
+				fullWidth
+				className="apply-btn-modern"
 				onClick={handleApplyFilters}
 				disabled={selectedTypes.length === 0 && !selectedCondition}
 				sx={{
 					mt: 2,
-					py: 1.5,
+					py: 1.2,
 					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-					borderRadius: '12px',
-					fontWeight: 600,
-					fontSize: '14px',
+					borderRadius: '10px',
+					fontWeight: 700,
+					fontSize: '13px',
 					textTransform: 'none',
-					boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+					boxShadow: '0 4px 12px rgba(102, 126, 234, 0.25)',
 					'&:hover': {
 						background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
-						boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
+						boxShadow: '0 6px 16px rgba(102, 126, 234, 0.35)',
 					},
 					'&:disabled': {
 						background: '#e5e7eb',
@@ -461,54 +460,76 @@ const Filter = (props: FilterType) => {
 					},
 				}}
 			>
-				Apply Type & Condition {selectedTypes.length > 0 || selectedCondition ? `(${(selectedTypes.length + (selectedCondition ? 1 : 0))})` : ''}
+				Apply Filters
+				{selectedTypes.length > 0 || selectedCondition ? ` (${selectedTypes.length + (selectedCondition ? 1 : 0)})` : ''}
 			</Button>
 
-			{/* Active filters summary */}
+			{/* Active filters summary - Compact */}
 			{getTotalActiveFilters() > 0 && (
-				<Stack className="active-filters-summary" sx={{ mt: 2, gap: 1 }}>
-					<Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#64748b', mb: 0.5 }}>
-						Active Filters:
+				<Stack className="active-filters-summary-modern" sx={{ mt: 2, gap: 1 }}>
+					<Typography sx={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>
+						Active ({getTotalActiveFilters()})
 					</Typography>
-					{searchText.trim() && (
-						<Chip
-							label={`Search: "${searchText}"`}
-							size="small"
-							onDelete={() => handleSearchChange('')}
-							sx={{ fontSize: '12px' }}
-						/>
-					)}
-					{selectedTypes.map((type) => (
-						<Chip
-							key={type}
-							label={formatLabel(type)}
-							size="small"
-							onDelete={() => {
-								setSelectedTypes(selectedTypes.filter(t => t !== type));
-							}}
-							sx={{ fontSize: '12px' }}
-						/>
-					))}
-					{selectedCondition && (
-						<Chip
-							label={formatLabel(selectedCondition)}
-							size="small"
-							onDelete={clearCondition}
-							sx={{ fontSize: '12px' }}
-						/>
-					)}
-					{(productPrice.start !== 0 || productPrice.end !== 500000) && (
-						<Chip
-							label={`₩${formatPrice(productPrice.start)} - ₩${formatPrice(productPrice.end)}`}
-							size="small"
-							onDelete={() => {
-								setProductPrice({ start: 0, end: 500000 });
-								productPriceHandler('0', 'start');
-								productPriceHandler('500000', 'end');
-							}}
-							sx={{ fontSize: '12px' }}
-						/>
-					)}
+					<Stack sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 0.75 }}>
+						{searchText.trim() && (
+							<Chip
+								label={`"${searchText.length > 12 ? searchText.slice(0, 12) + '...' : searchText}"`}
+								size="small"
+								onDelete={() => handleSearchChange('')}
+								sx={{
+									fontSize: '11px',
+									height: '24px',
+									backgroundColor: '#f1f5f9',
+									'& .MuiChip-deleteIcon': { fontSize: '14px' },
+								}}
+							/>
+						)}
+						{selectedTypes.map((type) => (
+							<Chip
+								key={type}
+								label={formatLabel(type)}
+								size="small"
+								onDelete={() => {
+									setSelectedTypes(selectedTypes.filter((t) => t !== type));
+								}}
+								sx={{
+									fontSize: '11px',
+									height: '24px',
+									backgroundColor: '#f1f5f9',
+									'& .MuiChip-deleteIcon': { fontSize: '14px' },
+								}}
+							/>
+						))}
+						{selectedCondition && (
+							<Chip
+								label={formatLabel(selectedCondition)}
+								size="small"
+								onDelete={clearCondition}
+								sx={{
+									fontSize: '11px',
+									height: '24px',
+									backgroundColor: '#f1f5f9',
+									'& .MuiChip-deleteIcon': { fontSize: '14px' },
+								}}
+							/>
+						)}
+						{(productPrice[0] !== 0 || productPrice[1] !== 10000000) && (
+							<Chip
+								label={`₩${formatPrice(productPrice[0])} - ₩${formatPrice(productPrice[1])}`}
+								size="small"
+								onDelete={() => {
+									setProductPrice([0, 10000000]);
+									handlePriceChangeCommitted(new Event('change'), [0, 10000000]);
+								}}
+								sx={{
+									fontSize: '11px',
+									height: '24px',
+									backgroundColor: '#f1f5f9',
+									'& .MuiChip-deleteIcon': { fontSize: '14px' },
+								}}
+							/>
+						)}
+					</Stack>
 				</Stack>
 			)}
 		</Stack>
