@@ -456,7 +456,6 @@
 						}
 					}
 
-					// HOME Section ichidagi barcha menu itemlar uchun universal styling
 					.sidebar-section {
 						padding: 14px 0;
 						border-bottom: 1px solid #f3f4f6;
@@ -471,14 +470,12 @@
 							letter-spacing: 0.5px;
 						}
 
-						// Link va Stack uchun umumiy styling
 						a,
 						> .menu-item {
 							text-decoration: none;
 							display: block;
 						}
 
-						// Menu item o'zini styling (Link ichida ham, Stack o'zida ham)
 						.menu-item {
 							padding: 9px 18px;
 							display: flex;
@@ -549,7 +546,6 @@
 							}
 						}
 
-						// Link ichidagi .menu-item uchun nested selector
 						a .menu-item {
 							padding: 9px 18px;
 							display: flex;

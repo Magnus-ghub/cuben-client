@@ -194,7 +194,7 @@
 				display: grid;
 				grid-template-columns: 400px 1fr;
 				gap: 80px;
-				align-items: start;
+				align-items: flex-start;
 
 				.left {
 					position: sticky;
@@ -716,7 +716,7 @@
 
 						.contact-item {
 							display: flex;
-							align-items: start;
+							align-items: flex-start;
 							gap: 16px;
 
 							.contact-icon {
