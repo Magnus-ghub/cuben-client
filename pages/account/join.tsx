@@ -3,9 +3,12 @@ import { NextPage } from 'next';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { Box, Button, Checkbox, FormControlLabel, Stack, InputAdornment, IconButton } from '@mui/material';
+import { FcGoogle } from 'react-icons/fc';
+import { BsChatFill } from 'react-icons/bs';
+import { GoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/router';
 import { logIn, signUp } from '../../libs/auth';
-import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
+import { sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import {
 	User,
@@ -20,8 +23,6 @@ import {
 	Users,
 	Zap,
 	GraduationCap,
-	Chrome,
-	Github,
 } from 'lucide-react';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -68,6 +69,52 @@ const Join: NextPage = () => {
 			await sweetMixinErrorAlert(err.message);
 		}
 	}, [input]);
+
+	const handleGoogleLogin = async (credential: string) => {
+		try {
+			const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL!, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include',
+				body: JSON.stringify({
+					query: `
+						mutation GoogleLogin($token: String!) {
+							googleLogin(token: $token) {
+								accessToken
+								member {
+									_id
+									memberNick
+									memberEmail
+									memberImage
+									memberType
+								}
+							}
+						}
+					`,
+					variables: { token: credential },
+				}),
+			});
+
+			const result = await response.json();
+
+			if (result.errors) {
+				throw new Error(result.errors[0]?.message || 'Google login failed');
+			}
+
+			if (result.data?.googleLogin) {
+				const { accessToken, member } = result.data.googleLogin;
+
+				// Store token in localStorage
+				localStorage.setItem('accessToken', accessToken);
+
+				await sweetMixinSuccessAlert(`Welcome back, ${member.memberNick}!`);
+				await router.push(`${router.query.referrer ?? '/'}`);
+			}
+		} catch (err: any) {
+			console.error('Google login error:', err);
+			await sweetMixinErrorAlert(err.message || 'Failed to login with Google');
+		}
+	};
 
 	const handleKeyPress = (event: React.KeyboardEvent) => {
 		if (event.key === 'Enter') {
@@ -152,13 +199,30 @@ const Join: NextPage = () => {
 
 						{/* Social Login Buttons */}
 						<Stack className={'social-buttons'}>
-							<Button className={'social-btn google'}>
-								<Chrome size={20} />
-								<span>Continue with Google</span>
-							</Button>
-							<Button className={'social-btn github'}>
-								<Github size={20} />
-								<span>Continue with GitHub</span>
+							{/* Google Login Button */}
+							<Box className={'google-wrapper'}>
+								<GoogleLogin
+									onSuccess={(credentialResponse) => {
+										if (credentialResponse.credential) {
+											handleGoogleLogin(credentialResponse.credential);
+										}
+									}}
+									onError={() => {
+										sweetMixinErrorAlert('Google Login Error. Please try again.');
+									}}
+									useOneTap={false}
+									theme="outline"
+									size="large"
+									text="continue_with"
+									shape="pill"
+									width="400"
+								/>
+							</Box>
+
+							{/* KakaoTalk Button */}
+							<Button className={'social-btn kakao'}>
+								<BsChatFill size={20} />
+								<span>Continue with KakaoTalk</span>
 							</Button>
 						</Stack>
 
@@ -245,18 +309,11 @@ const Join: NextPage = () => {
 								<Box className={'remember-forgot'}>
 									<FormControlLabel
 										control={
-											<Checkbox
-												checked={rememberMe}
-												onChange={(e) => setRememberMe(e.target.checked)}
-												size="small"
-											/>
+											<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} size="small" />
 										}
 										label="Remember me"
 										className={'remember-checkbox'}
 									/>
-									<a href="/forgot-password" className={'forgot-link'}>
-										Forgot password?
-									</a>
 								</Box>
 							)}
 
@@ -278,8 +335,7 @@ const Join: NextPage = () => {
 						<Box className={'toggle-view'}>
 							{loginView ? (
 								<p>
-									Don't have an account?{' '}
-									<span onClick={() => viewChangeHandler(false)}>Sign up for free</span>
+									Don't have an account? <span onClick={() => viewChangeHandler(false)}>Sign up for free</span>
 								</p>
 							) : (
 								<p>

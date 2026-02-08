@@ -40,7 +40,6 @@ const LeftSidebar = () => {
 		followings: 0,
 	});
 
-	// MODIFIED: onCompleted va onError olib tashlandi
 	const {
 		loading: getMemberLoading,
 		data: getMemberData,
@@ -52,7 +51,6 @@ const LeftSidebar = () => {
 		skip: !user?._id,
 	});
 
-	// MODIFIED: onCompleted ni useEffect ga o'zgartirish
 	useEffect(() => {
 		if (getMemberData?.getMember) {
 			const member = getMemberData.getMember;
@@ -63,14 +61,13 @@ const LeftSidebar = () => {
 		}
 	}, [getMemberData]);
 
-	// MODIFIED: onError ni useEffect ga o'zgartirish
 	useEffect(() => {
 		if (getMemberError) {
 			sweetErrorHandling(getMemberError);
 		}
 	}, [getMemberError]);
 
-	/** APOLLO REQUESTS – MODIFIED: Skip if no user, loading state */
+	// Articles count - barcha userlar uchun (login bo'lmagan ham)
 	const { data: articlesData, loading: articlesLoading } = useQuery(GET_ARTICLES, {
 		variables: {
 			input: {
@@ -79,9 +76,11 @@ const LeftSidebar = () => {
 				search: {},
 			},
 		},
-		skip: !user?._id,
+		fetchPolicy: 'cache-and-network',
+		// skip: false - doim load qiladi
 	});
 
+	// Products count - barcha userlar uchun (login bo'lmagan ham)
 	const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
 		variables: {
 			input: {
@@ -90,13 +89,13 @@ const LeftSidebar = () => {
 				search: {},
 			},
 		},
-		skip: !user?._id,
+		fetchPolicy: 'cache-and-network',
+		// skip: false - doim load qiladi
 	});
 
 	const articlesCount = articlesData?.getArticles?.metaCounter[0]?.total || 0;
 	const productsCount = productsData?.getProducts?.metaCounter[0]?.total || 0;
 
-	// Reset image error when user changes
 	useEffect(() => {
 		setImageError(false);
 	}, [user?.memberImage]);
@@ -111,7 +110,6 @@ const LeftSidebar = () => {
 		}
 	};
 
-	// Helper function to check if route is active
 	const isActive = (path: string, queryKey?: string, queryValue?: string) => {
 		const baseActive = router.pathname === path;
 		if (queryKey && queryValue) {
@@ -120,7 +118,6 @@ const LeftSidebar = () => {
 		return baseActive;
 	};
 
-	// Helper function to get user image with fallback
 	const getUserImageSrc = () => {
 		if (imageError) {
 			return '/img/profile/defaultUser.svg';
@@ -143,7 +140,7 @@ const LeftSidebar = () => {
 		<Stack className={'navbar'}>
 			<Stack className={'navbar-main'}>
 				<Stack className={'container'}>
-					{/* Profile Card */}
+					{/* Profile Card - Faqat login qilgan userlar uchun */}
 					{user?._id && (
 						<Link href="/mypage" style={{ textDecoration: 'none' }}>
 							<Stack className="profile-card">
@@ -185,7 +182,7 @@ const LeftSidebar = () => {
 
 					{/* Sidebar Content */}
 					<Stack className="sidebar-content">
-						{/* HOME Section */}
+						{/* HOME Section - Hamma userlar uchun count bilan */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">🏠 HOME</Box>
 							<Link href={'/'}>
@@ -258,7 +255,7 @@ const LeftSidebar = () => {
 							</Stack>
 						)}
 
-						{/* TOOLS Section */}
+						{/* TOOLS Section - Hamma userlar uchun */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">🛠️ Tools</Box>
 
