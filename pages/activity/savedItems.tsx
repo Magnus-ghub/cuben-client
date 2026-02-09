@@ -13,7 +13,7 @@ import { T } from '../../libs/types/common';
 import { Product } from '../../libs/types/product/product';
 import { Post } from '../../libs/types/post/post';
 import { GET_SAVED_PRODUCTS, GET_SAVED_POSTS } from '../../libs/apollo/user/query';
-import { SAVE_TARGET_PRODUCT, SAVE_TARGET_POST } from '../../libs/apollo/user/mutation';
+import { SAVE_TARGET_PRODUCT, SAVE_TARGET_POST, LIKE_TARGET_PRODUCT, LIKE_TARGET_POST } from '../../libs/apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import CommentModal from '../../libs/components/common/CommentModal';
 
@@ -50,6 +50,8 @@ const SavedItems: NextPage = () => {
 	/** APOLLO REQUESTS **/
 	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT);
 	const [saveTargetPost] = useMutation(SAVE_TARGET_POST);
+	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
+	const [likeTargetPost] = useMutation(LIKE_TARGET_POST);
 
 	// Products Query
 	const {
@@ -136,7 +138,7 @@ const SavedItems: NextPage = () => {
 			}
 
 			if (type === 'product') {
-				await saveTargetProduct({ variables: { productId: itemId } });
+				await saveTargetProduct({ variables: { input: itemId } });
 				await refetchProducts({ input: searchParams });
 			} else if (type === 'post') {
 				await saveTargetPost({ variables: { input: itemId } });
@@ -147,6 +149,25 @@ const SavedItems: NextPage = () => {
 		} catch (err: any) {
 			console.error('ERROR, handleRemoveItem:', err.message);
 			sweetMixinErrorAlert(err.message || 'Failed to remove item');
+		}
+	};
+
+	const handleToggleLike = async (type: 'product' | 'post', itemId: string) => {
+		try {
+			if (!user?._id) {
+				sweetMixinErrorAlert(Messages.error2 || 'Please log in!');
+				return;
+			}
+			if (type === 'product') {
+				await likeTargetProduct({ variables: { input: itemId } });
+				await refetchProducts({ input: searchParams });
+			} else if (type === 'post') {
+				await likeTargetPost({ variables: { input: itemId } });
+				await refetchPosts({ input: { ...searchParams, search: {} } });
+			}
+		} catch (err: any) {
+			console.error('ERROR, handleToggleLike:', err.message);
+			sweetMixinErrorAlert(err.message || 'Failed to toggle like');
 		}
 	};
 
@@ -319,9 +340,16 @@ const SavedItems: NextPage = () => {
 								>
 									<Box className="item-image">
 										<img src={imagePath} alt={product.productName} />
-										<Box className="saved-badge">
-											<Bookmark size={16} fill="#10b981" color="#10b981" />
-										</Box>
+											<Box
+												className="saved-badge"
+												style={{ cursor: 'pointer' }}
+												onClick={(e) => {
+													e.stopPropagation();
+													handleRemoveItem(product._id, 'product', e as any);
+												}}
+											>
+												<Bookmark size={16} fill="#10b981" color="#10b981" />
+											</Box>
 									</Box>
 									<Box className="item-content">
 										<h3 className="item-title">{product.productName}</h3>
@@ -340,7 +368,15 @@ const SavedItems: NextPage = () => {
 												<span>{product.productViews || 0}</span>
 											</Box>
 											<Box className="stat-item">
-												<Heart size={14} />
+												<IconButton
+													size="small"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleToggleLike('product', product._id);
+													}}
+												>
+													<Heart size={14} />
+												</IconButton>
 												<span>{product.productLikes || 0}</span>
 											</Box>
 											<Box className="stat-item date">
@@ -408,9 +444,16 @@ const SavedItems: NextPage = () => {
 									{/* Post Image */}
 									<Box className="post-image">
 										<img src={imagePath} alt={post.postTitle} />
-										<Box className="saved-badge">
-											<Bookmark size={16} fill="#10b981" color="#10b981" />
-										</Box>
+											<Box
+												className="saved-badge"
+												style={{ cursor: 'pointer' }}
+												onClick={(e) => {
+													e.stopPropagation();
+													handleRemoveItem(post._id, 'post', e as any);
+												}}
+											>
+												<Bookmark size={16} fill="#10b981" color="#10b981" />
+											</Box>
 									</Box>
 
 									{/* Post Content */}
@@ -424,7 +467,15 @@ const SavedItems: NextPage = () => {
 										{/* Stats Row */}
 										<Stack className="post-stats">
 											<Box className="stat-item">
-												<Heart size={16} />
+												<IconButton
+													size="small"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleToggleLike('post', post._id);
+													}}
+												>
+													<Heart size={14} />
+												</IconButton>
 												<span>{post.postLikes || 0}</span>
 											</Box>
 											<Box className="stat-item">

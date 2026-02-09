@@ -168,27 +168,89 @@ const Favorites: NextPage = () => {
 		setSearchParams({ ...searchParams, page: value });
 	};
 
+	// REFACTORED: Unlike handler with better error handling and refetch strategy
 	const handleRemoveFavorite = async (itemId: string, type: 'product' | 'post' | 'article', e: React.MouseEvent) => {
 		e.stopPropagation();
+		
+		console.log('=== UNLIKE STARTED ===');
+		console.log('Item ID:', itemId);
+		console.log('Type:', type);
+		console.log('User ID:', user?._id);
+
 		try {
 			if (!user?._id) {
 				sweetMixinErrorAlert(Messages.error2 || 'Please log in!');
 				return;
 			}
-			if (type === 'product') {
-				await likeTargetProduct({ variables: { input: itemId } });
-				await refetchProducts({ input: searchParams });
-			} else if (type === 'post') {
-				await likeTargetPost({ variables: { input: itemId } });
-				await refetchPosts({ input: { ...searchParams, search: {} } });
-			} else if (type === 'article') {
-				await likeTargetArticle({ variables: { input: itemId } });
-				await refetchArticles({ input: { ...searchParams, search: {} } });
+
+			if (!itemId) {
+				console.error('ERROR: Invalid item ID');
+				sweetMixinErrorAlert('Invalid item ID');
+				return;
 			}
 
+			let mutationResult;
+
+			if (type === 'product') {
+				console.log('Calling likeTargetProduct mutation...');
+				mutationResult = await likeTargetProduct({ 
+					variables: { input: itemId },
+					// Refetch after mutation completes
+					refetchQueries: [
+						{
+							query: GET_FAVORITE_PRODUCTS,
+							variables: { input: searchParams },
+						},
+					],
+					awaitRefetchQueries: true,
+				});
+				console.log('Product mutation result:', mutationResult);
+			} else if (type === 'post') {
+				console.log('Calling likeTargetPost mutation...');
+				mutationResult = await likeTargetPost({ 
+					variables: { input: itemId },
+					// CRITICAL: Ensure refetchQueries for POST
+					refetchQueries: [
+						{
+							query: GET_FAVORITE_POSTS,
+							variables: { input: { ...searchParams, search: {} } },
+						},
+					],
+					awaitRefetchQueries: true,
+				});
+				console.log('Post mutation result:', mutationResult);
+				
+				// ADDITIONAL: Manual refetch as backup
+				console.log('Performing manual refetch for posts...');
+				const refetchResult = await refetchPosts({ 
+					input: { ...searchParams, search: {} } 
+				});
+				console.log('Post refetch result:', refetchResult);
+			} else if (type === 'article') {
+				console.log('Calling likeTargetArticle mutation...');
+				mutationResult = await likeTargetArticle({ 
+					variables: { input: itemId },
+					refetchQueries: [
+						{
+							query: GET_FAVORITE_ARTICLES,
+							variables: { input: { ...searchParams, search: {} } },
+						},
+					],
+					awaitRefetchQueries: true,
+				});
+				console.log('Article mutation result:', mutationResult);
+			}
+
+			console.log('=== UNLIKE COMPLETED SUCCESSFULLY ===');
 			sweetTopSmallSuccessAlert('Removed from favorites!', 800);
 		} catch (err: any) {
-			console.error('ERROR, handleRemoveFavorite:', err.message);
+			console.error('=== UNLIKE ERROR ===');
+			console.error('Error type:', type);
+			console.error('Error message:', err.message);
+			console.error('Error details:', err);
+			console.error('GraphQL errors:', err.graphQLErrors);
+			console.error('Network error:', err.networkError);
+			
 			sweetMixinErrorAlert(err.message || 'Failed to remove from favorites');
 		}
 	};
@@ -361,7 +423,15 @@ const Favorites: NextPage = () => {
 								>
 									<Box className="item-image">
 										<img src={imagePath} alt={product.productName} />
-										<Box className="favorite-badge">
+										<Box
+											className="favorite-badge"
+											onClick={(e) => {
+												e.stopPropagation();
+												handleRemoveFavorite(product._id, 'product', e as any);
+											}}
+											role="button"
+											style={{ cursor: 'pointer' }}
+										>
 											<Heart size={16} fill="#ec4899" color="#ec4899" />
 										</Box>
 									</Box>
@@ -382,7 +452,15 @@ const Favorites: NextPage = () => {
 												<span>{product.productViews || 0}</span>
 											</Box>
 											<Box className="stat-item">
-												<Heart size={14} />
+												<IconButton
+													size="small"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleRemoveFavorite(product._id, 'product', e as any);
+													}}
+												>
+													<Heart size={14} />
+												</IconButton>
 												<span>{product.productLikes || 0}</span>
 											</Box>
 											<Box className="stat-item date">
@@ -449,7 +527,15 @@ const Favorites: NextPage = () => {
 								>
 									<Box className="item-image">
 										<img src={imagePath} alt={post.postTitle} />
-										<Box className="favorite-badge">
+										<Box 
+											className="favorite-badge"
+											onClick={(e) => {
+												e.stopPropagation();
+												handleRemoveFavorite(post._id, 'post', e as any);
+											}}
+											role="button"
+											style={{ cursor: 'pointer' }}
+										>
 											<Heart size={16} fill="#ec4899" color="#ec4899" />
 										</Box>
 									</Box>
@@ -457,7 +543,15 @@ const Favorites: NextPage = () => {
 										<h3 className="item-title">{post.postTitle}</h3>
 										<Stack className="item-stats">
 											<Box className="stat-item">
-												<Heart size={14} />
+												<IconButton
+													size="small"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleRemoveFavorite(post._id, 'post', e as any);
+													}}
+												>
+													<Heart size={14} />
+												</IconButton>
 												<span>{post.postLikes || 0}</span>
 											</Box>
 											<Box className="stat-item">
@@ -536,7 +630,6 @@ const Favorites: NextPage = () => {
 													onError={(e: any) => {
 														e.target.onerror = null;
 														e.target.style.display = 'none';
-														// Fallback to placeholder on error
 														const placeholder = e.target.parentElement;
 														placeholder.style.background = categoryStyle.bg;
 														placeholder.style.display = 'flex';
@@ -569,7 +662,14 @@ const Favorites: NextPage = () => {
 												<Typography sx={{ fontWeight: 'bold', fontSize: '14px' }}>{categoryStyle.label}</Typography>
 											</Box>
 										)}
-										<Box className="favorite-badge" style={{ position: 'absolute', top: 8, right: 8 }}>
+										<Box
+											className="favorite-badge"
+											style={{ position: 'absolute', top: 8, right: 8, cursor: 'pointer' }}
+											onClick={(e) => {
+												e.stopPropagation();
+												handleRemoveFavorite(article._id, 'article', e as any);
+											}}
+										>
 											<Heart size={16} fill="#ec4899" color="#ec4899" />
 										</Box>
 										<Chip
@@ -588,7 +688,15 @@ const Favorites: NextPage = () => {
 												<span>{article.articleViews || 0}</span>
 											</Box>
 											<Box className="stat-item">
-												<Heart size={14} />
+												<IconButton
+													size="small"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleRemoveFavorite(article._id, 'article', e as any);
+													}}
+												>
+													<Heart size={14} />
+												</IconButton>
 												<span>{article.articleLikes || 0}</span>
 											</Box>
 											<Box className="stat-item date">
