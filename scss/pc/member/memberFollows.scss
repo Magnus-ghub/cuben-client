@@ -322,12 +322,25 @@
 					padding: 10px 24px !important;
 					border-radius: 10px !important;
 					transition: all 0.3s ease !important;
+					position: relative;
+
+					.text-unfollow {
+						display: none;
+					}
 
 					&:hover {
 						border-color: #ef4444 !important;
 						background: rgba(239, 68, 68, 0.05) !important;
 						color: #ef4444 !important;
 						transform: translateY(-2px);
+
+						.text-following {
+							display: none;
+						}
+
+						.text-unfollow {
+							display: inline;
+						}
 					}
 				}
 			}

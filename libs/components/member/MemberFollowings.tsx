@@ -26,6 +26,9 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	const [total, setTotal] = useState<number>(0);
 	const [memberFollowings, setMemberFollowings] = useState<Following[]>([]);
 
+	// Track currently processing follow/unfollow id to disable button
+	const [processingId, setProcessingId] = useState<string | null>(null);
+
 	// Default follow inquiry with proper initialization
 	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(
 		initialInput || {
@@ -188,33 +191,68 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 									</Stack>
 
 									{/* Right Section - Action Button */}
-									{user?._id !== following?.followingId && (
-										<Box className="action-section">
-											{following?.meFollowed?.[0]?.myFollowing ? (
-												<Button
-													variant="outlined"
-													className="unfollow-button"
-													startIcon={<UserCheck size={18} />}
-													onClick={() =>
-														unsubscribeHandler(following?.followingData?._id, getMemberFollowingsRefetch, followInquiry)
-													}
-												>
-													Following
-												</Button>
-											) : (
-												<Button
-													variant="contained"
-													className="follow-button"
-													startIcon={<Users size={18} />}
-													onClick={() =>
-														subscribeHandler(following?.followingData?._id, getMemberFollowingsRefetch, followInquiry)
-													}
-												>
-													Follow
-												</Button>
-											)}
-										</Box>
-									)}
+										{user?._id !== following?.followingId && (
+											<Box className="action-section">
+												{following?.meFollowed?.[0]?.myFollowing ? (
+													<Button
+														variant="outlined"
+														className="unfollow-button"
+														startIcon={<UserCheck size={18} />}
+														disabled={processingId === following._id}
+														onClick={async () => {
+														setProcessingId(following._id);
+														// Optimistic update: mark as not following and decrement totals
+														setMemberFollowings((prev) =>
+															prev.map((it) =>
+																it._id === following._id
+																	? { ...it, meFollowed: [{ ...it.meFollowed?.[0], myFollowing: false }], followingData: { ...it.followingData, memberFollowers: (it.followingData?.memberFollowers || 1) - 1 } }
+																: it,
+															),
+														);
+														setTotal((t) => Math.max(0, t - 1));
+														try {
+															await unsubscribeHandler(following?.followingData?._id, getMemberFollowingsRefetch, followInquiry);
+														} catch (e) {
+															// revert on error
+															await getMemberFollowingsRefetch({ input: followInquiry });
+														}
+														setProcessingId(null);
+													}}
+													>
+														<span className="text-following">Following</span>
+														<span className="text-unfollow">Unfollow</span>
+													</Button>
+												) : (
+													<Button
+														variant="contained"
+														className="follow-button"
+														startIcon={<Users size={18} />}
+														disabled={processingId === following._id}
+														onClick={async () => {
+														setProcessingId(following._id);
+														// Optimistic update: mark as following and increment totals
+														setMemberFollowings((prev) =>
+															prev.map((it) =>
+																it._id === following._id
+																	? { ...it, meFollowed: [{ ...it.meFollowed?.[0], myFollowing: true }], followingData: { ...it.followingData, memberFollowers: (it.followingData?.memberFollowers || 0) + 1 } }
+																: it,
+															),
+														);
+														setTotal((t) => t + 1);
+														try {
+															await subscribeHandler(following?.followingData?._id, getMemberFollowingsRefetch, followInquiry);
+														} catch (e) {
+															// revert on error
+															await getMemberFollowingsRefetch({ input: followInquiry });
+														}
+														setProcessingId(null);
+													}}
+													>
+														Follow
+													</Button>
+												)}
+											</Box>
+										)}
 								</Box>
 							);
 						})}

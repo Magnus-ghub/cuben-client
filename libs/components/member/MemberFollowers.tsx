@@ -26,6 +26,9 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 	const [total, setTotal] = useState<number>(0);
 	const [memberFollowers, setMemberFollowers] = useState<Follower[]>([]);
 
+	// Track currently processing follow/unfollow id to disable button
+	const [processingId, setProcessingId] = useState<string | null>(null);
+
 	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(
 		initialInput || {
 			page: 1,
@@ -182,33 +185,68 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 									</Stack>
 
 									{/* Right Section - Action Button */}
-									{user?._id !== follower?.followerId && (
-										<Box className="action-section">
-											{follower?.meFollowed?.[0]?.myFollowing ? (
-												<Button
-													variant="outlined"
-													className="unfollow-button"
-													startIcon={<UserCheck size={18} />}
-													onClick={() =>
-														unsubscribeHandler(follower?.followerData?._id, getMemberFollowersRefetch, followInquiry)
-													}
-												>
-													Following
-												</Button>
-											) : (
-												<Button
-													variant="contained"
-													className="follow-button"
-													startIcon={<Users size={18} />}
-													onClick={() =>
-														subscribeHandler(follower?.followerData?._id, getMemberFollowersRefetch, followInquiry)
-													}
-												>
-													Follow Back
-												</Button>
-											)}
-										</Box>
-									)}
+										{user?._id !== follower?.followerId && (
+											<Box className="action-section">
+												{follower?.meFollowed?.[0]?.myFollowing ? (
+													<Button
+														variant="outlined"
+														className="unfollow-button"
+														startIcon={<UserCheck size={18} />}
+														disabled={processingId === follower._id}
+														onClick={async () => {
+														setProcessingId(follower._id);
+														// Optimistic update: mark as not following and decrement totals
+														setMemberFollowers((prev) =>
+															prev.map((it) =>
+																it._id === follower._id
+																	? { ...it, meFollowed: [{ ...it.meFollowed?.[0], myFollowing: false }], followerData: { ...it.followerData, memberFollowers: (it.followerData?.memberFollowers || 1) - 1 } }
+																: it,
+															),
+														);
+														setTotal((t) => Math.max(0, t - 1));
+														try {
+															await unsubscribeHandler(follower?.followerData?._id, getMemberFollowersRefetch, followInquiry);
+														} catch (e) {
+															// revert on error
+															await getMemberFollowersRefetch({ input: followInquiry });
+														}
+														setProcessingId(null);
+													}}
+													>
+														<span className="text-following">Following</span>
+														<span className="text-unfollow">Unfollow</span>
+													</Button>
+												) : (
+													<Button
+														variant="contained"
+														className="follow-button"
+														startIcon={<Users size={18} />}
+														disabled={processingId === follower._id}
+														onClick={async () => {
+														setProcessingId(follower._id);
+														// Optimistic update: mark as following and increment totals
+														setMemberFollowers((prev) =>
+															prev.map((it) =>
+																it._id === follower._id
+																	? { ...it, meFollowed: [{ ...it.meFollowed?.[0], myFollowing: true }], followerData: { ...it.followerData, memberFollowers: (it.followerData?.memberFollowers || 0) + 1 } }
+																: it,
+															),
+														);
+														setTotal((t) => t + 1);
+														try {
+															await subscribeHandler(follower?.followerData?._id, getMemberFollowersRefetch, followInquiry);
+														} catch (e) {
+															// revert on error
+															await getMemberFollowersRefetch({ input: followInquiry });
+														}
+														setProcessingId(null);
+													}}
+													>
+														Follow Back
+													</Button>
+												)}
+											</Box>
+										)}
 								</Box>
 							);
 						})}
