@@ -1,14 +1,10 @@
 export const REACT_APP_API_URL = `${process.env.REACT_APP_API_URL}`;
 
 const thisYear = new Date().getFullYear();
-
 export const productYears: any = [];
-
 for (let i = 1970; i <= thisYear; i++) {
 	productYears.push(String(i));
 }
-
-
 
 export const Messages = {
 	error1: 'Something went wrong!',
@@ -19,3 +15,11 @@ export const Messages = {
 };
 
 const topProductRank = 50;
+
+// Export for backward compatibility
+export default {
+	REACT_APP_API_URL,
+	productYears,
+	Messages,
+	topProductRank,
+};

@@ -27,18 +27,12 @@ import { useQuery, useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { REACT_APP_API_URL } from '../../config';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
-
-// Types
 import { ProductUpdate } from '../../types/product/product.update';
 import { PostUpdate } from '../../types/post/post.update';
 import { ArticleUpdate } from '../../types/article/article.update';
-
-// Enums
 import { ProductType, ProductCondition, ProductStatus } from '../../enums/product.enum';
 import { ArticleCategory, ArticleStatus } from '../../enums/article.enum';
 import { PostStatus } from '../../enums/post.enum';
-
-// Apollo
 import { GET_PRODUCT, GET_POST, GET_ARTICLE } from '../../apollo/user/query';
 import { UPDATE_PRODUCT, UPDATE_POST, UPDATE_ARTICLE } from '../../apollo/user/mutation';
 import useDeviceDetect from '../../hooks/useDeviceDetect';

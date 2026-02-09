@@ -6,25 +6,28 @@ import WifiOffIcon from '@mui/icons-material/WifiOff';
 import { useRouter } from 'next/router';
 import ScrollableFeed from 'react-scrollable-feed';
 import { useReactiveVar } from '@apollo/client';
-import { Member } from '../types/member/member';
-import { Messages, REACT_APP_API_URL } from '../config';
-import { sweetErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
-import { socketVar, userVar, chatOpenVar } from '../apollo/store';
+import { Messages, REACT_APP_API_URL } from '../../libs/config';
+import { sweetErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { socketVar, userVar, chatOpenVar } from '../../libs/apollo/store';
+import { CustomJwtPayload } from '../types/customJwtPayload';
 
 interface MessagePayload {
 	event: string;
 	text: string;
-	memberData: Member;
+	memberData: CustomJwtPayload;
 	createdAt?: string;
 }
 
 interface InfoPayload {
 	event: string;
 	totalClients: number;
-	memberData: Member;
+	memberData: CustomJwtPayload;
 	action: string;
 }
 
+/**
+ * Custom SVG Logo Component for Chat
+ */
 const CubenChatLogo: React.FC = () => (
 	<svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<defs>
@@ -49,37 +52,51 @@ const CubenChatLogo: React.FC = () => (
 );
 
 const Chat = () => {
+	/** REFS **/
 	const chatContentRef = useRef<HTMLDivElement>(null);
+	const textInput = useRef<HTMLInputElement>(null);
+	const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	/** STATE MANAGEMENT **/
 	const [messagesList, setMessagesList] = useState<MessagePayload[]>([]);
 	const [onlineUsers, setOnlineUsers] = useState<number>(0);
-	const textInput = useRef<HTMLInputElement>(null);
 	const [messageInput, setMessageInput] = useState<string>('');
 	const [isSending, setIsSending] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isConnected, setIsConnected] = useState<boolean>(false);
 	const [reconnectAttempt, setReconnectAttempt] = useState<number>(0);
-	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	
+
+	/** APOLLO REACTIVE VARIABLES **/
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const socket = useReactiveVar(socketVar);
 	const open = useReactiveVar(chatOpenVar);
 
 	/** UTILITY FUNCTIONS **/
+	
+	/**
+	 * Format message timestamp to relative time
+	 * @param timestamp - ISO string timestamp
+	 * @returns Formatted time string (e.g., "Just now", "5m ago", "2h ago")
+	 */
 	const formatMessageTime = (timestamp?: string): string => {
 		if (!timestamp) return '';
 		const date = new Date(timestamp);
 		const now = new Date();
 		const diff = now.getTime() - date.getTime();
 		const minutes = Math.floor(diff / 60000);
-		
+
 		if (minutes < 1) return 'Just now';
 		if (minutes < 60) return `${minutes}m ago`;
 		if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`;
 		return date.toLocaleDateString();
 	};
 
+	/**
+	 * Check if WebSocket connection is ready
+	 * @returns true if connected, false otherwise
+	 */
 	const checkSocketConnection = (): boolean => {
 		if (!socket) {
 			console.error('❌ WebSocket not initialized');
@@ -94,107 +111,137 @@ const Chat = () => {
 		return true;
 	};
 
+	/**
+	 * Check if user is authenticated
+	 * @returns true if authenticated, false otherwise
+	 */
 	const checkUserAuthentication = (): boolean => {
 		if (!user || !user._id) {
-			console.error('User not authenticated');
+			console.error('❌ User not authenticated');
 			sweetErrorAlert('Please login to send messages');
 			return false;
 		}
 		return true;
 	};
 
-	/** WEBSOCKET HANDLERS **/
-	const handleWebSocketMessage = useCallback((msg: MessageEvent) => {
-		try {
-			const data = JSON.parse(msg.data);
-			console.log('📩 WebSocket message received:', data);
+	/** WEBSOCKET EVENT HANDLERS **/
 
-			switch(data.event) {
-				case 'info':
-					console.log('ℹ️ Info event:', data);
-					const newInfo: InfoPayload = data;
-					setOnlineUsers(newInfo.totalClients);
-					setIsConnected(true);
-					setReconnectAttempt(0);
-					setIsLoading(false);
-					break;
-					
-				case 'getMessages':
-					console.log('📝 Messages list received:', data.list?.length || 0);
-					const list: MessagePayload[] = data.list || [];
-					setMessagesList(list);
-					setIsLoading(false);
-					break;
-					
-				case 'message':
-					console.log('💬 New message received:', data);
-					const newMessage: MessagePayload = data;
-					setMessagesList(prev => [...prev, newMessage]);
-					setIsSending(false);
-					
-					// Clear message timeout
-					if (messageTimeoutRef.current) {
-						clearTimeout(messageTimeoutRef.current);
-						messageTimeoutRef.current = null;
-					}
-					break;
-					
-				default:
-					console.warn('⚠️ Unknown event:', data.event);
+	/**
+	 * Handle incoming WebSocket messages
+	 */
+	const handleWebSocketMessage = useCallback(
+		(msg: MessageEvent) => {
+			try {
+				const data = JSON.parse(msg.data);
+				console.log('📩 WebSocket message received:', data);
+
+				switch (data.event) {
+					case 'info':
+						console.log('ℹ️ Info event:', data);
+						const newInfo: InfoPayload = data;
+						setOnlineUsers(newInfo.totalClients);
+						setIsConnected(true);
+						setReconnectAttempt(0);
+						setIsLoading(false);
+						break;
+
+					case 'getMessages':
+						console.log('📝 Messages list received:', data.list?.length || 0);
+						const list: MessagePayload[] = data.list || [];
+						setMessagesList(list);
+						setIsLoading(false);
+						break;
+
+					case 'message':
+						console.log('💬 New message received:', data);
+						const newMessage: MessagePayload = data;
+						setMessagesList((prev) => [...prev, newMessage]);
+						setIsSending(false);
+
+						// Clear message timeout
+						if (messageTimeoutRef.current) {
+							clearTimeout(messageTimeoutRef.current);
+							messageTimeoutRef.current = null;
+						}
+						break;
+
+					default:
+						console.warn('⚠️ Unknown event:', data.event);
+				}
+			} catch (error) {
+				console.error('❌ Error parsing WebSocket message:', error);
+				sweetErrorAlert('Failed to process message');
 			}
-		} catch (error) {
-			console.error('Error parsing WebSocket message:', error);
-			sweetErrorAlert('Failed to process message');
-		}
-	}, []);
+		},
+		[],
+	);
 
+	/**
+	 * Handle WebSocket connection open
+	 */
 	const handleWebSocketOpen = useCallback(() => {
 		console.log('✅ WebSocket connection opened');
 		setIsConnected(true);
 		setReconnectAttempt(0);
 		setIsLoading(false);
-		
+
 		// Request initial messages
 		if (socket && socket.readyState === WebSocket.OPEN) {
 			console.log('📤 Requesting initial messages...');
-			socket.send(JSON.stringify({ 
-				event: 'getMessages'
-			}));
+			socket.send(
+				JSON.stringify({
+					event: 'getMessages',
+				}),
+			);
 		}
 	}, [socket]);
 
+	/**
+	 * Handle WebSocket errors
+	 */
 	const handleWebSocketError = useCallback((error: Event) => {
-		console.error(' WebSocket error:', error);
+		console.error('❌ WebSocket error:', error);
 		setIsConnected(false);
 		setIsLoading(false);
 		// Don't show alert on every error - only log
 	}, []);
 
-	const handleWebSocketClose = useCallback((event: CloseEvent) => {
-		console.log(' WebSocket connection closed. Code:', event.code, 'Reason:', event.reason);
-		setIsConnected(false);
-		setIsLoading(false);
-		
-		// Auto-reconnect if chat is still open
-		if (open && reconnectAttempt < 5) {
-			const timeout = Math.min(1000 * Math.pow(2, reconnectAttempt), 30000);
-			console.log(` Attempting to reconnect in ${timeout}ms... (Attempt ${reconnectAttempt + 1}/5)`);
-			
-			reconnectTimeoutRef.current = setTimeout(() => {
-				setReconnectAttempt(prev => prev + 1);
-				// Trigger reconnection by updating socketVar
-				// This should be handled in _app.tsx
-			}, timeout);
-		} else if (reconnectAttempt >= 5) {
-			console.error('❌ Max reconnection attempts reached');
-			sweetErrorAlert('Connection lost. Please refresh the page.');
-		}
-	}, [reconnectAttempt, open]);
+	/**
+	 * Handle WebSocket connection close
+	 */
+	const handleWebSocketClose = useCallback(
+		(event: CloseEvent) => {
+			console.log('⚠️ WebSocket connection closed. Code:', event.code, 'Reason:', event.reason);
+			setIsConnected(false);
+			setIsLoading(false);
 
-	/** LIFECYCLES **/
+			// Auto-reconnect if chat is still open and haven't exceeded max attempts
+			if (open && reconnectAttempt < 5) {
+				const timeout = Math.min(1000 * Math.pow(2, reconnectAttempt), 30000);
+				console.log(
+					`🔄 Attempting to reconnect in ${timeout}ms... (Attempt ${reconnectAttempt + 1}/5)`,
+				);
+
+				reconnectTimeoutRef.current = setTimeout(() => {
+					setReconnectAttempt((prev) => prev + 1);
+					// Trigger reconnection - this should be handled in _app.tsx
+				}, timeout);
+			} else if (reconnectAttempt >= 5) {
+				console.error('❌ Max reconnection attempts reached');
+				sweetErrorAlert('Connection lost. Please refresh the page.');
+			}
+		},
+		[reconnectAttempt, open],
+	);
+
+	/** LIFECYCLE EFFECTS **/
+
+	/**
+	 * Set up WebSocket event listeners
+	 */
 	useEffect(() => {
 		console.log('🔌 Chat component mounted/updated. Socket:', !!socket, 'Open:', open);
-		
+
 		if (!socket) {
 			console.error('❌ No socket available');
 			setIsConnected(false);
@@ -221,6 +268,7 @@ const Chat = () => {
 			setIsLoading(false);
 		}
 
+		// Cleanup function
 		return () => {
 			console.log('🧹 Cleaning up chat component');
 			if (reconnectTimeoutRef.current) {
@@ -232,18 +280,22 @@ const Chat = () => {
 		};
 	}, [socket, handleWebSocketOpen, handleWebSocketMessage, handleWebSocketError, handleWebSocketClose]);
 
-	// Auto-scroll to bottom on new messages
+	/**
+	 * Auto-scroll to bottom on new messages
+	 */
 	useEffect(() => {
 		if (chatContentRef.current && messagesList.length > 0) {
 			const scrollElement = chatContentRef.current;
-			// Smooth scroll to bottom
+			// Smooth scroll to bottom with delay for rendering
 			setTimeout(() => {
 				scrollElement.scrollTop = scrollElement.scrollHeight;
 			}, 100);
 		}
 	}, [messagesList]);
 
-	// Focus input when chat opens
+	/**
+	 * Focus input when chat opens and is connected
+	 */
 	useEffect(() => {
 		if (open && textInput.current && isConnected) {
 			setTimeout(() => {
@@ -252,19 +304,26 @@ const Chat = () => {
 		}
 	}, [open, isConnected]);
 
-	/** HANDLERS **/
+	/** USER INTERACTION HANDLERS **/
+
+	/**
+	 * Handle chat close button click
+	 */
 	const handleCloseChat = () => {
 		console.log('🚪 Closing chat');
 		chatOpenVar(false);
 	};
 
-	const getInputMessageHandler = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setMessageInput(e.target.value);
-		},
-		[],
-	);
+	/**
+	 * Handle input change
+	 */
+	const getInputMessageHandler = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setMessageInput(e.target.value);
+	}, []);
 
+	/**
+	 * Handle Enter key press to send message
+	 */
 	const getKeyHandler = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
@@ -272,9 +331,13 @@ const Chat = () => {
 		}
 	};
 
+	/**
+	 * Handle send button click
+	 */
 	const onClickHandler = () => {
 		console.log('📤 Send button clicked');
-		
+
+		// Validation 1: Check if message is not empty
 		const trimmedMessage = messageInput.trim();
 		if (!trimmedMessage) {
 			console.warn('⚠️ Empty message');
@@ -282,23 +345,27 @@ const Chat = () => {
 			return;
 		}
 
+		// Validation 2: Check user authentication
 		if (!checkUserAuthentication()) {
 			return;
 		}
 
+		// Validation 3: Check socket connection
 		if (!checkSocketConnection()) {
 			return;
 		}
 
+		// Validation 4: Prevent duplicate sends
 		if (isSending) {
 			console.warn('⚠️ Already sending a message');
-			return; 
+			return;
 		}
 
 		try {
 			console.log('📨 Sending message:', trimmedMessage);
 			setIsSending(true);
-			
+
+			// Prepare message payload with correct field names
 			const messagePayload = {
 				event: 'message',
 				text: trimmedMessage,
@@ -306,37 +373,40 @@ const Chat = () => {
 					_id: user._id,
 					memberNick: user.memberNick,
 					memberImage: user.memberImage,
-				}
+					memberFullName: user.memberFullName,
+				},
 			};
-			
+
 			console.log('📦 Message payload:', messagePayload);
 			socket.send(JSON.stringify(messagePayload));
-			
-			// Clear input immediately for better UX
+
+			// Clear input immediately for better UX (optimistic update)
 			setMessageInput('');
-			
-			// Set timeout to reset sending state if no response
+
+			// Set timeout to reset sending state if no response from server
 			messageTimeoutRef.current = setTimeout(() => {
 				console.warn('⚠️ Message send timeout - no server response');
 				setIsSending(false);
 				sweetErrorAlert('Message may not have been sent. Please try again.');
 			}, 10000); // 10 second timeout
-			
 		} catch (error) {
 			console.error('❌ Error sending message:', error);
 			sweetErrorAlert('Failed to send message');
 			setIsSending(false);
 			// Restore message in input on error
-			setMessageInput(messageInput);
+			setMessageInput(trimmedMessage);
 		}
 	};
 
+	/** RENDER **/
+
+	// Don't render if chat is closed
 	if (!open) return null;
 
 	return (
 		<Box className="modern-chat-container">
 			<Stack className="modern-chat-frame">
-				{/* Header */}
+				{/* ==================== HEADER ==================== */}
 				<Box className="modern-chat-header">
 					<Box className="header-left">
 						<Box className="chat-logo-box">
@@ -347,8 +417,9 @@ const Chat = () => {
 							<div className="chat-subtitle">Live Chat</div>
 						</Box>
 					</Box>
-					
+
 					<Box className="header-right">
+						{/* Connection Status Badge */}
 						{!isConnected ? (
 							<Box className="offline-badge">
 								<WifiOffIcon sx={{ fontSize: 16, mr: 0.5 }} />
@@ -360,20 +431,24 @@ const Chat = () => {
 								<span>{onlineUsers} online</span>
 							</Box>
 						)}
+
+						{/* Close Button */}
 						<Box className="close-btn" onClick={handleCloseChat}>
 							<CloseIcon sx={{ fontSize: 20 }} />
 						</Box>
 					</Box>
 				</Box>
 
-				{/* Messages Content */}
+				{/* ==================== MESSAGES CONTENT ==================== */}
 				<Box className="modern-chat-content" ref={chatContentRef}>
+					{/* Loading State */}
 					{isLoading ? (
 						<Box className="chat-loading">
 							<CircularProgress size={40} />
 							<div>Connecting to chat...</div>
 						</Box>
 					) : !isConnected ? (
+						/* Offline State */
 						<Box className="chat-loading">
 							<WifiOffIcon sx={{ fontSize: 48, color: '#999', mb: 2 }} />
 							<div>Connection lost</div>
@@ -382,6 +457,7 @@ const Chat = () => {
 							</div>
 						</Box>
 					) : (
+						/* Messages List */
 						<ScrollableFeed>
 							<Stack className="messages-container">
 								{/* Welcome Message */}
@@ -409,29 +485,30 @@ const Chat = () => {
 									const isOwnMessage = memberData?._id === user?._id;
 
 									return (
-										<Box 
-											key={idx} 
+										<Box
+											key={idx}
 											className={`message-wrapper ${isOwnMessage ? 'own-message' : 'other-message'}`}
 										>
+											{/* Avatar - only for other users */}
 											{!isOwnMessage && (
-												<Avatar 
-													src={memberImage} 
+												<Avatar
+													src={memberImage}
 													alt={memberData?.memberNick || 'User'}
 													sx={{ width: 32, height: 32 }}
 												/>
 											)}
+
 											<Box className="message-content">
+												{/* Author name - only for other users */}
 												{!isOwnMessage && (
-													<div className="message-author">
-														{memberData?.memberNick || 'Anonymous'}
-													</div>
+													<div className="message-author">{memberData?.memberNick || 'Anonymous'}</div>
 												)}
+
+												{/* Message bubble */}
 												<Box className="message-bubble">
 													<div className="message-text">{text}</div>
 													{createdAt && (
-														<div className="message-time">
-															{formatMessageTime(createdAt)}
-														</div>
+														<div className="message-time">{formatMessageTime(createdAt)}</div>
 													)}
 												</Box>
 											</Box>
@@ -458,19 +535,24 @@ const Chat = () => {
 					)}
 				</Box>
 
-				{/* Input Area */}
+				{/* ==================== INPUT AREA ==================== */}
 				<Box className="modern-chat-input">
+					{/* Connection Warning */}
 					{!isConnected && (
 						<Box className="connection-warning">
 							<WifiOffIcon sx={{ fontSize: 16, mr: 0.5 }} />
-							<span>Reconnecting... ({reconnectAttempt}/5)</span>
+							<span>
+								Reconnecting... ({reconnectAttempt}/5)
+							</span>
 						</Box>
 					)}
+
+					{/* Authentication Warning */}
 					{!user && (
-						<Box className="auth-warning">
-							Please login to send messages
-						</Box>
+						<Box className="auth-warning">Please login to send messages</Box>
 					)}
+
+					{/* Input Field and Send Button */}
 					{isConnected && user && (
 						<>
 							<input
@@ -483,7 +565,7 @@ const Chat = () => {
 								onKeyDown={getKeyHandler}
 								disabled={isSending || !isConnected}
 							/>
-							<button 
+							<button
 								className={`chat-send-btn ${isSending ? 'sending' : ''}`}
 								onClick={onClickHandler}
 								disabled={isSending || !isConnected || !messageInput.trim()}

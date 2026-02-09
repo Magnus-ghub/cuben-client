@@ -11,7 +11,6 @@ export enum ProductStatus {
 	ACTIVE = 'ACTIVE',
 	RESERVED = 'RESERVED',
 	SOLD = 'SOLD',
-	DELETE = 'DELETE',
 }
 
 export enum ProductCondition {

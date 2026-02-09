@@ -11,32 +11,42 @@ import { socketVar } from '../libs/apollo/store';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 
+/**
+ * Main App Component
+ * Handles global state, WebSocket connection, and theme management
+ */
 const App = ({ Component, pageProps }: AppProps) => {
 	// @ts-ignore
 	const [theme, setTheme] = useState(createTheme(light));
 	const client = useApollo(pageProps.initialApolloState);
+
+	/** WEBSOCKET STATE MANAGEMENT **/
 	const socketRef = useRef<WebSocket | null>(null);
 	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const [reconnectAttempt, setReconnectAttempt] = useState(0);
 	const maxReconnectAttempts = 10;
 	const isInitializedRef = useRef(false);
 
-	// WebSocket URL configuration
+	/**
+	 * Get WebSocket URL based on environment and current location
+	 * Priority: 1. Environment variables, 2. Constructed from window location
+	 * @returns WebSocket URL string
+	 */
 	const getWebSocketUrl = useCallback((): string => {
 		if (typeof window === 'undefined') return '';
-		
+
 		// Priority 1: Environment variables
 		let wsUrl = process.env.NEXT_PUBLIC_API_WS || process.env.REACT_APP_API_WS;
-		
+
 		if (wsUrl) {
 			console.log('✅ Using WebSocket URL from env:', wsUrl);
 			return wsUrl;
 		}
-		
+
 		// Priority 2: Construct from window location
 		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 		const host = window.location.host;
-		
+
 		// If running on localhost, use different port for WebSocket server
 		if (host.includes('localhost') || host.includes('127.0.0.1')) {
 			// Assuming WebSocket server runs on port 3003
@@ -46,43 +56,44 @@ const App = ({ Component, pageProps }: AppProps) => {
 			// Production: same host, different path or port
 			wsUrl = `${protocol}//${host}/ws`;
 		}
-		
+
 		console.log('✅ Constructed WebSocket URL:', wsUrl);
 		return wsUrl;
 	}, []);
 
-	// Initialize WebSocket connection
+	/**
+	 * Initialize WebSocket connection with proper error handling and reconnection logic
+	 */
 	const initializeWebSocket = useCallback(() => {
 		if (typeof window === 'undefined') return;
-		
+
 		// Prevent multiple initializations
 		if (isInitializedRef.current && socketRef.current?.readyState === WebSocket.OPEN) {
 			console.log('⚠️ WebSocket already connected, skipping initialization');
 			return;
 		}
-		
+
 		// Clean up existing socket
 		if (socketRef.current) {
 			console.log('🧹 Cleaning up existing WebSocket');
-			
 			try {
 				socketRef.current.onopen = null;
 				socketRef.current.onmessage = null;
 				socketRef.current.onerror = null;
 				socketRef.current.onclose = null;
-				
-				if (socketRef.current.readyState === WebSocket.OPEN || 
-					socketRef.current.readyState === WebSocket.CONNECTING) {
+				if (
+					socketRef.current.readyState === WebSocket.OPEN ||
+					socketRef.current.readyState === WebSocket.CONNECTING
+				) {
 					socketRef.current.close();
 				}
 			} catch (err) {
 				console.error('❌ Error cleaning up socket:', err);
 			}
 		}
-		
+
 		try {
 			let wsUrl = getWebSocketUrl();
-			
 			if (!wsUrl) {
 				console.error('❌ No WebSocket URL available');
 				return;
@@ -90,63 +101,79 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 			// Add JWT token if available
 			if (typeof window !== 'undefined') {
-				const token = localStorage.getItem('access_token');
+				const token = localStorage.getItem('accessToken');
 				if (token) {
 					const separator = wsUrl.includes('?') ? '&' : '?';
 					wsUrl += `${separator}token=${encodeURIComponent(token)}`;
 					console.log('🔐 Added JWT token to WebSocket URL');
 				}
 			}
-			
+
 			console.log('🔌 Connecting to WebSocket:', wsUrl);
 			const socket = new WebSocket(wsUrl);
 			socketRef.current = socket;
 			socketVar(socket);
 			isInitializedRef.current = true;
 
+			/**
+			 * WebSocket onopen event handler
+			 */
 			socket.onopen = () => {
 				console.log('✅ WebSocket connected successfully');
 				console.log('   ReadyState:', socket.readyState);
-				setReconnectAttempt(0); // Reset reconnect counter
-				
-				// Send initial handshake
+				setReconnectAttempt(0);
+
 				try {
-					socket.send(JSON.stringify({ 
-						event: 'connect',
-						timestamp: new Date().toISOString()
-					}));
+					// Send handshake message
+					socket.send(
+						JSON.stringify({
+							event: 'connect',
+							timestamp: new Date().toISOString(),
+						}),
+					);
 					console.log('📤 Handshake sent');
 				} catch (err) {
 					console.error('❌ Error sending handshake:', err);
 				}
 			};
 
+			/**
+			 * WebSocket onerror event handler
+			 */
 			socket.onerror = (error) => {
 				console.error('❌ WebSocket error:', error);
 				console.error('   ReadyState:', socket.readyState);
 			};
 
+			/**
+			 * WebSocket onclose event handler with auto-reconnect logic
+			 */
 			socket.onclose = (event) => {
 				console.log('⚠️ WebSocket closed');
 				console.log('   Code:', event.code);
 				console.log('   Reason:', event.reason);
 				console.log('   Clean:', event.wasClean);
-				
 				isInitializedRef.current = false;
-				
-				// Auto-reconnect logic
+
+				// Auto-reconnect logic with exponential backoff
 				if (reconnectAttempt < maxReconnectAttempts) {
 					const delay = Math.min(1000 * Math.pow(2, reconnectAttempt), 30000);
-					console.log(`🔄 Reconnecting in ${delay}ms... (Attempt ${reconnectAttempt + 1}/${maxReconnectAttempts})`);
-					
+					console.log(
+						`🔄 Reconnecting in ${delay}ms... (Attempt ${reconnectAttempt + 1}/${maxReconnectAttempts})`,
+					);
+
 					reconnectTimeoutRef.current = setTimeout(() => {
-						setReconnectAttempt(prev => prev + 1);
+						setReconnectAttempt((prev) => prev + 1);
 					}, delay);
 				} else {
 					console.error('❌ Max reconnection attempts reached');
 				}
 			};
 
+			/**
+			 * WebSocket onmessage event handler
+			 * Messages are primarily handled in Chat component
+			 */
 			socket.onmessage = (event) => {
 				try {
 					const data = JSON.parse(event.data);
@@ -156,23 +183,24 @@ const App = ({ Component, pageProps }: AppProps) => {
 					console.error('❌ Error parsing message:', err);
 				}
 			};
-
 		} catch (error) {
 			console.error('❌ Failed to create WebSocket:', error);
 			isInitializedRef.current = false;
-			
-			// Retry connection
+
+			// Retry connection on initial error
 			if (reconnectAttempt < maxReconnectAttempts) {
 				const delay = 5000; // 5 seconds on initial error
 				console.log(`🔄 Retrying connection in ${delay}ms...`);
 				reconnectTimeoutRef.current = setTimeout(() => {
-					setReconnectAttempt(prev => prev + 1);
+					setReconnectAttempt((prev) => prev + 1);
 				}, delay);
 			}
 		}
 	}, [reconnectAttempt, getWebSocketUrl, maxReconnectAttempts]);
 
-	// Initialize WebSocket on mount
+	/**
+	 * Initialize WebSocket on component mount
+	 */
 	useEffect(() => {
 		console.log('🚀 App mounted - initializing WebSocket');
 		initializeWebSocket();
@@ -180,18 +208,15 @@ const App = ({ Component, pageProps }: AppProps) => {
 		// Cleanup on unmount
 		return () => {
 			console.log('🧹 App unmounting - cleaning up WebSocket');
-			
 			if (reconnectTimeoutRef.current) {
 				clearTimeout(reconnectTimeoutRef.current);
 			}
-			
 			if (socketRef.current) {
 				try {
 					socketRef.current.onopen = null;
 					socketRef.current.onmessage = null;
 					socketRef.current.onerror = null;
 					socketRef.current.onclose = null;
-					
 					if (socketRef.current.readyState === WebSocket.OPEN) {
 						socketRef.current.close(1000, 'App unmounting');
 					}
@@ -199,12 +224,13 @@ const App = ({ Component, pageProps }: AppProps) => {
 					console.error('❌ Error during cleanup:', err);
 				}
 			}
-			
 			isInitializedRef.current = false;
 		};
 	}, []); // Empty dependency array - run once on mount
 
-	// Handle reconnect attempts
+	/**
+	 * Handle reconnection attempts
+	 */
 	useEffect(() => {
 		if (reconnectAttempt > 0 && reconnectAttempt <= maxReconnectAttempts) {
 			console.log(`🔄 Reconnect attempt ${reconnectAttempt}/${maxReconnectAttempts}`);
@@ -212,7 +238,9 @@ const App = ({ Component, pageProps }: AppProps) => {
 		}
 	}, [reconnectAttempt, initializeWebSocket, maxReconnectAttempts]);
 
-	// Listen for online/offline events
+	/**
+	 * Handle network online/offline events
+	 */
 	useEffect(() => {
 		const handleOnline = () => {
 			console.log('🌐 Network online - attempting to reconnect WebSocket');

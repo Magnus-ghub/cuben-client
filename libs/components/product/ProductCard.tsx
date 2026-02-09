@@ -60,7 +60,7 @@ const ProductCard = (props: ProductTypeCard) => {
 						{/* Badges */}
 						<Stack className="badge-container">
 							<Stack className="condition-badge">
-								<Typography component="p">{product?.productCondition || 'N/A'}</Typography>
+								<Typography component="p">{product?.productStatus || 'N/A'}</Typography>
 							</Stack>
 						</Stack>
 
@@ -130,9 +130,9 @@ const ProductCard = (props: ProductTypeCard) => {
 								<Typography className="post-time">{moment(product?.createdAt).fromNow()}</Typography>
 							</Stack>
 						</Stack>
-						<Stack className={`status-badge ${product?.productStatus?.toLowerCase()}`}>
+						<Stack className={`status-badge ${product?.productCondition?.toLowerCase()}`}>
 							<Typography component="p">
-								{product?.soldAt ? 'SOLD' : product?.productStatus}
+								<Typography component="p">{product?.productCondition || 'N/A'}</Typography>
 							</Typography>
 						</Stack>
 					</Stack>

@@ -49,6 +49,7 @@ const Top: React.FC = () => {
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
 	const [createMenuAnchor, setCreateMenuAnchor] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
+	const [searchQuery, setSearchQuery] = useState<string>('');
 	const drop = Boolean(anchorEl2);
 	const createMenuOpen = Boolean(createMenuAnchor);
 	const chatOpen = useReactiveVar(chatOpenVar);
@@ -106,6 +107,21 @@ const Top: React.FC = () => {
 
 	const handleCreateMenuClose = () => {
 		setCreateMenuAnchor(null);
+	};
+
+	const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter' && searchQuery.trim()) {
+			// Search all content - posts, jobs, items, students
+			router.push({
+				pathname: '/',
+				query: { search: searchQuery.trim() }
+			});
+			setSearchQuery('');
+		}
+	};
+
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchQuery(e.target.value);
 	};
 
 	const handleImageError = () => {
@@ -192,7 +208,13 @@ const Top: React.FC = () => {
 					{/* Search Box */}
 					<Box component={'div'} className={'search-box'}>
 						<SearchIcon className="search-icon" />
-						<input type="text" placeholder="Search posts, jobs, items, or students..." />
+						<input 
+							type="text" 
+							placeholder="Search posts, jobs, items, or students..." 
+							value={searchQuery}
+							onChange={handleSearchChange}
+							onKeyDown={handleSearch}
+						/>
 					</Box>
 
 					{/* Right Section */}
