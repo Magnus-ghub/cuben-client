@@ -147,31 +147,46 @@
 					}
 				}
 
-				// Single-line input styles to prevent overflow (excluding multiline)
+				// Single-line input styling
 				.MuiInputBase-input:not(.MuiInputBase-inputMultiline) {
 					padding: 14px 16px;
-					line-height: 1.7;
-					word-break: break-word;
-					overflow-wrap: anywhere;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-					max-width: 100%;
-				}
-
-				// Multiline input styles to allow wrapping and auto-grow
-				.MuiInputBase-inputMultiline {
-					padding: 14px 16px;
-					line-height: 1.7;
-					word-break: break-word; 
-					overflow-wrap: break-word;
-					white-space: pre-wrap;
-					resize: none;
-					overflow-y: auto;
+					font-size: 15px;
+					line-height: 1.5;
+					color: #181a20;
 				}
 
 				.input-icon {
 					color: #717171;
+				}
+			}
+
+			// Special styling for textarea inputs
+			.textarea-input {
+				.MuiOutlinedInput-root {
+					padding: 0;
+					align-items: flex-start;
+				}
+
+				.MuiInputBase-inputMultiline {
+					padding: 16px;
+					font-size: 15px;
+					line-height: 1.7;
+					color: #181a20;
+					font-family: $font;
+					word-break: break-word;
+					overflow-wrap: break-word;
+					white-space: pre-wrap;
+					min-height: 150px;
+					
+					&::placeholder {
+						color: #9ca3af;
+						opacity: 1;
+					}
+				}
+
+				// Ensure proper scrolling for long content
+				.MuiInputBase-root {
+					max-height: none;
 				}
 			}
 		}
@@ -378,6 +393,16 @@
 
 		.update-content {
 			padding: 20px;
+			max-height: calc(100vh - 300px);
+
+			.form-section {
+				.textarea-input {
+					.MuiInputBase-inputMultiline {
+						min-height: 120px;
+						font-size: 14px;
+					}
+				}
+			}
 
 			.images-grid {
 				grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -397,6 +422,25 @@
 			.cancel-btn,
 			.submit-btn {
 				width: 100%;
+			}
+		}
+	}
+}
+
+// Tablet responsive
+@media (min-width: 769px) and (max-width: 1024px) {
+	.update-items-container {
+		max-width: 720px;
+
+		.update-content {
+			padding: 28px;
+
+			.form-section {
+				.textarea-input {
+					.MuiInputBase-inputMultiline {
+						min-height: 140px;
+					}
+				}
 			}
 		}
 	}

@@ -12,20 +12,19 @@ import { sweetErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
 import { socketVar, userVar, chatOpenVar } from '../apollo/store';
 
 interface MessagePayload {
-  event: string;
-  text: string;
-  memberData: Member;
-  createdAt?: string;
+	event: string;
+	text: string;
+	memberData: Member;
+	createdAt?: string;
 }
 
 interface InfoPayload {
-  event: string;
-  totalClients: number;
-  memberData: Member;
-  action: string;
+	event: string;
+	totalClients: number;
+	memberData: Member;
+	action: string;
 }
 
-// Cuben Logo Component
 const CubenChatLogo: React.FC = () => (
 	<svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<defs>
@@ -60,6 +59,7 @@ const Chat = () => {
 	const [isConnected, setIsConnected] = useState<boolean>(false);
 	const [reconnectAttempt, setReconnectAttempt] = useState<number>(0);
 	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -82,10 +82,12 @@ const Chat = () => {
 
 	const checkSocketConnection = (): boolean => {
 		if (!socket) {
+			console.error('❌ WebSocket not initialized');
 			sweetErrorAlert('WebSocket connection not established');
 			return false;
 		}
 		if (socket.readyState !== WebSocket.OPEN) {
+			console.error('❌ WebSocket not ready. ReadyState:', socket.readyState);
 			sweetErrorAlert('Connection is not ready. Please wait...');
 			return false;
 		}
@@ -94,6 +96,7 @@ const Chat = () => {
 
 	const checkUserAuthentication = (): boolean => {
 		if (!user || !user._id) {
+			console.error('User not authenticated');
 			sweetErrorAlert('Please login to send messages');
 			return false;
 		}
@@ -104,30 +107,40 @@ const Chat = () => {
 	const handleWebSocketMessage = useCallback((msg: MessageEvent) => {
 		try {
 			const data = JSON.parse(msg.data);
-			console.log('WebSocket message: ', data);
+			console.log('📩 WebSocket message received:', data);
 
 			switch(data.event) {
 				case 'info':
+					console.log('ℹ️ Info event:', data);
 					const newInfo: InfoPayload = data;
 					setOnlineUsers(newInfo.totalClients);
 					setIsConnected(true);
 					setReconnectAttempt(0);
+					setIsLoading(false);
 					break;
 					
 				case 'getMessages':
+					console.log('📝 Messages list received:', data.list?.length || 0);
 					const list: MessagePayload[] = data.list || [];
 					setMessagesList(list);
 					setIsLoading(false);
 					break;
 					
 				case 'message':
+					console.log('💬 New message received:', data);
 					const newMessage: MessagePayload = data;
 					setMessagesList(prev => [...prev, newMessage]);
 					setIsSending(false);
+					
+					// Clear message timeout
+					if (messageTimeoutRef.current) {
+						clearTimeout(messageTimeoutRef.current);
+						messageTimeoutRef.current = null;
+					}
 					break;
 					
 				default:
-					console.log('Unknown event:', data.event);
+					console.warn('⚠️ Unknown event:', data.event);
 			}
 		} catch (error) {
 			console.error('Error parsing WebSocket message:', error);
@@ -135,77 +148,113 @@ const Chat = () => {
 		}
 	}, []);
 
+	const handleWebSocketOpen = useCallback(() => {
+		console.log('✅ WebSocket connection opened');
+		setIsConnected(true);
+		setReconnectAttempt(0);
+		setIsLoading(false);
+		
+		// Request initial messages
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			console.log('📤 Requesting initial messages...');
+			socket.send(JSON.stringify({ 
+				event: 'getMessages'
+			}));
+		}
+	}, [socket]);
+
 	const handleWebSocketError = useCallback((error: Event) => {
-		console.error('WebSocket error:', error);
+		console.error(' WebSocket error:', error);
 		setIsConnected(false);
-		sweetErrorAlert('Connection error occurred');
+		setIsLoading(false);
+		// Don't show alert on every error - only log
 	}, []);
 
-	const handleWebSocketClose = useCallback(() => {
-		console.log('WebSocket connection closed');
+	const handleWebSocketClose = useCallback((event: CloseEvent) => {
+		console.log(' WebSocket connection closed. Code:', event.code, 'Reason:', event.reason);
 		setIsConnected(false);
+		setIsLoading(false);
 		
-		// Auto-reconnect logic
-		if (reconnectAttempt < 5 && open) {
+		// Auto-reconnect if chat is still open
+		if (open && reconnectAttempt < 5) {
 			const timeout = Math.min(1000 * Math.pow(2, reconnectAttempt), 30000);
-			console.log(`Attempting to reconnect in ${timeout}ms...`);
+			console.log(` Attempting to reconnect in ${timeout}ms... (Attempt ${reconnectAttempt + 1}/5)`);
 			
 			reconnectTimeoutRef.current = setTimeout(() => {
 				setReconnectAttempt(prev => prev + 1);
-				// Trigger reconnection through parent component
-				// This should be handled by your socket initialization logic
+				// Trigger reconnection by updating socketVar
+				// This should be handled in _app.tsx
 			}, timeout);
+		} else if (reconnectAttempt >= 5) {
+			console.error('❌ Max reconnection attempts reached');
+			sweetErrorAlert('Connection lost. Please refresh the page.');
 		}
 	}, [reconnectAttempt, open]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
+		console.log('🔌 Chat component mounted/updated. Socket:', !!socket, 'Open:', open);
+		
 		if (!socket) {
+			console.error('❌ No socket available');
 			setIsConnected(false);
 			setIsLoading(false);
 			return;
 		}
 
-		// Set up WebSocket event listeners
+		// Set up event listeners
+		socket.onopen = handleWebSocketOpen;
 		socket.onmessage = handleWebSocketMessage;
 		socket.onerror = handleWebSocketError;
 		socket.onclose = handleWebSocketClose;
 
-		// Check if already connected
+		// Check current state
 		if (socket.readyState === WebSocket.OPEN) {
-			setIsConnected(true);
+			console.log('✅ Socket already open');
+			handleWebSocketOpen();
+		} else if (socket.readyState === WebSocket.CONNECTING) {
+			console.log('🔄 Socket connecting...');
+			setIsLoading(true);
+		} else {
+			console.error('❌ Socket in unexpected state:', socket.readyState);
+			setIsConnected(false);
 			setIsLoading(false);
 		}
 
-		// Cleanup function
 		return () => {
+			console.log('🧹 Cleaning up chat component');
 			if (reconnectTimeoutRef.current) {
 				clearTimeout(reconnectTimeoutRef.current);
 			}
-			// Don't remove listeners as socket might be shared
-			// Just clean up our local timers
+			if (messageTimeoutRef.current) {
+				clearTimeout(messageTimeoutRef.current);
+			}
 		};
-	}, [socket, handleWebSocketMessage, handleWebSocketError, handleWebSocketClose]);
+	}, [socket, handleWebSocketOpen, handleWebSocketMessage, handleWebSocketError, handleWebSocketClose]);
 
 	// Auto-scroll to bottom on new messages
 	useEffect(() => {
-		if (chatContentRef.current) {
+		if (chatContentRef.current && messagesList.length > 0) {
 			const scrollElement = chatContentRef.current;
-			scrollElement.scrollTop = scrollElement.scrollHeight;
+			// Smooth scroll to bottom
+			setTimeout(() => {
+				scrollElement.scrollTop = scrollElement.scrollHeight;
+			}, 100);
 		}
 	}, [messagesList]);
 
 	// Focus input when chat opens
 	useEffect(() => {
-		if (open && textInput.current) {
+		if (open && textInput.current && isConnected) {
 			setTimeout(() => {
 				textInput.current?.focus();
 			}, 100);
 		}
-	}, [open]);
+	}, [open, isConnected]);
 
 	/** HANDLERS **/
 	const handleCloseChat = () => {
+		console.log('🚪 Closing chat');
 		chatOpenVar(false);
 	};
 
@@ -224,8 +273,11 @@ const Chat = () => {
 	};
 
 	const onClickHandler = () => {
-		// Validation checks
-		if (!messageInput.trim()) {
+		console.log('📤 Send button clicked');
+		
+		const trimmedMessage = messageInput.trim();
+		if (!trimmedMessage) {
+			console.warn('⚠️ Empty message');
 			sweetErrorAlert(Messages.error4 || 'Please enter a message');
 			return;
 		}
@@ -239,26 +291,43 @@ const Chat = () => {
 		}
 
 		if (isSending) {
-			return; // Prevent double sending
+			console.warn('⚠️ Already sending a message');
+			return; 
 		}
 
-		// Send message
 		try {
+			console.log('📨 Sending message:', trimmedMessage);
 			setIsSending(true);
-			socket.send(JSON.stringify({ 
-				event: 'message', 
-				data: messageInput.trim() 
-			}));
+			
+			const messagePayload = {
+				event: 'message',
+				text: trimmedMessage,
+				memberData: {
+					_id: user._id,
+					memberNick: user.memberNick,
+					memberImage: user.memberImage,
+				}
+			};
+			
+			console.log('📦 Message payload:', messagePayload);
+			socket.send(JSON.stringify(messagePayload));
+			
+			// Clear input immediately for better UX
 			setMessageInput('');
 			
-			// Reset sending state after timeout if no response
-			setTimeout(() => {
+			// Set timeout to reset sending state if no response
+			messageTimeoutRef.current = setTimeout(() => {
+				console.warn('⚠️ Message send timeout - no server response');
 				setIsSending(false);
-			}, 5000);
+				sweetErrorAlert('Message may not have been sent. Please try again.');
+			}, 10000); // 10 second timeout
+			
 		} catch (error) {
-			console.error('Error sending message:', error);
+			console.error('❌ Error sending message:', error);
 			sweetErrorAlert('Failed to send message');
 			setIsSending(false);
+			// Restore message in input on error
+			setMessageInput(messageInput);
 		}
 	};
 
@@ -302,7 +371,15 @@ const Chat = () => {
 					{isLoading ? (
 						<Box className="chat-loading">
 							<CircularProgress size={40} />
-							<div>Loading messages...</div>
+							<div>Connecting to chat...</div>
+						</Box>
+					) : !isConnected ? (
+						<Box className="chat-loading">
+							<WifiOffIcon sx={{ fontSize: 48, color: '#999', mb: 2 }} />
+							<div>Connection lost</div>
+							<div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
+								Attempting to reconnect... ({reconnectAttempt}/5)
+							</div>
 						</Box>
 					) : (
 						<ScrollableFeed>
@@ -386,7 +463,7 @@ const Chat = () => {
 					{!isConnected && (
 						<Box className="connection-warning">
 							<WifiOffIcon sx={{ fontSize: 16, mr: 0.5 }} />
-							<span>Reconnecting...</span>
+							<span>Reconnecting... ({reconnectAttempt}/5)</span>
 						</Box>
 					)}
 					{!user && (

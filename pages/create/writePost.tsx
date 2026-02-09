@@ -85,11 +85,15 @@ const WritePost: NextPage = () => {
 
 		// Listen to editor changes
 		editor.on('change', updateHeight);
+		editor.on('focus', updateHeight);
+		editor.on('blur', updateHeight);
 
 		return () => {
 			editor.off('change', updateHeight);
+			editor.off('focus', updateHeight);
+			editor.off('blur', updateHeight);
 		};
-	}, [editorRef.current]);
+	}, []);
 
 	/** HANDLERS **/
 	const handleClose = () => {
@@ -193,8 +197,13 @@ const WritePost: NextPage = () => {
 			isValid = false;
 		}
 
-		const content = editorRef.current?.getInstance?.()?.getMarkdown?.() || '';
-		if (!content || content.trim().length < 10) {
+		// Get content from editor or state
+		const content = editorRef.current?.getInstance?.()?.getMarkdown?.() || postContent || '';
+		const trimmedContent = content.trim();
+		
+		console.log('Validation - Content length:', trimmedContent.length, 'Content:', trimmedContent);
+		
+		if (!trimmedContent || trimmedContent.length < 10) {
 			newErrors.content = 'Content must be at least 10 characters';
 			isValid = false;
 		}
@@ -344,7 +353,7 @@ const WritePost: NextPage = () => {
 						{typeof window !== 'undefined' && (
 							<div ref={editorRef}>
 								<Editor
-									initialValue=" "
+									initialValue=""
 									placeholder="Share your thoughts, experiences, or knowledge..."
 									previewStyle="vertical"
 									height={editorHeight}
