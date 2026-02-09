@@ -90,7 +90,7 @@ const MyPage: NextPage = () => {
 				likes: member.memberLikes || 0,
 			});
 		}
-	}, [getMemberData]);
+	}, []);
 
 	useEffect(() => {
 		if (getMemberError) {
@@ -105,7 +105,20 @@ const MyPage: NextPage = () => {
 
 	useEffect(() => {
 		if (user?._id) {
-			getMemberRefetch({ input: user._id });
+			getMemberRefetch({ input: user._id }).then((data: any) => {
+				if (data?.data?.getMember) {
+					const member = data.data.getMember;
+					setStats({
+						posts: member.memberPosts || 0,
+						products: member.memberProducts || 0,
+						articles: member.memberArticles || 0,
+						followers: member.memberFollowers || 0,
+						followings: member.memberFollowings || 0,
+						views: member.memberViews || 0,
+						likes: member.memberLikes || 0,
+					});
+				}
+			});
 		}
 	}, [user?._id]);
 
@@ -119,9 +132,30 @@ const MyPage: NextPage = () => {
 				variables: {
 					input: id,
 				},
+				refetchQueries: [
+					{
+						query: GET_MEMBER,
+						variables: { input: query },
+					},
+				],
 			});
-			await sweetTopSmallSuccessAlert('Subscribed!', 800);
-			await refetch({ input: query });
+			
+			// Manually refetch and update stats
+			const result = await getMemberRefetch({ input: user._id });
+			if (result?.data?.getMember) {
+				const member = result.data.getMember;
+				setStats({
+					posts: member.memberPosts || 0,
+					products: member.memberProducts || 0,
+					articles: member.memberArticles || 0,
+					followers: member.memberFollowers || 0,
+					followings: member.memberFollowings || 0,
+					views: member.memberViews || 0,
+					likes: member.memberLikes || 0,
+				});
+			}
+			
+			await sweetTopSmallSuccessAlert('Followed!', 800);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -136,9 +170,30 @@ const MyPage: NextPage = () => {
 				variables: {
 					input: id,
 				},
+				refetchQueries: [
+					{
+						query: GET_MEMBER,
+						variables: { input: query },
+					},
+				],
 			});
-			await sweetTopSmallSuccessAlert('Unsubscribed!', 800);
-			await refetch({ input: query });
+			
+			// Manually refetch and update stats
+			const result = await getMemberRefetch({ input: user._id });
+			if (result?.data?.getMember) {
+				const member = result.data.getMember;
+				setStats({
+					posts: member.memberPosts || 0,
+					products: member.memberProducts || 0,
+					articles: member.memberArticles || 0,
+					followers: member.memberFollowers || 0,
+					followings: member.memberFollowings || 0,
+					views: member.memberViews || 0,
+					likes: member.memberLikes || 0,
+				});
+			}
+			
+			await sweetTopSmallSuccessAlert('Unfollowed!', 800);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
