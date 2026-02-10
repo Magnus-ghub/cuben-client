@@ -114,6 +114,41 @@
 			}
 		}
 		.badge {
+			padding: 5px 14px;
+			border-radius: 10px;
+			font-size: 12.5px;
+			font-weight: 700;
+			text-transform: uppercase;
+			line-height: 1;
+			min-width: 68px;
+
+			&.USER {
+				background: rgba(99, 102, 241, 0.12);
+				color: #6366f1;
+			}
+			&.AGENT {
+				background: rgba(59, 130, 246, 0.12);
+				color: #3b82f6;
+			}
+			&.ADMIN {
+				background: rgba(245, 158, 11, 0.12);
+				color: #f59e0b;
+			}
+
+			&.ACTIVE {
+				background: rgba(16, 185, 129, 0.12);
+				color: #10b981;
+			}
+			&.BLOCK {
+				background: rgba(239, 68, 68, 0.12);
+				color: #ef4444;
+			}
+			&.DELETE {
+				background: rgba(100, 116, 139, 0.18);
+				color: #64748b;
+			}
+		}
+		.badge {
 			&.RESERVED {
 				background: rgba(245, 158, 11, 0.1);
 				color: #f59e0b;

@@ -1,222 +1,205 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-	TableCell,
-	TableHead,
-	TableBody,
-	TableRow,
-	Table,
-	TableContainer,
-	Button,
-	Menu,
-	Fade,
-	MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  Menu,
+  MenuItem,
+  Fade,
+  Avatar,
+  Typography,
+  Stack,
 } from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import { Stack } from '@mui/material';
-import { Member } from '../../../types/member/member';
+import { Member } from '../../../types/member/member';           // adjust path if needed
 import { REACT_APP_API_URL } from '../../../config';
 import { MemberStatus, MemberType } from '../../../enums/member.enum';
 
-interface Data {
-	id: string;
-	nickname: string;
-	fullname: string;
-	phone: string;
-	type: string;
-	state: string;
-	warning: string;
-	block: string;
+interface MemberPanelListProps {
+  members: Member[];
+  anchorEl: HTMLElement | null;
+  selectedMemberId: string | null;
+  menuOpenFor: 'type' | 'status' | null;
+  handleMenuOpen: (
+    event: React.MouseEvent<HTMLElement>,
+    memberId: string,
+    target: 'type' | 'status'
+  ) => void;
+  handleMenuClose: () => void;
+  updateMemberHandler: (
+    memberId: string,
+    field: 'memberType' | 'memberStatus',
+    newValue: string
+  ) => void;
 }
 
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-	if (b[orderBy] < a[orderBy]) {
-		return -1;
-	}
-	if (b[orderBy] > a[orderBy]) {
-		return 1;
-	}
-	return 0;
-}
+const typeOptions = Object.values(MemberType);
+const statusOptions = Object.values(MemberStatus);
 
-type Order = 'asc' | 'desc';
+export const MemberPanelList = (props: MemberPanelListProps) => {
+  const {
+    members,
+    anchorEl,
+    selectedMemberId,
+    menuOpenFor,
+    handleMenuOpen,
+    handleMenuClose,
+    updateMemberHandler,
+  } = props;
 
-interface HeadCell {
-	disablePadding: boolean;
-	id: keyof Data;
-	label: string;
-	numeric: boolean;
-}
+  const isTypeMenuOpen = Boolean(anchorEl && menuOpenFor === 'type');
+  const isStatusMenuOpen = Boolean(anchorEl && menuOpenFor === 'status');
 
-const headCells: readonly HeadCell[] = [
-	{
-		id: 'id',
-		numeric: true,
-		disablePadding: false,
-		label: 'MB ID',
-	},
-	{
-		id: 'nickname',
-		numeric: true,
-		disablePadding: false,
-		label: 'NICK NAME',
-	},
-	{
-		id: 'fullname',
-		numeric: false,
-		disablePadding: false,
-		label: 'FULL NAME',
-	},
-	{
-		id: 'phone',
-		numeric: true,
-		disablePadding: false,
-		label: 'PHONE NUM',
-	},
-	{
-		id: 'type',
-		numeric: false,
-		disablePadding: false,
-		label: 'MEMBER TYPE',
-	},
-	{
-		id: 'warning',
-		numeric: false,
-		disablePadding: false,
-		label: 'WARNING',
-	},
-	{
-		id: 'block',
-		numeric: false,
-		disablePadding: false,
-		label: 'BLOCK CRIMES',
-	},
-	{
-		id: 'state',
-		numeric: false,
-		disablePadding: false,
-		label: 'STATE',
-	},
-];
+  // Optional: helps avoid repeated .find() in render
+  const currentMember = selectedMemberId
+    ? members.find((m) => m._id === selectedMemberId)
+    : null;
 
-interface EnhancedTableProps {
-	numSelected: number;
-	onRequestSort: (event: React.MouseEvent<unknown>, product: keyof Data) => void;
-	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	order: Order;
-	orderBy: string;
-	rowCount: number;
-}
+  return (
+    <TableContainer className="member-table">
+      <Table stickyHeader aria-label="members table">
+        <TableHead>
+          <TableRow>
+            <TableCell>ID</TableCell>
+            <TableCell>Nickname</TableCell>
+            <TableCell align="center">Full Name</TableCell>
+            <TableCell>Phone</TableCell>
+            <TableCell align="center">Type</TableCell>
+            <TableCell align="center">Warnings</TableCell>
+            <TableCell align="center">Status</TableCell>
+          </TableRow>
+        </TableHead>
 
-function EnhancedTableHead(props: EnhancedTableProps) {
-	const { onSelectAllClick } = props;
+        <TableBody>
+          {members.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} align="center" sx={{ py: 10 }}>
+                <Typography color="textSecondary">No members found</Typography>
+              </TableCell>
+            </TableRow>
+          ) : (
+            members.map((member) => (
+              <TableRow hover key={member._id}>
+                {/* Short ID */}
+                <TableCell sx={{ color: '#94a3b8', fontSize: '12px' }}>
+                  {member._id.toString().slice(-6)}
+                </TableCell>
 
-	return (
-		<TableHead>
-			<TableRow>
-				{headCells.map((headCell) => (
-					<TableCell
-						key={headCell.id}
-						align={headCell.numeric ? 'left' : 'center'}
-						padding={headCell.disablePadding ? 'none' : 'normal'}
-					>
-						{headCell.label}
-					</TableCell>
-				))}
-			</TableRow>
-		</TableHead>
-	);
-}
+                {/* Nickname + Avatar */}
+                <TableCell>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Link href={`/member?memberId=${member._id}`}>
+                      <Avatar
+                        src={
+                          member.memberImage
+                            ? `${REACT_APP_API_URL}/${member.memberImage}`
+                            : '/img/profile/defaultUser.svg'
+                        }
+                        sx={{ width: 38, height: 38, border: '1px solid #e2e8f0' }}
+                      />
+                    </Link>
+                    <Link href={`/member?memberId=${member._id}`} className="member-nick">
+                      {member.memberNick || '—'}
+                    </Link>
+                  </Stack>
+                </TableCell>
 
-interface MemberPanelListType {
-	members: Member[];
-	anchorEl: any;
-	menuIconClickHandler: any;
-	menuIconCloseHandler: any;
-	updateMemberHandler: any;
-}
+                <TableCell align="center">{member.memberFullName || '—'}</TableCell>
 
-// ... (HeadCells va mantiqiy qismlar bir xil)
+                <TableCell>{member.memberPhone || '—'}</TableCell>
 
-export const MemberPanelList = (props: MemberPanelListType) => {
-    const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler } = props;
+                {/* Member Type */}
+                <TableCell align="center">
+                  <Button
+                    size="small"
+                    onClick={(e) => handleMenuOpen(e, member._id, 'type')}
+                    className={`badge ${member.memberType}`}
+                    sx={{ minWidth: 80 }}
+                  >
+                    {member.memberType}
+                  </Button>
+                </TableCell>
 
-    return (
-        <TableContainer className="member-table">
-            <Table stickyHeader>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Foydalanuvchi</TableCell>
-                        <TableCell align="center">Ism-sharifi</TableCell>
-                        <TableCell>Telefon</TableCell>
-                        <TableCell align="center">Turi</TableCell>
-                        <TableCell align="center">Ogohlantirish</TableCell>
-                        <TableCell align="center">Holati</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {members.length === 0 ? (
-                        <TableRow>
-                            <TableCell align="center" colSpan={7} sx={{ py: 10 }}>
-                                <Typography color="textSecondary">Ma'lumot topilmadi</Typography>
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        members.map((member, index) => (
-                            <TableRow hover key={member._id}>
-                                <TableCell sx={{ color: '#94a3b8', fontSize: '12px' }}>
-                                    {member._id.toString().slice(-5)}
-                                </TableCell>
-                                
-                                <TableCell>
-                                    <Stack direction="row" spacing={2} alignItems="center">
-                                        <Link href={`/member?memberId=${member._id}`}>
-                                            <Avatar 
-                                                src={member.memberImage ? `${REACT_APP_API_URL}/${member.memberImage}` : '/img/profile/defaultUser.svg'} 
-                                                sx={{ width: 36, height: 36, border: '1px solid #e2e8f0' }}
-                                            />
-                                        </Link>
-                                        <Link href={`/member?memberId=${member._id}`} className="member-nick">
-                                            {member.memberNick}
-                                        </Link>
-                                    </Stack>
-                                </TableCell>
+                {/* Warnings */}
+                <TableCell align="center">
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      color: member.memberWarnings > 2 ? '#ef4444' : '#64748b',
+                    }}
+                  >
+                    {member.memberWarnings ?? 0}
+                  </Typography>
+                </TableCell>
 
-                                <TableCell align="center">{member.memberFullName ?? '-'}</TableCell>
-                                <TableCell>{member.memberPhone}</TableCell>
+                {/* Member Status */}
+                <TableCell align="center">
+                  <Button
+                    size="small"
+                    onClick={(e) => handleMenuOpen(e, member._id, 'status')}
+                    className={`badge ${member.memberStatus}`}
+                    sx={{ minWidth: 80 }}
+                  >
+                    {member.memberStatus}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
-                                <TableCell align="center">
-                                    <Button 
-                                        onClick={(e) => menuIconClickHandler(e, index)}
-                                        className={`badge ${member.memberType}`}
-                                    >
-                                        {member.memberType}
-                                    </Button>
-                                    {/* Menu qismi bir xil qoladi */}
-                                </TableCell>
+      {/* Type Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={isTypeMenuOpen}
+        onClose={handleMenuClose}
+        TransitionComponent={Fade}
+        PaperProps={{ sx: { minWidth: 140 } }}
+      >
+        {typeOptions.map((type) => (
+          <MenuItem
+            key={type}
+            selected={currentMember?.memberType === type}
+            onClick={() => {
+              if (selectedMemberId) {
+                updateMemberHandler(selectedMemberId, 'memberType', type);
+              }
+              handleMenuClose();
+            }}
+          >
+            {type}
+          </MenuItem>
+        ))}
+      </Menu>
 
-                                <TableCell align="center">
-                                    <Typography sx={{ fontWeight: 600, color: member.memberWarnings > 2 ? '#ef4444' : '#64748b' }}>
-                                        {member.memberWarnings}
-                                    </Typography>
-                                </TableCell>
-
-                                <TableCell align="center">
-                                    <Button 
-                                        onClick={(e) => menuIconClickHandler(e, member._id)}
-                                        className={`badge ${member.memberStatus}`}
-                                    >
-                                        {member.memberStatus}
-                                    </Button>
-                                    {/* Status Menu qismi bir xil qoladi */}
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    );
+      {/* Status Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={isStatusMenuOpen}
+        onClose={handleMenuClose}
+        TransitionComponent={Fade}
+        PaperProps={{ sx: { minWidth: 140 } }}
+      >
+        {statusOptions.map((status) => (
+          <MenuItem
+            key={status}
+            selected={currentMember?.memberStatus === status}
+            onClick={() => {
+              if (selectedMemberId) {
+                updateMemberHandler(selectedMemberId, 'memberStatus', status);
+              }
+              handleMenuClose();
+            }}
+          >
+            {status}
+          </MenuItem>
+        ))}
+      </Menu>
+    </TableContainer>
+  );
 };

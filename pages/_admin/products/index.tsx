@@ -1,227 +1,193 @@
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
-import { Box, List, ListItem, Stack } from '@mui/material';
+import {
+  Box,
+  List,
+  ListItem,
+  Stack,
+  Typography,
+  Divider,
+  Select,
+  MenuItem,
+  TablePagination,
+} from '@mui/material';
 import { ShoppingBag, MapPin } from 'lucide-react';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { TabContext } from '@mui/lab';
-import TablePagination from '@mui/material/TablePagination';
-import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
 import { useMutation, useQuery } from '@apollo/client';
-import { T } from '../../../libs/types/common';
 import { AllProductsInquiry } from '../../../libs/types/product/product.input';
 import { Product } from '../../../libs/types/product/product';
-import { REMOVE_PRODUCT_BY_ADMIN, UPDATE_PRODUCT_BY_ADMIN } from '../../../libs/apollo/admin/mutation';
-import { GET_ALL_PRODUCTS_BY_ADMIN } from '../../../libs/apollo/admin/query';
 import { ProductStatus } from '../../../libs/enums/product.enum';
 import { ProductUpdate } from '../../../libs/types/product/product.update';
+import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
+import { T } from '../../../libs/types/common';
 import { ProductPanelList } from '../../../libs/components/admin/products/ProductList';
+import { REMOVE_PRODUCT_BY_ADMIN, UPDATE_PRODUCT_BY_ADMIN } from '../../../libs/apollo/admin/mutation';
+import { GET_ALL_PRODUCTS_BY_ADMIN } from '../../../libs/apollo/admin/query';
+import { Direction } from '../../../libs/enums/common.enum';
 
-const AdminProducts: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
-	const [productsInquiry, setProductsInquiry] = useState<AllProductsInquiry>(initialInquiry);
-	const [products, setProducts] = useState<Product[]>([]);
-	const [productsTotal, setProductsTotal] = useState<number>(0);
-	const [value, setValue] = useState(
-		productsInquiry?.search?.productStatus ? productsInquiry?.search?.productStatus : 'ALL',
-	);
-	const [searchType, setSearchType] = useState('ALL');
+const AdminProducts: NextPage = () => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
-	/** APOLLO REQUESTS **/
-	const [updateProductByAdmin] = useMutation(UPDATE_PRODUCT_BY_ADMIN);
-	const [removeProductByAdmin] = useMutation(REMOVE_PRODUCT_BY_ADMIN);
+  const [productsInquiry, setProductsInquiry] = useState<AllProductsInquiry>({
+    page: 1,
+    limit: 10,
+    sort: 'createdAt',
+    direction: Direction.DESC,
+    search: {},
+  });
 
-	const {
-		loading: getAllProductsByAdminLoading,
-		data: getAllProductsByAdminData,
-		error: getAllProductsByAdminError,
-		refetch: getAllProductsByAdminRefetch,
-	} = useQuery(GET_ALL_PRODUCTS_BY_ADMIN, {
-		fetchPolicy: 'network-only',
-		variables: { input: productsInquiry },
-		notifyOnNetworkStatusChange: true,
-		onCompleted(data: T) {
-			setProducts(data?.getAllProductsByAdmin?.list);
-			setProductsTotal(data?.getAllProductsByAdmin?.metaCounter[0]?.total ?? 0);
-		},
-	});
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsTotal, setProductsTotal] = useState<number>(0);
 
-	/** LIFECYCLES **/
-	useEffect(() => {
-		getAllProductsByAdminRefetch({ input: productsInquiry }).then();
-	}, [productsInquiry]);
+  const [filterStatus, setFilterStatus] = useState<string>('ALL');
+  const [searchLocation, setSearchLocation] = useState<string>('ALL');
 
-	/** HANDLERS **/
-	const changePageHandler = async (event: unknown, newPage: number) => {
-		productsInquiry.page = newPage + 1;
-		await getAllProductsByAdminRefetch({ input: productsInquiry });
-		setProductsInquiry({ ...productsInquiry });
-	};
+  /** Apollo */
+  const [updateProductByAdmin] = useMutation(UPDATE_PRODUCT_BY_ADMIN);
+  const [removeProductByAdmin] = useMutation(REMOVE_PRODUCT_BY_ADMIN);
 
-	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		productsInquiry.limit = parseInt(event.target.value, 10);
-		productsInquiry.page = 1;
-		await getAllProductsByAdminRefetch({ input: productsInquiry });
-		setProductsInquiry({ ...productsInquiry });
-	};
+  const { loading, data, refetch: refetchProducts } = useQuery(GET_ALL_PRODUCTS_BY_ADMIN, {
+    fetchPolicy: 'network-only',
+    variables: { input: productsInquiry },
+    notifyOnNetworkStatusChange: true,
+    onCompleted: (res: T) => {
+      setProducts(res?.getAllProductsByAdmin?.list ?? []);
+      setProductsTotal(res?.getAllProductsByAdmin?.metaCounter?.[0]?.total ?? 0);
+    },
+  });
 
-	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
+  useEffect(() => {
+    refetchProducts({ input: productsInquiry });
+  }, [productsInquiry, refetchProducts]);
 
-	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
+  /** Handlers */
+  const handlePageChange = (event: unknown, newPage: number) => {
+    setProductsInquiry((prev) => ({ ...prev, page: newPage + 1 }));
+  };
 
-	const tabChangeHandler = async (event: any, newValue: string) => {
-    setValue(newValue);
-    
-    let searchUpdate: any = { ...productsInquiry.search };
-    
-    if (newValue !== 'ALL') {
-        searchUpdate.productStatus = newValue as ProductStatus;
-    } else {
-        delete searchUpdate.productStatus;
-    }
+  const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProductsInquiry((prev) => ({
+      ...prev,
+      limit: parseInt(e.target.value, 10),
+      page: 1,
+    }));
+  };
 
-    setProductsInquiry({
-        ...productsInquiry,
-        page: 1,
-        search: searchUpdate
-    });
-};
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, productId: string) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedProductId(productId);
+  };
 
-	const removeProductHandler = async (id: string) => {
-		try {
-			if (await sweetConfirmAlert('Are you sure to remove?')) {
-				await removeProductByAdmin({
-					variables: {
-						input: id,
-					},
-				});
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setSelectedProductId(null);
+  };
 
-				await getAllProductsByAdminRefetch({ input: productsInquiry });
-			}
-			menuIconCloseHandler();
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
-	};
-
-	const searchTypeHandler = async (newValue: string) => {
+  const handleUpdateProduct = async (productId: string, update: Partial<ProductUpdate>) => {
     try {
-        setSearchType(newValue);
-
-        const newInquiry = { ...productsInquiry, page: 1 };
-
-        setProductsInquiry(newInquiry);
+      await updateProductByAdmin({
+        variables: { input: { _id: productId, ...update } },
+      });
+      handleCloseMenu();
+      await refetchProducts({ input: productsInquiry });
     } catch (err: any) {
-        console.log('searchTypeHandler: ', err.message);
+      await sweetErrorHandling(err);
     }
-};
+  };
 
-	const updateProductHandler = async (updateData: ProductUpdate) => {
-		try {
-			console.log('+updateData: ', updateData);
-			await updateProductByAdmin({
-				variables: {
-					input: updateData,
-				},
-			});
+  const handleRemoveProduct = async (productId: string) => {
+    const confirmed = await sweetConfirmAlert('Are you sure you want to permanently delete this product?');
+    if (!confirmed) return;
 
-			menuIconCloseHandler();
-			await getAllProductsByAdminRefetch({ input: productsInquiry });
-		} catch (err: any) {
-			menuIconCloseHandler();
-			sweetErrorHandling(err).then();
-		}
-	};
+    try {
+      await removeProductByAdmin({ variables: { input: productId } });
+      handleCloseMenu();
+      await refetchProducts({ input: productsInquiry });
+    } catch (err: any) {
+      await sweetErrorHandling(err);
+    }
+  };
 
-	return (
-        <Box className="admin-users-container"> {/* Umumiy layout stilidan foydalanamiz */}
-            <Box className="page-header">
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Box>
-                        <Typography className="tit">Marketplace Boshqaruvi</Typography>
-                        <Typography variant="body2" color="textSecondary">
-                            Talabalar tomonidan joylangan barcha mahsulotlar va xizmatlar nazorati
-                        </Typography>
-                    </Box>
-                    <ShoppingBag size={40} color="#6366f1" opacity={0.2} />
-                </Stack>
-            </Box>
+  const handleStatusTabChange = (newValue: string) => {
+    setFilterStatus(newValue);
 
-            <Box className="table-wrap">
-                <TabContext value={value}>
-                    <List className="tab-menu">
-                        {['ALL', 'ACTIVE', 'SOLD', 'DELETE'].map((status) => (
-                            <ListItem
-                                key={status}
-                                onClick={(e) => tabChangeHandler(e, status)}
-                                className={value === status ? 'li on' : 'li'}
-                            >
-                                {status === 'ALL' ? 'Barchasi' : status}
-                            </ListItem>
-                        ))}
-                    </List>
-                    
-                    <Divider />
+    const nextInquiry: AllProductsInquiry = {
+      ...productsInquiry,
+      page: 1,
+    };
 
-                    <Stack className="search-area" direction="row" alignItems="center" sx={{ p: 3 }}>
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ flex: 1 }}>
-                            <MapPin size={20} color="#6366f1" />
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Lokatsiya bo'yicha:</Typography>
-                            <Select 
-                                className="type-select" 
-                                value={searchType} 
-                                sx={{ minWidth: 200, height: 40 }}
-                            >
-                                <MenuItem value="ALL" onClick={() => searchTypeHandler('ALL')}>Barcha hududlar</MenuItem>
-                            </Select>
-                        </Stack>
-                    </Stack>
+    if (newValue !== 'ALL') {
+      nextInquiry.search = {
+        ...nextInquiry.search,
+        productStatus: newValue as ProductStatus,
+      };
+    } else {
+      const { productStatus, ...rest } = nextInquiry.search ?? {};
+      nextInquiry.search = rest;
+    }
 
-                    <ProductPanelList
-                        products={products}
-                        anchorEl={anchorEl}
-                        menuIconClickHandler={menuIconClickHandler}
-                        menuIconCloseHandler={menuIconCloseHandler}
-                        updateProductHandler={updateProductHandler}
-                        removeProductHandler={removeProductHandler}
-                    />
+    setProductsInquiry(nextInquiry);
+  };
 
-                    <TablePagination
-                        rowsPerPageOptions={[10, 20, 40]}
-                        component="div"
-                        count={productsTotal}
-                        rowsPerPage={productsInquiry?.limit}
-                        page={productsInquiry?.page - 1}
-                        onPageChange={changePageHandler}
-                        onRowsPerPageChange={changeRowsPerPageHandler}
-                    />
-                </TabContext>
-            </Box>
-        </Box>
-    );
-};
+  return (
+    <Box className="admin-users-container">
+      <Box className="page-header">
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography className="tit">Marketplace Management</Typography>
+            <Typography variant="body2" color="textSecondary">
+              Control all products and services posted by students
+            </Typography>
+          </Box>
+          <ShoppingBag size={40} color="#6366f1" opacity={0.2} />
+        </Stack>
+      </Box>
 
-AdminProducts.defaultProps = {
-	initialInquiry: {
-		page: 1,
-		limit: 10,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: {},
-	},
+      <Box className="table-wrap">
+        <List className="tab-menu" sx={{ display: 'flex' }}>
+          {['ALL', 'ACTIVE', 'SOLD', 'DELETE'].map((status) => (
+            <ListItem
+              key={status}
+              onClick={() => handleStatusTabChange(status)}
+              className={filterStatus === status ? 'li on' : 'li'}
+              sx={{ cursor: 'pointer' }}
+            >
+              {status === 'ALL' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+            </ListItem>
+          ))}
+        </List>
+
+        <Divider />
+
+        {loading ? (
+          <Box sx={{ p: 5, textAlign: 'center' }}>
+            <Typography color="textSecondary">Loading products...</Typography>
+          </Box>
+        ) : (
+          <ProductPanelList
+            products={products}
+            anchorEl={anchorEl}
+            selectedProductId={selectedProductId}
+            handleMenuOpen={handleOpenMenu}
+            handleMenuClose={handleCloseMenu}
+            updateProductHandler={handleUpdateProduct}
+            removeProductHandler={handleRemoveProduct}
+          />
+        )}
+
+        <TablePagination
+          rowsPerPageOptions={[10, 20, 40, 80]}
+          component="div"
+          count={productsTotal}
+          rowsPerPage={productsInquiry.limit ?? 10}
+          page={(productsInquiry.page ?? 1) - 1}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
+        />
+      </Box>
+    </Box>
+  );
 };
 
 export default withAdminLayout(AdminProducts);
-
-
-
-
