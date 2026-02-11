@@ -21,6 +21,7 @@ import { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Article } from '../../libs/types/article/article';
 import ArticleCard from '../../libs/components/community/ArticleCard';
+import { useTranslation } from 'react-i18next';
 
 const GET_CATEGORY_COUNTS = gql`
 	query GetCategoryCounts {
@@ -58,6 +59,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 	const router = useRouter();
 	const { query } = router;
 	const articleCategory = (query?.articleCategory as string) || ArticleCategory.CAREER;
+	const { t } = useTranslation('common');
 
 	const [searchCommunity, setSearchCommunity] = useState<ArticlesInquiry>({
 		...initialInput,
@@ -233,10 +235,10 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 					<Stack className="articles-hero">
 						<Stack className="hero-content">
 							<Stack className="hero-left">
-								<Typography className="hero-subtitle">Discover Your Future</Typography>
-								<Typography className="hero-title">Your Smart Campus Companion</Typography>
+								<Typography className="hero-subtitle">{t('discoverFuture')}</Typography>
+								<Typography className="hero-title">{t('smartCampusCompanion')}</Typography>
 								<Typography className="hero-description">
-									An official platform where university staff share announcements, events, and academic resources.
+									{t('officialPlatformDesc')}
 								</Typography>
 							</Stack>
 							<Stack className="hero-right">
@@ -245,28 +247,28 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 										<Box className="stat-icon-box career">💼</Box>
 										<Stack className="stat-info">
 											<Typography className="stat-number">{categoryCounts[ArticleCategory.CAREER]}</Typography>
-											<Typography className="stat-label">Career Articles</Typography>
+											<Typography className="stat-label">{t('career_jobs')}</Typography>
 										</Stack>
 									</Stack>
 									<Stack className="hero-stat-item">
 										<Box className="stat-icon-box events">🎉</Box>
 										<Stack className="stat-info">
 											<Typography className="stat-number">{categoryCounts[ArticleCategory.EVENTS]}</Typography>
-											<Typography className="stat-label">Events</Typography>
+											<Typography className="stat-label">{t('campus_events')}</Typography>
 										</Stack>
 									</Stack>
 									<Stack className="hero-stat-item">
 										<Box className="stat-icon-box news">📰</Box>
 										<Stack className="stat-info">
 											<Typography className="stat-number">{categoryCounts[ArticleCategory.ANNOUNCEMENTS]}</Typography>
-											<Typography className="stat-label">News</Typography>
+											<Typography className="stat-label">{t('university_news')}</Typography>
 										</Stack>
 									</Stack>
 									<Stack className="hero-stat-item">
 										<Box className="stat-icon-box resources">📚</Box>
 										<Stack className="stat-info">
 											<Typography className="stat-number">{categoryCounts[ArticleCategory.KNOWLEDGE]}</Typography>
-											<Typography className="stat-label">Knowledge</Typography>
+											<Typography className="stat-label">{t('knowledge')}</Typography>
 										</Stack>
 									</Stack>
 								</Stack>
@@ -280,7 +282,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 						<Stack className="left-sidebar">
 							<Stack className="sidebar-widget categories-widget">
 								<Stack className="widget-header">
-									<Typography className="widget-title">📁 Categories</Typography>
+									<Typography className="widget-title">📁 {t('categories')}</Typography>
 								</Stack>
 								<TabList
 									orientation="vertical"
@@ -293,7 +295,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 											<Stack className="tab-label-content">
 												<Stack className="tab-label-left">
 													<WorkOutlineIcon className="tab-icon" />
-													<Typography className="tab-text">Career & Jobs</Typography>
+													<Typography className="tab-text">{t('career_jobs')}</Typography>
 												</Stack>
 												<Chip label={getCategoryCount(ArticleCategory.CAREER)} size="small" className="tab-badge" />
 											</Stack>
@@ -308,7 +310,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 											<Stack className="tab-label-content">
 												<Stack className="tab-label-left">
 													<EventIcon className="tab-icon" />
-													<Typography className="tab-text">Campus Events</Typography>
+													<Typography className="tab-text">{t('campus_events')}</Typography>
 												</Stack>
 												<Chip label={getCategoryCount(ArticleCategory.EVENTS)} size="small" className="tab-badge" />
 											</Stack>
@@ -323,7 +325,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 											<Stack className="tab-label-content">
 												<Stack className="tab-label-left">
 													<NewspaperIcon className="tab-icon" />
-													<Typography className="tab-text">University News</Typography>
+													<Typography className="tab-text">{t('university_news')}</Typography>
 												</Stack>
 												<Chip
 													label={getCategoryCount(ArticleCategory.ANNOUNCEMENTS)}
@@ -342,7 +344,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 											<Stack className="tab-label-content">
 												<Stack className="tab-label-left">
 													<SchoolIcon className="tab-icon" />
-													<Typography className="tab-text">Knowledge</Typography>
+													<Typography className="tab-text">{t('knowledge')}</Typography>
 												</Stack>
 												<Chip label={getCategoryCount(ArticleCategory.KNOWLEDGE)} size="small" className="tab-badge" />
 											</Stack>

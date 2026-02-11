@@ -18,12 +18,7 @@ import { Product } from '../../libs/types/product/product';
 import { GET_PRODUCTS } from '../../libs/apollo/user/query';
 import { T } from '../../libs/types/common';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-
-export const getStaticProps = async ({ locale }: any) => ({
-	props: {
-		...(await serverSideTranslations(locale, ['common'])),
-	},
-});
+import { useTranslation } from 'react-i18next';
 
 const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -37,12 +32,12 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	const [sortingOpen, setSortingOpen] = useState(false);
 	const [filterSortName, setFilterSortName] = useState('New');
 	const [showFilter, setShowFilter] = useState(true);
+	const { t } = useTranslation('common');
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
 	const [saveTargetProduct] = useMutation(SAVE_TARGET_PRODUCT);
 
-	// 40-51 qatorlarni o'zgartiring:
 	const {
 		loading: getProductsLoading,
 		data: getProductsData,
@@ -54,7 +49,6 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 		notifyOnNetworkStatusChange: true,
 	});
 
-	// useEffect qo'shing (53-qatordan keyin):
 	useEffect(() => {
 		if (getProductsData?.getProducts) {
 			setProducts(getProductsData.getProducts.list || []);
@@ -202,8 +196,8 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 					{/* Header Section */}
 					<Stack className="marketplace-header">
 						<Stack className="header-left">
-							<Typography className="page-title">Marketplace</Typography>
-							<Typography className="page-subtitle">Discover great deals from fellow students</Typography>
+							<Typography className="page-title">{t('marketplace')}</Typography>
+							<Typography className="page-subtitle">{t('discoverDeals')}</Typography>
 						</Stack>
 						<Stack className="header-right">
 							<Button
@@ -211,10 +205,10 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 								startIcon={<TuneRoundedIcon />}
 								onClick={() => setShowFilter(!showFilter)}
 							>
-								{showFilter ? 'Hide Filters' : 'Show Filters'}
+								{showFilter ? t('hideFilters') : t('showFilters')}
 							</Button>
 							<Stack className="sort-box">
-								<Typography className="sort-label">Sort by</Typography>
+								<Typography className="sort-label">{t('sortBy')}</Typography>
 								<Button className="sort-btn" onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
 									{filterSortName}
 								</Button>
@@ -244,7 +238,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 											},
 										}}
 									>
-										New
+										{t('new')}
 									</MenuItem>
 									<MenuItem
 										onClick={sortingHandler}
@@ -258,7 +252,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 											},
 										}}
 									>
-										Lowest Price
+										{t('lowestPrice')}
 									</MenuItem>
 									<MenuItem
 										onClick={sortingHandler}
@@ -272,7 +266,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 											},
 										}}
 									>
-										Highest Price
+										{t('highestPrice')}
 									</MenuItem>
 								</Menu>
 							</Stack>
@@ -300,7 +294,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 										{products.length === 0 ? (
 											<Stack className="no-data">
 												<img src="/img/icons/icoAlert.svg" alt="" />
-												<Typography>No Products found!</Typography>
+												<Typography>{t('noProductsFound')}</Typography>
 											</Stack>
 										) : (
 											products.map((product: Product) => (

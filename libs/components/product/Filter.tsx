@@ -22,6 +22,7 @@ import router from 'next/router';
 import { ProductsInquiry, ProductSearch } from '../../types/product/product.input';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { ProductCondition, ProductType } from '../../enums/product.enum';
+import { useTranslation } from 'react-i18next';
 
 interface FilterType {
 	searchFilter: ProductsInquiry;
@@ -32,22 +33,15 @@ interface FilterType {
 const Filter = (props: FilterType) => {
 	const device = useDeviceDetect();
 	const { searchFilter, setSearchFilter, initialInput } = props;
-
-	// Local states
+	const { t } = useTranslation('common');
 	const [searchText, setSearchText] = useState<string>('');
 	const [productPrice, setProductPrice] = useState<[number, number]>([0, 10000000]);
 	const [selectedTypes, setSelectedTypes] = useState<ProductType[]>([]);
 	const [selectedCondition, setSelectedCondition] = useState<ProductCondition | null>(null);
-
-	// Expand/Collapse states - Default collapsed for compact design
 	const [expandType, setExpandType] = useState(false);
 	const [expandCondition, setExpandCondition] = useState(false);
 	const [expandPrice, setExpandPrice] = useState(false);
-
-	// Debounce timer
 	const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
-
-	// Product types from enum
 	const productTypes: ProductType[] = [
 		ProductType.EDU,
 		ProductType.TECH,
@@ -57,7 +51,6 @@ const Filter = (props: FilterType) => {
 		ProductType.OTHER,
 	];
 
-	// Conditions from enum
 	const conditions: ProductCondition[] = [
 		ProductCondition.NEW,
 		ProductCondition.LIKE_NEW,
@@ -103,7 +96,6 @@ const Filter = (props: FilterType) => {
 		router.push(`/product?input=${JSON.stringify(resetFilter)}`, undefined, { scroll: false });
 	};
 
-	// Type checkbox handler
 	const handleTypeChange = (type: ProductType) => {
 		const newTypes = selectedTypes.includes(type)
 			? selectedTypes.filter((t) => t !== type)
@@ -235,7 +227,7 @@ const Filter = (props: FilterType) => {
 			<Stack className="filter-modern-header">
 				<Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
 					<FilterListIcon sx={{ color: '#667eea', fontSize: 22 }} />
-					<Typography className="filter-modern-title">Filters</Typography>
+					<Typography className="filter-modern-title">{t('filters')}</Typography>
 					{getTotalActiveFilters() > 0 && (
 						<Chip label={getTotalActiveFilters()} size="small" className="active-filters-chip" />
 					)}
@@ -264,7 +256,7 @@ const Filter = (props: FilterType) => {
 			{/* Price Range Filter - Vertical Slider (Carrot.kr style) */}
 			<Stack className="filter-modern-section">
 				<Button className="section-header-modern" onClick={() => setExpandPrice(!expandPrice)} fullWidth>
-					<Typography className="section-title-modern">Price Range</Typography>
+					<Typography className="section-title-modern">{t('price_range')}</Typography>
 					<ExpandMoreIcon
 						sx={{
 							transform: expandPrice ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -348,7 +340,7 @@ const Filter = (props: FilterType) => {
 			{/* Product Type Filter - Compact Pills */}
 			<Stack className="filter-modern-section">
 				<Button className="section-header-modern" onClick={() => setExpandType(!expandType)} fullWidth>
-					<Typography className="section-title-modern">Category</Typography>
+					<Typography className="section-title-modern">{t('product_type')}</Typography>
 					{selectedTypes.length > 0 && (
 						<Chip label={selectedTypes.length} size="small" className="count-chip-modern" />
 					)}
@@ -391,7 +383,7 @@ const Filter = (props: FilterType) => {
 			{/* Condition Filter - Compact Pills */}
 			<Stack className="filter-modern-section">
 				<Button className="section-header-modern" onClick={() => setExpandCondition(!expandCondition)} fullWidth>
-					<Typography className="section-title-modern">Condition</Typography>
+					<Typography className="section-title-modern">{t('condition')}</Typography>
 					{selectedCondition && <Chip label="1" size="small" className="count-chip-modern" />}
 					<ExpandMoreIcon
 						sx={{
@@ -460,7 +452,7 @@ const Filter = (props: FilterType) => {
 					},
 				}}
 			>
-				Apply Filters
+				{t('apply_filtersApply')}
 				{selectedTypes.length > 0 || selectedCondition ? ` (${selectedTypes.length + (selectedCondition ? 1 : 0)})` : ''}
 			</Button>
 

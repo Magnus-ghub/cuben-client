@@ -2,7 +2,6 @@ import React, { MouseEvent, useEffect, useState } from 'react';
 import { Stack, Box, Button, Avatar } from '@mui/material';
 import Link from 'next/link';
 import { TrendingUp, Flame, Users, Image as ImageIcon, Video, Smile } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { LIKE_TARGET_POST, SAVE_TARGET_POST } from '../../apollo/user/mutation';
@@ -13,13 +12,13 @@ import { Messages, REACT_APP_API_URL } from '../../config';
 import { userVar } from '../../apollo/store';
 import PostCard from '../community/Postcard';
 import { PostsInquiry } from '../../types/post/post.input';
+import { useTranslation } from 'react-i18next';
 import { Post } from '../../types/post/post';
 import { T } from '../../types/common';
 import CommentModal from '../common/CommentModal';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 const MainSection = ({ initialInput }: any) => {
-	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const { query } = router;
@@ -34,6 +33,7 @@ const MainSection = ({ initialInput }: any) => {
 	const [commentModalOpen, setCommentModalOpen] = useState(false);
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [imageError, setImageError] = useState(false);
+	const { t, i18n } = useTranslation('common');
 
 	if (postCategory) initialInput.search.postCategory = postCategory;
 
@@ -54,7 +54,6 @@ const MainSection = ({ initialInput }: any) => {
 		notifyOnNetworkStatusChange: true,
 	});
 
-	// 61-qatordan keyin qo'shing:
 	useEffect(() => {
 		if (getPostsData?.getPosts?.list) {
 			setPosts(getPostsData.getPosts.list);
@@ -90,7 +89,6 @@ const MainSection = ({ initialInput }: any) => {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
-			// OPTIMISTIC UPDATE
 			setPosts((prevPosts) =>
 				prevPosts.map((post) => {
 					if (post._id === id) {
@@ -114,7 +112,6 @@ const MainSection = ({ initialInput }: any) => {
 		} catch (err: any) {
 			console.log('ERROR, likePostHandler:', err.message);
 
-			// Rollback
 			setPosts((prevPosts) =>
 				prevPosts.map((post) => {
 					if (post._id === id) {
@@ -164,7 +161,6 @@ const MainSection = ({ initialInput }: any) => {
 		} catch (err: any) {
 			console.log('ERROR, savePostHandler:', err.message);
 
-			// Rollback
 			setPosts((prevPosts) =>
 				prevPosts.map((post) => {
 					if (post._id === id) {
@@ -185,7 +181,6 @@ const MainSection = ({ initialInput }: any) => {
 		}
 	};
 
-	// FIXED: Follow/Unfollow Handler with proper state detection
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
 		try {
 			if (!id) throw new Error(Messages.error1);
@@ -293,7 +288,7 @@ const MainSection = ({ initialInput }: any) => {
 					<Avatar className="user-avatar" src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
 					<Link href="/create/writePost" style={{ textDecoration: 'none', flex: 1 }}>
 						<Box className="create-input">
-							<span>What's on your mind?</span>
+							<span>{t('whats_on_mind')}</span>
 						</Box>
 					</Link>
 				</Box>
@@ -301,13 +296,13 @@ const MainSection = ({ initialInput }: any) => {
 				{/* Create Post Actions */}
 				<Stack className="create-post-actions">
 					<Button startIcon={<ImageIcon size={18} />} className="post-action-btn">
-						Photo
+						{t('photo')}
 					</Button>
 					<Button startIcon={<Video size={18} />} className="post-action-btn">
-						Video
+						{t('video')}
 					</Button>
 					<Button startIcon={<Smile size={18} />} className="post-action-btn">
-						Feeling
+						{t('feeling')}
 					</Button>
 				</Stack>
 
@@ -315,21 +310,21 @@ const MainSection = ({ initialInput }: any) => {
 				<Box className="feed-tabs">
 					<Button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabChange('all')}>
 						<TrendingUp size={18} />
-						For You
+						{t('forYou')}
 					</Button>
 					<Button
 						className={`tab-btn ${activeTab === 'following' ? 'active' : ''}`}
 						onClick={() => handleTabChange('following')}
 					>
 						<Users size={18} />
-						Following
+						{t('following')}
 					</Button>
 					<Button
 						className={`tab-btn ${activeTab === 'popular' ? 'active' : ''}`}
 						onClick={() => handleTabChange('popular')}
 					>
 						<Flame size={18} />
-						Popular
+						{t('popular')}
 					</Button>
 				</Box>
 
@@ -337,7 +332,7 @@ const MainSection = ({ initialInput }: any) => {
 				<Stack className="posts-feed">
 					{getPostsLoading && posts.length === 0 ? (
 						<Stack className="loading-container">
-							<p>Loading posts...</p>
+							<p>{t('loadingPosts')}</p>
 						</Stack>
 					) : posts && posts.length > 0 ? (
 						posts.map((post: Post) => (
@@ -354,7 +349,7 @@ const MainSection = ({ initialInput }: any) => {
 					) : (
 						<Stack className="no-data">
 							<img src="/img/icons/icoAlert.svg" alt="No posts" />
-							<p>No posts found!</p>
+							<p>{t('noPostsFound')}</p>
 						</Stack>
 					)}
 				</Stack>

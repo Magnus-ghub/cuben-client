@@ -7,9 +7,11 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { GET_ARTICLES } from '../../apollo/user/query';
 import { Article } from '../../types/article/article';
 import { ArticleCategory } from '../../enums/article.enum';
+import { useTranslation } from 'react-i18next';
 
 const Events = () => {
 	const device = useDeviceDetect();
+	const { t, i18n } = useTranslation('common');
 
 	const { loading, data, error } = useQuery(GET_ARTICLES, {
 		variables: {
@@ -44,7 +46,6 @@ const Events = () => {
 		id: article._id,
 		title: article.articleTitle,
 		date: formatEventDate(article.createdAt.toString()), 
-		// time: formatEventTime(article.articleEventTime), 
 		location: 'Campus', 
 		attendees: article.articleViews || 0, 
 		image: article.articleImage 
@@ -57,7 +58,7 @@ const Events = () => {
 		return (
 			<Stack className="events-section">
 				<Box className="events-card error-state">
-					<p>Unable to load events. Please try again later.</p>
+					<p>{t('unableToLoadProducts')}</p>
 				</Box>
 			</Stack>
 		);
@@ -77,9 +78,9 @@ const Events = () => {
 				<Box className="events-card">
 					<Box className="card-header">
 						<Calendar size={20} className="header-icon" />
-						<h3>Upcoming Events</h3>
+						<h3>{t('upcomingEvents')}</h3>
 						<Link href="/article?articleCategory=EVENTS" className="view-all-link">
-							View All
+							{t('viewAll')}
 						</Link>
 					</Box>
 					<Stack className="events-list">
@@ -98,12 +99,12 @@ const Events = () => {
 				<Box className="events-card">
 					<Box className="card-header">
 						<Calendar size={20} className="header-icon" />
-						<h3>Upcoming Events</h3>
+						<h3>{t('upcomingEvents')}</h3>
 					</Box>
 					<Box className="empty-state">
-						<p>No upcoming events available at the moment.</p>
+						<p>{t('unableToLoadProducts')}</p>
 						<Link href="/article?articleCategory=EVENTS">
-							<Button variant="outlined">Browse All Articles</Button>
+							<Button variant="outlined">{t('browseAllProducts')}</Button>
 						</Link>
 					</Box>
 				</Box>
@@ -116,9 +117,9 @@ const Events = () => {
 			<Box className="events-card">
 				<Box className="card-header">
 					<Calendar size={20} className="header-icon" />
-					<h3>Upcoming Events</h3>
+					<h3>{t('upcomingEvents')}</h3>
 					<Link href="/article?articleCategory=EVENTS" className="view-all-link">
-						View All
+						{t('viewAll')}
 					</Link>
 				</Box>
 				<Stack className="events-list">

@@ -14,7 +14,7 @@ const RightSidebar = () => {
 	const router = useRouter();
 
 	if (device === 'mobile') {
-		return null; // Mobile'da Right Sidebar ko'rsatmaydi
+		return null; 
 	}
 
 	return (

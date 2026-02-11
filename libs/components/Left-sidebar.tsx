@@ -17,6 +17,7 @@ import {
 	LayoutList,
 } from 'lucide-react';
 import { logOut } from '../auth';
+import { useTranslation } from 'next-i18next';
 import React, { useState, useEffect } from 'react';
 import { userVar } from '../apollo/store';
 import { useQuery, useReactiveVar } from '@apollo/client';
@@ -24,13 +25,13 @@ import { useRouter } from 'next/router';
 import { REACT_APP_API_URL } from '../config';
 import { Snackbar, Alert } from '@mui/material';
 import { GET_ARTICLES, GET_MEMBER, GET_PRODUCTS } from '../apollo/user/query';
-import { T } from '../types/common';
 import { sweetErrorHandling } from '../sweetAlert';
 
 const LeftSidebar = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
+	const { t, i18n } = useTranslation('common');
 	const [logoutOpen, setLogoutOpen] = useState(false);
 	const [comingSoonOpen, setComingSoonOpen] = useState(false);
 	const [imageError, setImageError] = useState(false);
@@ -67,7 +68,6 @@ const LeftSidebar = () => {
 		}
 	}, [getMemberError]);
 
-	// Articles count - barcha userlar uchun (login bo'lmagan ham)
 	const { data: articlesData, loading: articlesLoading } = useQuery(GET_ARTICLES, {
 		variables: {
 			input: {
@@ -80,7 +80,6 @@ const LeftSidebar = () => {
 		// skip: false - doim load qiladi
 	});
 
-	// Products count - barcha userlar uchun (login bo'lmagan ham)
 	const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
 		variables: {
 			input: {
@@ -90,7 +89,6 @@ const LeftSidebar = () => {
 			},
 		},
 		fetchPolicy: 'cache-and-network',
-		// skip: false - doim load qiladi
 	});
 
 	const articlesCount = articlesData?.getArticles?.metaCounter[0]?.total || 0;
@@ -140,7 +138,7 @@ const LeftSidebar = () => {
 		<Stack className={'navbar'}>
 			<Stack className={'navbar-main'}>
 				<Stack className={'container'}>
-					{/* Profile Card - Faqat login qilgan userlar uchun */}
+					{/* Profile Card */}
 					{user?._id && (
 						<Link href="/mypage" style={{ textDecoration: 'none' }}>
 							<Stack className="profile-card">
@@ -163,7 +161,7 @@ const LeftSidebar = () => {
 												stats.followers
 											)}
 										</Box>
-										<Box className="stat-label">Followers</Box>
+										<Box className="stat-label">{t('followers')}</Box>
 									</Stack>
 									<Stack className="stat-item">
 										<Box className="stat-number">
@@ -173,7 +171,7 @@ const LeftSidebar = () => {
 												stats.followings
 											)}
 										</Box>
-										<Box className="stat-label">Following</Box>
+										<Box className="stat-label">{t('following')}</Box>
 									</Stack>
 								</Stack>
 							</Stack>
@@ -184,17 +182,17 @@ const LeftSidebar = () => {
 					<Stack className="sidebar-content">
 						{/* HOME Section - Hamma userlar uchun count bilan */}
 						<Stack className="sidebar-section">
-							<Box className="section-title">🏠 HOME</Box>
+							<Box className="section-title">🏠 {t('home')}</Box>
 							<Link href={'/'}>
 								<Stack className={`menu-item ${isActive('/') ? 'active' : ''}`}>
 									<LayoutList size={20} className="menu-icon" />
-									<Box className="menu-text">Feed</Box>
+									<Box className="menu-text">{t('feed')}</Box>
 								</Stack>
 							</Link>
 							<Link href={'/article?articleCategory=CAREER'}>
 								<Stack className={`menu-item ${isActive('/article', 'articleCategory', 'CAREER') ? 'active' : ''}`}>
 									<Briefcase size={20} className="menu-icon" />
-									<Box className="menu-text">Opportunities</Box>
+									<Box className="menu-text">{t('opportunities')}</Box>
 									{articlesLoading ? (
 										<Skeleton variant="text" sx={{ fontSize: '0.875rem', width: 20, height: 16 }} />
 									) : (
@@ -205,7 +203,7 @@ const LeftSidebar = () => {
 							<Link href={'/product'}>
 								<Stack className={`menu-item ${isActive('/product') && !router.query.category ? 'active' : ''}`}>
 									<ShoppingBag size={20} className="menu-icon" />
-									<Box className="menu-text">Marketplace</Box>
+									<Box className="menu-text">{t('marketplace')}</Box>
 									{productsLoading ? (
 										<Skeleton variant="text" sx={{ fontSize: '0.875rem', width: 20, height: 16 }} />
 									) : (
@@ -215,7 +213,7 @@ const LeftSidebar = () => {
 							</Link>
 							<Stack className="menu-item " onClick={() => setComingSoonOpen(true)} sx={{ cursor: 'pointer' }}>
 								<MessageSquare size={20} className="menu-icon" />
-								<Box className="menu-text">Messages</Box>
+								<Box className="menu-text">{t('messages')}</Box>
 								<Box className="menu-badge">Soon</Box>
 							</Stack>
 						</Stack>
@@ -223,33 +221,33 @@ const LeftSidebar = () => {
 						{/* MY ACTIVITY Section - Faqat login qilgan userlar uchun */}
 						{user?._id && (
 							<Stack className="sidebar-section">
-								<Box className="section-title">⚡ MY ACTIVITY</Box>
+								<Box className="section-title">⚡ {t('my_Activity')}</Box>
 
 								<Link href={'/mypage'}>
 									<Stack className={`menu-item ${isActive('/mypage') ? 'active' : ''}`}>
 										<GraduationCap size={20} className="menu-icon" />
-										<Box className="menu-text">My Profile</Box>
+										<Box className="menu-text">{t('profile')}</Box>
 									</Stack>
 								</Link>
 
 								<Link href={'/activity/favorites'}>
 									<Stack className={`menu-item ${isActive('/activity/favorites') ? 'active' : ''}`}>
 										<Heart size={20} className="menu-icon" />
-										<Box className="menu-text">Favorites</Box>
+										<Box className="menu-text">{t('favorites')}</Box>
 									</Stack>
 								</Link>
 
 								<Link href={'/activity/history'}>
 									<Stack className={`menu-item ${isActive('/activity/history') ? 'active' : ''}`}>
 										<History size={20} className="menu-icon" />
-										<Box className="menu-text">Recently Viewed</Box>
+										<Box className="menu-text">{t('recently_viewed')}</Box>
 									</Stack>
 								</Link>
 
 								<Link href={'/activity/savedItems'}>
 									<Stack className={`menu-item ${isActive('/activity/savedItems') ? 'active' : ''}`}>
 										<BookmarkIcon size={20} className="menu-icon" />
-										<Box className="menu-text">Saved Items</Box>
+										<Box className="menu-text">{t('saved_items')}</Box>
 									</Stack>
 								</Link>
 							</Stack>
@@ -257,19 +255,19 @@ const LeftSidebar = () => {
 
 						{/* TOOLS Section - Hamma userlar uchun */}
 						<Stack className="sidebar-section">
-							<Box className="section-title">🛠️ Tools</Box>
+							<Box className="section-title">🛠️ {t('tools')}</Box>
 
 							<Link href={'/calendar'}>
 								<Stack className={`menu-item ${isActive('/calendar') ? 'active' : ''}`}>
 									<Calendar size={20} className="menu-icon" />
-									<Box className="menu-text">Calendar</Box>
+									<Box className="menu-text">{t('calendar')}</Box>
 								</Stack>
 							</Link>
 
 							<Link href={'/notes'}>
 								<Stack className={`menu-item ${isActive('/notes') ? 'active' : ''}`}>
 									<Notebook size={20} className="menu-icon" />
-									<Box className="menu-text">Notes</Box>
+									<Box className="menu-text">{t('notes')}</Box>
 								</Stack>
 							</Link>
 						</Stack>
@@ -280,13 +278,13 @@ const LeftSidebar = () => {
 						<Link href="/cs">
 							<Stack className="bottom-item">
 								<HelpCircle size={20} className="menu-icon" />
-								<Box>Help & Support</Box>
+								<Box>{t('helpSupport')}</Box>
 							</Stack>
 						</Link>
 						<Link href="/about">
 							<Stack className="bottom-item">
 								<InfoIcon size={20} className="menu-icon" />
-								<Box>About</Box>
+								<Box>{t('about')}</Box>
 							</Stack>
 						</Link>
 						{user?._id && (
@@ -299,7 +297,7 @@ const LeftSidebar = () => {
 									onClick={() => setLogoutOpen(true)}
 								>
 									<LogOut size={20} className="menu-icon" />
-									<Box>Logout</Box>
+									<Box>{t('logout')}</Box>
 								</Stack>
 
 								<Dialog
@@ -324,9 +322,9 @@ const LeftSidebar = () => {
 												lineHeight: 1.6,
 											}}
 										>
-											Are you sure you want to log out?
+											{t('logoutConfirmTitle')}
 											<br />
-											You'll need to sign in again to access your account.
+											{t('logoutConfirmDesc')}
 										</Box>
 									</DialogContent>
 
@@ -348,7 +346,7 @@ const LeftSidebar = () => {
 												},
 											}}
 										>
-											Cancel
+											{t('cancel')}
 										</Button>
 
 										<Button
@@ -366,14 +364,14 @@ const LeftSidebar = () => {
 												},
 											}}
 										>
-											Log out
+											{t('logout')}
 										</Button>
 									</DialogActions>
 								</Dialog>
 
 								<Snackbar open={comingSoonOpen} autoHideDuration={3000} onClose={() => setComingSoonOpen(false)}>
 									<Alert severity="info" variant="filled">
-										Messages feature is coming soon 🚀
+										{t('messagesComingSoon')}🚀
 									</Alert>
 								</Snackbar>
 							</>

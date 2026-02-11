@@ -7,9 +7,11 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { GET_ARTICLES } from '../../apollo/user/query';
 import { Article } from '../../types/article/article';
 import { ArticleCategory } from '../../enums/article.enum';
+import { useTranslation } from 'react-i18next';
 
 const FeatureJobs = () => {
 	const device = useDeviceDetect();
+	const { t, i18n } = useTranslation('common');
 
 	const { loading, data, error } = useQuery(GET_ARTICLES, {
 		variables: {
@@ -26,7 +28,6 @@ const FeatureJobs = () => {
 		fetchPolicy: 'cache-and-network',
 	});
 
-	// ✅ Date formatting function
 	const formatPostedDate = (createdAt: string) => {
 		const now = new Date();
 		const posted = new Date(createdAt);
@@ -46,13 +47,13 @@ const FeatureJobs = () => {
 		id: article._id,
 		title: article.articleTitle,
 		company: article.memberData?.memberNick || 'Unknown Company',
-		location: 'Remote', // ✅ Default qiymat
-		salary: 'Negotiable', // ✅ Default qiymat
-		type: 'Full-time', // ✅ Default qiymat
+		location: 'Remote', 
+		salary: 'Negotiable',
+		type: 'Full-time',
 		logo: article.memberData?.memberImage 
 			? `${process.env.REACT_APP_API_URL}/${article.memberData.memberImage}` 
-			: '/img/default-logo.png', // ✅ To'g'rilandi
-		posted: formatPostedDate(article.createdAt.toString()), // ✅ Format qo'llanildi
+			: '/img/default-logo.png', 
+		posted: formatPostedDate(article.createdAt.toString()), 
 		likes: article.articleLikes || 0,
 	})) || [];
 
@@ -61,7 +62,7 @@ const FeatureJobs = () => {
 		return (
 			<Stack className="jobs-section">
 				<Box className="jobs-card error-state">
-					<p>Unable to load jobs. Please try again later.</p>
+					<p>{t('unableToLoadProducts')}</p>
 				</Box>
 			</Stack>
 		);
@@ -81,9 +82,9 @@ const FeatureJobs = () => {
 				<Box className="jobs-card">
 					<Box className="card-header">
 						<Briefcase size={20} className="header-icon" />
-						<h3>Featured Jobs</h3>
+						<h3>{t('featuredJobs')}</h3>
 						<Link href="/article?articleCategory=CAREER" className="view-all-link">
-							View All
+							{t('viewAll')}
 						</Link>
 					</Box>
 					<Stack className="jobs-list">
@@ -96,19 +97,18 @@ const FeatureJobs = () => {
 		);
 	}
 
-	// ✅ Agar ma'lumot yo'q bo'lsa
 	if (featuredJobs.length === 0) {
 		return (
 			<Stack className="jobs-section">
 				<Box className="jobs-card">
 					<Box className="card-header">
 						<Briefcase size={20} className="header-icon" />
-						<h3>Featured Jobs</h3>
+						<h3>{t('featuredJobs')}</h3>
 					</Box>
 					<Box className="empty-state">
-						<p>No career opportunities available at the moment.</p>
+						<p>{t('unableToLoadProducts')}</p>
 						<Link href="/article?articleCategory=CAREER">
-							<Button variant="outlined">Browse All Articles</Button>
+							<Button variant="outlined">{t('browseAllProducts')}</Button>
 						</Link>
 					</Box>
 				</Box>
@@ -121,9 +121,9 @@ const FeatureJobs = () => {
 			<Box className="jobs-card">
 				<Box className="card-header">
 					<Briefcase size={20} className="header-icon" />
-					<h3>Featured Jobs</h3>
+					<h3>{t('featuredJobs')}</h3>
 					<Link href="/article?articleCategory=CAREER" className="view-all-link">
-						View All
+						{t('viewAll')}
 					</Link>
 				</Box>
 				<Stack className="jobs-list">
@@ -156,9 +156,9 @@ const FeatureJobs = () => {
 									</span>
 								</Box>
 								<Box className="job-footer">
-									<span className="job-posted">{job.posted}</span> {/* ✅ Formatted date ko'rsatiladi */}
+									<span className="job-posted">{job.posted}</span> 
 									<Button size="small" className="apply-btn">
-										Apply Now
+										{t('apply_now')}
 									</Button>
 								</Box>
 							</Box>

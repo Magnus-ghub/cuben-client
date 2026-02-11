@@ -15,6 +15,7 @@ import { useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { FollowInquiry } from '../../types/follow/follow.input';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 interface PostCardProps {
 	post: Post;
@@ -32,6 +33,7 @@ const PostCard = (props: PostCardProps) => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [isFollowing, setIsFollowing] = useState<boolean>(false);
+	const { t, i18n } = useTranslation('common');
 
 	/** LIFECYCLES **/
 	useEffect(() => {

@@ -6,9 +6,11 @@ import { ShoppingBag } from 'lucide-react';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { GET_PRODUCTS } from '../../apollo/user/query';
 import { Product } from '../../types/product/product';
+import { useTranslation } from 'react-i18next';
 
 const PopularProducts = () => {
 	const device = useDeviceDetect();
+	const { t, i18n } = useTranslation('common');
 
 	const { loading, data, error } = useQuery(GET_PRODUCTS, {
 		variables: {
@@ -40,7 +42,7 @@ const PopularProducts = () => {
 		return (
 			<Stack className="marketplace-section">
 				<Box className="marketplace-card error-state">
-					<p>Unable to load products. Please try again later.</p>
+					<p>{t('unableToLoadProducts')}</p>
 				</Box>
 			</Stack>
 		);
@@ -60,9 +62,9 @@ const PopularProducts = () => {
 				<Box className="marketplace-card">
 					<Box className="card-header">
 						<ShoppingBag size={20} className="header-icon" />
-						<h3>Marketplace Picks</h3>
+						<h3>{t('marketplacePicks')}</h3>
 						<Link href="/product" className="view-all-link">
-							View All
+							{t('viewAll')}
 						</Link>
 					</Box>
 					<Stack className="products-grid">
@@ -81,15 +83,15 @@ const PopularProducts = () => {
 				<Box className="marketplace-card">
 					<Box className="card-header">
 						<ShoppingBag size={20} className="header-icon" />
-						<h3>Marketplace Picks</h3>
+						<h3>{t('marketplacePicks')}</h3>
 						<Link href="/product" className="view-all-link">
-							View All
+							{t('viewAll')}
 						</Link>
 					</Box>
 					<Box className="empty-state">
-						<p>No popular products available at the moment.</p>
+						<p>{t('unableToLoadProducts')}</p>
 						<Link href="/product">
-							<Button variant="outlined">Browse All Products</Button>
+							<Button variant="outlined">{t('browseAllProducts')}</Button>
 						</Link>
 					</Box>
 				</Box>
@@ -102,14 +104,14 @@ const PopularProducts = () => {
 			<Box className="marketplace-card">
 				<Box className="card-header">
 					<ShoppingBag size={20} className="header-icon" />
-					<h3>Marketplace Picks</h3>
+					<h3>{t('marketplacePicks')}</h3>
 					<Link href="/product" className="view-all-link">
-						View All
+						{t('viewAll')}
 					</Link>
 				</Box>
 				<Stack className="products-grid">
 					{featuredProducts.map((product) => (
-						<Link key={product.id} href={`/product?id=${product.id}`} style={{ textDecoration: 'none' }}>  {/* O'zgarish: Query param ishlatildi (?id=...) */}
+						<Link key={product.id} href={`/product?id=${product.id}`} style={{ textDecoration: 'none' }}>  
 							<Box className="product-item">
 								<Box className="product-image">
 									<img 

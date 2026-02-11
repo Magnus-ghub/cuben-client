@@ -1,6 +1,7 @@
 import { Box, MenuItem, Stack, Badge, Menu as MuiMenu } from '@mui/material';
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 import Menu, { MenuProps } from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
@@ -9,7 +10,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { alpha, styled } from '@mui/material/styles';
 import { CaretDown } from 'phosphor-react';
-import { useTranslation } from 'react-i18next';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { userVar, chatOpenVar } from '../apollo/store';
@@ -59,12 +59,11 @@ const Top: React.FC = () => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		const storedLocale = localStorage.getItem('locale');
-		if (storedLocale === null) {
+		if (localStorage.getItem('locale') === null) {
 			localStorage.setItem('locale', 'en');
 			setLang('en');
 		} else {
-			setLang(storedLocale);
+			setLang(localStorage.getItem('locale'));
 		}
 	}, [router]);
 
@@ -210,7 +209,7 @@ const Top: React.FC = () => {
 						<SearchIcon className="search-icon" />
 						<input 
 							type="text" 
-							placeholder="Search posts, jobs, items, or students..." 
+							placeholder={t('search_placeholder')} 
 							value={searchQuery}
 							onChange={handleSearchChange}
 							onKeyDown={handleSearch}
@@ -219,7 +218,7 @@ const Top: React.FC = () => {
 
 					{/* Right Section */}
 					<Box component={'div'} className={'actions-box'}>
-						{/* Create Button with Dropdown - Faqat login qilgan userlar uchun */}
+						{/* Create Button with Dropdown */}
 						{user?._id && (
 							<>
 								<Button
@@ -242,7 +241,7 @@ const Top: React.FC = () => {
 										},
 									}}
 								>
-									Create
+									{t('create')}
 								</Button>
 								<StyledMenu anchorEl={createMenuAnchor} open={createMenuOpen} onClose={handleCreateMenuClose}>
 									<MenuItem
@@ -251,7 +250,7 @@ const Top: React.FC = () => {
 											handleCreateMenuClose();
 										}}
 									>
-										📝 Write a Post
+										📝 {t('write_post')}
 									</MenuItem>
 									<MenuItem
 										onClick={() => {
@@ -259,7 +258,7 @@ const Top: React.FC = () => {
 											handleCreateMenuClose();
 										}}
 									>
-										🛒 Sell Item
+										🛒 {t('sell_item')}
 									</MenuItem>
 									{user?.memberType === 'AGENT' && (
 										<MenuItem
@@ -268,7 +267,7 @@ const Top: React.FC = () => {
 												handleCreateMenuClose();
 											}}
 										>
-											💼 Post a Job
+											💼 {t('post_job')}
 										</MenuItem>
 									)}
 								</StyledMenu>
@@ -292,7 +291,7 @@ const Top: React.FC = () => {
 								<MarkUnreadChatAltIcon sx={{ fontSize: 24, color: '#6b7280' }} />
 							</Box>
 
-							{/* Notification Icon - Faqat login qilgan userlar uchun */}
+							{/* Notification Icon */}
 							{user?._id && (
 								<Box
 									component="div"
@@ -340,15 +339,15 @@ const Top: React.FC = () => {
 							<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose}>
 								<MenuItem disableRipple onClick={langChoice} id="en">
 									<img className="img-flag" src={'/img/flag/langen.png'} alt={'USA Flag'} />
-									{t('English')}
+									{t('english')}
 								</MenuItem>
-								<MenuItem disableRipple onClick={langChoice} id="kr">
-									<img className="img-flag" src={'/img/flag/langkr.png'} alt={'Korean Flag'} />
-									{t('Korean')}
+								<MenuItem disableRipple onClick={langChoice} id="ko">
+									<img className="img-flag" src={'/img/flag/langko.png'} alt={'Korean Flag'} />
+									{t('korean')}
 								</MenuItem>
 								<MenuItem disableRipple onClick={langChoice} id="uz">
 									<img className="img-flag" src={'/img/flag/languz.png'} alt={'Uzbek Flag'} />
-									{t('Uzbek')}
+									{t('uzbek')}
 								</MenuItem>
 							</StyledMenu>
 						</Stack>
@@ -379,7 +378,7 @@ const Top: React.FC = () => {
 										},
 									}}
 								>
-									Login / Register
+									{t('loginRegister')}
 								</Button>
 							</Link>
 						)}
@@ -394,7 +393,7 @@ const Top: React.FC = () => {
 				onClose={() => setNotificationComingSoonOpen(false)}
 			>
 				<Alert severity="info" variant="filled">
-					Notifications feature is coming soon 🔔
+					{t('notificationsComingSoon')}🔔
 				</Alert>
 			</Snackbar>
 		</Stack>
