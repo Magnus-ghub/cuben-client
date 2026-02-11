@@ -151,9 +151,9 @@ export const updateUserInfo = (jwtToken: any) => {
 		memberViews: claims.memberViews,
 		memberWarnings: claims.memberWarnings,
 		memberBlocks: claims.memberBlocks,
-		memberFollowers: claims.memberFollowers ?? 0,      // Qo'shildi
-		memberFollowings: claims.memberFollowings ?? 0,    // Qo'shildi
-		memberPosts: claims.memberPosts ?? 0,              // Qo'shildi
+		memberFollowers: claims.memberFollowers ?? 0,      
+		memberFollowings: claims.memberFollowings ?? 0,    
+		memberPosts: claims.memberPosts ?? 0,             
 	});
 };
 

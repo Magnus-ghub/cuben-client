@@ -51,13 +51,13 @@ export const chatOpenVar = makeVar<boolean>(false);
 export const setUser = (user: CustomJwtPayload) => {
 	userVar(user);
 	if (user && user._id) {
-		console.log('✅ User set:', user.memberNick);
+		console.log('User set:', user.memberNick);
 		// Save to localStorage
 		if (typeof window !== 'undefined') {
-			localStorage.setItem('user', JSON.stringify(user));
+			// localStorage.setItem('user', JSON.stringify(user));
 		}
 	} else {
-		console.log('🚪 User logged out');
+		console.log('User logged out');
 	}
 };
 
@@ -71,9 +71,9 @@ export const setSocket = (socket: WebSocket | null) => {
 	// @ts-ignore
 	socketVar(socket);
 	if (socket) {
-		console.log('✅ Socket set - ReadyState:', socket.readyState);
+		console.log('Socket set - ReadyState:', socket.readyState);
 	} else {
-		console.log('🔌 Socket cleared');
+		console.log('Socket cleared');
 	}
 };
 
@@ -86,13 +86,13 @@ export const getSocket = (): WebSocket | null => {
 export const toggleChat = () => {
 	const currentState = chatOpenVar();
 	chatOpenVar(!currentState);
-	console.log('💬 Chat toggled:', !currentState ? 'OPEN' : 'CLOSED');
+	console.log('Chat toggled:', !currentState ? 'OPEN' : 'CLOSED');
 };
 
 // Set chat state explicitly
 export const setChatOpen = (isOpen: boolean) => {
 	chatOpenVar(isOpen);
-	console.log('💬 Chat set to:', isOpen ? 'OPEN' : 'CLOSED');
+	console.log('Chat set to:', isOpen ? 'OPEN' : 'CLOSED');
 };
 
 // Get chat state
@@ -103,32 +103,42 @@ export const getChatOpen = (): boolean => {
 /**
  * Initialize store with default values
  */
-export const initializeStore = () => {
-	console.log('🏪 Initializing Apollo store...');
-	
-	// Check for stored user data
-	if (typeof window !== 'undefined') {
-		const storedUser = localStorage.getItem('user');
-		if (storedUser) {
-			try {
-				const userData = JSON.parse(storedUser);
-				userVar(userData);
-				console.log('✅ User restored from localStorage:', userData.memberNick);
-			} catch (error) {
-				console.error('❌ Error parsing stored user:', error);
-				localStorage.removeItem('user');
-			}
-		}
-	}
+export const initializeStore = async () => {
+  try {
+    const response = await fetch(process.env.NEXT_PUBLIC_API_URL!, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `
+          query {
+            me {
+              _id
+              memberNick
+              memberEmail
+              memberType
+            }
+          }
+        `
+      }),
+    });
 
-	console.log('✅ Store initialized');
+    const result = await response.json();
+
+    if (result.data?.me) {
+      userVar(result.data.me);
+    }
+  } catch (error) {
+    console.log('Not authenticated');
+  }
 };
+
 
 /**
  * Clear all store data (useful for logout)
  */
 export const clearStore = () => {
-	console.log('🧹 Clearing store...');
+	console.log('Clearing store...');
 	
 	// Reset user to default empty state
 	userVar({
@@ -164,5 +174,5 @@ export const clearStore = () => {
 		localStorage.removeItem('accessToken');
 	}
 	
-	console.log('✅ Store cleared');
+	console.log('Store cleared');
 };

@@ -42,7 +42,6 @@ const Join: NextPage = () => {
 	/** HANDLERS **/
 	const viewChangeHandler = (state: boolean) => {
 		setLoginView(state);
-		// Reset input when switching views
 		setInput({ nick: '', password: '', phone: '', type: 'USER' });
 	};
 
@@ -70,51 +69,9 @@ const Join: NextPage = () => {
 		}
 	}, [input]);
 
-	const handleGoogleLogin = async (credential: string) => {
-		try {
-			const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL!, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				credentials: 'include',
-				body: JSON.stringify({
-					query: `
-						mutation GoogleLogin($token: String!) {
-							googleLogin(token: $token) {
-								accessToken
-								member {
-									_id
-									memberNick
-									memberEmail
-									memberImage
-									memberType
-								}
-							}
-						}
-					`,
-					variables: { token: credential },
-				}),
-			});
-
-			const result = await response.json();
-
-			if (result.errors) {
-				throw new Error(result.errors[0]?.message || 'Google login failed');
-			}
-
-			if (result.data?.googleLogin) {
-				const { accessToken, member } = result.data.googleLogin;
-
-				// Store token in localStorage
-				localStorage.setItem('accessToken', accessToken);
-
-				await sweetMixinSuccessAlert(`Welcome back, ${member.memberNick}!`);
-				await router.push(`${router.query.referrer ?? '/'}`);
-			}
-		} catch (err: any) {
-			console.error('Google login error:', err);
-			await sweetMixinErrorAlert(err.message || 'Failed to login with Google');
-		}
-	};
+	// const handleGoogleLogin = () => {
+	// 	window.location.href = 'http://localhost:5007/auth/google';
+	// };
 
 	const handleKeyPress = (event: React.KeyboardEvent) => {
 		if (event.key === 'Enter') {
@@ -201,22 +158,12 @@ const Join: NextPage = () => {
 						<Stack className={'social-buttons'}>
 							{/* Google Login Button */}
 							<Box className={'google-wrapper'}>
-								<GoogleLogin
-									onSuccess={(credentialResponse) => {
-										if (credentialResponse.credential) {
-											handleGoogleLogin(credentialResponse.credential);
-										}
-									}}
-									onError={() => {
-										sweetMixinErrorAlert('Google Login Error. Please try again.');
-									}}
-									useOneTap={false}
-									theme="outline"
-									size="large"
-									text="continue_with"
-									shape="pill"
-									width="400"
-								/>
+								<Button className={'social-btn google'} 
+								    // onClick={handleGoogleLogin}
+									>
+									<FcGoogle size={20} />
+									<span>Continue with Google</span>
+								</Button>
 							</Box>
 
 							{/* KakaoTalk Button */}
