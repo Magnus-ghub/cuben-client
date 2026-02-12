@@ -23,6 +23,13 @@ import {
 	Calendar,
 } from 'lucide-react';
 import Link from 'next/link';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
 
 const About: NextPage = () => {
 	const device = useDeviceDetect();

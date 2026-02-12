@@ -9,6 +9,12 @@ import { userVar } from '../../libs/apollo/store';
 import dynamic from 'next/dynamic';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
 
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
+
 const Editor = dynamic(
 	async () => {
 		const mod = await import('@toast-ui/react-editor');
@@ -37,6 +43,7 @@ import {
 	Sparkles,
 } from 'lucide-react';
 import { Message } from '../../libs/enums/common.enum';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const WritePost: NextPage = () => {
 	const device = useDeviceDetect();

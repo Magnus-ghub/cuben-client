@@ -11,6 +11,13 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import CloseIcon from '@mui/icons-material/Close';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+export const getStaticProps = async ({ locale }: any) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 interface Note {
   id: string;

@@ -13,6 +13,13 @@ import { T } from '../../libs/types/common';
 import { GET_VISITED } from '../../libs/apollo/user/query';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import moment from 'moment';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
 
 const History: NextPage = () => {
 	const device = useDeviceDetect();

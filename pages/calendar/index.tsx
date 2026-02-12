@@ -6,6 +6,13 @@ import withLayoutMain from "../../libs/components/layout/LayoutHome";
 import { Box, Stack, Typography } from "@mui/material";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import EventIcon from "@mui/icons-material/Event";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+export const getStaticProps = async ({ locale }: any) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 const FullCalendar = dynamic(() => import("@fullcalendar/react"), {
   ssr: false,

@@ -27,6 +27,13 @@ import axios from 'axios';
 import { CREATE_ARTICLE } from '../../libs/apollo/user/mutation';
 import { ArticleInput } from '../../libs/types/article/article.input';
 import { ArticleCategory } from '../../libs/enums/article.enum';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+export const getStaticProps = async ({ locale }: any) => ({
+    props: {
+        ...(await serverSideTranslations(locale, ['common'])),
+    },
+});
 
 interface ArticleInputWithArray extends Omit<ArticleInput, 'articleImage'> {
     articleImage: string[];

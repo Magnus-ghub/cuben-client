@@ -2,15 +2,11 @@ import React, { useCallback, useState, useEffect } from 'react';
 import {
 	IconButton,
 	Typography,
-	Radio,
-	RadioGroup,
-	FormControlLabel,
 	Button,
 	Stack,
 	Tooltip,
 	Collapse,
 	Chip,
-	Checkbox,
 	Slider,
 	Box,
 } from '@mui/material';
@@ -33,13 +29,13 @@ interface FilterType {
 const Filter = (props: FilterType) => {
 	const device = useDeviceDetect();
 	const { searchFilter, setSearchFilter, initialInput } = props;
-	const { t } = useTranslation('common');
 	const [searchText, setSearchText] = useState<string>('');
 	const [productPrice, setProductPrice] = useState<[number, number]>([0, 10000000]);
 	const [selectedTypes, setSelectedTypes] = useState<ProductType[]>([]);
 	const [selectedCondition, setSelectedCondition] = useState<ProductCondition | null>(null);
 	const [expandType, setExpandType] = useState(false);
 	const [expandCondition, setExpandCondition] = useState(false);
+	const { t, i18n } = useTranslation('common');
 	const [expandPrice, setExpandPrice] = useState(false);
 	const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 	const productTypes: ProductType[] = [
@@ -247,7 +243,7 @@ const Filter = (props: FilterType) => {
 						type="text"
 						value={searchText}
 						className="search-input-modern"
-						placeholder="Search products..."
+						placeholder={t('searchProducts')}
 						onChange={(e) => handleSearchChange(e.target.value)}
 					/>
 				</Stack>
@@ -452,7 +448,7 @@ const Filter = (props: FilterType) => {
 					},
 				}}
 			>
-				{t('apply_filtersApply')}
+				{t('apply_filters')}
 				{selectedTypes.length > 0 || selectedCondition ? ` (${selectedTypes.length + (selectedCondition ? 1 : 0)})` : ''}
 			</Button>
 

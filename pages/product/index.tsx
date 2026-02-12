@@ -20,6 +20,12 @@ import { T } from '../../libs/types/common';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { useTranslation } from 'react-i18next';
 
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
+
 const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
@@ -30,9 +36,9 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	const [totalCount, setTotalCount] = useState<number>(0);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortingOpen, setSortingOpen] = useState(false);
-	const [filterSortName, setFilterSortName] = useState('New');
+    const [filterSortName, setFilterSortName] = useState('new');
 	const [showFilter, setShowFilter] = useState(true);
-	const { t } = useTranslation('common');
+	const { t, i18n } = useTranslation('common');
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
@@ -168,15 +174,15 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 		switch (e.currentTarget.id) {
 			case 'new':
 				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.DESC });
-				setFilterSortName('New');
+				setFilterSortName('new');
 				break;
 			case 'lowest':
 				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.ASC });
-				setFilterSortName('Lowest Price');
+				setFilterSortName('lowestPrice');
 				break;
 			case 'highest':
 				setSearchFilter({ ...searchFilter, sort: 'productPrice', direction: Direction.DESC });
-				setFilterSortName('Highest Price');
+				setFilterSortName('highestPrice');
 				break;
 		}
 		setSortingOpen(false);
@@ -210,7 +216,7 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 							<Stack className="sort-box">
 								<Typography className="sort-label">{t('sortBy')}</Typography>
 								<Button className="sort-btn" onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
-									{filterSortName}
+									{t(filterSortName)}
 								</Button>
 								<Menu
 									anchorEl={anchorEl}

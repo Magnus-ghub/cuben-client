@@ -17,6 +17,14 @@ import moment from 'moment';
 import { Post } from '../../libs/types/post/post';
 import { Article } from '../../libs/types/article/article';
 import { ArticleCategory } from '../../libs/enums/article.enum';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
 
 interface TabPanelProps {
 	children?: React.ReactNode;

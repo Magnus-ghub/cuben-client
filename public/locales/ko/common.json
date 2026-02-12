@@ -77,6 +77,7 @@
 	"filters": "필터",
 	"product_type": "상품 유형",
 	"hideFilters": "필터 숨기기",
+	 "searchProducts": "상품 검색...",
   "showFilters": "필터 보기",
 	"condition": "상태",
 	"price_range": "가격 범위",

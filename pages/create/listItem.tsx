@@ -27,6 +27,13 @@ import axios from 'axios';
 import { ProductCondition, ProductType } from '../../libs/enums/product.enum';
 import { CREATE_PRODUCT } from '../../libs/apollo/user/mutation';
 import { ProductInput } from '../../libs/types/product/product.input';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
 
 const ListItem: NextPage = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();

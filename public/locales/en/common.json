@@ -78,6 +78,7 @@
 
 	"filters": "Filters",
 	"product_type": "Product Type",
+	"searchProducts": "Search products...",
 	"condition": "Condition",
 	"hideFilters": "Hide Filters",
   "showFilters": "Show Filters",
