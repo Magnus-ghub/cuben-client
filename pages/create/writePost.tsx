@@ -1,478 +1,413 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { Box, Stack, Button, TextField, Chip, Avatar, IconButton, Modal, Backdrop } from '@mui/material';
+import {
+  Box,
+  Stack,
+  Button,
+  Chip,
+  Avatar,
+  IconButton,
+  Modal,
+  Backdrop,
+} from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { useReactiveVar, useMutation } from '@apollo/client';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { userVar } from '../../libs/apollo/store';
-import dynamic from 'next/dynamic';
-import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
+import { sweetErrorHandling, sweetTopSuccessAlert } from '../../libs/sweetAlert';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-export const getStaticProps = async ({ locale }: any) => ({
-	props: {
-		...(await serverSideTranslations(locale, ['common'])),
-	},
-});
-
-const Editor = dynamic(
-	async () => {
-		const mod = await import('@toast-ui/react-editor');
-		return mod.Editor;
-	},
-	{
-		ssr: false,
-		loading: () => <div style={{ height: '300px', background: '#f8fafc', borderRadius: '8px' }} />,
-	}
-);
-
-if (typeof window !== 'undefined') {
-	require('@toast-ui/editor/dist/toastui-editor.css');
-}
+import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
 
 import { getJwtToken } from '../../libs/auth';
 import { REACT_APP_API_URL } from '../../libs/config';
 import axios from 'axios';
 import { CREATE_POST } from '../../libs/apollo/user/mutation';
-import { 
-	FileText, 
-	Image as ImageIcon, 
-	Send, 
-	X, 
-	AlertCircle,
-	Sparkles,
+
+import {
+  Image as ImageIcon,
+  Send,
+  X,
+  Sparkles,
+  Bold,
+  Italic,
+  Link as LinkIcon,
+  AtSign,
 } from 'lucide-react';
-import { Message } from '../../libs/enums/common.enum';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+export const getStaticProps = async ({ locale }: any) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 const WritePost: NextPage = () => {
-	const device = useDeviceDetect();
-	const user = useReactiveVar(userVar);
-	const router = useRouter();
-	const editorRef = useRef<any>(null);
-	const inputRef = useRef<HTMLInputElement>(null); 
+  const device = useDeviceDetect();
+  const user = useReactiveVar(userVar);
+  const router = useRouter();
 
-	// Modal State
-	const [open, setOpen] = useState<boolean>(true);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
-	// Form State
-	const [postTitle, setPostTitle] = useState<string>('');
-	const [postContent, setPostContent] = useState<string>('');
-	const [postImages, setPostImages] = useState<string[]>([]);  
-	const [uploadingImages, setUploadingImages] = useState<boolean>(false);
-	const [errors, setErrors] = useState({ title: '', content: '' });
+  const [open, setOpen] = useState<boolean>(true);
+  const [postTitle, setPostTitle] = useState<string>('');
+  const [postImages, setPostImages] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState<boolean>(false);
 
-	// Dynamic editor height
-	const [editorHeight, setEditorHeight] = useState<string>('200px');
+  const [createPost, { loading }] = useMutation(CREATE_POST);
 
-	/** APOLLO REQUESTS **/
-	const [createPost, { loading }] = useMutation(CREATE_POST);
+  // Tiptap Editor
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+        bulletList: { keepMarks: true },
+        orderedList: { keepMarks: true },
+      }),
+      Placeholder.configure({
+        placeholder: "What's on your mind?",
+      }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+      }),
+    ],
+    content: '',
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class:
+          'prose prose-neutral max-w-none focus:outline-none min-h-[200px] leading-relaxed text-[16px]',
+      },
+    },
+  });
 
-	// Monitor content changes for dynamic height
-	useEffect(() => {
-		if (typeof window === 'undefined') return;
-		
-		const editor = editorRef.current?.getInstance?.();
-		if (!editor) return;
+  const handleClose = () => {
+    setOpen(false);
+    setTimeout(() => router.back(), 300);
+  };
 
-		const updateHeight = () => {
-			const markdown = editor.getMarkdown();
-			const lines = markdown.split('\n').length;
-			
-			// Calculate height based on content
-			let newHeight = '200px';
-			if (lines > 5) newHeight = '250px';
-			if (lines > 10) newHeight = '300px';
-			if (lines > 15) newHeight = '350px';
-			if (lines > 20) newHeight = '400px';
-			
-			setEditorHeight(newHeight);
-			setPostContent(markdown);
-		};
+  const uploadImages = async () => {
+    try {
+      const formData = new FormData();
+      const selectedFiles = inputRef.current?.files;
 
-		// Listen to editor changes
-		editor.on('change', updateHeight);
-		editor.on('focus', updateHeight);
-		editor.on('blur', updateHeight);
+      if (!selectedFiles || selectedFiles.length === 0) return;
+      if (selectedFiles.length > 3) throw new Error('Maximum 3 images at once');
+      if (postImages.length + selectedFiles.length > 3)
+        throw new Error('Maximum 3 images total');
 
-		return () => {
-			editor.off('change', updateHeight);
-			editor.off('focus', updateHeight);
-			editor.off('blur', updateHeight);
-		};
-	}, []);
+      const numFiles = selectedFiles.length;
+      const filesArray = Array(3).fill(null);
+      const mapObj: any = {};
+      for (let i = 0; i < 3; i++) {
+        mapObj[i] = [`variables.files.${i}`];
+      }
 
-	/** HANDLERS **/
-	const handleClose = () => {
-		setOpen(false);
-		setTimeout(() => {
-			router.back();
-		}, 300);
-	};
+      formData.append(
+        'operations',
+        JSON.stringify({
+          query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) { 
+            imagesUploader(files: $files, target: $target)
+          }`,
+          variables: { files: filesArray, target: 'post' },
+        })
+      );
+      formData.append('map', JSON.stringify(mapObj));
 
-	// Multiple image upload (GraphQL multipart, up to 3)
-	const uploadImages = async () => {
-		try {
-			const formData = new FormData();
-			const selectedFiles = inputRef.current?.files;
+      for (let i = 0; i < numFiles; i++) {
+        formData.append(i.toString(), selectedFiles[i]);
+      }
 
-			if (!selectedFiles || selectedFiles.length === 0) return false;
-			if (selectedFiles.length > 3) throw new Error('Cannot upload more than 3 images!');
-			if (postImages.length + selectedFiles.length > 3) throw new Error('Maximum 3 images total!');
+      const token = getJwtToken();
+      if (!token) throw new Error('Please log in');
 
-			const numFiles = selectedFiles.length;
-			const filesArray = Array(3).fill(null);
-			const mapObj: any = {};
-			for (let i = 0; i < 3; i++) {
-				mapObj[i] = [`variables.files.${i}`];
-			}
+      setUploadingImages(true);
 
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) { 
-						imagesUploader(files: $files, target: $target)
-					}`,
-					variables: {
-						files: filesArray,
-						target: 'post', 
-					},
-				}),
-			);
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_GRAPHQL_URL || `${REACT_APP_API_URL}/graphql`}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'apollo-require-preflight': true,
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-			formData.append('map', JSON.stringify(mapObj));
+      const uploaded = res.data.data?.imagesUploader?.filter(Boolean) || [];
+      const newImages = [...postImages, ...uploaded].slice(0, 3);
+      setPostImages(newImages);
 
-			for (let i = 0; i < numFiles; i++) {
-				formData.append(i.toString(), selectedFiles[i]);
-			}
+      inputRef.current!.value = '';
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
 
-			const token = getJwtToken();
-			if (!token) throw new Error('Please log in to upload images');
+  const removeImage = (index: number) => {
+    setPostImages(postImages.filter((_, i) => i !== index));
+  };
 
-			setUploadingImages(true);
+  // Clean HTML content from empty tags
+  const cleanHtmlContent = (html: string): string => {
+    if (!html) return '';
+    
+    let cleaned = html;
+    
+    // Remove completely empty paragraphs
+    cleaned = cleaned.replace(/<p><\/p>/g, '');
+    cleaned = cleaned.replace(/<p>\s*<\/p>/g, '');
+    cleaned = cleaned.replace(/<p><br><\/p>/g, '');
+    cleaned = cleaned.replace(/<p>\s*<br\s*\/?>\s*<\/p>/g, '');
+    cleaned = cleaned.replace(/(<p><\/p>\s*)+/g, '');
+    cleaned = cleaned.trim();
+    
+    if (cleaned === '<p></p>' || cleaned === '<p><br></p>' || !cleaned) {
+      return '';
+    }
+    
+    return cleaned;
+  };
 
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL || `${REACT_APP_API_URL}/graphql`}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${token}`,
-				},
-			});
+  const handleSubmit = async () => {
+    if (!editor) return;
 
-			if (!response.data.data?.imagesUploader) {
-				throw new Error('Upload failed: No images returned');
-			}
+    const titleTrimmed = postTitle.trim();
+    const contentText = editor.getText().trim();
 
-			const responseImages = response.data.data.imagesUploader.filter((url: string) => url);  
-			console.log('+responseImages: ', responseImages);
+    if (!titleTrimmed || titleTrimmed.length < 5) {
+      await sweetErrorHandling({ message: 'Title must be at least 5 characters' });
+      titleInputRef.current?.focus();
+      return;
+    }
 
-			// Eski + yangi images (max 3)
-			const newImages = [...postImages, ...responseImages].slice(0, 3);
-			setPostImages(newImages);
+    if (!contentText) {
+      await sweetErrorHandling({ message: 'Please write something' });
+      editor.commands.focus();
+      return;
+    }
 
-			await sweetMixinSuccessAlert('Images uploaded successfully!');
+    try {
+      let content = editor.getHTML();
+      content = cleanHtmlContent(content);
+      
+      if (!content) {
+        await sweetErrorHandling({ message: 'Please write something' });
+        return;
+      }
 
-			inputRef.current!.value = '';
+      await createPost({
+        variables: {
+          input: {
+            postTitle: titleTrimmed,
+            postContent: content,
+            postImages,
+          },
+        },
+      });
 
-		} catch (err: any) {
-			console.log('err: ', err.message || err);
-			await sweetMixinErrorAlert(err.message || 'Upload failed');
-			if (inputRef.current) inputRef.current.value = '';
-		} finally {
-			setUploadingImages(false);
-		}
-	};
+      await sweetTopSuccessAlert('Post created successfully!', 700);
+      setOpen(false);
+      setTimeout(() => {
+        router.push({ pathname: '/', query: { category: 'myPosts' } });
+      }, 300);
+    } catch (err) {
+      sweetErrorHandling(err);
+    }
+  };
 
-	// Remove image
-	const removeImage = (index: number) => {
-		const newImages = postImages.filter((_: any, i: number) => i !== index);
-		setPostImages(newImages);
-	};
+  if (device === 'mobile') {
+    return <div>MOBILE VERSION (Tiptap coming soon)</div>;
+  }
 
-	const validateForm = (): boolean => {
-		const newErrors = { title: '', content: '' };
-		let isValid = true;
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{
+        timeout: 500,
+        sx: { backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' },
+      }}
+      className="write-post-modal"
+    >
+      <Box className="write-post-modal-content">
+        {/* Header */}
+        <Box className="post-modal-header">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar 
+              src={user?.memberImage || '/img/profile/defaultUser.svg'} 
+              sx={{ width: 40, height: 40 }} 
+            />
+            <Box>
+              <Box sx={{ fontSize: '15px', fontWeight: 600, color: '#050505' }}>
+                {user?.memberNick || 'You'}
+              </Box>
+              <Chip
+                icon={<Sparkles size={12} />}
+                label="Public"
+                size="small"
+                sx={{ 
+                  height: 20,
+                  fontSize: '12px',
+                  mt: 0.3,
+                  background: '#e7f3ff', 
+                  color: '#1877f2', 
+                  fontWeight: 600,
+                  '& .MuiChip-icon': { marginLeft: '4px' }
+                }}
+              />
+            </Box>
+          </Box>
+          <IconButton 
+            onClick={handleClose} 
+            sx={{ 
+              bgcolor: '#f0f2f5', 
+              width: 36,
+              height: 36,
+              '&:hover': { bgcolor: '#e4e6eb' } 
+            }}
+          >
+            <X size={20} />
+          </IconButton>
+        </Box>
 
-		if (!postTitle.trim()) {
-			newErrors.title = 'Title is required';
-			isValid = false;
-		} else if (postTitle.length < 5) {
-			newErrors.title = 'Title must be at least 5 characters';
-			isValid = false;
-		} else if (postTitle.length > 100) {
-			newErrors.title = 'Title must be less than 100 characters';
-			isValid = false;
-		}
+        {/* Body */}
+        <Box className="post-modal-body">
+          {/* Title Input */}
+          <input
+            ref={titleInputRef}
+            type="text"
+            placeholder="Add a title..."
+            value={postTitle}
+            onChange={(e) => setPostTitle(e.target.value)}
+            className="title-input"
+          />
 
-		// Get content from editor or state
-		const content = editorRef.current?.getInstance?.()?.getMarkdown?.() || postContent || '';
-		const trimmedContent = content.trim();
-		
-		console.log('Validation - Content length:', trimmedContent.length, 'Content:', trimmedContent);
-		
-		if (!trimmedContent || trimmedContent.length < 10) {
-			newErrors.content = 'Content must be at least 10 characters';
-			isValid = false;
-		}
+          {/* Editor */}
+          <Box className="editor-container">
+            <EditorContent editor={editor} />
+            {editor && (
+              <BubbleMenu
+                editor={editor}
+                shouldShow={({ editor }) => editor.isFocused && editor.getText().trim().length > 0}
+                tippyOptions={{
+                  placement: 'top',
+                  offset: [0, 8],
+                }}
+              >
+                <Box className="bubble-menu">
+                  <IconButton 
+                    size="small" 
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    className={editor.isActive('bold') ? 'active' : ''}
+                  >
+                    <Bold size={18} />
+                  </IconButton>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    className={editor.isActive('italic') ? 'active' : ''}
+                  >
+                    <Italic size={18} />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      const url = window.prompt('Enter the URL:');
+                      if (url) editor.chain().focus().setLink({ href: url }).run();
+                    }}
+                    className={editor.isActive('link') ? 'active' : ''}
+                  >
+                    <LinkIcon size={18} />
+                  </IconButton>
+                </Box>
+              </BubbleMenu>
+            )}
+          </Box>
 
-		setErrors(newErrors);
-		return isValid;
-	};
+          {/* Images */}
+          {postImages.length > 0 && (
+            <Box className="images-preview">
+              <Stack direction="row" spacing={1.5} flexWrap="wrap">
+                {postImages.map((img, idx) => (
+                  <Box key={idx} className="image-item">
+                    <img
+                      src={`${REACT_APP_API_URL}/${img}`}
+                      alt="preview"
+                    />
+                    <IconButton
+                      size="small"
+                      className="remove-btn"
+                      onClick={() => removeImage(idx)}
+                    >
+                      <X size={16} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+          )}
+        </Box>
 
-	const handleSubmit = async () => {
-		try {
-			setErrors({ title: '', content: '' });
+        {/* Footer */}
+        <Box className="post-modal-footer">
+          <Box 
+            onClick={() => !uploadingImages && inputRef.current?.click()}
+            className="add-to-post"
+          >
+            <Box sx={{ fontSize: '15px', fontWeight: 600, color: '#050505' }}>
+              Add to your post
+            </Box>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <IconButton 
+                size="small"
+                disabled={uploadingImages || postImages.length >= 3}
+                sx={{ 
+                  color: postImages.length >= 3 ? '#bcc0c4' : '#45bd62',
+                  '&:hover': { bgcolor: 'rgba(69, 189, 98, 0.1)' }
+                }}
+              >
+                <ImageIcon size={24} />
+              </IconButton>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/jpeg,image/png"
+                multiple
+                hidden
+                onChange={uploadImages}
+              />
+            </Box>
+          </Box>
 
-			if (!validateForm()) {
-				return;
-			}
-
-			const postContent = editorRef.current?.getInstance?.()?.getMarkdown?.() || '';
-
-			if (!postContent || !postTitle) {
-				throw new Error(Message.INSERT_ALL_INPUTS);
-			}
-
-			await createPost({
-				variables: {
-					input: {
-						postTitle,
-						postContent,
-						postImages: postImages, 
-					},
-				},
-			});
-
-			await sweetTopSuccessAlert('Post is created successfully', 700);
-			setOpen(false);
-			setTimeout(() => {
-				router.push({
-					pathname: '/',
-					query: {
-						category: 'myPosts',
-					},
-				});
-			}, 300);
-		} catch (err: any) {
-			console.log(err);
-			sweetErrorHandling(err).then();
-		}
-	};
-
-	// Auto-expand title on focus
-	const handleTitleFocus = () => {
-		const inputElement = document.querySelector('.title-input input') as HTMLInputElement;
-		if (inputElement) {
-			inputElement.style.fontSize = '18px';
-		}
-	};
-
-	const handleTitleBlur = () => {
-		if (!postTitle) {
-			const inputElement = document.querySelector('.title-input input') as HTMLInputElement;
-			if (inputElement) {
-				inputElement.style.fontSize = '16px';
-			}
-		}
-	};
-
-	if (device === 'mobile') {
-		return <div>WRITE POST MOBILE</div>;
-	}
-
-	return (
-		<Modal
-			open={open}
-			onClose={handleClose}
-			closeAfterTransition
-			BackdropComponent={Backdrop}
-			BackdropProps={{
-				timeout: 500,
-				sx: {
-					backgroundColor: 'rgba(0, 0, 0, 0.75)',
-					backdropFilter: 'blur(8px)',
-				}
-			}}
-			className="write-post-modal"
-		>
-			<Box className="write-post-modal-content">
-				{/* Modal Header */}
-				<Box className="modal-header">
-					<Box className="header-left">
-						<Box className="header-icon">
-							<FileText size={20} />
-						</Box>
-						<h2>Create Post</h2>
-					</Box>
-					<IconButton className="close-btn" onClick={handleClose}>
-						<X size={20} />
-					</IconButton>
-				</Box>
-
-				{/* Scrollable Content */}
-				<Box className="modal-body">
-					{/* Author Section */}
-					<Box className="author-section">
-						<Avatar 
-							src={user?.memberImage || '/img/profile/defaultUser.svg'} 
-							className="author-avatar"
-						/>
-						<Box className="author-info">
-							<h3>{user?.memberNick || 'Anonymous'}</h3>
-							<Chip 
-								icon={<Sparkles size={12} />}
-								label="Public" 
-								size="small"
-								className="visibility-chip"
-							/>
-						</Box>
-					</Box>
-
-					{/* Title - Dynamic */}
-					<Box className="form-group">
-						<TextField
-							fullWidth
-							placeholder="What's on your mind? Give your post a title..."
-							value={postTitle}
-							onChange={(e) => setPostTitle(e.target.value)}
-							onFocus={handleTitleFocus}
-							onBlur={handleTitleBlur}
-							error={!!errors.title}
-							helperText={errors.title}
-							className="title-input"
-							inputProps={{ maxLength: 100 }}
-							variant="standard"
-							multiline
-							maxRows={3}
-						/>
-						<Box className="char-counter">
-							<span className={postTitle.length > 90 ? 'warning' : ''}>
-								{postTitle.length}/100
-							</span>
-						</Box>
-					</Box>
-
-					{/* Editor - Dynamic Height */}
-					<Box className={`editor-wrapper ${errors.content ? 'error' : ''}`}>
-						<Box className="editor-header">
-							<span className="editor-label">Post Content</span>
-						</Box>
-						{typeof window !== 'undefined' && (
-							<div ref={editorRef}>
-								<Editor
-									initialValue=""
-									placeholder="Share your thoughts, experiences, or knowledge..."
-									previewStyle="vertical"
-									height={editorHeight}
-									initialEditType="markdown"
-									useCommandShortcut={true}
-									hideModeSwitch={true}
-									toolbarItems={[
-										['heading', 'bold', 'italic', 'strike'],
-										['hr', 'quote'],
-										['ul', 'ol', 'task'],
-										['link', 'code', 'codeblock'],
-									]}
-								/>
-							</div>
-						)}
-					</Box>
-					{errors.content && (
-						<Box className="error-msg">
-							<AlertCircle size={14} />
-							<span>{errors.content}</span>
-						</Box>
-					)}
-
-					{/* Image Upload - Multiple (Gallery Style) */}
-					<Box className="form-group images-section">
-						<Box className="images-header">
-							<label className="form-label">
-								<ImageIcon size={16} />
-								Post Images (Optional)
-							</label>
-							<span className="image-counter">
-								{postImages.length}/3
-							</span>
-						</Box>
-						
-						<Stack className="images-box">
-							{/* Gallery */}
-							{postImages.length > 0 && (
-								<Stack className="gallery-box">
-									{postImages.map((image: string, index: number) => (
-										<Stack key={index} className="image-box">
-											<img src={`${REACT_APP_API_URL}/${image}`} alt={`Post ${index + 1}`} />
-											<IconButton 
-												className="remove-img-btn"
-												onClick={() => removeImage(index)}
-												size="small"
-											>
-												<X size={16} />
-											</IconButton>
-											{index === 0 && <Chip label="Cover" size="small" className="cover-chip" />}
-										</Stack>
-									))}
-								</Stack>
-							)}
-
-							{/* Upload Box */}
-							{postImages.length < 3 && (
-								<Stack 
-									className="upload-box" 
-									onClick={() => !uploadingImages && inputRef.current?.click()}
-								>
-									<ImageIcon size={24} className="upload-icon" />
-									<p>{uploadingImages ? 'Uploading...' : 'Add Photos'}</p>
-									<span>PNG, JPG (Max 3)</span>
-									<input
-										ref={inputRef}
-										type="file"
-										accept="image/jpg, image/jpeg, image/png"
-										multiple
-										onChange={uploadImages}
-										style={{ display: 'none' }}
-										id="post-images-upload"
-										disabled={uploadingImages}
-									/>
-								</Stack>
-							)}
-						</Stack>
-					</Box>
-				</Box>
-
-				{/* Modal Footer */}
-				<Box className="modal-footer">
-					<Box className="footer-info">
-						{(postTitle || postContent || postImages.length > 0) && (
-							<span className="draft-indicator">
-								● Draft saved
-							</span>
-						)}
-					</Box>
-					<Box className="footer-actions">
-						<Button
-							variant="text"
-							className="cancel-btn"
-							onClick={handleClose}
-							disabled={loading || uploadingImages}
-						>
-							Cancel
-						</Button>
-						<Button
-							variant="contained"
-							className="post-btn"
-							onClick={handleSubmit}
-							disabled={loading || uploadingImages || !postTitle.trim()}
-							startIcon={loading ? null : <Send size={16} />}
-						>
-							{loading ? 'Publishing...' : 'Publish Post'}
-						</Button>
-					</Box>
-				</Box>
-			</Box>
-		</Modal>
-	);
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={loading || uploadingImages || !postTitle.trim() || !editor?.getText().trim()}
+            fullWidth
+            className="post-button"
+          >
+            {loading ? 'Posting...' : 'Post'}
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
 };
 
 export default withLayoutMain(WritePost);

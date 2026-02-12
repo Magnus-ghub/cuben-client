@@ -205,10 +205,6 @@ const UpdatePost: NextPage = () => {
 		}
 
 		const content = editorRef.current?.getInstance().getMarkdown();
-		if (!content || content.trim().length < 10) {
-			newErrors.content = 'Content must be at least 10 characters';
-			isValid = false;
-		}
 
 		setErrors(newErrors);
 		return isValid;
