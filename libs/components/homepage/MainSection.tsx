@@ -181,36 +181,117 @@ const MainSection = ({ initialInput }: any) => {
 		}
 	};
 
-	const subscribeHandler = async (id: string, refetch: any, query: any) => {
+	const subscribeHandler = async (memberId: string) => {
 		try {
-			if (!id) throw new Error(Messages.error1);
-			if (!user._id) throw new Error(Messages.error2);
+			if (!memberId) throw new Error(Message.NO_DATA_FOUND);
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [
+									{
+										followerId: user._id,
+										followingId: memberId,
+										myFollowing: true,
+									},
+								],
+								memberFollowers: (post.memberData.memberFollowers || 0) + 1,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			// Backend'ga so'rov yuborish
 			await subscribe({
-				variables: {
-					input: id,
-				},
+				variables: { input: memberId },
 			});
+
 			await sweetTopSmallSuccessAlert('Followed!', 800);
-			await refetch({ input: query });
+
+			// Backend'dan yangi ma'lumot olish
+			await getPostsRefetch({ input: searchFilter });
 		} catch (err: any) {
+			console.log('ERROR, subscribeHandler:', err.message);
+
+			// Xatolik bo'lsa, optimistic update'ni qaytarish (rollback)
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [],
+								memberFollowers: Math.max((post.memberData.memberFollowers || 1) - 1, 0),
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
 			sweetErrorHandling(err).then();
 		}
 	};
 
-	const unsubscribeHandler = async (id: string, refetch: any, query: any) => {
+	const unsubscribeHandler = async (memberId: string) => {
 		try {
-			if (!id) throw new Error(Messages.error1);
-			if (!user._id) throw new Error(Messages.error2);
+			if (!memberId) throw new Error(Message.NO_DATA_FOUND);
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [],
+								memberFollowers: Math.max((post.memberData.memberFollowers || 1) - 1, 0),
+							},
+						};
+					}
+					return post;
+				}),
+			);
 
 			await unsubscribe({
-				variables: {
-					input: id,
-				},
+				variables: { input: memberId },
 			});
+
 			await sweetTopSmallSuccessAlert('Unfollowed!', 800);
-			await refetch({ input: query });
+
+			await getPostsRefetch({ input: searchFilter });
 		} catch (err: any) {
+			console.log('ERROR, unsubscribeHandler:', err.message);
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [
+									{
+										followerId: user._id,
+										followingId: memberId,
+										myFollowing: true,
+									},
+								],
+								memberFollowers: (post.memberData.memberFollowers || 0) + 1,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
 			sweetErrorHandling(err).then();
 		}
 	};

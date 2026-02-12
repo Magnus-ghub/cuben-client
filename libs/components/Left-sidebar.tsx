@@ -77,7 +77,6 @@ const LeftSidebar = () => {
 			},
 		},
 		fetchPolicy: 'cache-and-network',
-		// skip: false - doim load qiladi
 	});
 
 	const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
@@ -180,7 +179,7 @@ const LeftSidebar = () => {
 
 					{/* Sidebar Content */}
 					<Stack className="sidebar-content">
-						{/* HOME Section - Hamma userlar uchun count bilan */}
+						{/* HOME Section */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">🏠 {t('home')}</Box>
 							<Link href={'/'}>
@@ -218,7 +217,7 @@ const LeftSidebar = () => {
 							</Stack>
 						</Stack>
 
-						{/* MY ACTIVITY Section - Faqat login qilgan userlar uchun */}
+						{/* MY ACTIVITY Section */}
 						{user?._id && (
 							<Stack className="sidebar-section">
 								<Box className="section-title">⚡ {t('my_Activity')}</Box>
@@ -253,7 +252,7 @@ const LeftSidebar = () => {
 							</Stack>
 						)}
 
-						{/* TOOLS Section - Hamma userlar uchun */}
+						{/* TOOLS Section */}
 						<Stack className="sidebar-section">
 							<Box className="section-title">🛠️ {t('tools')}</Box>
 
@@ -313,7 +312,6 @@ const LeftSidebar = () => {
 										},
 									}}
 								>
-									{/* Content */}
 									<DialogContent sx={{ px: 3, py: 3 }}>
 										<Box
 											sx={{
@@ -328,7 +326,6 @@ const LeftSidebar = () => {
 										</Box>
 									</DialogContent>
 
-									{/* Actions */}
 									<DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
 										<Button
 											fullWidth

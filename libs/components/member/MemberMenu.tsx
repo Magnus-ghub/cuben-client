@@ -1,280 +1,474 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { Stack, Typography, Box, List, ListItem, Button } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import React, { MouseEvent, useEffect, useState } from 'react';
+import { Stack, Box, Button, Avatar } from '@mui/material';
 import Link from 'next/link';
-import { Member } from '../../types/member/member';
+import { TrendingUp, Flame, Users, Image as ImageIcon, Video, Smile } from 'lucide-react';
+import { useRouter } from 'next/router';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { LIKE_TARGET_POST, SAVE_TARGET_POST, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
+import { GET_POSTS, GET_MEMBER } from '../../apollo/user/query';
+import { Direction, Message } from '../../enums/common.enum';
 import { REACT_APP_API_URL } from '../../config';
-import { useQuery } from '@apollo/client';
+import { userVar } from '../../apollo/store';
+import PostCard from '../community/Postcard';
+import { PostsInquiry } from '../../types/post/post.input';
+import { useTranslation } from 'react-i18next';
+import { Post } from '../../types/post/post';
 import { T } from '../../types/common';
-import { GET_MEMBER } from '../../apollo/user/query';
+import CommentModal from '../common/CommentModal';
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
-interface MemberMenuProps {
-	subscribeHandler: any;
-	unsubscribeHandler: any;
-}
-
-const MemberMenu = (props: MemberMenuProps) => {
-	const { subscribeHandler, unsubscribeHandler } = props;
-	const device = useDeviceDetect();
+const MainSection = ({ initialInput }: any) => {
+	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const category: any = router.query?.category;
-	const [member, setMember] = useState<Member | null>(null);
-	const { memberId } = router.query;
+	const { query } = router;
+	const [posts, setPosts] = useState<Post[]>([]);
+	const [searchFilter, setSearchFilter] = useState<PostsInquiry>(
+		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
+	);
+	const [currentPage, setCurrentPage] = useState<number>(1);
+	const postCategory = query?.postCategory as string;
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	const [activeTab, setActiveTab] = useState('all');
+	const [commentModalOpen, setCommentModalOpen] = useState(false);
+	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+	const [imageError, setImageError] = useState(false);
+	const { t, i18n } = useTranslation('common');
+
+	if (postCategory) initialInput.search.postCategory = postCategory;
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetPost] = useMutation(LIKE_TARGET_POST);
+	const [saveTargetPost] = useMutation(SAVE_TARGET_POST);
+	const [subscribe] = useMutation(SUBSCRIBE);
+	const [unsubscribe] = useMutation(UNSUBSCRIBE);
+
 	const {
-		loading: getMemberLoading,
-		data: getMemberData,
-		error: getMemberError,
-		refetch: getMemberRefetch,
-	} = useQuery(GET_MEMBER, {
-		fetchPolicy: 'network-only',
-		variables: {
-			input: memberId,
-		},
-		skip: !memberId,
+		loading: getPostsLoading,
+		data: getPostsData,
+		error: getPostsError,
+		refetch: getPostsRefetch,
+	} = useQuery(GET_POSTS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
-		onCompleted(data: T) {
-			setMember(data?.getMember);
-		},
 	});
 
-	if (device === 'mobile') {
-		return <div>MEMBER MENU MOBILE</div>;
-	} else {
-		return (
-			<Stack width={'100%'} padding={'30px 24px'}>
-				<Stack className={'profile'}>
-					<Box component={'div'} className={'profile-img'}>
-						<img
-							src={member?.memberImage ? `${REACT_APP_API_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
-							alt={'member-photo'}
-						/>
-					</Box>
-					<Stack className={'user-info'}>
-						<Typography className={'user-name'}>{member?.memberNick}</Typography>
-						<Box component={'div'} className={'user-phone'}>
-							<img src={'/img/icons/call.svg'} alt={'icon'} />
-							<Typography className={'p-number'}>{member?.memberPhone}</Typography>
+	useEffect(() => {
+		if (getPostsData?.getPosts?.list) {
+			setPosts(getPostsData.getPosts.list);
+		}
+	}, [getPostsData]);
+
+	/** LIFECYCLES **/
+	useEffect(() => {
+		if (router.query.input) {
+			const inputObj = JSON.parse(router?.query?.input as string);
+			setSearchFilter(inputObj);
+		}
+		setCurrentPage(searchFilter?.page ?? 1);
+	}, [router, searchFilter]);
+
+	useEffect(() => {
+		getPostsRefetch({ input: searchFilter });
+	}, [searchFilter]);
+
+	useEffect(() => {
+		setCurrentPage(searchFilter?.page ?? 1);
+	}, [searchFilter]);
+
+	useEffect(() => {
+		if (getPostsError) {
+			console.error('Error fetching posts:', getPostsError);
+		}
+	}, [getPostsError]);
+
+	/** HANDLERS - OPTIMISTIC UPDATES **/
+	const likePostHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlyLiked = post.meLiked?.liked || false;
+						return {
+							...post,
+							postLikes: isCurrentlyLiked ? post.postLikes - 1 : post.postLikes + 1,
+							meLiked: {
+								...post.meLiked,
+								liked: !isCurrentlyLiked,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			await likeTargetPost({
+				variables: { input: id },
+			});
+		} catch (err: any) {
+			console.log('ERROR, likePostHandler:', err.message);
+
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlyLiked = post.meLiked?.liked || false;
+						return {
+							...post,
+							postLikes: isCurrentlyLiked ? post.postLikes - 1 : post.postLikes + 1,
+							meLiked: {
+								...post.meLiked,
+								liked: !isCurrentlyLiked,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
+	const savePostHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			// OPTIMISTIC UPDATE
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlySaved = post.meLiked?.saved || false;
+						return {
+							...post,
+							meLiked: {
+								...post.meLiked,
+								saved: !isCurrentlySaved,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			await saveTargetPost({
+				variables: { input: id },
+			});
+		} catch (err: any) {
+			console.log('ERROR, savePostHandler:', err.message);
+
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post._id === id) {
+						const isCurrentlySaved = post.meLiked?.saved || false;
+						return {
+							...post,
+							meLiked: {
+								...post.meLiked,
+								saved: !isCurrentlySaved,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
+	const subscribeHandler = async (memberId: string) => {
+		try {
+			if (!memberId) throw new Error(Message.NO_DATA_FOUND);
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			// OPTIMISTIC UPDATE - Darhol UI'ni yangilash
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [
+									{
+										followerId: user._id,
+										followingId: memberId,
+										myFollowing: true,
+									},
+								],
+								memberFollowers: (post.memberData.memberFollowers || 0) + 1,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			await subscribe({
+				variables: { input: memberId },
+				refetchQueries: [
+					{
+						query: GET_MEMBER,
+						variables: { input: user._id },
+					},
+				],
+				awaitRefetchQueries: true,
+			});
+
+			await sweetTopSmallSuccessAlert('Followed!', 800);
+			await getPostsRefetch({ input: searchFilter });
+		} catch (err: any) {
+			console.log('ERROR, subscribeHandler:', err.message);
+
+			// Xatolik bo'lsa, optimistic update'ni qaytarish
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [],
+								memberFollowers: Math.max((post.memberData.memberFollowers || 1) - 1, 0),
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			sweetErrorHandling(err).then();
+		}
+	};
+
+	const unsubscribeHandler = async (memberId: string) => {
+		try {
+			if (!memberId) throw new Error(Message.NO_DATA_FOUND);
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			// OPTIMISTIC UPDATE - Darhol UI'ni yangilash
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [],
+								memberFollowers: Math.max((post.memberData.memberFollowers || 1) - 1, 0),
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			await unsubscribe({
+				variables: { input: memberId },
+				refetchQueries: [
+					{
+						query: GET_MEMBER,
+						variables: { input: user._id },
+					},
+				],
+				awaitRefetchQueries: true,
+			});
+
+			await sweetTopSmallSuccessAlert('Unfollowed!', 800);
+			await getPostsRefetch({ input: searchFilter });
+		} catch (err: any) {
+			console.log('ERROR, unsubscribeHandler:', err.message);
+
+			// Xatolik bo'lsa, optimistic update'ni qaytarish
+			setPosts((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.memberData?._id === memberId) {
+						return {
+							...post,
+							memberData: {
+								...post.memberData,
+								meFollowed: [
+									{
+										followerId: user._id,
+										followingId: memberId,
+										myFollowing: true,
+									},
+								],
+								memberFollowers: (post.memberData.memberFollowers || 0) + 1,
+							},
+						};
+					}
+					return post;
+				}),
+			);
+
+			sweetErrorHandling(err).then();
+		}
+	};
+
+	const handleCommentClick = (post: Post) => {
+		console.log('Comment clicked for post:', post._id);
+		setSelectedPost(post);
+		setCommentModalOpen(true);
+	};
+
+	const handleImageError = () => {
+		setImageError(true);
+	};
+
+	const getUserImageSrc = () => {
+		if (imageError) {
+			return '/img/profile/defaultUser.svg';
+		}
+		if (user?.memberImage) {
+			return `${REACT_APP_API_URL}/${user.memberImage}`;
+		}
+		return '/img/profile/defaultUser.svg';
+	};
+
+	const handleTabChange = (tab: string) => {
+		setActiveTab(tab);
+
+		const baseSearch = { ...searchFilter };
+
+		switch (tab) {
+			case 'all':
+				setSearchFilter({
+					...baseSearch,
+					sort: 'createdAt',
+					direction: Direction.DESC,
+				});
+				break;
+			case 'following':
+				console.log('Following tab - coming soon');
+				setSearchFilter({
+					...baseSearch,
+					sort: 'createdAt',
+					direction: Direction.DESC,
+				});
+				break;
+			case 'popular':
+				setSearchFilter({
+					...baseSearch,
+					sort: 'postLikes',
+					direction: Direction.DESC,
+				});
+				break;
+		}
+	};
+
+	const handleCommentAdded = async () => {
+		try {
+			const { data } = await getPostsRefetch({ input: searchFilter });
+			if (data?.getPosts?.list) {
+				setPosts(data.getPosts.list);
+			}
+		} catch (err) {
+			console.error('Error refetching posts:', err);
+		}
+	};
+
+	if (posts) console.log('posts:', posts);
+	if (!posts) return null;
+
+	return (
+		<Stack className="main-section">
+			<Box className="center-feed">
+				{/* Create Post Box */}
+				<Box className="create-post-box">
+					<Avatar className="user-avatar" src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
+					<Link href="/create/writePost" style={{ textDecoration: 'none', flex: 1 }}>
+						<Box className="create-input">
+							<span>{t('whats_on_mind')}</span>
 						</Box>
-						<Typography className={'view-list'}>{member?.memberType}</Typography>
-					</Stack>
+					</Link>
+				</Box>
+
+				{/* Create Post Actions */}
+				<Stack className="create-post-actions">
+					<Button startIcon={<ImageIcon size={18} />} className="post-action-btn">
+						{t('photo')}
+					</Button>
+					<Button startIcon={<Video size={18} />} className="post-action-btn">
+						{t('video')}
+					</Button>
+					<Button startIcon={<Smile size={18} />} className="post-action-btn">
+						{t('feeling')}
+					</Button>
 				</Stack>
-				<Stack className="follow-button-box">
-					{member?.meFollowed && member?.meFollowed[0]?.myFollowing ? (
-						<>
-							<Button
-								variant="outlined"
-								sx={{ background: '#b9b9b9' }}
-								onClick={() => unsubscribeHandler(member?._id, getMemberRefetch, memberId)}
-							>
-								Unfollow
-							</Button>
-							<Typography>Following</Typography>
-						</>
+
+				{/* Feed Tabs */}
+				<Box className="feed-tabs">
+					<Button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabChange('all')}>
+						<TrendingUp size={18} />
+						{t('forYou')}
+					</Button>
+					<Button
+						className={`tab-btn ${activeTab === 'following' ? 'active' : ''}`}
+						onClick={() => handleTabChange('following')}
+					>
+						<Users size={18} />
+						{t('following')}
+					</Button>
+					<Button
+						className={`tab-btn ${activeTab === 'popular' ? 'active' : ''}`}
+						onClick={() => handleTabChange('popular')}
+					>
+						<Flame size={18} />
+						{t('popular')}
+					</Button>
+				</Box>
+
+				{/* Posts Feed */}
+				<Stack className="posts-feed">
+					{getPostsLoading && posts.length === 0 ? (
+						<Stack className="loading-container">
+							<p>{t('loadingPosts')}</p>
+						</Stack>
+					) : posts && posts.length > 0 ? (
+						posts.map((post: Post) => (
+							<PostCard
+								key={post._id}
+								post={post}
+								likePostHandler={likePostHandler}
+								savePostHandler={savePostHandler}
+								onCommentClick={handleCommentClick}
+								subscribeHandler={subscribeHandler}
+								unsubscribeHandler={unsubscribeHandler}
+							/>
+						))
 					) : (
-						<Button
-							variant="contained"
-							sx={{ background: '#ff5d18', ':hover': { background: '#ff5d18' } }}
-							onClick={() => subscribeHandler(member?._id, getMemberRefetch, memberId)}
-						>
-							Follow
-						</Button>
+						<Stack className="no-data">
+							<img src="/img/icons/icoAlert.svg" alt="No posts" />
+							<p>{t('noPostsFound')}</p>
+						</Stack>
 					)}
 				</Stack>
-				<Stack className={'sections'}>
-					<Stack className={'section'}>
-						<Typography className="title" variant={'h5'}>
-							Details
-						</Typography>
-						<List className={'sub-section'}>
-							{member?._id && (
-								<ListItem className={category === 'products' ? 'focus' : ''}>
-									<Link
-										href={{
-											pathname: '/member',
-											query: { ...router.query, category: 'products' },
-										}}
-										scroll={false}
-										style={{ width: '100%' }}
-									>
-										<div className={'flex-box'}>
-											{category === 'products' ? (
-												<img className={'com-icon'} src={'/img/icons/homeWhite.svg'} alt={'com-icon'} />
-											) : (
-												<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
-											)}
-											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Products
-											</Typography>
-											<Typography className="count-title" variant="subtitle1">
-												{member?.memberProducts}
-											</Typography>
-										</div>
-									</Link>
-								</ListItem>
-							)}
-							{member?.memberType === 'AGENT' && (
-								<ListItem className={category === 'articles' ? 'focus' : ''}>
-									<Link
-										href={{
-											pathname: '/member',
-											query: { ...router.query, category: 'articles' },
-										}}
-										scroll={false}
-										style={{ width: '100%' }}
-									>
-										<div className={'flex-box'}>
-											{category === 'articles' ? (
-												<img className={'com-icon'} src={'/img/icons/homeWhite.svg'} alt={'com-icon'} />
-											) : (
-												<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
-											)}
-											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Articles
-											</Typography>
-											<Typography className="count-title" variant="subtitle1">
-												{member?.memberArticles}
-											</Typography>
-										</div>
-									</Link>
-								</ListItem>
-							)}
-							{member?._id && (
-								<ListItem className={category === 'posts' ? 'focus' : ''}>
-									<Link
-										href={{
-											pathname: '/member',
-											query: { ...router.query, category: 'posts' },
-										}}
-										scroll={false}
-										style={{ width: '100%' }}
-									>
-										<div className={'flex-box'}>
-											{category === 'posts' ? (
-												<img className={'com-icon'} src={'/img/icons/homeWhite.svg'} alt={'com-icon'} />
-											) : (
-												<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
-											)}
-											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Posts
-											</Typography>
-											<Typography className="count-title" variant="subtitle1">
-												{member?.memberPosts}
-											</Typography>
-										</div>
-									</Link>
-								</ListItem>
-							)}
-							<ListItem className={category === 'followers' ? 'focus' : ''}>
-								<Link
-									href={{
-										pathname: '/member',
-										query: { ...router.query, category: 'followers' },
-									}}
-									scroll={false}
-									style={{ width: '100%' }}
-								>
-									<div className={'flex-box'}>
-										<svg
-											className={'com-icon'}
-											fill={category === 'followers' ? 'white' : 'black'}
-											height="800px"
-											width="800px"
-											version="1.1"
-											id="Layer_1"
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 328 328"
-										>
-											<g id="XMLID_350_">
-												<path
-													id="XMLID_351_"
-													d="M52.25,64.001c0,34.601,28.149,62.749,62.75,62.749c34.602,0,62.751-28.148,62.751-62.749
-		S149.602,1.25,115,1.25C80.399,1.25,52.25,29.4,52.25,64.001z"
-												/>
-												<path
-													id="XMLID_352_"
-													d="M217.394,262.357c2.929,2.928,6.768,4.393,10.606,4.393c3.839,0,7.678-1.465,10.607-4.394
-		c5.857-5.858,5.857-15.356-0.001-21.214l-19.393-19.391l19.395-19.396c5.857-5.858,5.857-15.356-0.001-21.214
-		c-5.858-5.857-15.356-5.856-21.214,0.001l-30,30.002c-2.813,2.814-4.393,6.629-4.393,10.607c0,3.979,1.58,7.794,4.394,10.607
-		L217.394,262.357z"
-												/>
-												<path
-													id="XMLID_439_"
-													d="M15,286.75h125.596c19.246,24.348,49.031,40,82.404,40c57.896,0,105-47.103,105-105
-		c0-57.896-47.104-105-105-105c-34.488,0-65.145,16.716-84.297,42.47c-7.764-1.628-15.695-2.47-23.703-2.47
-		c-63.411,0-115,51.589-115,115C0,280.034,6.716,286.75,15,286.75z M223,146.75c41.355,0,75,33.645,75,75s-33.645,75-75,75
-		s-75-33.645-75-75S181.644,146.75,223,146.75z"
-												/>
-											</g>
-										</svg>
-										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											Followers
-										</Typography>
-										<Typography className="count-title" variant="subtitle1">
-											{member?.memberFollowers}
-										</Typography>
-									</div>
-								</Link>
-							</ListItem>
-							<ListItem className={category === 'followings' ? 'focus' : ''}>
-								<Link
-									href={{
-										pathname: '/member',
-										query: { ...router.query, category: 'followings' },
-									}}
-									scroll={false}
-									style={{ width: '100%' }}
-								>
-									<div className={'flex-box'}>
-										<svg
-											className={'com-icon'}
-											fill={category === 'followings' ? 'white' : 'black'}
-											height="800px"
-											width="800px"
-											version="1.1"
-											id="Layer_1"
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 328 328"
-										>
-											<g id="XMLID_334_">
-												<path
-													id="XMLID_337_"
-													d="M177.75,64.001C177.75,29.4,149.601,1.25,115,1.25c-34.602,0-62.75,28.15-62.75,62.751
-		S80.398,126.75,115,126.75C149.601,126.75,177.75,98.602,177.75,64.001z"
-												/>
-												<path
-													id="XMLID_338_"
-													d="M228.606,181.144c-5.858-5.857-15.355-5.858-21.214-0.001c-5.857,5.857-5.857,15.355,0,21.214
-		l19.393,19.396l-19.393,19.391c-5.857,5.857-5.857,15.355,0,21.214c2.93,2.929,6.768,4.394,10.607,4.394
-		c3.838,0,7.678-1.465,10.605-4.393l30-29.998c2.813-2.814,4.395-6.629,4.395-10.607c0-3.978-1.58-7.793-4.394-10.607
-		L228.606,181.144z"
-												/>
-												<path
-													id="XMLID_340_"
-													d="M223,116.75c-34.488,0-65.145,16.716-84.298,42.47c-7.763-1.628-15.694-2.47-23.702-2.47
-		c-63.412,0-115,51.589-115,115c0,8.284,6.715,15,15,15h125.596c19.246,24.348,49.03,40,82.404,40c57.896,0,105-47.103,105-105
-		C328,163.854,280.896,116.75,223,116.75z M223,296.75c-41.356,0-75-33.645-75-75s33.644-75,75-75c41.354,0,75,33.645,75,75
-		S264.354,296.75,223,296.75z"
-												/>
-											</g>
-										</svg>
-										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											Followings
-										</Typography>
-										<Typography className="count-title" variant="subtitle1">
-											{member?.memberFollowings}
-										</Typography>
-									</div>
-								</Link>
-							</ListItem>
-						</List>
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
+			</Box>
+
+			{/* Comment Modal */}
+			<CommentModal
+				open={commentModalOpen}
+				onClose={() => setCommentModalOpen(false)}
+				post={selectedPost}
+				onCommentAdded={handleCommentAdded}
+			/>
+		</Stack>
+	);
 };
 
-export default MemberMenu;
+MainSection.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 10,
+		sort: 'createdAt',
+		direction: 'DESC',
+		search: {},
+	},
+};
+
+export default MainSection;

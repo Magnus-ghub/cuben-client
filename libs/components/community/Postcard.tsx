@@ -11,24 +11,22 @@ import { REACT_APP_API_URL } from '../../config';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
-import { FollowInquiry } from '../../types/follow/follow.input';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 
 interface PostCardProps {
 	post: Post;
-	initialInput: FollowInquiry;
 	likePostHandler: any;
 	savePostHandler: any;
-	subscribeHandler: any;
-	unsubscribeHandler: any;
+	subscribeHandler: (memberId: string) => Promise<void>;
+	unsubscribeHandler: (memberId: string) => Promise<void>;
 	onCommentClick: (post: Post) => void;
 }
 
 const PostCard = (props: PostCardProps) => {
-	const { initialInput, post, likePostHandler, savePostHandler, onCommentClick, unsubscribeHandler, subscribeHandler } = props;
+	const { post, likePostHandler, savePostHandler, onCommentClick, unsubscribeHandler, subscribeHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -49,15 +47,16 @@ const PostCard = (props: PostCardProps) => {
 		if (!user?._id || !post?.memberData?._id) return;
 
 		try {
+			const memberId = post.memberData._id;
+			
 			if (isFollowing) {
-				await unsubscribeHandler(post.memberData._id);
+				await unsubscribeHandler(memberId);
 			} else {
-				await subscribeHandler(post.memberData._id);
+				await subscribeHandler(memberId);
 			}
-			setIsFollowing(!isFollowing);
+			// State'ni yangilashga hojat yo'q - parent component buni bajaradi
 		} catch (error) {
 			console.error('Error handling follow:', error);
-			setIsFollowing(isFollowing);
 		}
 	};
 
@@ -227,16 +226,6 @@ const PostCard = (props: PostCardProps) => {
 			</Box>
 		</Box>
 	);
-};
-
-PostCard.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 5,
-		search: {
-			followingId: undefined,
-		},
-	},
 };
 
 export default PostCard;
