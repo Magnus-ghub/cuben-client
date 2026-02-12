@@ -79,6 +79,39 @@ const PostCard = (props: PostCardProps) => {
 		return moment(date).fromNow();
 	};
 
+	// Render HTML content safely
+	const renderPostContent = (content: string) => {
+		if (!content) return null;
+
+		// Simple sanitization - only allow safe tags
+		const cleanContent = content
+			.replace(/<script[^>]*>.*?<\/script>/gi, '')
+			.replace(/<style[^>]*>.*?<\/style>/gi, '')
+			.replace(/on\w+="[^"]*"/gi, '')
+			.replace(/on\w+='[^']*'/gi, '');
+
+		return (
+			<Box
+				className="post-description"
+				sx={{
+					'& p': {
+						margin: '0 0 0.8em',
+						lineHeight: 1.6,
+						'&:last-child': { marginBottom: 0 }
+					},
+					'& a': {
+						color: '#1877f2',
+						textDecoration: 'none',
+						'&:hover': { textDecoration: 'underline' }
+					},
+					'& strong': { fontWeight: 700 },
+					'& em': { fontStyle: 'italic' },
+				}}
+				dangerouslySetInnerHTML={{ __html: cleanContent }}
+			/>
+		);
+	};
+
 	const postImages = getPostImages();
 	const isLiked = post.meLiked?.liked || false;
 	const isSaved = post.meLiked?.saved || false;
@@ -89,7 +122,7 @@ const PostCard = (props: PostCardProps) => {
 			{/* Post Header */}
 			<Box className="post-header">
 				<Avatar className="post-avatar" src={getAuthorImage()} alt={post?.memberData?.memberNick || 'User'} />
-				<Link  href={`/member?memberId=${post.memberData._id}`} className="post-author-info">
+				<Link href={`/member?memberId=${post.memberData._id}`} className="post-author-info">
 					<Box className="author-name">
 						<span>{post?.memberData?.memberNick || 'Anonymous'}</span>
 						{post?.memberData?.memberType === 'AGENT' && <Award size={16} className="verified-badge" />}
@@ -116,7 +149,7 @@ const PostCard = (props: PostCardProps) => {
 			{/* Post Content */}
 			<Box className="post-content">
 				<p className="post-title">{post?.postTitle}</p>
-				{post?.postContent && <p className="post-description">{post.postContent}</p>}
+				{post?.postContent && renderPostContent(post.postContent)}
 			</Box>
 
 			{/* Post Images */}
@@ -201,7 +234,7 @@ PostCard.defaultProps = {
 		page: 1,
 		limit: 5,
 		search: {
-			followingId: undefined, //?????
+			followingId: undefined,
 		},
 	},
 };

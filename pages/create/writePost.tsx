@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import {
@@ -19,11 +19,9 @@ import { sweetErrorHandling, sweetTopSuccessAlert } from '../../libs/sweetAlert'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import { useEditor, EditorContent } from '@tiptap/react';
-import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
 
 import { getJwtToken } from '../../libs/auth';
 import { REACT_APP_API_URL } from '../../libs/config';
@@ -32,13 +30,11 @@ import { CREATE_POST } from '../../libs/apollo/user/mutation';
 
 import {
   Image as ImageIcon,
-  Send,
   X,
   Sparkles,
   Bold,
   Italic,
   Link as LinkIcon,
-  AtSign,
 } from 'lucide-react';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -66,7 +62,12 @@ const WritePost: NextPage = () => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
+        paragraph: {
+          HTMLAttributes: {
+            class: 'editor-paragraph',
+          },
+        },
+        heading: false,
         bulletList: { keepMarks: true },
         orderedList: { keepMarks: true },
       }),
@@ -76,17 +77,12 @@ const WritePost: NextPage = () => {
       Link.configure({
         openOnClick: false,
       }),
-      Image.configure({
-        inline: true,
-        allowBase64: true,
-      }),
     ],
     content: '',
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class:
-          'prose prose-neutral max-w-none focus:outline-none min-h-[200px] leading-relaxed text-[16px]',
+        class: 'tiptap-content',
       },
     },
   });
@@ -161,32 +157,39 @@ const WritePost: NextPage = () => {
     setPostImages(postImages.filter((_, i) => i !== index));
   };
 
-  // Clean HTML content from empty tags
-  const cleanHtmlContent = (html: string): string => {
-    if (!html) return '';
+  // Convert editor content to plain text with line breaks preserved
+  const getContentAsText = (): string => {
+    if (!editor) return '';
     
-    let cleaned = html;
+    const html = editor.getHTML();
     
-    // Remove completely empty paragraphs
-    cleaned = cleaned.replace(/<p><\/p>/g, '');
-    cleaned = cleaned.replace(/<p>\s*<\/p>/g, '');
-    cleaned = cleaned.replace(/<p><br><\/p>/g, '');
-    cleaned = cleaned.replace(/<p>\s*<br\s*\/?>\s*<\/p>/g, '');
-    cleaned = cleaned.replace(/(<p><\/p>\s*)+/g, '');
-    cleaned = cleaned.trim();
+    // Remove all HTML tags but keep line breaks
+    const text = html
+      .replace(/<\/p>/g, '\n')
+      .replace(/<br\s*\/?>/g, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
     
-    if (cleaned === '<p></p>' || cleaned === '<p><br></p>' || !cleaned) {
-      return '';
-    }
+    return text;
+  };
+
+  // Convert plain text to simple HTML paragraphs
+  const textToHtml = (text: string): string => {
+    if (!text) return '';
     
-    return cleaned;
+    return text
+      .split('\n')
+      .filter(line => line.trim())
+      .map(line => `<p>${line.trim()}</p>`)
+      .join('');
   };
 
   const handleSubmit = async () => {
     if (!editor) return;
 
     const titleTrimmed = postTitle.trim();
-    const contentText = editor.getText().trim();
+    const contentText = getContentAsText();
 
     if (!titleTrimmed || titleTrimmed.length < 5) {
       await sweetErrorHandling({ message: 'Title must be at least 5 characters' });
@@ -201,20 +204,16 @@ const WritePost: NextPage = () => {
     }
 
     try {
-      let content = editor.getHTML();
-      content = cleanHtmlContent(content);
-      
-      if (!content) {
-        await sweetErrorHandling({ message: 'Please write something' });
-        return;
-      }
+      // Convert to clean HTML
+      const htmlContent = textToHtml(contentText);
 
+      // Images are optional - can be empty array
       await createPost({
         variables: {
           input: {
             postTitle: titleTrimmed,
-            postContent: content,
-            postImages,
+            postContent: htmlContent,
+            postImages: postImages.length > 0 ? postImages : [],
           },
         },
       });
@@ -298,46 +297,42 @@ const WritePost: NextPage = () => {
             className="title-input"
           />
 
-          {/* Editor */}
+          {/* Editor with Toolbar */}
           <Box className="editor-container">
-            <EditorContent editor={editor} />
+            {/* Simple Toolbar */}
             {editor && (
-              <BubbleMenu
-                editor={editor}
-                shouldShow={({ editor }) => editor.isFocused && editor.getText().trim().length > 0}
-                tippyOptions={{
-                  placement: 'top',
-                  offset: [0, 8],
-                }}
-              >
-                <Box className="bubble-menu">
-                  <IconButton 
-                    size="small" 
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                    className={editor.isActive('bold') ? 'active' : ''}
-                  >
-                    <Bold size={18} />
-                  </IconButton>
-                  <IconButton 
-                    size="small" 
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                    className={editor.isActive('italic') ? 'active' : ''}
-                  >
-                    <Italic size={18} />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      const url = window.prompt('Enter the URL:');
-                      if (url) editor.chain().focus().setLink({ href: url }).run();
-                    }}
-                    className={editor.isActive('link') ? 'active' : ''}
-                  >
-                    <LinkIcon size={18} />
-                  </IconButton>
-                </Box>
-              </BubbleMenu>
+              <Box className="editor-toolbar">
+                <IconButton 
+                  size="small" 
+                  onClick={() => editor.chain().focus().toggleBold().run()}
+                  className={editor.isActive('bold') ? 'active' : ''}
+                  title="Bold"
+                >
+                  <Bold size={18} />
+                </IconButton>
+                <IconButton 
+                  size="small" 
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  className={editor.isActive('italic') ? 'active' : ''}
+                  title="Italic"
+                >
+                  <Italic size={18} />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    const url = window.prompt('Enter the URL:');
+                    if (url) editor.chain().focus().setLink({ href: url }).run();
+                  }}
+                  className={editor.isActive('link') ? 'active' : ''}
+                  title="Add Link"
+                >
+                  <LinkIcon size={18} />
+                </IconButton>
+              </Box>
             )}
+            
+            <EditorContent editor={editor} />
           </Box>
 
           {/* Images */}
