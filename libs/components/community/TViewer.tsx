@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import { Box, Stack } from '@mui/material';
-import './TViewer.scss';
+
 
 interface TViewerProps {
 	markdown?: string;
