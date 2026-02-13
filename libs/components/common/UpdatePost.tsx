@@ -6,8 +6,12 @@ import useDeviceDetect from '../../../libs/hooks/useDeviceDetect';
 import { useReactiveVar, useMutation, useQuery } from '@apollo/client';
 import withLayoutMain from '../../../libs/components/layout/LayoutHome';
 import { userVar } from '../../../libs/apollo/store';
-import { Editor } from '@toast-ui/react-editor';
-import '@toast-ui/editor/dist/toastui-editor.css';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import Placeholder from '@tiptap/extension-placeholder';
+import BubbleMenu from '@tiptap/extension-bubble-menu';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
 import { getJwtToken } from '../../../libs/auth';
 import { REACT_APP_API_URL } from '../../../libs/config';
@@ -22,29 +26,60 @@ import {
 	AlertCircle,
 	Sparkles,
 	Edit3,
+	Bold,
+	Italic,
+	Strikethrough,
+	Heading2,
+	List,
+	ListOrdered,
+	Quote,
+	Code,
+	Link as LinkIcon,
 } from 'lucide-react';
 import { Message } from '../../../libs/enums/common.enum';
+import './UpdatePost.scss';
 
 const UpdatePost: NextPage = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const { postId } = router.query;
-	const editorRef = useRef<Editor>(null);
-	const inputRef = useRef<HTMLInputElement>(null); 
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	// Modal State
 	const [open, setOpen] = useState<boolean>(true);
 
 	// Form State
 	const [postTitle, setPostTitle] = useState<string>('');
-	const [postContent, setPostContent] = useState<string>('');
 	const [postImages, setPostImages] = useState<string[]>([]);
 	const [uploadingImages, setUploadingImages] = useState<boolean>(false);
 	const [errors, setErrors] = useState({ title: '', content: '' });
 
-	// Dynamic editor height
-	const [editorHeight, setEditorHeight] = useState<string>('200px');
+	/** TIPTAP EDITOR SETUP **/
+	const editor = useEditor({
+		extensions: [
+			StarterKit.configure({
+				heading: {
+					levels: [2, 3],
+				},
+			}),
+			Link.configure({
+				openOnClick: false,
+				autolink: true,
+			}),
+			Image.configure({
+				allowBase64: true,
+			}),
+			Placeholder.configure({
+				placeholder: 'Share your thoughts, experiences, or knowledge...',
+			}),
+			BubbleMenu,
+		],
+		content: '',
+		onUpdate: ({ editor }) => {
+			// Character count update happens automatically
+		},
+	});
 
 	/** APOLLO REQUESTS **/
 	const [updatePost, { loading: updateLoading }] = useMutation(UPDATE_POST);
@@ -61,15 +96,12 @@ const UpdatePost: NextPage = () => {
 			if (data?.getPost) {
 				const post = data.getPost;
 				setPostTitle(post.postTitle || '');
-				setPostContent(post.postContent || '');
 				setPostImages(post.postImages || []);
 				
-				// Set editor content after a brief delay
-				setTimeout(() => {
-					if (editorRef.current) {
-						editorRef.current.getInstance().setMarkdown(post.postContent || '');
-					}
-				}, 100);
+				// Set editor content
+				if (editor) {
+					editor.commands.setContent(post.postContent || '');
+				}
 			}
 		},
 		onError: (error) => {
@@ -77,32 +109,6 @@ const UpdatePost: NextPage = () => {
 			sweetMixinErrorAlert('Failed to load post data');
 		},
 	});
-
-	// Monitor content changes for dynamic height
-	useEffect(() => {
-		const editor = editorRef.current?.getInstance();
-		if (!editor) return;
-
-		const updateHeight = () => {
-			const markdown = editor.getMarkdown();
-			const lines = markdown.split('\n').length;
-			
-			let newHeight = '200px';
-			if (lines > 5) newHeight = '250px';
-			if (lines > 10) newHeight = '300px';
-			if (lines > 15) newHeight = '350px';
-			if (lines > 20) newHeight = '400px';
-			
-			setEditorHeight(newHeight);
-			setPostContent(markdown);
-		};
-
-		editor.on('change', updateHeight);
-
-		return () => {
-			editor.off('change');
-		};
-	}, []);
 
 	/** HANDLERS **/
 	const handleClose = () => {
@@ -137,7 +143,7 @@ const UpdatePost: NextPage = () => {
 					}`,
 					variables: {
 						files: filesArray,
-						target: 'post', 
+						target: 'post',
 					},
 				}),
 			);
@@ -166,12 +172,10 @@ const UpdatePost: NextPage = () => {
 			}
 
 			const responseImages = response.data.data.imagesUploader.filter((url: string) => url);
-
 			const newImages = [...postImages, ...responseImages].slice(0, 3);
 			setPostImages(newImages);
 
 			await sweetMixinSuccessAlert('Images uploaded successfully!');
-
 			inputRef.current!.value = '';
 
 		} catch (err: any) {
@@ -204,8 +208,6 @@ const UpdatePost: NextPage = () => {
 			isValid = false;
 		}
 
-		const content = editorRef.current?.getInstance().getMarkdown();
-
 		setErrors(newErrors);
 		return isValid;
 	};
@@ -218,7 +220,7 @@ const UpdatePost: NextPage = () => {
 				return;
 			}
 
-			const postContent = editorRef.current?.getInstance().getMarkdown();
+			const postContent = editor?.getHTML();
 
 			if (!postContent || !postTitle) {
 				throw new Error(Message.INSERT_ALL_INPUTS);
@@ -293,6 +295,8 @@ const UpdatePost: NextPage = () => {
 		);
 	}
 
+	const postContent = editor?.getHTML() || '';
+
 	return (
 		<Modal
 			open={open}
@@ -365,30 +369,92 @@ const UpdatePost: NextPage = () => {
 						</Box>
 					</Box>
 
-					{/* Editor - Dynamic Height */}
+					{/* Tiptap Editor */}
 					<Box className={`editor-wrapper ${errors.content ? 'error' : ''}`}>
 						<Box className="editor-header">
 							<span className="editor-label">Post Content</span>
 							<span className="content-counter">
-								{postContent.length} characters
+								{editor?.storage.characterCount?.characters() || 0} characters
 							</span>
 						</Box>
-						<Editor
-							ref={editorRef}
-							initialValue=" "
-							placeholder="Share your thoughts, experiences, or knowledge..."
-							previewStyle="vertical"
-							height={editorHeight}
-							initialEditType="markdown"
-							useCommandShortcut={true}
-							hideModeSwitch={true}
-							toolbarItems={[
-								['heading', 'bold', 'italic', 'strike'],
-								['hr', 'quote'],
-								['ul', 'ol', 'task'],
-								['link', 'code', 'codeblock'],
-							]}
-						/>
+
+						{editor && (
+							<Box className="tiptap-toolbar">
+								<button
+									onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+									className={editor.isActive('heading', { level: 2 }) ? 'active' : ''}
+									title="Heading"
+								>
+									<Heading2 size={16} />
+								</button>
+								<button
+									onClick={() => editor.chain().focus().toggleBold().run()}
+									className={editor.isActive('bold') ? 'active' : ''}
+									title="Bold"
+								>
+									<Bold size={16} />
+								</button>
+								<button
+									onClick={() => editor.chain().focus().toggleItalic().run()}
+									className={editor.isActive('italic') ? 'active' : ''}
+									title="Italic"
+								>
+									<Italic size={16} />
+								</button>
+								<button
+									onClick={() => editor.chain().focus().toggleStrike().run()}
+									className={editor.isActive('strike') ? 'active' : ''}
+									title="Strikethrough"
+								>
+									<Strikethrough size={16} />
+								</button>
+								<div className="toolbar-divider" />
+								<button
+									onClick={() => editor.chain().focus().toggleBulletList().run()}
+									className={editor.isActive('bulletList') ? 'active' : ''}
+									title="Bullet List"
+								>
+									<List size={16} />
+								</button>
+								<button
+									onClick={() => editor.chain().focus().toggleOrderedList().run()}
+									className={editor.isActive('orderedList') ? 'active' : ''}
+									title="Ordered List"
+								>
+									<ListOrdered size={16} />
+								</button>
+								<button
+									onClick={() => editor.chain().focus().toggleBlockquote().run()}
+									className={editor.isActive('blockquote') ? 'active' : ''}
+									title="Quote"
+								>
+									<Quote size={16} />
+								</button>
+								<button
+									onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+									className={editor.isActive('codeBlock') ? 'active' : ''}
+									title="Code Block"
+								>
+									<Code size={16} />
+								</button>
+								<div className="toolbar-divider" />
+								<button
+									onClick={() => {
+										const url = window.prompt('Enter URL:');
+										if (url) {
+											editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+										}
+									}}
+									title="Link"
+								>
+									<LinkIcon size={16} />
+								</button>
+							</Box>
+						)}
+
+						<Box className="editor-content tiptap-editor">
+							<EditorContent editor={editor} />
+						</Box>
 					</Box>
 					{errors.content && (
 						<Box className="error-msg">
