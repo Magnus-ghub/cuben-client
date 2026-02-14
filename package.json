@@ -30,7 +30,6 @@
         "@mui/x-date-pickers-pro": "^5.0.0-beta.0",
         "@pmndrs/branding": "0.0.8",
         "@popperjs/core": "^2.11.8",
-        "@react-oauth/google": "^0.13.4",
         "@react-three/drei": "9.58.5",
         "@react-three/fiber": "8.12.0",
         "@tiptap/extension-bubble-menu": "^3.19.0",

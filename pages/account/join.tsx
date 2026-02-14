@@ -5,7 +5,6 @@ import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { Box, Button, Checkbox, FormControlLabel, Stack, InputAdornment, IconButton } from '@mui/material';
 import { FcGoogle } from 'react-icons/fc';
 import { BsChatFill } from 'react-icons/bs';
-import { GoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/router';
 import { logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../libs/sweetAlert';
