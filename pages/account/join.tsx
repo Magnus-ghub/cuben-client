@@ -138,14 +138,14 @@ const Join: NextPage = () => {
 									<path d="M 15 35 L 50 50" stroke="url(#logoGradient)" strokeWidth="6" strokeLinecap="round" />
 									<path d="M 85 35 L 50 50" stroke="url(#logoGradient)" strokeWidth="6" strokeLinecap="round" />
 								</svg>
-								<span>cuben</span>
+								<span>univo</span>
 							</Box>
 							<p className={'university-name'}>부산외국어대학교</p>
 						</Box>
 
 						{/* Header */}
 						<Box className={'form-header'}>
-							<h1>{loginView ? 'Welcome Back!' : 'Join Cuben'}</h1>
+							<h1>{loginView ? 'Welcome Back!' : 'Join Univo'}</h1>
 							<p>
 								{loginView
 									? 'Sign in to access your university community'
@@ -296,7 +296,7 @@ const Join: NextPage = () => {
 						<Box className={'info-content'}>
 							<Box className={'info-header'}>
 								<Zap size={32} className={'zap-icon'} />
-								<h2>Welcome to Cuben</h2>
+								<h2>Welcome to Univo</h2>
 								<p>Your all-in-one university community platform</p>
 							</Box>
 

@@ -40,7 +40,7 @@ const NOTE_COLORS = [
   { name: 'Pink', value: '#fce7f3' },
 ];
 
-const STORAGE_KEY = 'cuben_notes';
+const STORAGE_KEY = 'univo';
 
 function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);

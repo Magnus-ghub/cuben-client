@@ -21,7 +21,7 @@ const withLayoutBasic = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Cuben</title>
+						<title>Univo</title>
 					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={"top"}>
@@ -47,7 +47,7 @@ const withLayoutBasic = (Component: any) => {
 		return (
 			<>
 				<Head>
-					<title>Cuben</title>
+					<title>Univo</title>
 				</Head>
 				<Stack id="pc-wrap">
 					<Stack id={"top"}>

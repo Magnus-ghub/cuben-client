@@ -36,7 +36,7 @@ const CS: NextPage = () => {
 		{
 			icon: <Mail size={24} />,
 			title: 'Email Support',
-			value: 'support@cuben.kr',
+			value: 'support@univo.kr',
 			description: 'We typically respond within 24 hours',
 		},
 		{

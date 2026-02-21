@@ -129,11 +129,11 @@ const About: NextPage = () => {
 					<Box className={'hero-content'}>
 						<Box className={'badge'}>
 							<Zap size={16} />
-							<span>About Cuben</span>
+							<span>About Univo</span>
 						</Box>
 						<h1>Connecting University Students Through Innovation</h1>
 						<p className={'subtitle'}>
-							Cuben is more than just a platform – it's a vibrant community where students connect, collaborate, and
+							Univo is more than just a platform – it's a vibrant community where students connect, collaborate, and
 							thrive together. We're revolutionizing campus life by bringing everything students need into one seamless
 							digital experience.
 						</p>
@@ -169,13 +169,13 @@ const About: NextPage = () => {
 						<Box className={'right'}>
 							<p>
 								At Busan University of Foreign Studies, we recognized that students needed a better way to connect,
-								share, and support each other. Cuben was born from the idea that university life should be more than
+								share, and support each other. Univo was born from the idea that university life should be more than
 								just attending classes – it's about building a community.
 							</p>
 							<p>
 								Our platform brings together the best features of social networking, marketplace, and career
 								development, all tailored specifically for university students. Whether you're looking for study
-								partners, selling textbooks, or searching for your first internship, Cuben is here to help.
+								partners, selling textbooks, or searching for your first internship, Univo is here to help.
 							</p>
 							<Stack className={'mission-highlights'}>
 								{values.map((value, index) => (
@@ -223,7 +223,7 @@ const About: NextPage = () => {
 							<span>What We Offer</span>
 						</Box>
 						<h2>Everything You Need in One Place</h2>
-						<p>Discover the features that make Cuben the ultimate platform for university students</p>
+						<p>Discover the features that make Univo the ultimate platform for university students</p>
 					</Box>
 					<Stack className={'features-grid'}>
 						{features.map((feature, index) => (
@@ -250,7 +250,7 @@ const About: NextPage = () => {
 							<Users size={20} />
 							<span>Our Team</span>
 						</Box>
-						<h2>Meet the People Behind Cuben</h2>
+						<h2>Meet the People Behind Univo</h2>
 						<p>A passionate team of students building the future of campus connectivity</p>
 					</Box>
 					<Stack className={'team-grid'}>
@@ -282,7 +282,7 @@ const About: NextPage = () => {
 						<Award size={48} className={'vision-icon'} />
 						<h2>Our Vision for the Future</h2>
 						<p>
-							We envision Cuben becoming the leading student community platform across universities in South Korea and
+							We envision Univo becoming the leading student community platform across universities in South Korea and
 							beyond. By continuously innovating and listening to student needs, we're building a future where campus
 							life is more connected, efficient, and enjoyable than ever before.
 						</p>

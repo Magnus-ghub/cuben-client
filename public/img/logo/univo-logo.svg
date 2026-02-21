@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="100"
+  height="100"
+  viewBox="0 0 100 100"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <linearGradient id="univoMain" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#7C3AED" />
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M25 35 Q25 80 50 80 Q75 80 75 35"
+    stroke="url(#univoMain)"
+    stroke-width="10"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <circle
+    cx="50"
+    cy="22"
+    r="6"
+    fill="url(#univoMain)"
+  />
+</svg>

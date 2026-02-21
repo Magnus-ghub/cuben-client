@@ -169,7 +169,7 @@ const AdminUsers: NextPage = () => {
 			<Box className="page-header">
 				<Typography className="tit">Community Members</Typography>
 				<Typography variant="body2" color="textSecondary">
-					Manage all members of the Cuben platform
+					Manage all members of the Univo platform
 				</Typography>
 			</Box>
 

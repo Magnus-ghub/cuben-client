@@ -16,7 +16,7 @@ const withLayoutMain = (Component: any) => {
       return (
         <>
           <Head>
-            <title>Cuben</title>
+            <title>Univo</title>
           </Head>
           <Stack id="mobile-wrap">
             <Stack id={"top"}>
@@ -46,7 +46,7 @@ const withLayoutMain = (Component: any) => {
     return (
       <>
         <Head>
-          <title>Cuben</title>
+          <title>Univo</title>
         </Head>
 
         <Stack id="pc-wrap">

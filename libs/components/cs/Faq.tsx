@@ -47,21 +47,21 @@ const Faq = () => {
 		general: [
 			{
 				id: 'gen1',
-				question: 'What is Cuben?',
+				question: 'What is Univo?',
 				answer:
-					'Cuben is a university community platform designed specifically for Busan University of Foreign Studies students. It combines social networking, marketplace, job board, and event management all in one place.',
+					'Univo is a university community platform designed specifically for Busan University of Foreign Studies students. It combines social networking, marketplace, job board, and event management all in one place.',
 			},
 			{
 				id: 'gen2',
-				question: 'Who can use Cuben?',
+				question: 'Who can use Univo?',
 				answer:
-					'Cuben is exclusively for BUFS students, faculty, and staff. You need a valid university email address to register and access the platform.',
+					'Univo is exclusively for BUFS students, faculty, and staff. You need a valid university email address to register and access the platform.',
 			},
 			{
 				id: 'gen3',
-				question: 'Is Cuben free to use?',
+				question: 'Is Univo free to use?',
 				answer:
-					'Yes! Cuben is completely free for all BUFS community members. There are no hidden fees or premium subscriptions.',
+					'Yes! Univo is completely free for all BUFS community members. There are no hidden fees or premium subscriptions.',
 			},
 			{
 				id: 'gen4',
@@ -71,8 +71,8 @@ const Faq = () => {
 			},
 			{
 				id: 'gen5',
-				question: 'Can I use Cuben on mobile?',
-				answer: 'Yes, Cuben is fully responsive and works great on mobile browsers. A dedicated mobile app is coming soon!',
+				question: 'Can I use Univo on mobile?',
+				answer: 'Yes, Univo is fully responsive and works great on mobile browsers. A dedicated mobile app is coming soon!',
 			},
 		],
 		marketplace: [
@@ -84,13 +84,13 @@ const Faq = () => {
 			},
 			{
 				id: 'mar2',
-				question: 'Is it safe to buy and sell on Cuben?',
+				question: 'Is it safe to buy and sell on Univo?',
 				answer:
 					'We verify all users through university email addresses. However, always meet in public places on campus, check items before buying, and never share sensitive payment information.',
 			},
 			{
 				id: 'mar3',
-				question: 'What can I sell on Cuben Marketplace?',
+				question: 'What can I sell on Univo Marketplace?',
 				answer:
 					'You can sell textbooks, electronics, furniture, clothes, and other student-friendly items. Prohibited items include illegal goods, weapons, and hazardous materials.',
 			},
@@ -98,7 +98,7 @@ const Faq = () => {
 				id: 'mar4',
 				question: 'How do payments work?',
 				answer:
-					'Cuben facilitates connections between buyers and sellers. Payment arrangements are made directly between users. We recommend cash transactions on campus for safety.',
+					'Univo facilitates connections between buyers and sellers. Payment arrangements are made directly between users. We recommend cash transactions on campus for safety.',
 			},
 			{
 				id: 'mar5',
@@ -140,7 +140,7 @@ const Faq = () => {
 		jobs: [
 			{
 				id: 'job1',
-				question: 'What types of jobs are posted on Cuben?',
+				question: 'What types of jobs are posted on Univo?',
 				answer:
 					'Part-time jobs, internships, on-campus positions, tutoring opportunities, and entry-level positions suitable for students.',
 			},
@@ -249,7 +249,7 @@ const Faq = () => {
 		<Stack className={'faq-content'}>
 			<Box className={'section-header'}>
 				<h2>Frequently Asked Questions</h2>
-				<p>Find answers to common questions about using Cuben</p>
+				<p>Find answers to common questions about using Univo</p>
 			</Box>
 
 			<Box className={'faq-categories'}>

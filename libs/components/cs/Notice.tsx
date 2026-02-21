@@ -55,9 +55,9 @@ const Notice = () => {
 		{
 			id: 6,
 			type: 'announcement',
-			title: 'Welcome to Cuben Community! 🎓',
+			title: 'Welcome to Univo Community! 🎓',
 			description:
-				'Thank you for joining our platform. Check out our getting started guide to make the most of Cuben',
+				'Thank you for joining our platform. Check out our getting started guide to make the most of Univo',
 			date: 'Dec 1, 2024',
 			icon: '👋',
 			priority: 'low',
@@ -96,7 +96,7 @@ const Notice = () => {
 		<Stack className={'notice-content'}>
 			<Box className={'section-header'}>
 				<h2>Latest Announcements</h2>
-				<p>Stay updated with the latest news and updates from Cuben</p>
+				<p>Stay updated with the latest news and updates from Univo</p>
 			</Box>
 
 			<Stack className={'announcements-list'}>

@@ -23,7 +23,7 @@ import { REACT_APP_API_URL } from '../../config';
 import { MemberType } from '../../enums/member.enum';
 import { userVar } from '../../apollo/store';
 import { LogOut, Bell, ChevronDown, LayoutDashboard } from 'lucide-react';
-import { CubenLogo } from '../common/CubenLogo';
+import { UnivoLogo } from '../common/UnivoLogo';
 
 const drawerWidth = 280;
 
@@ -68,7 +68,7 @@ const withAdminLayout = (Component: ComponentType) => {
 						<Box className="appbar-left">
 							<Stack direction="row" spacing={1} alignItems="center">
 								<LayoutDashboard size={24} color="#6366f1" />
-								<Typography className="page-title">Cuben Management</Typography>
+								<Typography className="page-title">Univo Management</Typography>
 							</Stack>
 						</Box>
 
@@ -138,7 +138,7 @@ const withAdminLayout = (Component: ComponentType) => {
 									}}
 								>
 									<KeyboardReturnIcon />
-									<span>Back to Cuben</span>
+									<span>Back to Univo</span>
 								</Link>
 							</Menu>
 						</Box>
@@ -148,7 +148,7 @@ const withAdminLayout = (Component: ComponentType) => {
 				<Drawer className="admin-sidebar" variant="permanent">
 					<Box className="sidebar-header">
 						<Box className="logo-wrapper">
-							<CubenLogo />
+							<UnivoLogo />
 						</Box>
 					</Box>
 

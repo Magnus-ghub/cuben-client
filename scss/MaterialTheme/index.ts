@@ -164,14 +164,14 @@ export const light = {
 				},
 			},
 		},
-		MuiSelect: {
-			styleOverrides: {
-				root: {},
-				select: {
-					textAlign: 'left',
-				},
-			},
-		},
+		// MuiSelect: {
+		// 	styleOverrides: {
+		// 		select: {
+		// 			textAlign: 'left',
+		// 		},
+		// 	},
+		// 	variants: [],
+		// },
 		MuiInputBase: {
 			styleOverrides: {
 				root: {

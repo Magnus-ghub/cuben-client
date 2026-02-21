@@ -17,7 +17,7 @@ import { useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
 import { getJwtToken, updateUserInfo } from '../auth';
 import { Snackbar, Alert } from '@mui/material';
-import { CubenLogo } from './common/CubenLogo';
+import { UnivoLogo } from './common/UnivoLogo';
 
 const Top: React.FC = () => {
 	const device = useDeviceDetect();
@@ -173,10 +173,10 @@ const Top: React.FC = () => {
 					<Link href={'/'} style={{ textDecoration: 'none' }}>
 						<Stack className="logo-section">
 							<Box component={'div'} className={'logo-box'}>
-								<CubenLogo />
+								<UnivoLogo />
 							</Box>
 							<Box component={'div'} className={'brand-name'}>
-								<div className="brand-text">cuben</div>
+								<div className="brand-text">univo</div>
 								<div className="univ-text">부산외국어대학교</div>
 							</Box>
 						</Stack>
