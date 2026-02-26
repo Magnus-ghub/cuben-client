@@ -1,6 +1,6 @@
 services:
   cuben-client:
-    container_name: cuben-client
+    container_name: univo-client
     restart: always
     image: node:20.10.0
     ports:
