@@ -130,8 +130,9 @@
 			.filter-sidebar {
 				width: 300px;
 				flex-shrink: 0;
-				position: relative;
-				top: auto;
+				position: sticky;
+				top: 32px;
+				align-self: flex-start;
 			}
 
 			// PRODUCTS CONTAINER

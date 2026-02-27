@@ -2,7 +2,6 @@ import React from 'react';
 import { NextPage } from 'next';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { Stack, Box, Button } from '@mui/material';
-import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import {
 	Users,
 	Target,
@@ -24,6 +23,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import withLayoutPublic from '../../libs/components/layout/LayoutBasic';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -429,4 +429,4 @@ const About: NextPage = () => {
 	);
 };
 
-export default withLayoutMain(About);
+export default withLayoutPublic(About);

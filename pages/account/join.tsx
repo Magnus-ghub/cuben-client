@@ -23,6 +23,7 @@ import {
 	Zap,
 	GraduationCap,
 } from 'lucide-react';
+import { UnivoLogo } from '../../libs/components/common/UnivoLogo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -119,25 +120,7 @@ const Join: NextPage = () => {
 						{/* Logo */}
 						<Box className={'logo-section'}>
 							<Box className={'logo'}>
-								<svg width="40" height="40" viewBox="0 0 100 100" fill="none">
-									<defs>
-										<linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-											<stop offset="0%" style={{ stopColor: '#667eea', stopOpacity: 1 }} />
-											<stop offset="100%" style={{ stopColor: '#764ba2', stopOpacity: 1 }} />
-										</linearGradient>
-									</defs>
-									<path
-										d="M 50 15 L 85 35 L 85 65 L 50 85 L 15 65 L 15 35 Z"
-										fill="none"
-										stroke="url(#logoGradient)"
-										strokeWidth="6"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-									<path d="M 50 15 L 50 50" stroke="url(#logoGradient)" strokeWidth="6" strokeLinecap="round" />
-									<path d="M 15 35 L 50 50" stroke="url(#logoGradient)" strokeWidth="6" strokeLinecap="round" />
-									<path d="M 85 35 L 50 50" stroke="url(#logoGradient)" strokeWidth="6" strokeLinecap="round" />
-								</svg>
+								<UnivoLogo />
 								<span>univo</span>
 							</Box>
 							<p className={'university-name'}>부산외국어대학교</p>

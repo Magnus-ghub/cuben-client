@@ -5,9 +5,9 @@ import { Box, Stack } from '@mui/material';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import Notice from '../../libs/components/cs/Notice';
 import Faq from '../../libs/components/cs/Faq';
-import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { HelpCircle, Bell, MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
+import withLayoutPublic from '../../libs/components/layout/LayoutBasic';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -167,4 +167,4 @@ const CS: NextPage = () => {
 	);
 };
 
-export default withLayoutMain(CS);
+export default withLayoutPublic(CS);

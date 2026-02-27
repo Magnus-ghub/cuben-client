@@ -1,26 +1,25 @@
 @import '/scss/variables.scss';
 
-#pc-wrap {
+#public-wrap {
 	.cs-page {
 		width: 100%;
-		min-height: calc(auto - 64px);
-		background: #f9fafb;
-		padding:40px 24px 80px 24px;
+		background: #f8fafc;
+		padding: 48px 24px 100px;
 
 		.container {
 			max-width: 1200px;
 			margin: 0 auto;
-			padding: 0 24px;
+			padding: 0 32px;
 			display: flex;
 			flex-direction: column;
-			gap: 32px;
+			gap: 28px;
 
 			// ============================================
 			// HERO SECTION
 			// ============================================
 			.cs-hero {
 				text-align: center;
-				padding: 40px 20px;
+				padding: 56px 32px;
 				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 				border-radius: 20px;
 				position: relative;
@@ -29,32 +28,35 @@
 				&::before {
 					content: '';
 					position: absolute;
-					top: -30%;
-					right: -10%;
-					width: 400px;
-					height: 400px;
-					background: rgba(255, 255, 255, 0.1);
+					top: -25%;
+					right: -8%;
+					width: 380px;
+					height: 380px;
+					background: rgba(255, 255, 255, 0.07);
 					border-radius: 50%;
+					pointer-events: none;
 				}
 
 				&::after {
 					content: '';
 					position: absolute;
-					bottom: -40%;
+					bottom: -35%;
 					left: -5%;
-					width: 300px;
-					height: 300px;
-					background: rgba(255, 255, 255, 0.08);
+					width: 280px;
+					height: 280px;
+					background: rgba(255, 255, 255, 0.05);
 					border-radius: 50%;
+					pointer-events: none;
 				}
 
 				.hero-icon {
 					position: relative;
 					z-index: 1;
-					width: 80px;
-					height: 80px;
-					background: rgba(255, 255, 255, 0.2);
+					width: 76px;
+					height: 76px;
+					background: rgba(255, 255, 255, 0.15);
 					backdrop-filter: blur(10px);
+					border: 1px solid rgba(255, 255, 255, 0.25);
 					border-radius: 50%;
 					display: flex;
 					align-items: center;
@@ -67,22 +69,22 @@
 					position: relative;
 					z-index: 1;
 					font-family: $font;
-					font-size: 42px;
-					font-weight: 700;
+					font-size: 40px;
+					font-weight: 800;
 					color: #ffffff;
-					margin: 0 0 12px 0;
-					letter-spacing: -0.5px;
+					margin: 0 0 12px;
+					letter-spacing: -1px;
 				}
 
 				p {
 					position: relative;
 					z-index: 1;
 					font-family: $font;
-					font-size: 18px;
-					color: rgba(255, 255, 255, 0.9);
-					margin: 0;
-					max-width: 600px;
+					font-size: 17px;
+					color: rgba(255, 255, 255, 0.85);
 					margin: 0 auto;
+					max-width: 560px;
+					line-height: 1.65;
 				}
 			}
 
@@ -91,41 +93,40 @@
 			// ============================================
 			.tab-navigation {
 				display: flex;
-				gap: 12px;
+				gap: 10px;
 				background: #ffffff;
-				padding: 12px;
+				padding: 10px;
 				border-radius: 16px;
-				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-				border: 1px solid #e5e7eb;
+				box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+				border: 1px solid #e2e8f0;
 
 				.tab-btn {
 					flex: 1;
-					padding: 14px 24px;
-					border-radius: 12px;
+					padding: 13px 20px;
+					border-radius: 10px;
 					display: flex;
 					align-items: center;
 					justify-content: center;
-					gap: 10px;
+					gap: 9px;
 					cursor: pointer;
 					transition: all 0.2s ease;
-					border: 2px solid transparent;
 
 					svg {
-						color: #9ca3af;
+						color: #94a3b8;
 						transition: color 0.2s ease;
+						flex-shrink: 0;
 					}
 
 					span {
 						font-family: $font;
-						font-size: 15px;
-						font-weight: 600;
-						color: #6b7280;
+						font-size: 14px;
+						font-weight: 700;
+						color: #64748b;
 						transition: color 0.2s ease;
 					}
 
 					&:hover {
-						background: #f9fafb;
-						border-color: #e5e7eb;
+						background: #f8fafc;
 
 						svg,
 						span {
@@ -135,7 +136,7 @@
 
 					&.active {
 						background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-						border-color: transparent;
+						box-shadow: 0 3px 12px rgba(102, 126, 234, 0.3);
 
 						svg,
 						span {
@@ -149,23 +150,23 @@
 			// CONTENT AREA
 			// ============================================
 			.cs-content {
-				// Section Headers (reusable)
+				// Section header
 				.section-header {
 					margin-bottom: 32px;
 
 					h2 {
 						font-family: $font;
-						font-size: 32px;
-						font-weight: 700;
-						color: #1f2937;
-						margin: 0 0 8px 0;
+						font-size: 30px;
+						font-weight: 800;
+						color: #0f172a;
+						margin: 0 0 8px;
 						letter-spacing: -0.5px;
 					}
 
 					p {
 						font-family: $font;
-						font-size: 16px;
-						color: #6b7280;
+						font-size: 15px;
+						color: #64748b;
 						margin: 0;
 					}
 				}
@@ -177,25 +178,25 @@
 					.announcements-list {
 						display: flex;
 						flex-direction: column;
-						gap: 16px;
+						gap: 14px;
 
 						.announcement-card {
 							background: #ffffff;
-							border-radius: 16px;
-							padding: 24px;
-							box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-							border: 1px solid #e5e7eb;
-							border-left: 4px solid #d1d5db;
+							border-radius: 14px;
+							padding: 22px 24px;
+							box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+							border: 1px solid #e2e8f0;
+							border-left: 4px solid #cbd5e1;
 							transition: all 0.2s ease;
 
 							&:hover {
-								box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+								box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
 								transform: translateX(4px);
 							}
 
 							&.priority-high {
 								border-left-color: #ef4444;
-								background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, #ffffff 10%);
+								background: linear-gradient(90deg, rgba(239, 68, 68, 0.04) 0%, #ffffff 12%);
 							}
 
 							&.priority-medium {
@@ -218,14 +219,14 @@
 									gap: 16px;
 
 									.announcement-icon {
-										width: 48px;
-										height: 48px;
-										background: #f3f4f6;
-										border-radius: 12px;
+										width: 46px;
+										height: 46px;
+										background: #f1f5f9;
+										border-radius: 10px;
 										display: flex;
 										align-items: center;
 										justify-content: center;
-										font-size: 24px;
+										font-size: 22px;
 										flex-shrink: 0;
 									}
 
@@ -235,51 +236,47 @@
 										.title-row {
 											display: flex;
 											align-items: center;
-											gap: 12px;
-											margin-bottom: 8px;
+											gap: 10px;
+											margin-bottom: 7px;
 
 											h3 {
 												font-family: $font;
-												font-size: 18px;
-												font-weight: 600;
-												color: #1f2937;
+												font-size: 16px;
+												font-weight: 700;
+												color: #0f172a;
 												margin: 0;
 											}
 
 											.type-badge {
 												font-family: $font;
-												font-weight: 600;
+												font-size: 12px;
+												font-weight: 700;
+												padding: 3px 10px;
+												border-radius: 100px;
 
 												&.event {
 													background: rgba(236, 72, 153, 0.1);
 													color: #ec4899;
-													border: none;
 												}
-
 												&.update {
 													background: rgba(59, 130, 246, 0.1);
 													color: #3b82f6;
-													border: none;
 												}
-
 												&.maintenance {
 													background: rgba(245, 158, 11, 0.1);
 													color: #f59e0b;
-													border: none;
 												}
-
 												&.announcement {
 													background: rgba(16, 185, 129, 0.1);
 													color: #10b981;
-													border: none;
 												}
 											}
 										}
 
 										.description {
 											font-family: $font;
-											font-size: 14px;
-											color: #6b7280;
+											font-size: 13px;
+											color: #64748b;
 											margin: 0;
 											line-height: 1.6;
 										}
@@ -291,21 +288,19 @@
 										display: flex;
 										align-items: center;
 										gap: 6px;
-										padding: 8px 12px;
-										background: #f9fafb;
+										padding: 7px 12px;
+										background: #f8fafc;
 										border-radius: 8px;
-										border: 1px solid #e5e7eb;
+										border: 1px solid #e2e8f0;
+										white-space: nowrap;
 
-										svg {
-											color: #9ca3af;
-										}
+										svg { color: #94a3b8; }
 
 										span {
 											font-family: $font;
-											font-size: 13px;
-											font-weight: 500;
-											color: #6b7280;
-											white-space: nowrap;
+											font-size: 12px;
+											font-weight: 600;
+											color: #64748b;
 										}
 									}
 								}
@@ -320,48 +315,43 @@
 				.faq-content {
 					.faq-categories {
 						display: flex;
-						gap: 12px;
-						margin-bottom: 32px;
+						gap: 10px;
+						margin-bottom: 28px;
 						flex-wrap: wrap;
 
 						.category-btn {
-							padding: 12px 20px;
+							padding: 10px 18px;
 							background: #ffffff;
-							border: 2px solid #e5e7eb;
-							border-radius: 12px;
+							border: 1.5px solid #e2e8f0;
+							border-radius: 10px;
 							display: flex;
 							align-items: center;
 							gap: 8px;
 							cursor: pointer;
 							transition: all 0.2s ease;
 
-							.category-icon {
-								font-size: 20px;
-							}
+							.category-icon { font-size: 18px; }
 
 							.category-label {
 								font-family: $font;
-								font-size: 14px;
-								font-weight: 600;
-								color: #6b7280;
+								font-size: 13px;
+								font-weight: 700;
+								color: #64748b;
 							}
 
 							&:hover {
 								border-color: #667eea;
-								background: rgba(102, 126, 234, 0.05);
+								background: rgba(102, 126, 234, 0.04);
 
-								.category-label {
-									color: #667eea;
-								}
+								.category-label { color: #667eea; }
 							}
 
 							&.active {
 								background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 								border-color: transparent;
+								box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 
-								.category-label {
-									color: #ffffff;
-								}
+								.category-label { color: #ffffff; }
 							}
 						}
 					}
@@ -369,22 +359,27 @@
 					.faq-list {
 						display: flex;
 						flex-direction: column;
-						gap: 12px;
+						gap: 10px;
 
 						.MuiAccordion-root {
-							box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+							border-radius: 12px !important;
+							box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07) !important;
+							border: 1px solid #e2e8f0;
+							overflow: hidden;
+
+							&::before { display: none; }
 
 							&:hover {
-								box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+								box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09) !important;
 							}
 						}
 
 						.question-summary {
-							padding: 20px 24px;
+							padding: 18px 22px;
 
 							.question-badge {
-								width: 36px;
-								height: 36px;
+								width: 34px;
+								height: 34px;
 								background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 								border-radius: 8px;
 								display: flex;
@@ -392,33 +387,33 @@
 								justify-content: center;
 								color: #ffffff;
 								font-family: $font;
-								font-size: 18px;
-								font-weight: 700;
-								margin-right: 16px;
+								font-size: 16px;
+								font-weight: 800;
+								margin-right: 14px;
 								flex-shrink: 0;
 							}
 
 							.question-text {
 								font-family: $font;
-								font-size: 16px;
-								font-weight: 600;
-								color: #1f2937;
+								font-size: 15px;
+								font-weight: 700;
+								color: #0f172a;
 								flex: 1;
 							}
 						}
 
 						.answer-details {
-							background: #f9fafb;
-							border-top: 1px solid #e5e7eb;
+							background: #f8fafc;
+							border-top: 1px solid #e2e8f0;
 
 							.answer-content {
 								display: flex;
-								gap: 16px;
-								padding: 8px 0;
+								gap: 14px;
+								padding: 6px 0;
 
 								.answer-badge {
-									width: 36px;
-									height: 36px;
+									width: 34px;
+									height: 34px;
 									background: #ffffff;
 									border: 2px solid #667eea;
 									border-radius: 8px;
@@ -427,16 +422,16 @@
 									justify-content: center;
 									color: #667eea;
 									font-family: $font;
-									font-size: 18px;
-									font-weight: 700;
+									font-size: 16px;
+									font-weight: 800;
 									flex-shrink: 0;
 								}
 
 								.answer-text {
 									font-family: $font;
-									font-size: 15px;
-									color: #4b5563;
-									line-height: 1.7;
+									font-size: 14px;
+									color: #475569;
+									line-height: 1.75;
 									flex: 1;
 								}
 							}
@@ -451,56 +446,58 @@
 					.contact-methods {
 						display: grid;
 						grid-template-columns: repeat(3, 1fr);
-						gap: 24px;
-						margin-bottom: 48px;
+						gap: 20px;
+						margin-bottom: 40px;
 
 						.contact-card {
 							background: #ffffff;
-							padding: 32px;
+							padding: 28px 24px;
 							border-radius: 16px;
-							box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-							border: 1px solid #e5e7eb;
+							box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+							border: 1px solid #e2e8f0;
 							text-align: center;
 							transition: all 0.3s ease;
 
 							&:hover {
-								transform: translateY(-4px);
-								box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+								transform: translateY(-5px);
+								box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+								border-color: #c7d2fe;
 							}
 
 							.contact-icon {
-								width: 64px;
-								height: 64px;
+								width: 60px;
+								height: 60px;
 								background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 								border-radius: 14px;
 								display: flex;
 								align-items: center;
 								justify-content: center;
 								color: #ffffff;
-								margin: 0 auto 20px;
+								margin: 0 auto 18px;
+								box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
 							}
 
 							.contact-info {
 								h3 {
 									font-family: $font;
-									font-size: 18px;
+									font-size: 16px;
 									font-weight: 700;
-									color: #1f2937;
-									margin: 0 0 8px 0;
+									color: #0f172a;
+									margin: 0 0 7px;
 								}
 
 								.contact-value {
 									font-family: $font;
-									font-size: 16px;
+									font-size: 15px;
 									font-weight: 600;
 									color: #667eea;
-									margin: 0 0 8px 0;
+									margin: 0 0 7px;
 								}
 
 								.contact-description {
 									font-family: $font;
-									font-size: 13px;
-									color: #9ca3af;
+									font-size: 12px;
+									color: #94a3b8;
 									margin: 0;
 								}
 							}
@@ -509,78 +506,82 @@
 
 					.contact-form-wrapper {
 						background: #ffffff;
-						padding: 40px;
-						border-radius: 16px;
-						box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-						border: 1px solid #e5e7eb;
+						padding: 40px 44px;
+						border-radius: 20px;
+						box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+						border: 1px solid #e2e8f0;
 
 						h3 {
 							font-family: $font;
-							font-size: 24px;
-							font-weight: 700;
-							color: #1f2937;
-							margin: 0 0 8px 0;
+							font-size: 22px;
+							font-weight: 800;
+							color: #0f172a;
+							margin: 0 0 7px;
+							letter-spacing: -0.3px;
 						}
 
 						> p {
 							font-family: $font;
-							font-size: 15px;
-							color: #6b7280;
-							margin: 0 0 32px 0;
+							font-size: 14px;
+							color: #64748b;
+							margin: 0 0 28px;
 						}
 
 						.contact-form {
 							display: flex;
 							flex-direction: column;
-							gap: 20px;
+							gap: 18px;
 
 							.form-row {
 								display: grid;
 								grid-template-columns: 1fr 1fr;
-								gap: 20px;
+								gap: 18px;
 							}
 
 							.form-group {
 								display: flex;
 								flex-direction: column;
-								gap: 8px;
+								gap: 7px;
 
 								label {
 									font-family: $font;
-									font-size: 14px;
-									font-weight: 600;
+									font-size: 13px;
+									font-weight: 700;
 									color: #374151;
+									letter-spacing: 0.01em;
 								}
 
 								input,
 								textarea,
 								select {
-									padding: 12px 16px;
-									border: 2px solid #e5e7eb;
+									padding: 12px 14px;
+									border: 1.5px solid #e2e8f0;
 									border-radius: 10px;
 									font-family: $font;
-									font-size: 15px;
-									color: #1f2937;
+									font-size: 14px;
+									color: #0f172a;
 									transition: all 0.2s ease;
 									outline: none;
+									background: #fff;
 
-									&::placeholder {
-										color: #9ca3af;
-									}
+									&::placeholder { color: #94a3b8; }
 
-									&:hover {
-										border-color: #d1d5db;
-									}
+									&:hover { border-color: #c7d2fe; }
 
 									&:focus {
 										border-color: #667eea;
-										box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+										box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
 									}
 								}
 
 								textarea {
 									resize: vertical;
 									min-height: 120px;
+								}
+
+								select {
+									cursor: pointer;
+									appearance: auto;
 								}
 							}
 
@@ -592,20 +593,19 @@
 								border: none;
 								border-radius: 12px;
 								font-family: $font;
-								font-size: 16px;
-								font-weight: 600;
+								font-size: 15px;
+								font-weight: 700;
 								cursor: pointer;
-								transition: all 0.3s ease;
-								margin-top: 12px;
+								transition: all 0.25s ease;
+								margin-top: 8px;
+								box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
 
 								&:hover {
 									transform: translateY(-2px);
-									box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+									box-shadow: 0 8px 24px rgba(102, 126, 234, 0.45);
 								}
 
-								&:active {
-									transform: translateY(0);
-								}
+								&:active { transform: translateY(0); }
 							}
 						}
 					}
@@ -616,61 +616,63 @@
 }
 
 // ============================================
-// RESPONSIVE DESIGN
+// RESPONSIVE — 1200px
 // ============================================
 @media (max-width: 1200px) {
-	#pc-wrap .cs-page .container {
+	#public-wrap .cs-page .container {
 		.cs-content .contact-section .contact-methods {
 			grid-template-columns: 1fr;
 		}
 	}
 }
 
+// ============================================
+// RESPONSIVE — 960px
+// ============================================
 @media (max-width: 960px) {
-	#pc-wrap .cs-page {
-		padding: 40px 0 60px 0;
+	#public-wrap .cs-page {
+		padding: 32px 0 60px;
 
 		.container {
 			padding: 0 16px;
 
 			.cs-hero {
-				padding: 32px 20px;
+				padding: 40px 20px;
 
-				h1 {
-					font-size: 32px;
-				}
-
-				p {
-					font-size: 16px;
-				}
+				h1 { font-size: 30px; }
+				p { font-size: 15px; }
 			}
 
 			.tab-navigation {
 				flex-direction: column;
 
-				.tab-btn {
-					justify-content: center;
-				}
+				.tab-btn { justify-content: center; }
 			}
 
 			.cs-content {
-				.contact-section .contact-form-wrapper .contact-form .form-row {
-					grid-template-columns: 1fr;
+				.contact-section {
+					.contact-methods {
+						grid-template-columns: 1fr;
+					}
+
+					.contact-form-wrapper {
+						padding: 28px 24px;
+
+						.contact-form .form-row {
+							grid-template-columns: 1fr;
+						}
+					}
 				}
 
-				.faq-content .faq-categories {
-					.category-btn {
-						flex: 1;
-						justify-content: center;
-					}
+				.faq-content .faq-categories .category-btn {
+					flex: 1;
+					justify-content: center;
 				}
 
 				.notice-content .announcements-list .announcement-card .announcement-header {
 					flex-direction: column;
 
-					.right-side {
-						width: 100%;
-					}
+					.right-side { width: 100%; }
 				}
 			}
 		}

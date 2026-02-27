@@ -156,6 +156,7 @@ const ProductCard = (props: ProductTypeCard) => {
 							{/* Like Button */}
 							<IconButton
 								className="action-btn"
+								type="button"
 								onClick={() => likeProductHandler(user, product?._id)}
 								disabled={recentlyVisited || !user?._id}
 							>
@@ -169,6 +170,7 @@ const ProductCard = (props: ProductTypeCard) => {
 							{/* Save Button */}
 							<IconButton
 								className="action-btn"
+								type="button"
 								onClick={() => saveProductHandler(user, product?._id)}
 								disabled={!user?._id}
 							>
