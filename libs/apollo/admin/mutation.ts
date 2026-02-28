@@ -181,3 +181,79 @@ export const REMOVE_COMMENT_BY_ADMIN = gql`
 		}
 	}
 `;
+
+/**************************
+ *        NOTICE          *
+ *************************/
+
+export const UPDATE_NOTICE_BY_ADMIN = gql`
+    mutation UpdateNoticeByAdmin($input: NoticeUpdate!) {
+        updateNoticeByAdmin(input: $input) {
+            _id
+            noticeCategory
+            noticeStatus
+            noticeTitle
+            noticeContent
+            memberId
+            createdAt
+            updatedAt
+        }
+    }
+`;
+
+export const REMOVE_NOTICE_BY_ADMIN = gql`
+    mutation RemoveNoticeByAdmin($input: String!) {
+        removeNoticeByAdmin(noticeId: $input) {
+            _id
+            noticeCategory
+            noticeStatus
+            noticeTitle
+            noticeContent
+            memberId
+            createdAt
+            updatedAt
+        }
+    }
+`;
+
+/**************************
+ *      NOTIFICATION      *
+ *************************/
+
+export const UPDATE_NOTIFICATION_BY_ADMIN = gql`
+    mutation UpdateNotificationByAdmin($input: NotificationUpdate!) {
+        updateNotificationByAdmin(input: $input) {
+            _id
+            notificationType
+            notificationStatus
+            notificationGroup
+            notificationTitle
+            notificationDesc
+            authorId
+            receiverId
+            productId
+            articleId
+            createdAt
+            updatedAt
+        }
+    }
+`;
+
+export const REMOVE_NOTIFICATION_BY_ADMIN = gql`
+    mutation RemoveNotificationByAdmin($input: String!) {
+        removeNotificationByAdmin(notificationId: $input) {
+            _id
+            notificationType
+            notificationStatus
+            notificationGroup
+            notificationTitle
+            notificationDesc
+            authorId
+            receiverId
+            productId
+            articleId
+            createdAt
+            updatedAt
+        }
+    }
+`;

@@ -1029,3 +1029,124 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 		}
 	}
 `;
+
+
+/**************************
+ *        NOTICE          *
+ *************************/
+
+export const GET_NOTICE = gql`
+    query GetNotice($input: String!) {
+        getNotice(noticeId: $input) {
+            _id
+            noticeCategory
+            noticeStatus
+            noticeTitle
+            noticeContent
+            memberId
+            createdAt
+            updatedAt
+            memberData {
+                _id
+                memberNick
+                memberFullName
+                memberImage
+                memberType
+                memberStatus
+            }
+        }
+    }
+`;
+
+export const GET_NOTICES = gql`
+    query GetNotices($input: NoticesInquiry!) {
+        getNotices(input: $input) {
+            list {
+                _id
+                noticeCategory
+                noticeStatus
+                noticeTitle
+                noticeContent
+                memberId
+                createdAt
+                updatedAt
+                memberData {
+                    _id
+                    memberNick
+                    memberFullName
+                    memberImage
+                    memberType
+                    memberStatus
+                }
+            }
+            metaCounter {
+                total
+            }
+        }
+    }
+`;
+
+/**************************
+ *      NOTIFICATION      *
+ *************************/
+
+export const GET_NOTIFICATION = gql`
+    query GetNotification($input: String!) {
+        getNotification(notificationId: $input) {
+            _id
+            notificationType
+            notificationStatus
+            notificationGroup
+            notificationTitle
+            notificationDesc
+            authorId
+            receiverId
+            productId
+            articleId
+            createdAt
+            updatedAt
+            authorData {
+                _id
+                memberNick
+                memberFullName
+                memberImage
+            }
+            receiverData {
+                _id
+                memberNick
+                memberFullName
+                memberImage
+            }
+        }
+    }
+`;
+
+export const GET_MY_NOTIFICATIONS = gql`
+    query GetMyNotifications($input: NotificationsInquiry!) {
+        getMyNotifications(input: $input) {
+            list {
+                _id
+                notificationType
+                notificationStatus
+                notificationGroup
+                notificationTitle
+                notificationDesc
+                authorId
+                receiverId
+                productId
+                articleId
+                createdAt
+                updatedAt
+                authorData {
+                    _id
+                    memberNick
+                    memberFullName
+                    memberImage
+                }
+            }
+            metaCounter {
+                total
+            }
+        }
+    }
+`;

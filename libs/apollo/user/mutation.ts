@@ -752,3 +752,111 @@ export const UNSUBSCRIBE = gql`
 		}
 	}
 `;
+
+/**************************
+ *        NOTICE          *
+ *************************/
+
+export const CREATE_NOTICE = gql`
+    mutation CreateNotice($input: NoticeInput!) {
+        createNotice(input: $input) {
+            _id
+            noticeCategory
+            noticeStatus
+            noticeTitle
+            noticeContent
+            memberId
+            createdAt
+            updatedAt
+            memberData {
+                _id
+                memberNick
+                memberFullName
+                memberImage
+                memberType
+                memberStatus
+            }
+        }
+    }
+`;
+
+/**************************
+ *      NOTIFICATION      *
+ *************************/
+
+export const CREATE_NOTIFICATION = gql`
+    mutation CreateNotification($input: NotificationInput!) {
+        createNotification(input: $input) {
+            _id
+            notificationType
+            notificationStatus
+            notificationGroup
+            notificationTitle
+            notificationDesc
+            authorId
+            receiverId
+            productId
+            articleId
+            createdAt
+            updatedAt
+            authorData {
+                _id
+                memberNick
+                memberFullName
+                memberImage
+            }
+            receiverData {
+                _id
+                memberNick
+                memberFullName
+                memberImage
+            }
+        }
+    }
+`;
+
+export const READ_NOTIFICATION = gql`
+    mutation ReadNotification($input: String!) {
+        readNotification(notificationId: $input) {
+            _id
+            notificationType
+            notificationStatus
+            notificationGroup
+            notificationTitle
+            notificationDesc
+            authorId
+            receiverId
+            productId
+            articleId
+            createdAt
+            updatedAt
+        }
+    }
+`;
+
+export const READ_ALL_NOTIFICATIONS = gql`
+    mutation ReadAllNotifications {
+        readAllNotifications {
+            modifiedCount
+        }
+    }
+`;
+
+export const REMOVE_NOTIFICATION = gql`
+    mutation RemoveNotification($input: String!) {
+        removeNotification(notificationId: $input) {
+            _id
+            notificationType
+            notificationStatus
+            notificationGroup
+            notificationTitle
+            notificationDesc
+            authorId
+            receiverId
+            productId
+            articleId
+            createdAt
+            updatedAt
+        }
+    }
+`;

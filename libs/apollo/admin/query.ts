@@ -255,3 +255,75 @@ export const GET_ALL_COMMENTS_BY_ADMIN = gql`
 		}
 	}
 `;
+
+/**************************
+ *        NOTICE          *
+ *************************/
+
+export const GET_ALL_NOTICES_BY_ADMIN = gql`
+    query GetAllNoticesByAdmin($input: AllNoticesInquiry!) {
+        getAllNoticesByAdmin(input: $input) {
+            list {
+                _id
+                noticeCategory
+                noticeStatus
+                noticeTitle
+                noticeContent
+                memberId
+                createdAt
+                updatedAt
+                memberData {
+                    _id
+                    memberNick
+                    memberFullName
+                    memberImage
+                    memberType
+                    memberStatus
+                }
+            }
+            metaCounter {
+                total
+            }
+        }
+    }
+`;
+
+/**************************
+ *      NOTIFICATION      *
+ *************************/
+
+export const GET_ALL_NOTIFICATIONS_BY_ADMIN = gql`
+    query GetAllNotificationsByAdmin($input: AllNotificationsInquiry!) {
+        getAllNotificationsByAdmin(input: $input) {
+            list {
+                _id
+                notificationType
+                notificationStatus
+                notificationGroup
+                notificationTitle
+                notificationDesc
+                authorId
+                receiverId
+                productId
+                articleId
+                createdAt
+                updatedAt
+                authorData {
+                    _id
+                    memberNick
+                    memberFullName
+                    memberImage
+                }
+                receiverData {
+                    _id
+                    memberNick
+                    memberFullName
+                    memberImage
+                }
+            }
+            metaCounter {
+                total
+            }
+        }
+    }
+`;
