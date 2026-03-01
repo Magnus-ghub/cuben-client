@@ -423,8 +423,6 @@ const MainSection = ({ initialInput }: any) => {
 								likePostHandler={likePostHandler}
 								savePostHandler={savePostHandler}
 								onCommentClick={handleCommentClick}
-								subscribeHandler={subscribeHandler}
-								unsubscribeHandler={unsubscribeHandler}
 							/>
 						))
 					) : (
