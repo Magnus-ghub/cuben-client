@@ -20,13 +20,11 @@ interface PostCardProps {
 	post: Post;
 	likePostHandler: any;
 	savePostHandler: any;
-	subscribeHandler: (memberId: string) => Promise<void>;
-	unsubscribeHandler: (memberId: string) => Promise<void>;
 	onCommentClick: (post: Post) => void;
 }
 
 const PostCard = (props: PostCardProps) => {
-	const { post, likePostHandler, savePostHandler, onCommentClick, unsubscribeHandler, subscribeHandler } = props;
+	const { post, likePostHandler, savePostHandler, onCommentClick } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -43,22 +41,6 @@ const PostCard = (props: PostCardProps) => {
 	}, [post?.memberData?.meFollowed]);
 
 	/** HANDLERS **/
-	const handleFollowClick = async () => {
-		if (!user?._id || !post?.memberData?._id) return;
-
-		try {
-			const memberId = post.memberData._id;
-			
-			if (isFollowing) {
-				await unsubscribeHandler(memberId);
-			} else {
-				await subscribeHandler(memberId);
-			}
-			// State'ni yangilashga hojat yo'q - parent component buni bajaradi
-		} catch (error) {
-			console.error('Error handling follow:', error);
-		}
-	};
 
 	const getAuthorImage = () => {
 		if (post?.memberData?.memberImage) {
@@ -132,17 +114,6 @@ const PostCard = (props: PostCardProps) => {
 						<span>{formatTimestamp(post?.createdAt)}</span>
 					</Box>
 				</Link>
-
-				{!isOwnPost && (
-					<Button
-						className={`follow-btn ${isFollowing ? 'following' : ''}`}
-						onClick={handleFollowClick}
-						disabled={!user?._id}
-						startIcon={isFollowing ? <UserCheck size={16} /> : <UserPlus size={16} />}
-					>
-						<span>{isFollowing ? 'Following' : 'Follow'}</span>
-					</Button>
-				)}
 			</Box>
 
 			{/* Post Content */}

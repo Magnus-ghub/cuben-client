@@ -1,4 +1,4 @@
-import { Box, MenuItem, Stack, Badge, Menu as MuiMenu } from '@mui/material';
+import { Box, MenuItem, Stack, Badge } from '@mui/material';
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import { useTranslation } from 'next-i18next';
@@ -16,8 +16,9 @@ import { userVar, chatOpenVar } from '../apollo/store';
 import { useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
 import { getJwtToken, updateUserInfo } from '../auth';
-import { Snackbar, Alert } from '@mui/material';
 import { UnivoLogo } from './common/UnivoLogo';
+// ── 1. Import qo'shildi ──────────────────────────────────────
+import NotifDropdown from './NotifDropdown';
 
 const Top: React.FC = () => {
 	const device = useDeviceDetect();
@@ -31,9 +32,12 @@ const Top: React.FC = () => {
 	const drop = Boolean(anchorEl2);
 	const createMenuOpen = Boolean(createMenuAnchor);
 	const chatOpen = useReactiveVar(chatOpenVar);
-	const [notificationCount] = useState();
 	const [imageError, setImageError] = useState(false);
-	const [notificationComingSoonOpen, setNotificationComingSoonOpen] = useState(false);
+
+	// ── 2. Notification state (Snackbar o'chirildi, dropdown qo'shildi) ──
+	const [notifOpen,    setNotifOpen]    = useState(false);
+	const [notifAnchor,  setNotifAnchor]  = useState<HTMLElement | null>(null);
+	const [unreadCount,  setUnreadCount]  = useState<number>(0);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -50,7 +54,6 @@ const Top: React.FC = () => {
 		if (jwt) updateUserInfo(jwt);
 	}, []);
 
-	// Reset image error when user changes
 	useEffect(() => {
 		setImageError(false);
 	}, [user?.memberImage]);
@@ -88,7 +91,6 @@ const Top: React.FC = () => {
 
 	const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter' && searchQuery.trim()) {
-			// Search all content - posts, jobs, items, students
 			router.push({
 				pathname: '/',
 				query: { search: searchQuery.trim() }
@@ -115,8 +117,16 @@ const Top: React.FC = () => {
 		return '/img/profile/defaultUser.svg';
 	};
 
-	const handleNotificationClick = () => {
-		setNotificationComingSoonOpen(true);
+	// ── 3. handleNotificationClick o'zgartirildi ─────────────
+	const handleNotificationClick = (e: React.MouseEvent<HTMLElement>) => {
+		if (!user?._id) return;
+		setNotifAnchor(e.currentTarget);
+		setNotifOpen((prev) => !prev);
+	};
+
+	const handleNotifClose = () => {
+		setNotifOpen(false);
+		setNotifAnchor(null);
 	};
 
 	const StyledMenu = styled((props: MenuProps) => (
@@ -166,215 +176,214 @@ const Top: React.FC = () => {
 	}
 
 	return (
-		<Stack className={'navbar'}>
-			<Stack className={'navbar-main'}>
-				<Stack className={'container'}>
-					{/* Logo Section */}
-					<Link href={'/'} style={{ textDecoration: 'none' }}>
-						<Stack className="logo-section">
-							<Box component={'div'} className={'logo-box'}>
-								<UnivoLogo />
-							</Box>
-							<Box component={'div'} className={'brand-name'}>
-								<div className="brand-text">univo</div>
-								<div className="univ-text">부산외국어대학교</div>
-							</Box>
-						</Stack>
-					</Link>
+		<>
+			<Stack className={'navbar'}>
+				<Stack className={'navbar-main'}>
+					<Stack className={'container'}>
+						{/* Logo Section */}
+						<Link href={'/'} style={{ textDecoration: 'none' }}>
+							<Stack className="logo-section">
+								<Box component={'div'} className={'logo-box'}>
+									<UnivoLogo />
+								</Box>
+								<Box component={'div'} className={'brand-name'}>
+									<div className="brand-text">univo</div>
+									<div className="univ-text">부산외국어대학교</div>
+								</Box>
+							</Stack>
+						</Link>
 
-					{/* Search Box */}
-					<Box component={'div'} className={'search-box'}>
-						<SearchIcon className="search-icon" />
-						<input 
-							type="text" 
-							placeholder={t('search_placeholder')} 
-							value={searchQuery}
-							onChange={handleSearchChange}
-							onKeyDown={handleSearch}
-						/>
-					</Box>
+						{/* Search Box */}
+						<Box component={'div'} className={'search-box'}>
+							<SearchIcon className="search-icon" />
+							<input
+								type="text"
+								placeholder={t('search_placeholder')}
+								value={searchQuery}
+								onChange={handleSearchChange}
+								onKeyDown={handleSearch}
+							/>
+						</Box>
 
-					{/* Right Section */}
-					<Box component={'div'} className={'actions-box'}>
-						{/* Create Button with Dropdown */}
-						{user?._id && (
-							<>
-								<Button
-									variant="contained"
-									className="create-btn"
-									startIcon={<AddCircleOutlineIcon />}
-									onClick={handleCreateMenuOpen}
-									sx={{
-										background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-										color: '#fff',
-										borderRadius: '24px',
-										padding: '8px 20px',
-										textTransform: 'none',
-										fontWeight: 600,
-										fontSize: '14px',
-										boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-										'&:hover': {
-											background: 'linear-gradient(135deg, #5568d3 0%, #6a4091 100%)',
-											boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
-										},
-									}}
-								>
-									{t('create')}
-								</Button>
-								<StyledMenu anchorEl={createMenuAnchor} open={createMenuOpen} onClose={handleCreateMenuClose}>
-									<MenuItem
-										onClick={() => {
-											router.push('/create/writePost');
-											handleCreateMenuClose();
+						{/* Right Section */}
+						<Box component={'div'} className={'actions-box'}>
+							{/* Create Button with Dropdown */}
+							{user?._id && (
+								<>
+									<Button
+										variant="contained"
+										className="create-btn"
+										startIcon={<AddCircleOutlineIcon />}
+										onClick={handleCreateMenuOpen}
+										sx={{
+											background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+											color: '#fff',
+											borderRadius: '24px',
+											padding: '8px 20px',
+											textTransform: 'none',
+											fontWeight: 600,
+											fontSize: '14px',
+											boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+											'&:hover': {
+												background: 'linear-gradient(135deg, #5568d3 0%, #6a4091 100%)',
+												boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
+											},
 										}}
 									>
-										📝 {t('write_post')}
-									</MenuItem>
-									<MenuItem
-										onClick={() => {
-											router.push('/create/listItem');
-											handleCreateMenuClose();
-										}}
-									>
-										🛒 {t('sell_item')}
-									</MenuItem>
-									{user?.memberType === 'AGENT' && (
+										{t('create')}
+									</Button>
+									<StyledMenu anchorEl={createMenuAnchor} open={createMenuOpen} onClose={handleCreateMenuClose}>
 										<MenuItem
 											onClick={() => {
-												router.push('/create/postJob');
+												router.push('/create/writePost');
 												handleCreateMenuClose();
 											}}
 										>
-											💼 {t('post_job')}
+											📝 {t('write_post')}
 										</MenuItem>
-									)}
-								</StyledMenu>
-							</>
-						)}
+										<MenuItem
+											onClick={() => {
+												router.push('/create/listItem');
+												handleCreateMenuClose();
+											}}
+										>
+											🛒 {t('sell_item')}
+										</MenuItem>
+										{user?.memberType === 'AGENT' && (
+											<MenuItem
+												onClick={() => {
+													router.push('/create/postJob');
+													handleCreateMenuClose();
+												}}
+											>
+												💼 {t('post_job')}
+											</MenuItem>
+										)}
+									</StyledMenu>
+								</>
+							)}
 
-						{/* Icons Section */}
-						<Stack className="icons-section">
-							{/* Chat Icon */}
-							<Box
-								component="div"
-								onClick={handleOpenChat}
-								className="icon-wrapper"
-								sx={{
-									cursor: 'pointer',
-									'&:hover': {
-										transform: 'scale(1.1)',
-									},
-								}}
-							>
-								<MarkUnreadChatAltIcon sx={{ fontSize: 24, color: '#6b7280' }} />
-							</Box>
-
-							{/* Notification Icon */}
-							{user?._id && (
+							{/* Icons Section */}
+							<Stack className="icons-section">
+								{/* Chat Icon */}
 								<Box
 									component="div"
-									onClick={handleNotificationClick}
+									onClick={handleOpenChat}
 									className="icon-wrapper"
 									sx={{
 										cursor: 'pointer',
-										'&:hover': {
-											transform: 'scale(1.1)',
-										},
+										'&:hover': { transform: 'scale(1.1)' },
 									}}
 								>
-									<Badge badgeContent={notificationCount} color="error">
-										<NotificationsOutlinedIcon sx={{ fontSize: 24, color: '#6b7280' }} />
-									</Badge>
+									<MarkUnreadChatAltIcon sx={{ fontSize: 24, color: '#6b7280' }} />
 								</Box>
-							)}
 
-							{/* Language Selector */}
-							<Button
-								disableRipple
-								className="btn-lang"
-								onClick={langClick}
-								endIcon={<CaretDown size={14} weight="fill" />}
-								sx={{
-									minWidth: 'auto',
-									padding: '6px 10px',
-									borderRadius: '8px',
-									'&:hover': {
-										background: '#f3f4f6',
-									},
-								}}
-							>
-								<Box component={'div'} className={'flag'}>
-									<img
-										src={`/img/flag/lang${lang}.png`}
-										alt={`${lang} flag`}
-										style={{ width: 24, height: 17, borderRadius: 2 }}
-										onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-											e.currentTarget.src = '/img/flag/langen.png';
+								{/* ── 4. Notification Icon — dropdown bilan ── */}
+								{user?._id && (
+									<Box
+										component="div"
+										onClick={handleNotificationClick}
+										className={`icon-wrapper${notifOpen ? ' notif-icon-active' : ''}`}
+										sx={{
+											cursor: 'pointer',
+											'&:hover': { transform: 'scale(1.1)' },
 										}}
-									/>
-								</Box>
-							</Button>
-							<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose}>
-								<MenuItem disableRipple onClick={langChoice} id="en">
-									<img className="img-flag" src={'/img/flag/langen.png'} alt={'USA Flag'} />
-									{t('english')}
-								</MenuItem>
-								<MenuItem disableRipple onClick={langChoice} id="ko">
-									<img className="img-flag" src={'/img/flag/langko.png'} alt={'Korean Flag'} />
-									{t('korean')}
-								</MenuItem>
-								<MenuItem disableRipple onClick={langChoice} id="uz">
-									<img className="img-flag" src={'/img/flag/languz.png'} alt={'Uzbek Flag'} />
-									{t('uzbek')}
-								</MenuItem>
-							</StyledMenu>
-						</Stack>
+									>
+										<Badge badgeContent={unreadCount || undefined} color="error">
+											<NotificationsOutlinedIcon
+												sx={{ fontSize: 24, color: notifOpen ? '#667eea' : '#6b7280' }}
+											/>
+										</Badge>
+									</Box>
+								)}
 
-						{/* User Profile or Login */}
-						{user?._id ? (
-							<Link href="/mypage" style={{ textDecoration: 'none' }}>
-								<Box className={'login-user'}>
-									<img src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
-								</Box>
-							</Link>
-						) : (
-							<Link href={'/account/join'} style={{ textDecoration: 'none' }}>
+								{/* Language Selector */}
 								<Button
-									variant="outlined"
-									className="join-btn"
+									disableRipple
+									className="btn-lang"
+									onClick={langClick}
+									endIcon={<CaretDown size={14} weight="fill" />}
 									sx={{
-										borderRadius: '24px',
-										padding: '8px 24px',
-										textTransform: 'none',
-										fontWeight: 600,
-										fontSize: '14px',
-										borderColor: '#667eea',
-										color: '#667eea',
-										'&:hover': {
-											borderColor: '#5568d3',
-											background: 'rgba(102, 126, 234, 0.05)',
-										},
+										minWidth: 'auto',
+										padding: '6px 10px',
+										borderRadius: '8px',
+										'&:hover': { background: '#f3f4f6' },
 									}}
 								>
-									{t('loginRegister')}
+									<Box component={'div'} className={'flag'}>
+										<img
+											src={`/img/flag/lang${lang}.png`}
+											alt={`${lang} flag`}
+											style={{ width: 24, height: 17, borderRadius: 2 }}
+											onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+												e.currentTarget.src = '/img/flag/langen.png';
+											}}
+										/>
+									</Box>
 								</Button>
-							</Link>
-						)}
-					</Box>
+								<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose}>
+									<MenuItem disableRipple onClick={langChoice} id="en">
+										<img className="img-flag" src={'/img/flag/langen.png'} alt={'USA Flag'} />
+										{t('english')}
+									</MenuItem>
+									<MenuItem disableRipple onClick={langChoice} id="ko">
+										<img className="img-flag" src={'/img/flag/langko.png'} alt={'Korean Flag'} />
+										{t('korean')}
+									</MenuItem>
+									<MenuItem disableRipple onClick={langChoice} id="uz">
+										<img className="img-flag" src={'/img/flag/languz.png'} alt={'Uzbek Flag'} />
+										{t('uzbek')}
+									</MenuItem>
+								</StyledMenu>
+							</Stack>
+
+							{/* User Profile or Login */}
+							{user?._id ? (
+								<Link href="/mypage" style={{ textDecoration: 'none' }}>
+									<Box className={'login-user'}>
+										<img src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
+									</Box>
+								</Link>
+							) : (
+								<Link href={'/account/join'} style={{ textDecoration: 'none' }}>
+									<Button
+										variant="outlined"
+										className="join-btn"
+										sx={{
+											borderRadius: '24px',
+											padding: '8px 24px',
+											textTransform: 'none',
+											fontWeight: 600,
+											fontSize: '14px',
+											borderColor: '#667eea',
+											color: '#667eea',
+											'&:hover': {
+												borderColor: '#5568d3',
+												background: 'rgba(102, 126, 234, 0.05)',
+											},
+										}}
+									>
+										{t('loginRegister')}
+									</Button>
+								</Link>
+							)}
+						</Box>
+					</Stack>
 				</Stack>
 			</Stack>
 
-			{/* Snackbar for Notification Coming Soon */}
-			<Snackbar
-				open={notificationComingSoonOpen}
-				autoHideDuration={3000}
-				onClose={() => setNotificationComingSoonOpen(false)}
-			>
-				<Alert severity="info" variant="filled">
-					{t('notificationsComingSoon')}🔔
-				</Alert>
-			</Snackbar>
-		</Stack>
+			{/* ── 5. Backdrop + Dropdown ── */}
+			{notifOpen && (
+				<Box className="notif-backdrop" onClick={handleNotifClose} />
+			)}
+
+			<NotifDropdown
+				open={notifOpen}
+				onClose={handleNotifClose}
+				anchorEl={notifAnchor}
+				onUnreadChange={setUnreadCount}
+			/>
+		</>
 	);
 };
 

@@ -16,6 +16,7 @@ import MemberPosts from '../../libs/components/member/MemberPosts';
 import MemberMenu from '../../libs/components/member/MemberMenu';
 import MemberProducts from '../../libs/components/member/MemberProducts';
 import MemberArticles from '../../libs/components/member/MemberArticles';
+import withLayoutMain from '../../libs/components/layout/LayoutHome';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -132,4 +133,4 @@ const MemberPage: NextPage = () => {
 	}
 };
 
-export default withLayoutBasic(MemberPage);
+export default withLayoutMain(MemberPage);
