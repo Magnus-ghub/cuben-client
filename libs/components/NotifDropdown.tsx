@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Stack, Avatar, CircularProgress, Divider } from '@mui/material';
+import { Box, Stack, Avatar, CircularProgress } from '@mui/material';
 import {
 	Bell, Heart, MessageCircle, UserPlus,
 	ShoppingBag, Briefcase, Calendar,
@@ -100,9 +100,9 @@ const typeIcon = (type: NotificationType) => {
 
 // ── Target href builder ───────────────────────────────────────
 const buildHref = (n: INotification): string => {
-	if (n.productId) return `/product/${n.productId}`;
-	if (n.articleId) return `/article/${n.articleId}`;
-	if (n.notificationType === NotificationType.FOLLOW) return '/mypage';
+	if (n.productId) return `/product/detail?id=${n.productId}`;
+	if (n.articleId) return `/article/detail?id=${n.articleId}`;
+	if (n.notificationType === NotificationType.FOLLOW) return n.authorId ? `/member?memberId=${n.authorId}` : '/mypage';
 	return '/';
 };
 
@@ -139,12 +139,16 @@ const NotifDropdown: React.FC<NotifDropdownProps> = ({
 	// ── Unread count → badge ─────────────────────────────────
 	const unread = items.filter((n) => n.notificationStatus === NotificationStatus.WAIT).length;
 
-	useEffect(() => { onUnreadChange(unread); }, [unread]);
+	useEffect(() => {
+		onUnreadChange(unread);
+	}, [unread, onUnreadChange]);
 
 	// ── Refetch on open ──────────────────────────────────────
 	useEffect(() => {
-		if (open && user?._id) refetch();
-	}, [open]);
+		if (open && user?._id) {
+			refetch();
+		}
+	}, [open, user?._id, refetch]);
 
 	// ── Outside click close ──────────────────────────────────
 	useEffect(() => {
@@ -160,7 +164,9 @@ const NotifDropdown: React.FC<NotifDropdownProps> = ({
 	}, [open, anchorEl, onClose]);
 
 	// ── Close on route change ─────────────────────────────────
-	useEffect(() => { if (open) onClose(); }, [router.pathname]);
+	useEffect(() => {
+		if (open) onClose();
+	}, [router.pathname, open, onClose]);
 
 	// ── Handlers ─────────────────────────────────────────────
 	const handleReadOne = async (id: string) => {
@@ -335,7 +341,7 @@ const NotifDropdown: React.FC<NotifDropdownProps> = ({
 				<Box className="notif-dropdown__footer">
 					<Box
 						className="notif-dropdown__view-all"
-						onClick={() => { router.push('/notifications'); onClose(); }}
+						onClick={() => { router.push('/activity/notifications'); onClose(); }}
 					>
 						{t('viewAllNotifications') || 'View all notifications'}
 					</Box>

@@ -38,9 +38,6 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 		},
 	);
 
-	/** APOLLO REQUESTS **/
-	// 41-58 qatorlarni o'zgartiring:
-	// 41-58 qatorlarni o'zgartiring:
 	const {
 		loading: getMemberFollowingsLoading,
 		data: getMemberFollowingsData,
@@ -69,7 +66,6 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	}, [getMemberFollowingsError]);
 
 	/** LIFECYCLES **/
-	// Set followerId based on router query or logged in user
 	useEffect(() => {
 		const memberId = router.query.memberId as string;
 

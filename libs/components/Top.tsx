@@ -13,12 +13,14 @@ import { CaretDown } from 'phosphor-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { userVar, chatOpenVar } from '../apollo/store';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar, useQuery } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
 import { UnivoLogo } from './common/UnivoLogo';
 import NotifDropdown from './NotifDropdown';
 import { Logout } from '@mui/icons-material';
+import { GET_MY_NOTIFICATIONS } from '../apollo/user/query';
+import { NotificationStatus } from '../enums/notification.enum';
 
 const Top: React.FC = () => {
 	const device = useDeviceDetect();
@@ -38,6 +40,25 @@ const Top: React.FC = () => {
 	const [unreadCount, setUnreadCount] = useState<number>(0);
 	const [profileMenuAnchor, setProfileMenuAnchor] = useState<HTMLElement | null>(null);
 	const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
+	useQuery(GET_MY_NOTIFICATIONS, {
+		variables: {
+			input: {
+				page: 1,
+				limit: 1,
+				search: {
+					notificationStatus: NotificationStatus.WAIT,
+				},
+			},
+		},
+		skip: !user?._id,
+		fetchPolicy: 'network-only',
+		pollInterval: 30000,
+		onCompleted: (data) => {
+			const totalUnread = data?.getMyNotifications?.metaCounter?.[0]?.total ?? 0;
+			setUnreadCount(totalUnread);
+		},
+	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {

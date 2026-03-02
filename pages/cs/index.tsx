@@ -53,10 +53,6 @@ const CS: NextPage = () => {
 		},
 	];
 
-	if (device === 'mobile') {
-		return <h1>CS PAGE MOBILE</h1>;
-	}
-
 	return (
 		<Stack className={'cs-page'}>
 			<Stack className={'container'}>
