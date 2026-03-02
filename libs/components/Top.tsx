@@ -17,7 +17,6 @@ import { useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
 import { getJwtToken, updateUserInfo } from '../auth';
 import { UnivoLogo } from './common/UnivoLogo';
-// ── 1. Import qo'shildi ──────────────────────────────────────
 import NotifDropdown from './NotifDropdown';
 
 const Top: React.FC = () => {
@@ -33,11 +32,9 @@ const Top: React.FC = () => {
 	const createMenuOpen = Boolean(createMenuAnchor);
 	const chatOpen = useReactiveVar(chatOpenVar);
 	const [imageError, setImageError] = useState(false);
-
-	// ── 2. Notification state (Snackbar o'chirildi, dropdown qo'shildi) ──
-	const [notifOpen,    setNotifOpen]    = useState(false);
-	const [notifAnchor,  setNotifAnchor]  = useState<HTMLElement | null>(null);
-	const [unreadCount,  setUnreadCount]  = useState<number>(0);
+	const [notifOpen, setNotifOpen] = useState(false);
+	const [notifAnchor, setNotifAnchor] = useState<HTMLElement | null>(null);
+	const [unreadCount, setUnreadCount] = useState<number>(0);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -93,7 +90,7 @@ const Top: React.FC = () => {
 		if (e.key === 'Enter' && searchQuery.trim()) {
 			router.push({
 				pathname: '/',
-				query: { search: searchQuery.trim() }
+				query: { search: searchQuery.trim() },
 			});
 			setSearchQuery('');
 		}
@@ -117,7 +114,6 @@ const Top: React.FC = () => {
 		return '/img/profile/defaultUser.svg';
 	};
 
-	// ── 3. handleNotificationClick o'zgartirildi ─────────────
 	const handleNotificationClick = (e: React.MouseEvent<HTMLElement>) => {
 		if (!user?._id) return;
 		setNotifAnchor(e.currentTarget);
@@ -172,7 +168,136 @@ const Top: React.FC = () => {
 	}, [user]);
 
 	if (device === 'mobile') {
-		return <Stack className={'top'}></Stack>;
+		return (
+			<>
+				<Stack className={'navbar'}>
+					<Stack className={'navbar-main'}>
+						<Stack
+							className={'container'}
+							direction={'row'}
+							alignItems={'center'}
+							justifyContent={'space-between'}
+							sx={{ flexWrap: 'nowrap' }}
+						>
+						{/* Logo Section */}
+						<Link href={'/'} style={{ textDecoration: 'none' }}>
+							<Stack className="logo-section" direction={'row'} alignItems={'center'}>
+								<Box component={'div'} className={'logo-box'}>
+									<UnivoLogo />
+								</Box>
+								<Box component={'div'} className={'brand-name'}>
+									<div className="brand-text">univo</div>
+								</Box>
+							</Stack>
+						</Link>
+						
+						{/* Right Section */}
+						<Box component={'div'} className={'actions-box'}>
+							{/* Icons Section */}
+							<Stack className="icons-section" direction={'row'} alignItems={'center'}>
+
+								{/* ── 4. Notification Icon — dropdown bilan ── */}
+								{user?._id && (
+									<Box
+										component="div"
+										onClick={handleNotificationClick}
+										className={`icon-wrapper${notifOpen ? ' notif-icon-active' : ''}`}
+										sx={{
+											cursor: 'pointer',
+											'&:hover': { transform: 'scale(1.1)' },
+										}}
+									>
+										<Badge badgeContent={unreadCount || undefined} color="error">
+											<NotificationsOutlinedIcon sx={{ fontSize: 24, color: notifOpen ? '#667eea' : '#6b7280' }} />
+										</Badge>
+									</Box>
+								)}
+
+								{/* Language Selector */}
+								<Button
+									disableRipple
+									className="btn-lang"
+									onClick={langClick}
+									endIcon={<CaretDown size={14} weight="fill" />}
+									sx={{
+										minWidth: 'auto',
+										padding: '6px 10px',
+										borderRadius: '8px',
+										'&:hover': { background: '#f3f4f6' },
+									}}
+								>
+									<Box component={'div'} className={'flag'}>
+										<img
+											src={`/img/flag/lang${lang}.png`}
+											alt={`${lang} flag`}
+											style={{ width: 24, height: 17, borderRadius: 2 }}
+											onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+												e.currentTarget.src = '/img/flag/langen.png';
+											}}
+										/>
+									</Box>
+								</Button>
+								<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose}>
+									<MenuItem disableRipple onClick={langChoice} id="en">
+										<img className="img-flag" src={'/img/flag/langen.png'} alt={'USA Flag'} />
+										{t('english')}
+									</MenuItem>
+									<MenuItem disableRipple onClick={langChoice} id="ko">
+										<img className="img-flag" src={'/img/flag/langko.png'} alt={'Korean Flag'} />
+										{t('korean')}
+									</MenuItem>
+									<MenuItem disableRipple onClick={langChoice} id="uz">
+										<img className="img-flag" src={'/img/flag/languz.png'} alt={'Uzbek Flag'} />
+										{t('uzbek')}
+									</MenuItem>
+								</StyledMenu>
+							</Stack>
+
+							{/* User Profile or Login */}
+							{user?._id ? (
+								<Link href="/mypage" style={{ textDecoration: 'none' }}>
+									<Box className={'login-user'}>
+										<img src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
+									</Box>
+								</Link>
+							) : (
+								<Link href={'/account/join'} style={{ textDecoration: 'none' }}>
+									<Button
+										variant="outlined"
+										className="join-btn"
+										sx={{
+											borderRadius: '24px',
+											padding: '8px 24px',
+											textTransform: 'none',
+											fontWeight: 600,
+											fontSize: '14px',
+											borderColor: '#667eea',
+											color: '#667eea',
+											'&:hover': {
+												borderColor: '#5568d3',
+												background: 'rgba(102, 126, 234, 0.05)',
+											},
+										}}
+									>
+										{t('loginRegister')}
+									</Button>
+								</Link>
+							)}
+						</Box>
+					</Stack>
+					</Stack>
+				</Stack>
+
+				{notifOpen && <Box className="notif-backdrop" onClick={handleNotifClose} />}
+
+				<NotifDropdown
+					open={notifOpen}
+					onClose={handleNotifClose}
+					anchorEl={notifAnchor}
+					onUnreadChange={setUnreadCount}
+				/>
+			</>
+		);
 	}
 
 	return (
@@ -290,9 +415,7 @@ const Top: React.FC = () => {
 										}}
 									>
 										<Badge badgeContent={unreadCount || undefined} color="error">
-											<NotificationsOutlinedIcon
-												sx={{ fontSize: 24, color: notifOpen ? '#667eea' : '#6b7280' }}
-											/>
+											<NotificationsOutlinedIcon sx={{ fontSize: 24, color: notifOpen ? '#667eea' : '#6b7280' }} />
 										</Badge>
 									</Box>
 								)}
@@ -373,9 +496,7 @@ const Top: React.FC = () => {
 			</Stack>
 
 			{/* ── 5. Backdrop + Dropdown ── */}
-			{notifOpen && (
-				<Box className="notif-backdrop" onClick={handleNotifClose} />
-			)}
+			{notifOpen && <Box className="notif-backdrop" onClick={handleNotifClose} />}
 
 			<NotifDropdown
 				open={notifOpen}

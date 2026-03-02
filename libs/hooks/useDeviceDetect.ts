@@ -1,16 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 const useDeviceDetect = (): string => {
-    const [device, setDevice] = useState("desktop");
+    const [device, setDevice] = useState('desktop');
 
     useEffect(() => {
-        const userAgent = navigator.userAgent;
-        const isMobile =
-            /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-               userAgent    
-            );
-        setDevice(isMobile ? "mobile" : "desktop");
-    },  [device]);
+        const detectDevice = () => {
+            const userAgent = navigator.userAgent;
+            const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            const isMobileViewport = window.innerWidth <= 768;
+            setDevice(isMobileUserAgent || isMobileViewport ? 'mobile' : 'desktop');
+        };
+
+        detectDevice();
+        window.addEventListener('resize', detectDevice);
+
+        return () => {
+            window.removeEventListener('resize', detectDevice);
+        };
+    }, []);
 
     return device;
 };

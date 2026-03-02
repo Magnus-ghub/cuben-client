@@ -24,7 +24,6 @@ const Home: NextPage = () => {
 						<HeroSection />
 						<MainSection />
 					</Box>
-					<RightSidebar />
 				</Box>
 			</Stack>
 		);

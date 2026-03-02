@@ -15,14 +15,6 @@ const HeroSection = () => {
 		{ id: 4, label: 'newEvent', icon: '📅', color: '#ec4899' },
 	];
 
-	if (device === 'mobile') {
-		return (
-			<Stack className="hero-section">
-				<Box>{t('welcome_title')}</Box>
-			</Stack>
-		);
-	}
-
 	return (
 		<Box className="hero-banner">
 			<Box className="hero-content">

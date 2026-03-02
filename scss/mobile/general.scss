@@ -1,0 +1,132 @@
+	// ====================== MOBILE HOMEPAGE + POST IMAGES FIX ======================
+		#mobile-wrap {
+			.home-page {
+				.content-wrapper {
+					width: 100%;
+					min-height: 100%;
+					padding: 0;
+				}
+
+				.main-feed-section {
+					padding: 16px 12px 100px; // bottom nav uchun joy
+					background: #f9fafb;
+				}
+
+				// ==================== POST CARD (MOBILE) ====================
+				.center-feed {
+					.post-card {
+						background: #ffffff;
+						border-radius: 16px;
+						padding: 16px;
+						margin-bottom: 16px;
+						box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+						border: 1px solid #e5e7eb;
+
+						.post-header {
+							gap: 12px;
+						}
+
+						.post-content {
+							.post-title {
+								font-size: 15px;
+								margin-bottom: 8px;
+							}
+
+							.post-description {
+								font-size: 14px;
+								line-height: 1.5;
+							}
+						}
+
+						// ==================== POST IMAGES (MOBILE RESPONSIVE) ====================
+						.post-images {
+							margin: 12px 0;
+							border-radius: 12px;
+							overflow: hidden;
+							background: #f8fafc;
+
+							img {
+								width: 100%;
+								display: block;
+								object-fit: cover;
+								transition: transform 0.3s ease;
+							}
+
+							// 1 ta rasm
+							&.post-images-1 .single-image {
+								max-height: 320px;
+								border-radius: 12px;
+							}
+
+							// 2 ta rasm
+							&.post-images-2 {
+								.images-grid-2 {
+									display: grid;
+									grid-template-columns: 1fr 1fr;
+									gap: 6px;
+
+									.multi-image {
+										height: 180px;
+										border-radius: 10px;
+									}
+								}
+							}
+
+							// 3 ta rasm
+							&.post-images-3 {
+								.images-grid-3 {
+									display: grid;
+									grid-template-columns: 1fr 1fr;
+									gap: 6px;
+
+									.multi-image {
+										height: 160px;
+										border-radius: 10px;
+
+										&:nth-child(3) {
+											grid-column: 1 / -1;
+											height: 220px;
+										}
+									}
+								}
+							}
+
+							// 4+ ta rasm
+							&.post-images-4,
+							&.post-images-5,
+							&.post-images-6,
+							&.post-images-7,
+							&.post-images-8,
+							&.post-images-9 {
+								.images-grid-4 {
+									display: grid;
+									grid-template-columns: 1fr 1fr;
+									gap: 6px;
+
+									.multi-image {
+										height: 160px;
+										border-radius: 10px;
+									}
+								}
+							}
+
+							img:hover {
+								transform: scale(1.03);
+							}
+						}
+
+						.post-stats,
+						.post-actions {
+							margin-top: 8px;
+						}
+
+						.post-actions {
+							.action-btn {
+								padding: 10px 0;
+								font-size: 13px;
+							}
+						}
+					}
+				}
+			}
+		}
