@@ -7,6 +7,7 @@
 @import '/scss/mobile/market/market.scss';
 @import '/scss/mobile/mypage/mypage.scss';
 @import '/scss/mobile/account/signUpIn.scss';
+@import '/scss/mobile/chat.scss';
 
 
 
@@ -281,11 +282,3 @@
 	}
 }
 
-
-@media (max-width: 768px) {
-	.modern-chat-container {
-		bottom: 88px !important;
-		right: 16px !important;
-		z-index: 9999;
-	}
-}

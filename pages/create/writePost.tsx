@@ -228,10 +228,6 @@ const WritePost: NextPage = () => {
     }
   };
 
-  if (device === 'mobile') {
-    return <div>MOBILE VERSION (Tiptap coming soon)</div>;
-  }
-
   return (
     <Modal
       open={open}

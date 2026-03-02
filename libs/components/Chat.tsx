@@ -3,6 +3,7 @@ import { Avatar, Box, Stack, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
+import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 import ScrollableFeed from 'react-scrollable-feed';
 import { useReactiveVar } from '@apollo/client';
 import { Messages, REACT_APP_API_URL } from '../../libs/config';
@@ -10,10 +11,8 @@ import { sweetErrorAlert } from '../../libs/sweetAlert';
 import { socketVar, userVar, chatOpenVar } from '../../libs/apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { UnivoLogo } from './common/UnivoLogo';
+import useDeviceDetect from '../hooks/useDeviceDetect';
 
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
 interface MessagePayload {
 	event: string;
 	text: string;
@@ -28,27 +27,29 @@ interface InfoPayload {
 	action: string;
 }
 
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
+const extractText = (data: any): string => {
+	const raw =
+		data?.text ??
+		data?.message ??
+		data?.msg ??
+		data?.content ??
+		data?.body ??
+		data?.payload?.text ??
+		data?.payload?.message ??
+		data?.data?.text ??
+		data?.data?.message ??
+		'';
 
-/**
- * Extract text from server payload.
- * Handles: text | message | msg | content | body
- */
-const extractText = (data: any): string =>
-	data.text || data.message || data.msg || data.content || data.body || '';
+	return typeof raw === 'string' ? raw : String(raw || '');
+};
 
-/**
- * Extract memberData from server payload.
- * Handles: memberData | author | user | sender
- */
+
 const extractMemberData = (data: any): CustomJwtPayload =>
 	data.memberData || data.author || data.user || data.sender || {};
 
-/**
- * Format ISO timestamp to relative time string.
- */
+const extractEventName = (data: any): string =>
+	(data?.event || data?.type || data?.action || '').toString();
+
 const formatMessageTime = (timestamp?: string): string => {
 	if (!timestamp) return '';
 	const date = new Date(timestamp);
@@ -62,18 +63,14 @@ const formatMessageTime = (timestamp?: string): string => {
 	return date.toLocaleDateString();
 };
 
-// ─────────────────────────────────────────────
-// Main Component
-// ─────────────────────────────────────────────
+
 const Chat = () => {
-	// ── Refs ──
 	const chatContentRef = useRef<HTMLDivElement>(null);
 	const textInput = useRef<HTMLInputElement>(null);
 	const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const initialLoadDoneRef = useRef<boolean>(false);
 
-	// ── State ──
 	const [messagesList, setMessagesList] = useState<MessagePayload[]>([]);
 	const [onlineUsers, setOnlineUsers] = useState<number>(0);
 	const [messageInput, setMessageInput] = useState<string>('');
@@ -82,14 +79,11 @@ const Chat = () => {
 	const [isConnected, setIsConnected] = useState<boolean>(false);
 	const [reconnectAttempt, setReconnectAttempt] = useState<number>(0);
 
-	// ── Apollo Reactive Vars ──
 	const user = useReactiveVar(userVar);
 	const socket = useReactiveVar(socketVar);
 	const open = useReactiveVar(chatOpenVar);
+	const device = useDeviceDetect();
 
-	// ─────────────────────────────────────────────
-	// Guards
-	// ─────────────────────────────────────────────
 	const checkSocketConnection = (): boolean => {
 		if (!socket) { sweetErrorAlert('WebSocket connection not established'); return false; }
 		if (socket.readyState !== WebSocket.OPEN) { sweetErrorAlert('Connection is not ready. Please wait...'); return false; }
@@ -101,17 +95,14 @@ const Chat = () => {
 		return true;
 	};
 
-	// ─────────────────────────────────────────────
-	// WebSocket Message Handler
-	// ─────────────────────────────────────────────
 	const handleWebSocketMessage = useCallback((msg: MessageEvent) => {
 		try {
 			const data = JSON.parse(msg.data);
+			const eventName = extractEventName(data);
 
-			// ← Check browser console to see actual field names from your server
 			console.log('[Chat] 📩 RAW payload:', JSON.stringify(data, null, 2));
 
-			switch (data.event) {
+			switch (eventName) {
 				case 'info': {
 					setOnlineUsers((data as InfoPayload).totalClients);
 					setIsConnected(true);
@@ -121,9 +112,9 @@ const Chat = () => {
 				}
 
 				case 'getMessages': {
-					// Only load once per socket session
 					if (!initialLoadDoneRef.current) {
-						const list: MessagePayload[] = (data.list || []).map((item: any) => ({
+						const incomingList = data?.list || data?.messages || data?.payload?.list || data?.data?.list || [];
+						const list: MessagePayload[] = (Array.isArray(incomingList) ? incomingList : []).map((item: any) => ({
 							...item,
 							text: extractText(item),
 							memberData: extractMemberData(item),
@@ -137,14 +128,23 @@ const Chat = () => {
 				}
 
 				case 'message': {
+					const source = data?.payload || data?.data || data;
 					const normalized: MessagePayload = {
 						...data,
-						text: extractText(data),
-						memberData: extractMemberData(data),
+						text: extractText(source),
+						memberData: extractMemberData(source),
 					};
 					console.log('[Chat] 💬 New message:', normalized);
-					// Append — never replace
-					setMessagesList((prev) => [...prev, normalized]);
+					setMessagesList((prev) => {
+						const duplicated = prev.some(
+							(item) =>
+								item.text === normalized.text &&
+								item.memberData?._id === normalized.memberData?._id &&
+								Math.abs(new Date(item.createdAt || Date.now()).getTime() - new Date(normalized.createdAt || Date.now()).getTime()) <
+								5000,
+						);
+						return duplicated ? prev : [...prev, normalized];
+					});
 					setIsSending(false);
 
 					if (messageTimeoutRef.current) {
@@ -154,8 +154,33 @@ const Chat = () => {
 					break;
 				}
 
+				case 'newMessage':
+				case 'chatMessage': {
+					const source = data?.payload || data?.data || data;
+					const normalized: MessagePayload = {
+						...source,
+						text: extractText(source),
+						memberData: extractMemberData(source),
+					};
+					if (normalized.text) {
+						setMessagesList((prev) => [...prev, normalized]);
+						setIsSending(false);
+					}
+					break;
+				}
+
 				default:
-					console.warn('[Chat] ⚠️ Unknown event:', data.event);
+					if (extractText(data)) {
+						const normalized: MessagePayload = {
+							...data,
+							text: extractText(data),
+							memberData: extractMemberData(data),
+						};
+						setMessagesList((prev) => [...prev, normalized]);
+						setIsSending(false);
+					} else {
+						console.warn('[Chat] ⚠️ Unknown event:', eventName || data.event);
+					}
 			}
 		} catch (err) {
 			console.error('[Chat] ❌ Parse error:', err);
@@ -166,9 +191,6 @@ const Chat = () => {
 	const handlerRef = useRef(handleWebSocketMessage);
 	useEffect(() => { handlerRef.current = handleWebSocketMessage; }, [handleWebSocketMessage]);
 
-	// ─────────────────────────────────────────────
-	// Socket Setup — only when socket instance changes
-	// ─────────────────────────────────────────────
 	useEffect(() => {
 		if (!socket) {
 			setIsConnected(false);
@@ -176,7 +198,6 @@ const Chat = () => {
 			return;
 		}
 
-		// Assign handlers
 		socket.onmessage = (msg) => handlerRef.current(msg);
 		socket.onerror = () => { setIsConnected(false); setIsLoading(false); };
 		socket.onopen = () => {
@@ -193,7 +214,6 @@ const Chat = () => {
 			setIsLoading(false);
 		};
 
-		// Socket was already open when this effect ran
 		if (socket.readyState === WebSocket.OPEN) {
 			setIsConnected(true);
 			setIsLoading(false);
@@ -206,12 +226,8 @@ const Chat = () => {
 			setIsConnected(false);
 			setIsLoading(false);
 		}
-	}, [socket]); // ← ONLY socket
+	}, [socket]); 
 
-	// ─────────────────────────────────────────────
-	// Reconnect Effect (UI feedback only)
-	// Actual reconnect is handled by SocketManager
-	// ─────────────────────────────────────────────
 	useEffect(() => {
 		if (isConnected || !open) return;
 		if (reconnectAttempt >= 5) return;
@@ -223,9 +239,6 @@ const Chat = () => {
 		return () => { if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current); };
 	}, [isConnected, open, reconnectAttempt]);
 
-	// ─────────────────────────────────────────────
-	// Cleanup on unmount
-	// ─────────────────────────────────────────────
 	useEffect(() => {
 		return () => {
 			if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
@@ -233,9 +246,6 @@ const Chat = () => {
 		};
 	}, []);
 
-	// ─────────────────────────────────────────────
-	// Auto-scroll on new messages
-	// ─────────────────────────────────────────────
 	useEffect(() => {
 		if (!chatContentRef.current || messagesList.length === 0) return;
 		setTimeout(() => {
@@ -245,18 +255,12 @@ const Chat = () => {
 		}, 100);
 	}, [messagesList]);
 
-	// ─────────────────────────────────────────────
-	// Focus input when chat opens
-	// ─────────────────────────────────────────────
 	useEffect(() => {
 		if (open && isConnected) {
 			setTimeout(() => textInput.current?.focus(), 150);
 		}
 	}, [open, isConnected]);
 
-	// ─────────────────────────────────────────────
-	// Event Handlers
-	// ─────────────────────────────────────────────
 	const handleCloseChat = () => chatOpenVar(false);
 
 	const getInputMessageHandler = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -279,6 +283,13 @@ const Chat = () => {
 
 		try {
 			setIsSending(true);
+			const optimisticMessage: MessagePayload = {
+				event: 'message',
+				text: trimmedMessage,
+				memberData: { ...user },
+				createdAt: new Date().toISOString(),
+			};
+			setMessagesList((prev) => [...prev, optimisticMessage]);
 			socket!.send(JSON.stringify({
 				event: 'message',
 				text: trimmedMessage,
@@ -291,32 +302,35 @@ const Chat = () => {
 			}));
 			setMessageInput('');
 
-			// Fallback timeout if server doesn't echo back
 			messageTimeoutRef.current = setTimeout(() => {
 				setIsSending(false);
-				sweetErrorAlert('Message may not have been sent. Please try again.');
+				sweetErrorAlert('Message status is pending. Please check connection.');
 			}, 10000);
 		} catch (err) {
 			console.error('[Chat] ❌ Send error:', err);
 			sweetErrorAlert('Failed to send message');
 			setIsSending(false);
+			setMessagesList((prev) => prev.slice(0, -1));
 			setMessageInput(trimmedMessage);
 		}
 	};
 
-	// ─────────────────────────────────────────────
-	// Render guard
-	// ─────────────────────────────────────────────
-	if (!open) return null;
+	if (!open) {
+		if (device === 'mobile') {
+			return (
+				<Box className="mobile-chat-fab" onClick={() => chatOpenVar(true)}>
+					<ChatBubbleOutlineRoundedIcon sx={{ fontSize: 24 }} />
+				</Box>
+			);
+		}
 
-	// ─────────────────────────────────────────────
-	// Render
-	// ─────────────────────────────────────────────
+		return null;
+	}
+
 	return (
 		<Box className="modern-chat-container">
 			<Stack className="modern-chat-frame">
 
-				{/* ═══════════════ HEADER ═══════════════ */}
 				<Box className="modern-chat-header">
 					<Box className="header-left">
 						<Box className="chat-logo-box"><UnivoLogo /></Box>
@@ -343,7 +357,6 @@ const Chat = () => {
 					</Box>
 				</Box>
 
-				{/* ═══════════════ MESSAGES ═══════════════ */}
 				<Box className="modern-chat-content" ref={chatContentRef}>
 					{isLoading ? (
 						<Box className="chat-loading">
@@ -382,7 +395,6 @@ const Chat = () => {
 								{messagesList.map((msg: MessagePayload, idx: number) => {
 									const { text, memberData, createdAt } = msg;
 
-									// Skip empty bubbles and log so you can trace the issue
 									if (!text) {
 										console.warn(`[Chat] ⚠️ Message [${idx}] empty text. Full data:`, msg);
 										return null;
@@ -440,7 +452,6 @@ const Chat = () => {
 					)}
 				</Box>
 
-				{/* ═══════════════ INPUT ═══════════════ */}
 				<Box className="modern-chat-input">
 					{!isConnected && (
 						<Box className="connection-warning">
@@ -448,10 +459,10 @@ const Chat = () => {
 							<span>Reconnecting... ({reconnectAttempt}/5)</span>
 						</Box>
 					)}
-					{!user && (
+					{!user?._id && (
 						<Box className="auth-warning">Please login to send messages</Box>
 					)}
-					{isConnected && user && (
+					{isConnected && !!user?._id && (
 						<>
 							<input
 								ref={textInput}

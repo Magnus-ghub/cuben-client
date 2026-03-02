@@ -153,9 +153,6 @@ const ListItem: NextPage = ({ initialValues, ...props }: any) => {
 
 	console.log('+insertProductData', insertProductData);
 
-	if (device === 'mobile') {
-		return <div>LIST ITEM MOBILE</div>;
-	}
 
 	const productTypes = [
 		{ value: ProductType.EDU, label: '📚 Books & Textbooks' },

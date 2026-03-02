@@ -157,10 +157,6 @@ const AddArticle: NextPage = ({ initialValues, ...props }: any) => {
 
     console.log('+insertArticleData', insertArticleData);
 
-    if (device === 'mobile') {
-        return <div>LIST ITEM MOBILE</div>;
-    }
-
     const articleCategory = [
         { value: ArticleCategory.CAREER, label: 'Jobs' },
         { value: ArticleCategory.ANNOUNCEMENTS, label: 'News' },

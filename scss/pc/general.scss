@@ -1,4 +1,4 @@
-// ==================== SIMILAR PRODUCTS SECTION ====================
+// ========== SIMILAR PRODUCTS SECTION ========
 .similar-products-config {
 	width: 100%;
 	margin-top: 60px;
@@ -130,7 +130,7 @@
 	}
 }
 
-// ==================== PRODUCT BIG CARD - OPTIMIZED ====================
+// ======== PRODUCT BIG CARD - OPTIMIZED =======
 .product-big-card-box {
 	position: relative;
 	width: 100%;
@@ -388,12 +388,8 @@
 	}
 }
 
-// ============================================================
-//  UNIVO — notification.scss
-//  @import 'notification' at the bottom of pc.scss
-// ============================================================
 
-// ── Dropdown Panel ────────────────────────────────────────────
+// ── Dropdown Panel ────────
 .notif-dropdown {
 	position: fixed;
 	top: 64px;
@@ -611,7 +607,7 @@
 	}
 }
 
-// ── Notification Item ──────────────────────────────────────────
+// ── Notification Item ────────
 .notif-item {
 	position: relative;
 	flex-direction: row !important;
@@ -710,13 +706,13 @@
 	}
 }
 
-// ── Active icon wrapper ────────────────────────────────────────
+// ── Active icon wrapper ───────
 .notif-icon-active {
 	background: rgba(102, 126, 234, 0.08) !important;
 	border-radius: 8px;
 }
 
-// ── Backdrop ──────────────────────────────────────────────────
+// ── Backdrop ──
 .notif-backdrop {
 	position: fixed;
 	inset: 0;
@@ -724,13 +720,13 @@
 	background: transparent;
 }
 
-// ── Open animation ─────────────────────────────────────────────
+// ── Open animation ──────────
 @keyframes notifSlideIn {
 	from { opacity: 0; transform: translateY(-8px) scale(0.97); }
 	to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-// ── Mobile: bottom sheet ───────────────────────────────────────
+// ── Mobile: bottom sheet ────────
 @media (max-width: 768px) {
 	.notif-dropdown {
 		position: fixed !important;
@@ -770,7 +766,6 @@
 	}
 }
 
-// ==================== RESPONSIVE ====================
 @media (max-width: 1200px) {
 	.similar-products-config {
 		.cards-box .similar-products-swiper .similar-products-slide {
@@ -820,8 +815,7 @@
 
 
 
-// ==================== POST COMMENT SECTION ====================
-// CommentModal.scss (alohida SCSS fayl)
+// ============ POST COMMENT SECTION =============
 
 .comment-modal-dialog {
   .MuiDialog-paper {
@@ -957,26 +951,14 @@
 
 .comment-modal-loading-box {
   text-align: center;
-  padding-top: 32px; // 4 * 8px
-  padding-bottom: 32px; // 4 * 8px
+  padding-top: 32px; 
+  padding-bottom: 32px; 
   color: #6b7280;
 }
 
-// .comment-modal-loading-text {
-//   // No additional styles needed
-// }
-
-// .comment-modal-comments-stack {
-//   // MUI Stack handles spacing
-// }
-
-// .comment-item-wrapper {
-//   // Wrapper for each comment
-// }
-
 .comment-item-main {
   display: flex;
-  gap: 24px; // 1.5 * 16px
+  gap: 24px; 
 }
 
 .comment-item-avatar {
@@ -1006,7 +988,7 @@
 
 .comment-edit-buttons {
   display: flex;
-  gap: 4px; // 0.5 * 8px
+  gap: 4px; 
 }
 
 .comment-edit-confirm-btn {
@@ -1025,11 +1007,10 @@
   }
 }
 
-// View Mode
 .comment-view-bubble {
   background: #f3f4f6;
   border-radius: 16px;
-  padding: 12px; // 1.5 * 8px
+  padding: 12px; 
   position: relative;
 }
 
@@ -1063,9 +1044,9 @@
 
 .comment-view-footer {
   display: flex;
-  gap: 16px; // 2 * 8px
-  margin-top: 4px; // 0.5 * 8px
-  margin-left: 24px; // 1.5 * 16px
+  gap: 16px; 
+  margin-top: 4px; 
+  margin-left: 24px; 
   font-size: 12px;
   color: #6b7280;
 }
@@ -1075,7 +1056,6 @@
   display: inline-block;
 }
 
-// Comment Menu
 .comment-menu {
   .MuiMenu-paper {
     border-radius: 12px !important;
@@ -1096,15 +1076,15 @@
 }
 
 .comment-menu-divider {
-  margin-top: 4px !important; // 0.5 * 8px
-  margin-bottom: 4px !important; // 0.5 * 8px
+  margin-top: 4px !important; 
+  margin-bottom: 4px !important; 
 }
 
 .comment-menu-delete {
   font-size: 14px !important;
-  gap: 24px !important; // 1.5 * 16px
-  padding-top: 8px !important; // 1 * 8px
-  padding-bottom: 8px !important; // 1 * 8px
+  gap: 24px !important; 
+  padding-top: 8px !important; 
+  padding-bottom: 8px !important; 
   color: #ef4444 !important;
 
   &:hover {
@@ -1114,14 +1094,10 @@
 
 .comment-modal-no-comments-box {
   text-align: center;
-  padding-top: 32px; // 4 * 8px
-  padding-bottom: 32px; // 4 * 8px
+  padding-top: 32px; 
+  padding-bottom: 32px; 
   color: #6b7280;
 }
-
-// .comment-modal-no-comments-text {
-//   // No additional styles
-// }
 
 // Comment Input
 .comment-modal-input-section {
