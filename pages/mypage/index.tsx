@@ -285,8 +285,69 @@ const MyPage: NextPage = () => {
 		},
 	];
 
+	const mobileTabs = navigationTabs.filter((tab) => ['myProfile', 'followers', 'followings'].includes(tab.id));
+	const mobileCategory = ['myProfile', 'followers', 'followings'].includes(String(category)) ? category : 'myProfile';
+
+	useEffect(() => {
+		if (device === 'mobile' && category !== mobileCategory) {
+			router.replace(`/mypage?category=${mobileCategory}`);
+		}
+	}, [device, category, mobileCategory, router]);
+
 	if (device === 'mobile') {
-		return <div>MY PAGE MOBILE</div>;
+		return (
+			<Stack className={'mypage-mobile-container'}>
+				<Box className={'mobile-profile-card'}>
+					<Avatar
+						src={user?.memberImage ? `${REACT_APP_API_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'}
+						className={'mobile-avatar'}
+					/>
+					<Box className={'mobile-profile-info'}>
+						<h3>{user?.memberNick || 'User'}</h3>
+						<p>@{user?.memberNick?.toLowerCase() || 'user'}</p>
+					</Box>
+					<Box className={'mobile-follow-stats'}>
+						<Box className={'mobile-follow-item'}>
+							<strong>{stats.followers}</strong>
+							<span>Followers</span>
+						</Box>
+						<Box className={'mobile-follow-item'}>
+							<strong>{stats.followings}</strong>
+							<span>Following</span>
+						</Box>
+					</Box>
+				</Box>
+
+				<Box className={'mobile-tabs'}>
+					{mobileTabs.map((tab) => (
+						<Link key={tab.id} href={`/mypage?category=${tab.id}`} style={{ textDecoration: 'none' }}>
+							<Box className={`mobile-tab ${mobileCategory === tab.id ? 'active' : ''}`}>
+								{tab.icon}
+								<span>{tab.label}</span>
+							</Box>
+						</Link>
+					))}
+				</Box>
+
+				<Box className={'mobile-content'}>
+					{mobileCategory === 'myProfile' && <MyProfile />}
+					{mobileCategory === 'followers' && (
+						<MemberFollowers
+							subscribeHandler={subscribeHandler}
+							unsubscribeHandler={unsubscribeHandler}
+							redirectToMemberPageHandler={redirectToMemberPageHandler}
+						/>
+					)}
+					{mobileCategory === 'followings' && (
+						<MemberFollowings
+							subscribeHandler={subscribeHandler}
+							unsubscribeHandler={unsubscribeHandler}
+							redirectToMemberPageHandler={redirectToMemberPageHandler}
+						/>
+					)}
+				</Box>
+			</Stack>
+		);
 	}
 
 	return (

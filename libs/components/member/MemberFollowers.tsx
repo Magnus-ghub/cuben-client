@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Box, Button, Pagination, Stack, Avatar, Chip, CircularProgress } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
 import { useQuery, useReactiveVar } from '@apollo/client';
@@ -20,7 +19,6 @@ interface MemberFollowersProps {
 
 const MemberFollowers = (props: MemberFollowersProps) => {
 	const { initialInput, subscribeHandler, unsubscribeHandler, redirectToMemberPageHandler } = props;
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [total, setTotal] = useState<number>(0);
@@ -113,10 +111,6 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 		);
 	}
 
-	if (device === 'mobile') {
-		return <div>FOLLOWERS MOBILE</div>;
-	}
-
 	return (
 		<Box className="modern-followers-container">
 			{/* Header Section */}
@@ -167,7 +161,7 @@ const MemberFollowers = (props: MemberFollowersProps) => {
 									</Box>
 
 									{/* Middle Section - Stats */}
-									<Stack className="stats-section" flexDirection={'row'}>
+									<Stack className="stats-section">
 										<Box className="stat-item">
 											<Users size={18} />
 											<Box className="stat-info">

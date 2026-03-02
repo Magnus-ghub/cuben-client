@@ -1,0 +1,293 @@
+#mobile-wrap {
+	.mypage-mobile-container {
+		padding: 76px 12px 18px;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+
+		.mobile-profile-card {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			background: #ffffff;
+			border: 1px solid #e5e7eb;
+			border-radius: 14px;
+			padding: 12px;
+
+			.mobile-avatar {
+				width: 52px;
+				height: 52px;
+			}
+
+			.mobile-profile-info {
+				flex: 1;
+
+				h3 {
+					margin: 0;
+					font-size: 15px;
+					font-weight: 700;
+					color: #111827;
+				}
+
+				p {
+					margin: 2px 0 0;
+					font-size: 12px;
+					color: #6b7280;
+				}
+			}
+
+			.mobile-follow-stats {
+				display: flex;
+				gap: 8px;
+
+				.mobile-follow-item {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					min-width: 58px;
+
+					strong {
+						font-size: 14px;
+						color: #111827;
+					}
+
+					span {
+						font-size: 11px;
+						color: #6b7280;
+					}
+				}
+			}
+		}
+
+		.mobile-tabs {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 8px;
+
+			a {
+				min-width: 0;
+			}
+
+			.mobile-tab {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
+				padding: 10px 8px;
+				border: 1px solid #e5e7eb;
+				border-radius: 10px;
+				background: #ffffff;
+				color: #374151;
+				font-size: 12px;
+				font-weight: 600;
+
+				&.active {
+					border-color: #667eea;
+					color: #667eea;
+					background: #eef2ff;
+				}
+
+				svg {
+					width: 16px;
+					height: 16px;
+				}
+			}
+		}
+
+		.mobile-content {
+			.modern-followers-container,
+			#my-profile-page {
+				padding: 0;
+			}
+
+			#my-profile-page {
+				.top-box {
+					padding: 12px;
+					display: flex;
+					flex-direction: column;
+					gap: 12px;
+					background: #ffffff;
+					border: 1px solid #e5e7eb;
+					border-radius: 14px;
+
+					.title {
+						font-size: 13px;
+						font-weight: 600;
+						color: #374151;
+					}
+
+					.photo-box,
+					.small-input-box,
+					.address-box,
+					.about-me-box {
+						display: flex;
+						flex-direction: column;
+						gap: 8px;
+					}
+
+					.image-big-box {
+						display: flex;
+						flex-direction: column;
+						gap: 10px;
+
+						.image-box {
+							width: 96px;
+							height: 96px;
+
+							img {
+								width: 100%;
+								height: 100%;
+								object-fit: cover;
+								border-radius: 12px;
+								border: 2px solid #e5e7eb;
+							}
+						}
+
+						.upload-big-box {
+							display: flex;
+							flex-direction: column;
+							gap: 6px;
+
+							.labeler {
+								display: inline-flex;
+								align-items: center;
+								justify-content: center;
+								height: 40px;
+								padding: 0 12px;
+								border-radius: 10px;
+								border: 1px dashed #d1d5db;
+								background: #f9fafb;
+								cursor: pointer;
+
+								p {
+									font-size: 12px;
+									font-weight: 600;
+									color: #374151;
+								}
+							}
+
+							.upload-text {
+								font-size: 11px;
+								color: #6b7280;
+							}
+						}
+					}
+
+					.input-box {
+						display: flex;
+						flex-direction: column;
+						gap: 6px;
+
+						input {
+							width: 100%;
+							height: 42px;
+							border: 1px solid #e5e7eb;
+							border-radius: 10px;
+							padding: 0 12px;
+							font-size: 13px;
+							outline: none;
+							box-sizing: border-box;
+						}
+					}
+
+					.address-box {
+						input {
+							width: 100%;
+							height: 42px;
+							border: 1px solid #e5e7eb;
+							border-radius: 10px;
+							padding: 0 12px;
+							font-size: 13px;
+							outline: none;
+							box-sizing: border-box;
+						}
+					}
+
+					.about-me-box {
+						.update-button {
+							height: 42px;
+							border-radius: 10px;
+							text-transform: none;
+							font-size: 13px;
+							font-weight: 700;
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							color: #ffffff;
+						}
+					}
+				}
+			}
+
+			.modern-followers-container {
+				gap: 10px;
+
+				.followers-header {
+					padding: 4px 0 10px;
+
+					.header-left {
+						gap: 10px;
+
+						.title-icon {
+							width: 36px;
+							height: 36px;
+						}
+
+						.section-title {
+							font-size: 18px;
+						}
+						.section-subtitle {
+							font-size: 12px;
+						}
+					}
+				}
+
+				.followers-list {
+					.follower-card {
+						display: flex;
+						flex-direction: column;
+						align-items: stretch;
+						gap: 10px;
+						padding: 12px;
+
+						.profile-section {
+							min-width: 0;
+						}
+
+						.stats-section {
+							display: flex;
+                            justify-content:flex-start;
+                            gap: 25px;
+							flex-direction: row;
+
+							.stat-item {
+								display: flex;
+								align-items: center;
+								gap: 8px;
+
+								.stat-info {
+									display: flex;
+									align-items: center;
+									gap: 6px;
+
+									.stat-label,
+									.stat-value {
+										line-height: 1.2;
+									}
+								}
+							}
+						}
+
+						.action-section {
+							min-width: 0;
+							justify-content: flex-start;
+
+							.follow-button,
+							.unfollow-button {
+								width: 100%;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
