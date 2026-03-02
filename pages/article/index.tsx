@@ -224,9 +224,7 @@ const Articles: NextPage = ({ initialInput, ...props }: T) => {
 		return categoryCounts[category] || 0;
 	};
 
-	if (device === 'mobile') {
-		return <h1>ARTICLES PAGE MOBILE</h1>;
-	}
+	
 	return (
 		<div id="articles-page">
 			<div className="container">

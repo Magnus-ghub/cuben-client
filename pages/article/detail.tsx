@@ -184,7 +184,7 @@ const ArticleDetail: NextPage = ({ initialInput }: any) => {
 
 	const isLiked = article?.meLiked?.[0]?.myFavorite || article?.meLiked?.liked || false;
 
-	if (device === 'mobile') return <div>MOBILE VIEW NOT IMPLEMENTED</div>;
+
 
 	// Loading Skeleton Component
 	const LoadingSkeleton = () => (

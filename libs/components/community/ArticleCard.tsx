@@ -80,9 +80,9 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 	const handleApply = async (e: any) => {
 		e.preventDefault();
 		e.stopPropagation();
-		
+
 		if (isApplied) return;
-		
+
 		// Show success alert
 		await sweetTopSmallSuccessAlert('Applied Successfully! 🎉', 1500);
 		setIsApplied(true);
@@ -235,9 +235,7 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 								}}
 							/>
 							<Stack className="author-details">
-								<Typography className="author-name">
-									{article?.memberData?.memberNick || 'BUFS Admin'}
-								</Typography>
+								<Typography className="author-name">{article?.memberData?.memberNick || 'BUFS Admin'}</Typography>
 								<Typography className="author-role">University Staff</Typography>
 							</Stack>
 						</Stack>
@@ -256,11 +254,7 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 									likeArticleHandler(e, user, article?._id);
 								}}
 							>
-								{isLiked ? (
-									<FavoriteIcon className="stat-icon liked" />
-								) : (
-									<FavoriteBorderIcon className="stat-icon" />
-								)}
+								{isLiked ? <FavoriteIcon className="stat-icon liked" /> : <FavoriteBorderIcon className="stat-icon" />}
 								<Typography className="stat-value">{article?.articleLikes || 0}</Typography>
 							</Stack>
 							<Stack className="stat-item">
@@ -272,10 +266,7 @@ const ArticleCard = ({ article, likeArticleHandler }: ArticleCardProps) => {
 
 					{/* Action Button - Career: Apply, Others: View Details */}
 					{isCareerCategory ? (
-						<Stack
-							className={`apply-button ${isApplied ? 'applied' : ''}`}
-							onClick={handleApply}
-						>
+						<Stack className={`apply-button ${isApplied ? 'applied' : ''}`} onClick={handleApply}>
 							{isApplied ? (
 								<>
 									<CheckCircleIcon className="button-icon" />

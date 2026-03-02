@@ -35,7 +35,7 @@ const MobileBottomtab: React.FC = () => {
 
   const navItems = [
     { icon: 'bi-house', label: 'Home', path: '/' },
-    { icon: 'bi-briefcase', label: 'Feed', path: '/opportunities' },
+    { icon: 'bi-briefcase', label: 'Feed', path: '/article' },
     { icon: 'bi-plus-circle-fill', label: '+', path: '/create', isCenter: true },
     { icon: 'bi-shop', label: 'Market', path: '/product' },
     { icon: 'bi-person', label: 'Profile', path: '/mypage' },
