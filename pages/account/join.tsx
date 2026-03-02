@@ -107,9 +107,6 @@ const Join: NextPage = () => {
 		},
 	];
 
-	if (device === 'mobile') {
-		return <div>LOGIN MOBILE</div>;
-	}
 
 	return (
 		<Stack className={'join-page'}>
