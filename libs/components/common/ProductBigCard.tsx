@@ -23,7 +23,7 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	
+
 	const [isLiked, setIsLiked] = useState(product?.meLiked?.liked || false);
 	const [isSaved, setIsSaved] = useState(product?.meLiked?.saved || false);
 
@@ -53,101 +53,73 @@ const ProductBigCard = (props: ProductBigCardProps) => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <div>PRODUCT CARD MOBILE</div>;
-	} else {
-		return (
-			<Stack className="product-big-card-box" onClick={() => goProductDetailPage(product?._id)}>
-				{/* Image Section */}
-				<Box component={'div'} className={'card-img'}>
-					<img
-						src={
-							product?.productImages?.length > 0
-								? `${REACT_APP_API_URL}/${product.productImages[0]}`
-								: '/img/default-product.png'
-						}
-						alt={product?.productName || 'product image'}
-					/>
+	return (
+		<Stack className="product-big-card-box" onClick={() => goProductDetailPage(product?._id)}>
+			{/* Image Section */}
+			<Box component={'div'} className={'card-img'}>
+				<img
+					src={
+						product?.productImages?.length > 0
+							? `${REACT_APP_API_URL}/${product.productImages[0]}`
+							: '/img/default-product.png'
+					}
+					alt={product?.productName || 'product image'}
+				/>
 
-					{/* Status Badge - Top (Like New, Excellent, etc.) */}
-					{product?.productCondition && (
-						<div className={'status'}>
-							<span>{product.productCondition}</span>
-						</div>
-					)}
+				{/* Status Badge - Top (Like New, Excellent, etc.) */}
+				{product?.productCondition && (
+					<div className={'status'}>
+						<span>{product.productCondition}</span>
+					</div>
+				)}
 
-					{/* Price Tag - Bottom */}
-					<div className={'price'}>₩{product?.productPrice?.toLocaleString()}</div>
-				</Box>
+				{/* Price Tag - Bottom */}
+				<div className={'price'}>₩{product?.productPrice?.toLocaleString()}</div>
+			</Box>
 
-				{/* Info Section */}
-				<Box component={'div'} className={'info'}>
-					{/* Title */}
-					<strong className={'title'}>{product?.productName}</strong>
+			{/* Info Section */}
+			<Box component={'div'} className={'info'}>
+				{/* Title */}
+				<strong className={'title'}>{product?.productName}</strong>
 
-					{/* Description (Location/Address) */}
-					<p className={'desc'}>{product?.productAddress || product?.productDesc}</p>
+				{/* Description (Location/Address) */}
+				<p className={'desc'}>{product?.productAddress || product?.productDesc}</p>
 
-					{/* Options (Category, Type, etc.) */}
-					{product?.productType && (
-						<div className={'options'}>
-							<div>
-								<img src="/img/icons/category.svg" alt="" />
-								<span>{product.productType}</span>
-							</div>
-						</div>
-					)}
-
-					{/* Bottom Section */}
-					<div className={'bott'}>
-						{/* Tags (Available, Negotiable, etc.) */}
-						<div className="tags-box">
-							{product?.productStatus === 'ACTIVE' ? <p>Available</p> : <span>Sold</span>}
-							<p>Negotiable</p>
-						</div>
-
-						{/* Action Buttons (Views + Likes + Save) */}
-						<div className="buttons-box">
-							{/* Views */}
-							<IconButton color={'default'} size="small">
-								<RemoveRedEyeIcon />
-							</IconButton>
-							<Typography className="view-cnt">{product?.productViews || 0}</Typography>
-
-							{/* Likes */}
-							<IconButton 
-								color={'default'} 
-								size="small" 
-								onClick={handleLikeClick}
-								disabled={!user?._id}
-							>
-								{isLiked ? (
-									<FavoriteIcon className="liked" />
-								) : (
-									<FavoriteBorderIcon />
-								)}
-							</IconButton>
-							<Typography className="view-cnt">{product?.productLikes || 0}</Typography>
-
-							{/* Save */}
-							<IconButton 
-								color={'default'} 
-								size="small" 
-								onClick={handleSaveClick}
-								disabled={!user?._id}
-							>
-								{isSaved ? (
-									<BookmarkIcon className="saved" />
-								) : (
-									<BookmarkBorderIcon />
-								)}
-							</IconButton>
+				{/* Options (Category, Type, etc.) */}
+				{product?.productType && (
+					<div className={'options'}>
+						<div>
+							<img src="/img/icons/category.svg" alt="" />
+							<span>{product.productType}</span>
 						</div>
 					</div>
-				</Box>
-			</Stack>
-		);
-	}
+				)}
+
+				{/* Bottom Section */}
+				<div className={'bott'}>
+					{/* Action Buttons (Views + Likes + Save) */}
+					<div className="buttons-box">
+						{/* Views */}
+						<IconButton color={'default'} size="small">
+							<RemoveRedEyeIcon />
+						</IconButton>
+						<Typography className="view-cnt">{product?.productViews || 0}</Typography>
+
+						{/* Likes */}
+						<IconButton color={'default'} size="small" onClick={handleLikeClick} disabled={!user?._id}>
+							{isLiked ? <FavoriteIcon className="liked" /> : <FavoriteBorderIcon />}
+						</IconButton>
+						<Typography className="view-cnt">{product?.productLikes || 0}</Typography>
+
+						{/* Save */}
+						<IconButton color={'default'} size="small" onClick={handleSaveClick} disabled={!user?._id}>
+							{isSaved ? <BookmarkIcon className="saved" /> : <BookmarkBorderIcon />}
+						</IconButton>
+					</div>
+				</div>
+			</Box>
+		</Stack>
+	);
 };
 
 export default ProductBigCard;

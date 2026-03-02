@@ -11,6 +11,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import withLayoutMain from '../../libs/components/layout/LayoutHome';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -48,8 +49,16 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const [isSaved, setIsSaved] = useState(false);
 	const [contactName, setContactName] = useState<string>('');
 	const [contactMessage, setContactMessage] = useState<string>('');
+	const [mobileContactOpen, setMobileContactOpen] = useState(false);
 
 	const isOwner = user?._id === product?.memberId;
+	const isMobile = device === 'mobile';
+
+	useEffect(() => {
+		if (isMobile) {
+			router.replace('/product');
+		}
+	}, [isMobile, router]);
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
@@ -263,6 +272,7 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		sweetTopSmallSuccessAlert('Message sent successfully!', 800);
 		setContactName('');
 		setContactMessage('');
+		if (isMobile) setMobileContactOpen(false);
 	};
 
 	if (getProductLoading) {
@@ -273,10 +283,9 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 		);
 	}
 
-	if (device === 'mobile') {
-		return <Container>MARKETPLACE DETAIL MOBILE</Container>;
-	} else {
-		return (
+	if (isMobile) return null;
+
+	return (
 			<div id="marketplace-detail-page">
 				<Container className="detail-container">
 					{/* Breadcrumb */}
@@ -448,7 +457,15 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 								</Stack>
 							</Stack>
 							{/* Contact Form */}
-							<Stack className="contact-card">
+							<Stack className={`contact-card ${isMobile ? 'mobile-sheet' : ''} ${mobileContactOpen ? 'show' : ''}`}>
+								{isMobile && (
+									<Stack className="mobile-sheet-header">
+										<Typography className="mobile-sheet-title">Contact Seller</Typography>
+										<IconButton className="mobile-sheet-close" onClick={() => setMobileContactOpen(false)}>
+											<CloseRoundedIcon />
+										</IconButton>
+									</Stack>
+								)}
 								<Typography className="card-title">Contact Seller</Typography>
 								<Stack className="form-group">
 									<Typography className="input-label">Your Name</Typography>
@@ -526,10 +543,25 @@ const MarketplaceDetail: NextPage = ({ initialComment, ...props }: any) => {
 							</Stack>
 						</Stack>
 					)}
+
+					{isMobile && !isOwner && (
+						<>
+							<Box
+								className={`detail-contact-backdrop ${mobileContactOpen ? 'show' : ''}`}
+								onClick={() => setMobileContactOpen(false)}
+							/>
+							<Button
+								className="detail-contact-trigger"
+								onClick={() => setMobileContactOpen(true)}
+								disabled={!!product?.soldAt}
+							>
+								{product?.soldAt ? 'Item Sold' : 'Contact Seller'}
+							</Button>
+						</>
+					)}
 				</Container>
 			</div>
 		);
-	}
 };
 
 MarketplaceDetail.defaultProps = {

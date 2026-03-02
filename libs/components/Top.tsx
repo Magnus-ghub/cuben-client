@@ -1,4 +1,4 @@
-import { Box, MenuItem, Stack, Badge } from '@mui/material';
+import { Box, MenuItem, Stack, Badge, Dialog, DialogContent, DialogActions, Alert } from '@mui/material';
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import { useTranslation } from 'next-i18next';
@@ -15,9 +15,10 @@ import { useRouter } from 'next/router';
 import { userVar, chatOpenVar } from '../apollo/store';
 import { useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
-import { getJwtToken, updateUserInfo } from '../auth';
+import { getJwtToken, logOut, updateUserInfo } from '../auth';
 import { UnivoLogo } from './common/UnivoLogo';
 import NotifDropdown from './NotifDropdown';
+import { Logout } from '@mui/icons-material';
 
 const Top: React.FC = () => {
 	const device = useDeviceDetect();
@@ -35,6 +36,8 @@ const Top: React.FC = () => {
 	const [notifOpen, setNotifOpen] = useState(false);
 	const [notifAnchor, setNotifAnchor] = useState<HTMLElement | null>(null);
 	const [unreadCount, setUnreadCount] = useState<number>(0);
+	const [profileMenuAnchor, setProfileMenuAnchor] = useState<HTMLElement | null>(null);
+	const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -123,6 +126,42 @@ const Top: React.FC = () => {
 	const handleNotifClose = () => {
 		setNotifOpen(false);
 		setNotifAnchor(null);
+	};
+
+	const profileMenuOpen = Boolean(profileMenuAnchor);
+
+	const handleProfileMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
+		setProfileMenuAnchor(e.currentTarget);
+	};
+
+	const handleProfileMenuClose = () => {
+		setProfileMenuAnchor(null);
+	};
+
+	const handleMobileMenuNavigate = (path: string) => {
+		router.push(path);
+		handleProfileMenuClose();
+	};
+
+	const handleMobileLogout = async () => {
+		try {
+			await logOut();
+			userVar(null);
+			setLogoutDialogOpen(false);
+			handleProfileMenuClose();
+			window.location.href = '/';
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const handleOpenLogoutDialog = () => {
+		handleProfileMenuClose();
+		setLogoutDialogOpen(true);
+	};
+
+	const handleCloseLogoutDialog = () => {
+		setLogoutDialogOpen(false);
 	};
 
 	const StyledMenu = styled((props: MenuProps) => (
@@ -255,11 +294,71 @@ const Top: React.FC = () => {
 
 							{/* User Profile or Login */}
 							{user?._id ? (
-								<Link href="/mypage" style={{ textDecoration: 'none' }}>
-									<Box className={'login-user'}>
+								<>
+									<Box className={'login-user'} onClick={handleProfileMenuOpen} sx={{ cursor: 'pointer' }}>
 										<img src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
 									</Box>
-								</Link>
+									<StyledMenu anchorEl={profileMenuAnchor} open={profileMenuOpen} onClose={handleProfileMenuClose}>
+										<MenuItem onClick={handleOpenLogoutDialog}>
+											<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
+											{t('logout')}
+										</MenuItem>
+									</StyledMenu>
+
+									<Dialog
+										open={logoutDialogOpen}
+										onClose={handleCloseLogoutDialog}
+										maxWidth="xs"
+										fullWidth
+										PaperProps={{
+											sx: {
+												borderRadius: '16px',
+												overflow: 'hidden',
+											},
+										}}
+									>
+										<DialogContent sx={{ px: 3, pt: 3, pb: 2 }}>
+											<Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
+												{t('logoutConfirmTitle')}
+											</Alert>
+											<Box sx={{ fontSize: '14px', color: '#374151', lineHeight: 1.6 }}>{t('logoutConfirmDesc')}</Box>
+										</DialogContent>
+										<DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+											<Button
+												fullWidth
+												variant="outlined"
+												onClick={handleCloseLogoutDialog}
+												sx={{
+													borderRadius: '10px',
+													textTransform: 'none',
+													fontWeight: 600,
+													borderColor: '#e5e7eb',
+													color: '#374151',
+												}}
+											>
+												{t('cancel')}
+											</Button>
+
+											<Button
+												fullWidth
+												variant="contained"
+												onClick={handleMobileLogout}
+												sx={{
+													borderRadius: '10px',
+													textTransform: 'none',
+													fontWeight: 700,
+													background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+													boxShadow: '0 6px 20px rgba(239,68,68,0.35)',
+													'&:hover': {
+														background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+													},
+												}}
+											>
+												{t('logout')}
+											</Button>
+										</DialogActions>
+									</Dialog>
+								</>
 							) : (
 								<Link href={'/account/join'} style={{ textDecoration: 'none' }}>
 									<Button

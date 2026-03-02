@@ -1,7 +1,7 @@
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import { Button, Pagination, Stack, Typography, Menu, MenuItem, Fab } from '@mui/material';
+import { Button, Pagination, Stack, Typography, Menu, MenuItem, Fab, Box } from '@mui/material';
 import { NextPage } from 'next';
 import { useEffect, useState, MouseEvent } from 'react';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
@@ -36,8 +36,9 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 	const [totalCount, setTotalCount] = useState<number>(0);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortingOpen, setSortingOpen] = useState(false);
-    const [filterSortName, setFilterSortName] = useState('new');
+	const [filterSortName, setFilterSortName] = useState('new');
 	const [showFilter, setShowFilter] = useState(true);
+	const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 	const { t, i18n } = useTranslation('common');
 
 	/** APOLLO REQUESTS **/
@@ -193,166 +194,190 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 		router.push('/create/listItem');
 	};
 
-	if (device === 'mobile') {
-		return <Stack>MARKETPLACE MOBILE</Stack>;
-	} else {
-		return (
-			<div id="marketplace-page">
-				<Stack className="container">
-					{/* Header Section */}
-					<Stack className="marketplace-header">
-						<Stack className="header-left">
-							<Typography className="page-title">{t('marketplace')}</Typography>
-							<Typography className="page-subtitle">{t('discoverDeals')}</Typography>
-						</Stack>
-						<Stack className="header-right">
-							<Button
-								className="filter-toggle-btn"
-								startIcon={<TuneRoundedIcon />}
-								onClick={() => setShowFilter(!showFilter)}
-							>
-								{showFilter ? t('hideFilters') : t('showFilters')}
+	const handleFilterToggle = () => {
+		if (device === 'mobile') {
+			setMobileFilterOpen((prev) => !prev);
+			return;
+		}
+		setShowFilter(!showFilter);
+	};
+
+	return (
+		<div id="marketplace-page">
+			<Stack className="container">
+				{/* Header Section */}
+				<Stack className="marketplace-header">
+					<Stack className="header-left">
+						<Typography className="page-title">{t('marketplace')}</Typography>
+						<Typography className="page-subtitle">{t('discoverDeals')}</Typography>
+					</Stack>
+					<Stack className="header-right">
+						<Button
+							className="filter-toggle-btn"
+							startIcon={<TuneRoundedIcon />}
+							onClick={handleFilterToggle}
+						>
+							{device === 'mobile'
+								? mobileFilterOpen
+									? t('hideFilters')
+									: t('showFilters')
+								: showFilter
+									? t('hideFilters')
+									: t('showFilters')}
+						</Button>
+						<Stack className="sort-box">
+							<Typography className="sort-label">{t('sortBy')}</Typography>
+							<Button className="sort-btn" onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
+								{t(filterSortName)}
 							</Button>
-							<Stack className="sort-box">
-								<Typography className="sort-label">{t('sortBy')}</Typography>
-								<Button className="sort-btn" onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
-									{t(filterSortName)}
-								</Button>
-								<Menu
-									anchorEl={anchorEl}
-									open={sortingOpen}
-									onClose={sortingCloseHandler}
-									PaperProps={{
-										sx: {
-											marginTop: '8px',
-											borderRadius: '12px',
-											boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-											border: '1px solid #e5e7eb',
-											minWidth: '160px',
+							<Menu
+								anchorEl={anchorEl}
+								open={sortingOpen}
+								onClose={sortingCloseHandler}
+								PaperProps={{
+									sx: {
+										marginTop: '8px',
+										borderRadius: '12px',
+										boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+										border: '1px solid #e5e7eb',
+										minWidth: '160px',
+									},
+								}}
+							>
+								<MenuItem
+									onClick={sortingHandler}
+									id={'new'}
+									sx={{
+										fontFamily: 'inherit',
+										fontSize: '14px',
+										padding: '10px 16px',
+										'&:hover': {
+											backgroundColor: '#f9fafb',
 										},
 									}}
 								>
-									<MenuItem
-										onClick={sortingHandler}
-										id={'new'}
-										sx={{
-											fontFamily: 'inherit',
-											fontSize: '14px',
-											padding: '10px 16px',
-											'&:hover': {
-												backgroundColor: '#f9fafb',
-											},
-										}}
-									>
-										{t('new')}
-									</MenuItem>
-									<MenuItem
-										onClick={sortingHandler}
-										id={'lowest'}
-										sx={{
-											fontFamily: 'inherit',
-											fontSize: '14px',
-											padding: '10px 16px',
-											'&:hover': {
-												backgroundColor: '#f9fafb',
-											},
-										}}
-									>
-										{t('lowestPrice')}
-									</MenuItem>
-									<MenuItem
-										onClick={sortingHandler}
-										id={'highest'}
-										sx={{
-											fontFamily: 'inherit',
-											fontSize: '14px',
-											padding: '10px 16px',
-											'&:hover': {
-												backgroundColor: '#f9fafb',
-											},
-										}}
-									>
-										{t('highestPrice')}
-									</MenuItem>
-								</Menu>
-							</Stack>
-						</Stack>
-					</Stack>
-
-					{/* Main Content */}
-					<Stack className="marketplace-content">
-						{/* Filter Sidebar */}
-						{showFilter && (
-							<Stack className="filter-sidebar">
-								<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
-							</Stack>
-						)}
-
-						{/* Products Grid */}
-						<Stack className="products-container">
-							{getProductsLoading ? (
-								<Stack className="loading-state">
-									<Typography>Loading products...</Typography>
-								</Stack>
-							) : (
-								<>
-									<Stack className="products-grid">
-										{products.length === 0 ? (
-											<Stack className="no-data">
-												<img src="/img/icons/icoAlert.svg" alt="" />
-												<Typography>{t('noProductsFound')}</Typography>
-											</Stack>
-										) : (
-											products.map((product: Product) => (
-												<ProductCard
-													key={product?._id}
-													product={product}
-													likeProductHandler={likeProductHandler}
-													saveProductHandler={saveProductHandler}
-												/>
-											))
-										)}
-									</Stack>
-
-									{/* Pagination */}
-									{totalCount > 0 && (
-										<Stack className="pagination-container">
-											<Pagination
-												count={Math.ceil(totalCount / searchFilter.limit)}
-												page={searchFilter.page}
-												shape="circular"
-												color="primary"
-												onChange={paginationHandler}
-												disabled={getProductsLoading}
-												sx={{
-													'& .MuiPaginationItem-root': {
-														borderRadius: '12px',
-														fontWeight: 600,
-														fontFamily: 'inherit',
-														fontSize: '14px',
-														transition: 'all 0.2s ease',
-													},
-													'& .Mui-selected': {
-														background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-														color: '#fff',
-														'&:hover': {
-															background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
-														},
-													},
-												}}
-											/>
-											<Typography className="pagination-info">
-												Total {totalCount} product{totalCount !== 1 ? 's' : ''}
-											</Typography>
-										</Stack>
-									)}
-								</>
-							)}
+									{t('new')}
+								</MenuItem>
+								<MenuItem
+									onClick={sortingHandler}
+									id={'lowest'}
+									sx={{
+										fontFamily: 'inherit',
+										fontSize: '14px',
+										padding: '10px 16px',
+										'&:hover': {
+											backgroundColor: '#f9fafb',
+										},
+									}}
+								>
+									{t('lowestPrice')}
+								</MenuItem>
+								<MenuItem
+									onClick={sortingHandler}
+									id={'highest'}
+									sx={{
+										fontFamily: 'inherit',
+										fontSize: '14px',
+										padding: '10px 16px',
+										'&:hover': {
+											backgroundColor: '#f9fafb',
+										},
+									}}
+								>
+									{t('highestPrice')}
+								</MenuItem>
+							</Menu>
 						</Stack>
 					</Stack>
 				</Stack>
 
-				{/* Floating Action Button - Sell Item */}
+				{/* Main Content */}
+				<Stack className="marketplace-content">
+					{/* Filter Sidebar */}
+					{device !== 'mobile' && showFilter && (
+						<Stack className="filter-sidebar">
+							<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
+						</Stack>
+					)}
+
+					{device === 'mobile' && (
+						<>
+							<Box
+								className={`filter-sheet-backdrop ${mobileFilterOpen ? 'show' : ''}`}
+								onClick={() => setMobileFilterOpen(false)}
+							/>
+							<Stack className={`filter-sidebar mobile-sheet ${mobileFilterOpen ? 'show' : ''}`}>
+								<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
+							</Stack>
+						</>
+					)}
+
+					{/* Products Grid */}
+					<Stack className="products-container">
+						{getProductsLoading ? (
+							<Stack className="loading-state">
+								<Typography>Loading products...</Typography>
+							</Stack>
+						) : (
+							<>
+								<Stack className="products-grid">
+									{products.length === 0 ? (
+										<Stack className="no-data">
+											<img src="/img/icons/icoAlert.svg" alt="" />
+											<Typography>{t('noProductsFound')}</Typography>
+										</Stack>
+									) : (
+										products.map((product: Product) => (
+											<ProductCard
+												key={product?._id}
+												product={product}
+												likeProductHandler={likeProductHandler}
+												saveProductHandler={saveProductHandler}
+											/>
+										))
+									)}
+								</Stack>
+
+								{/* Pagination */}
+								{totalCount > 0 && (
+									<Stack className="pagination-container">
+										<Pagination
+											count={Math.ceil(totalCount / searchFilter.limit)}
+											page={searchFilter.page}
+											shape="circular"
+											color="primary"
+											onChange={paginationHandler}
+											disabled={getProductsLoading}
+											sx={{
+												'& .MuiPaginationItem-root': {
+													borderRadius: '12px',
+													fontWeight: 600,
+													fontFamily: 'inherit',
+													fontSize: '14px',
+													transition: 'all 0.2s ease',
+												},
+												'& .Mui-selected': {
+													background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+													color: '#fff',
+													'&:hover': {
+														background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
+													},
+												},
+											}}
+										/>
+										<Typography className="pagination-info">
+											Total {totalCount} product{totalCount !== 1 ? 's' : ''}
+										</Typography>
+									</Stack>
+								)}
+							</>
+						)}
+					</Stack>
+				</Stack>
+			</Stack>
+
+			{/* Floating Action Button - Sell Item */}
+			{device !== 'mobile' && (
 				<Fab
 					className="sell-item-fab"
 					color="primary"
@@ -380,9 +405,9 @@ const MarketplaceList: NextPage = ({ initialInput, ...props }: any) => {
 				>
 					<AddRoundedIcon sx={{ fontSize: 32, color: '#fff' }} />
 				</Fab>
-			</div>
-		);
-	}
+			)}
+		</div>
+	);
 };
 
 MarketplaceList.defaultProps = {

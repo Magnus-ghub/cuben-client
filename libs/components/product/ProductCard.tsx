@@ -7,7 +7,6 @@ import PlaceIcon from '@mui/icons-material/Place';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Product } from '../../types/product/product';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { REACT_APP_API_URL } from '../../config';
 import { useReactiveVar } from '@apollo/client';
@@ -25,7 +24,6 @@ interface ProductTypeCard {
 
 const ProductCard = (props: ProductTypeCard) => {
 	const { product, likeProductHandler, saveProductHandler, myFavorites, recentlyVisited, savedItems } = props;
-	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	
 	const imagePath: string = product?.productImages[0]
@@ -41,10 +39,7 @@ const ProductCard = (props: ProductTypeCard) => {
 		return new Intl.NumberFormat('en-US').format(price);
 	};
 
-	if (device === 'mobile') {
-		return <div>Product card</div>;
-	} else {
-		return (
+	return (
 			<div className="product-card">
 				{/* Image Section */}
 				<Link
@@ -185,7 +180,6 @@ const ProductCard = (props: ProductTypeCard) => {
 				</Stack>
 			</div>
 		);
-	}
 };
 
 export default ProductCard;

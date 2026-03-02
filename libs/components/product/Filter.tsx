@@ -16,7 +16,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import router from 'next/router';
 import { ProductsInquiry, ProductSearch } from '../../types/product/product.input';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { ProductCondition, ProductType } from '../../enums/product.enum';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +26,6 @@ interface FilterType {
 }
 
 const Filter = (props: FilterType) => {
-	const device = useDeviceDetect();
 	const { searchFilter, setSearchFilter, initialInput } = props;
 	const [searchText, setSearchText] = useState<string>('');
 	const [productPrice, setProductPrice] = useState<[number, number]>([0, 10000000]);
@@ -212,10 +210,6 @@ const Filter = (props: FilterType) => {
 		{ value: 7500000, label: '₩7.5M' },
 		{ value: 10000000, label: '₩10M' },
 	];
-
-	if (device === 'mobile') {
-		return <div>PRODUCTS FILTER</div>;
-	}
 
 	return (
 		<Stack className="filter-modern-container">
