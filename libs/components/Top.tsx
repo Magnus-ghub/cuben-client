@@ -19,6 +19,8 @@ import { getJwtToken, logOut, updateUserInfo } from '../auth';
 import { UnivoLogo } from './common/UnivoLogo';
 import NotifDropdown from './NotifDropdown';
 import { Logout } from '@mui/icons-material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { GET_MY_NOTIFICATIONS } from '../apollo/user/query';
 import { NotificationStatus } from '../enums/notification.enum';
 
@@ -320,6 +322,14 @@ const Top: React.FC = () => {
 										<img src={getUserImageSrc()} alt="user profile" onError={handleImageError} />
 									</Box>
 									<StyledMenu anchorEl={profileMenuAnchor} open={profileMenuOpen} onClose={handleProfileMenuClose}>
+										<MenuItem onClick={() => handleMobileMenuNavigate('/about')}>
+											<InfoOutlinedIcon fontSize="small" style={{ color: '#667eea', marginRight: '10px' }} />
+											{t('about')}
+										</MenuItem>
+										<MenuItem onClick={() => handleMobileMenuNavigate('/cs')}>
+											<HelpOutlineOutlinedIcon fontSize="small" style={{ color: '#667eea', marginRight: '10px' }} />
+											{t('helpSupport')}
+										</MenuItem>
 										<MenuItem onClick={handleOpenLogoutDialog}>
 											<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
 											{t('logout')}
@@ -381,27 +391,39 @@ const Top: React.FC = () => {
 									</Dialog>
 								</>
 							) : (
-								<Link href={'/account/join'} style={{ textDecoration: 'none' }}>
-									<Button
-										variant="outlined"
-										className="join-btn"
-										sx={{
-											borderRadius: '24px',
-											padding: '8px 24px',
-											textTransform: 'none',
-											fontWeight: 600,
-											fontSize: '14px',
-											borderColor: '#667eea',
-											color: '#667eea',
-											'&:hover': {
-												borderColor: '#5568d3',
-												background: 'rgba(102, 126, 234, 0.05)',
-											},
-										}}
-									>
-										{t('loginRegister')}
-									</Button>
-								</Link>
+								<Stack direction="row" alignItems="center" gap={1}>
+									<Link href={'/about'} style={{ textDecoration: 'none' }}>
+										<Box className="icon-wrapper" sx={{ cursor: 'pointer' }}>
+											<InfoOutlinedIcon sx={{ fontSize: 22, color: '#667eea' }} />
+										</Box>
+									</Link>
+									<Link href={'/cs'} style={{ textDecoration: 'none' }}>
+										<Box className="icon-wrapper" sx={{ cursor: 'pointer' }}>
+											<HelpOutlineOutlinedIcon sx={{ fontSize: 22, color: '#667eea' }} />
+										</Box>
+									</Link>
+									<Link href={'/account/join'} style={{ textDecoration: 'none' }}>
+										<Button
+											variant="outlined"
+											className="join-btn"
+											sx={{
+												borderRadius: '24px',
+												padding: '8px 16px',
+												textTransform: 'none',
+												fontWeight: 600,
+												fontSize: '13px',
+												borderColor: '#667eea',
+												color: '#667eea',
+												'&:hover': {
+													borderColor: '#5568d3',
+													background: 'rgba(102, 126, 234, 0.05)',
+												},
+											}}
+										>
+											{t('loginRegister')}
+										</Button>
+									</Link>
+								</Stack>
 							)}
 						</Box>
 					</Stack>

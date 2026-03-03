@@ -44,6 +44,7 @@ export const PublicHeader = () => {
     return (
         <Box
             component="header"
+            className="public-header"
             sx={{
                 position: "sticky",
                 top: 0,
@@ -54,8 +55,9 @@ export const PublicHeader = () => {
                 borderBottom: "1px solid rgba(0,0,0,0.07)",
             }}
         >
-            <Container maxWidth="lg">
+            <Container maxWidth="lg" className="public-header-container">
                 <Stack
+                    className="public-header-inner"
                     direction="row"
                     alignItems="center"
                     justifyContent="space-between"
@@ -63,7 +65,7 @@ export const PublicHeader = () => {
                 >
                     {/* Logo */}
                     <Link href="/" style={{ textDecoration: "none" }}>
-                        <Stack direction="row" alignItems="center" gap={1.2}>
+                        <Stack className="public-logo-link" direction="row" alignItems="center" gap={1.2}>
                             <UnivoLogo />
                             <Box>
                                 <Box sx={{ fontWeight: 800, fontSize: 18, color: "#0f172a", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
@@ -77,7 +79,7 @@ export const PublicHeader = () => {
                     </Link>
 
                     {/* Nav Links */}
-                    <Stack direction="row" gap={0.5} sx={{ display: { xs: "none", md: "flex" } }}>
+                    <Stack className="public-nav-links" direction="row" gap={0.5} sx={{ display: { xs: "none", md: "flex" } }}>
                         {navLinks.map((link) => {
                             const isActive = router.pathname === link.href;
                             return (
@@ -110,9 +112,10 @@ export const PublicHeader = () => {
                     </Stack>
 
                     {/* Auth Buttons */}
-                    <Stack direction="row" alignItems="center" gap={1.5}>
+                    <Stack className="public-cta-wrap" direction="row" alignItems="center" gap={1.5}>
                         <Link href="/" style={{ textDecoration: "none" }}>
                             <Stack
+                                className="public-cta"
                                 direction="row"
                                 alignItems="center"
                                 gap={0.8}
@@ -137,6 +140,20 @@ export const PublicHeader = () => {
                                 <ArrowRight size={14} />
                             </Stack>
                         </Link>
+                    </Stack>
+
+                    <Stack className="public-mobile-links" direction="row" gap={1}>
+                        {navLinks.map((link) => {
+                            const isActive = router.pathname === link.href;
+                            return (
+                                <Link key={`${link.href}-mobile`} href={link.href} style={{ textDecoration: 'none' }}>
+                                    <Stack className={`public-mobile-link ${isActive ? 'active' : ''}`} direction="row" alignItems="center" gap={0.6}>
+                                        {link.icon}
+                                        <span>{link.label}</span>
+                                    </Stack>
+                                </Link>
+                            );
+                        })}
                     </Stack>
                 </Stack>
             </Container>
@@ -176,6 +193,7 @@ export const PublicFooter = () => {
     return (
         <Box
             component="footer"
+            className="public-footer"
             sx={{
                 bgcolor: "#0f172a",
                 color: "#94a3b8",
@@ -183,15 +201,16 @@ export const PublicFooter = () => {
                 pb: 4,
             }}
         >
-            <Container maxWidth="lg">
+            <Container maxWidth="lg" className="public-footer-container">
                 {/* Top Footer */}
                 <Stack
+                    className="public-footer-top"
                     direction={{ xs: "column", md: "row" }}
                     gap={8}
                     sx={{ pb: 6, borderBottom: "1px solid rgba(255,255,255,0.08)" }}
                 >
                     {/* Brand Column */}
-                    <Box sx={{ minWidth: 240, maxWidth: 280 }}>
+                    <Box className="public-footer-brand" sx={{ minWidth: 240, maxWidth: 280 }}>
                         {/* Logo */}
                         <Stack direction="row" alignItems="center" gap={1.5} sx={{ mb: 2.5 }}>
                             <UnivoLogo />
@@ -248,6 +267,7 @@ export const PublicFooter = () => {
 
                     {/* Links Grid */}
                     <Stack
+                        className="public-footer-links"
                         direction={{ xs: "column", sm: "row" }}
                         gap={{ xs: 5, sm: 8 }}
                         sx={{ flex: 1 }}
@@ -330,6 +350,7 @@ export const PublicFooter = () => {
 
                 {/* Bottom Footer */}
                 <Stack
+                    className="public-footer-bottom"
                     direction={{ xs: "column", sm: "row" }}
                     justifyContent="space-between"
                     alignItems={{ xs: "flex-start", sm: "center" }}

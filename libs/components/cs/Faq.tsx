@@ -241,10 +241,6 @@ const Faq = () => {
 		{ id: 'technical', label: 'Technical', icon: '⚙️' },
 	];
 
-	if (device === 'mobile') {
-		return <div>FAQ MOBILE</div>;
-	}
-
 	return (
 		<Stack className={'faq-content'}>
 			<Box className={'section-header'}>

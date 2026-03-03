@@ -1,0 +1,108 @@
+#public-wrap {
+	.public-header {
+		.public-header-inner {
+			gap: 10px;
+		}
+
+		.public-mobile-links {
+			display: none;
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	#public-wrap {
+		.public-header {
+			position: sticky;
+			top: 0;
+			z-index: 1200;
+
+			.public-header-container {
+				padding-left: 12px;
+				padding-right: 12px;
+			}
+
+			.public-header-inner {
+				height: auto;
+				padding: 10px 0;
+				flex-wrap: wrap;
+				justify-content: space-between;
+			}
+
+			.public-logo-link {
+				.MuiBox-root {
+					&:first-of-type {
+						font-size: 16px !important;
+					}
+				}
+			}
+
+			.public-cta-wrap {
+				.public-cta {
+					padding: 6px 10px !important;
+					font-size: 12px !important;
+					gap: 6px !important;
+					border-radius: 8px !important;
+				}
+			}
+
+			.public-mobile-links {
+				display: flex;
+				width: 100%;
+				gap: 8px;
+
+				.public-mobile-link {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 8px;
+					border: 1px solid #e5e7eb;
+					border-radius: 10px;
+					background: #ffffff;
+					color: #374151;
+					font-size: 12px;
+					font-weight: 700;
+					span {
+						line-height: 1;
+					}
+
+					&.active {
+						border-color: #667eea;
+						background: #eef2ff;
+						color: #667eea;
+					}
+				}
+			}
+		}
+
+		.public-footer {
+			padding-top: 28px !important;
+			padding-bottom: 86px !important;
+
+			.public-footer-container {
+				padding-left: 12px;
+				padding-right: 12px;
+			}
+
+			.public-footer-top {
+				gap: 20px !important;
+				padding-bottom: 18px !important;
+			}
+
+			.public-footer-brand {
+				max-width: 100% !important;
+				min-width: 0 !important;
+			}
+
+			.public-footer-links {
+				gap: 20px !important;
+			}
+
+			.public-footer-bottom {
+				padding-top: 16px !important;
+				gap: 10px !important;
+			}
+		}
+	}
+}

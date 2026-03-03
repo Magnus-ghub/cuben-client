@@ -117,10 +117,6 @@ const About: NextPage = () => {
 		},
 	];
 
-	if (device === 'mobile') {
-		return <div>ABOUT PAGE MOBILE</div>;
-	}
-
 	return (
 		<Stack className={'about-page'}>
 			{/* Hero Section */}

@@ -37,17 +37,21 @@ const MemberPage: NextPage = () => {
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (!router.isReady) return;
-		if (!category) {
+		const mobileDefaultCategory = 'followers';
+		const desktopDefaultCategory = 'products';
+		const allowedCategories = device === 'mobile' ? ['followers', 'followings'] : ['products', 'posts', 'articles', 'followers', 'followings'];
+
+		if (!category || !allowedCategories.includes(category)) {
 			router.replace(
 				{
 					pathname: router.pathname,
-					query: { ...router.query, category: 'products' },
+					query: { ...router.query, category: device === 'mobile' ? mobileDefaultCategory : desktopDefaultCategory },
 				},
 				undefined,
 				{ shallow: true },
 			);
 		}
-	}, [category, router]);
+	}, [category, device, router]);
 
 	/** HANDLERS **/
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
@@ -93,44 +97,40 @@ const MemberPage: NextPage = () => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <>MEMBER PAGE MOBILE</>;
-	} else {
-		return (
-			<div id="member-page" style={{ position: 'relative' }}>
-				<div className="container">
-					<Stack className={'member-page'}>
-						<Stack className={'back-frame'}>
-							<Stack className={'left-config'}>
-								<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />
-							</Stack>
-							<Stack className="main-config" mb={'76px'}>
-								<Stack className={'list-config'}>
-									{category === 'products' && <MemberProducts />}
-									{category === 'posts' && <MemberPosts />}
-									{category === 'articles' && <MemberArticles />}
-									{category === 'followers' && (
-										<MemberFollowers
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-									{category === 'followings' && (
-										<MemberFollowings
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-								</Stack>
+	return (
+		<div id="member-page" style={{ position: 'relative' }}>
+			<div className="container">
+				<Stack className={`member-page ${device === 'mobile' ? 'mobile' : ''}`}>
+					<Stack className={'back-frame'}>
+						<Stack className={'left-config'}>
+							<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />
+						</Stack>
+						<Stack className="main-config" mb={'76px'}>
+							<Stack className={'list-config'}>
+								{device !== 'mobile' && category === 'products' && <MemberProducts />}
+								{device !== 'mobile' && category === 'posts' && <MemberPosts />}
+								{device !== 'mobile' && category === 'articles' && <MemberArticles />}
+								{category === 'followers' && (
+									<MemberFollowers
+										subscribeHandler={subscribeHandler}
+										unsubscribeHandler={unsubscribeHandler}
+										redirectToMemberPageHandler={redirectToMemberPageHandler}
+									/>
+								)}
+								{category === 'followings' && (
+									<MemberFollowings
+										subscribeHandler={subscribeHandler}
+										unsubscribeHandler={unsubscribeHandler}
+										redirectToMemberPageHandler={redirectToMemberPageHandler}
+									/>
+								)}
 							</Stack>
 						</Stack>
 					</Stack>
-				</div>
+				</Stack>
 			</div>
-		);
-	}
+		</div>
+	);
 };
 
 export default withLayoutMain(MemberPage);

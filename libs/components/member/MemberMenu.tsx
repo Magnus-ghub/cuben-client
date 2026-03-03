@@ -5,9 +5,10 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { Member } from '../../types/member/member';
 import { REACT_APP_API_URL } from '../../config';
-import { useQuery } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client';
 import { T } from '../../types/common';
 import { GET_MEMBER } from '../../apollo/user/query';
+import { userVar } from '../../apollo/store';
 
 interface MemberMenuProps {
 	subscribeHandler: any;
@@ -18,6 +19,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 	const { subscribeHandler, unsubscribeHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const user = useReactiveVar(userVar);
 	const category: any = router.query?.category;
 	const [member, setMember] = useState<Member | null>(null);
 	const { memberId } = router.query;
@@ -41,7 +43,77 @@ const MemberMenu = (props: MemberMenuProps) => {
 	});
 
 	if (device === 'mobile') {
-		return <div>MEMBER MENU MOBILE</div>;
+		return (
+			<Stack className="member-mobile-menu">
+				<Stack className="member-mobile-profile-card">
+					<Box className="member-mobile-avatar-box">
+						<img
+							src={member?.memberImage ? `${REACT_APP_API_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
+							alt={'member-photo'}
+						/>
+					</Box>
+					<Stack className="member-mobile-info">
+						<Typography className="member-mobile-name">{member?.memberNick || 'Member'}</Typography>
+						<Typography className="member-mobile-type">{member?.memberType || ''}</Typography>
+						<Stack className="member-mobile-stats" direction="row">
+							<Box className="member-mobile-stat-item">
+								<strong>{member?.memberFollowers || 0}</strong>
+								<span>Followers</span>
+							</Box>
+							<Box className="member-mobile-stat-item">
+								<strong>{member?.memberFollowings || 0}</strong>
+								<span>Followings</span>
+							</Box>
+						</Stack>
+					</Stack>
+				</Stack>
+
+				{user?._id && member?._id && user._id !== member._id && (
+					<Stack className="member-mobile-follow-btn-box">
+						{member?.meFollowed && member?.meFollowed[0]?.myFollowing ? (
+							<Button
+								variant="outlined"
+								className="member-mobile-follow-btn unfollow"
+								onClick={() => unsubscribeHandler(member?._id, getMemberRefetch, memberId)}
+							>
+								Unfollow
+							</Button>
+						) : (
+							<Button
+								variant="contained"
+								className="member-mobile-follow-btn follow"
+								onClick={() => subscribeHandler(member?._id, getMemberRefetch, memberId)}
+							>
+								Follow
+							</Button>
+						)}
+					</Stack>
+				)}
+
+				<Stack className="member-mobile-tabs" direction="row">
+					<Link
+						href={{
+							pathname: '/member',
+							query: { ...router.query, category: 'followers' },
+						}}
+						scroll={false}
+						className={`member-mobile-tab ${category === 'followers' ? 'active' : ''}`}
+					>
+						Followers
+					</Link>
+					<Link
+						href={{
+							pathname: '/member',
+							query: { ...router.query, category: 'followings' },
+						}}
+						scroll={false}
+						className={`member-mobile-tab ${category === 'followings' ? 'active' : ''}`}
+					>
+						Followings
+					</Link>
+				</Stack>
+			</Stack>
+		);
 	} else {
 		return (
 			<Stack width={'100%'} padding={'30px 24px'}>
