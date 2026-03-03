@@ -1,4 +1,3 @@
-// CommentModal.tsx (refactored with classNames)
 import React, { useState, useEffect } from 'react';
 import { 
   Dialog, 
@@ -26,6 +25,7 @@ import { REACT_APP_API_URL } from '../../config';
 import moment from 'moment';
 import { Direction } from '../../enums/common.enum';
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { extractTextFromHtml } from '../../utils';
 
 interface CommentModalProps {
   open: boolean;
@@ -44,7 +44,6 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
   const [editText, setEditText] = useState('');
   const [anchorEl, setAnchorEl] = useState<{ [key: string]: HTMLElement | null }>({});
 
-  // Comment inquiry for fetching
   const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>({
     page: 1,
     limit: 20,
@@ -281,6 +280,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
   };
 
   const postImages = getPostImages();
+  const postContentText = extractTextFromHtml(post?.postContent);
 
   return (
     <Dialog
@@ -315,9 +315,9 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, post, onComm
             <Typography className="comment-modal-post-title">
               {post.postTitle}
             </Typography>
-            {post.postContent && (
+            {postContentText && (
               <Typography className="comment-modal-post-text">
-                {post.postContent}
+                {postContentText}
               </Typography>
             )}
 

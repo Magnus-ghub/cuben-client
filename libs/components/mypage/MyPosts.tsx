@@ -15,6 +15,7 @@ import { Post } from '../../types/post/post';
 import CommentModal from '../common/CommentModal';
 import { REMOVE_POST } from '../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { extractTextFromHtml } from '../../utils';
 
 const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -144,6 +145,11 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 		});
 	};
 
+	const getPreviewContent = (content?: string) => {
+		const plainText = extractTextFromHtml(content);
+		return plainText.length > 120 ? `${plainText.substring(0, 120)}...` : plainText;
+	};
+
 	if (!user?._id || getPostsLoading) {
 		return (
 			<Box className="modern-content-container">
@@ -206,8 +212,7 @@ const MyPosts: NextPage = ({ initialInput, ...props }: any) => {
 									<Box className="post-content">
 										<h3 className="post-title">{post.postTitle}</h3>
 										<p className="post-description">
-											{post.postContent?.substring(0, 120)}
-											{post.postContent?.length > 120 && '...'}
+											{getPreviewContent(post.postContent)}
 										</p>
 
 										{/* Stats Row */}

@@ -43,3 +43,20 @@ export const likeTargetMemberHandler = async (likeTargetMember: any, id: string)
 		sweetMixinErrorAlert(err.message).then();
 	}
 };
+
+export const extractTextFromHtml = (content?: string | null): string => {
+	if (!content) return '';
+
+	const stripped = content
+		.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+		.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+		.replace(/<[^>]+>/g, ' ')
+		.replace(/&nbsp;/gi, ' ')
+		.replace(/&amp;/gi, '&')
+		.replace(/&lt;/gi, '<')
+		.replace(/&gt;/gi, '>')
+		.replace(/&#39;/gi, "'")
+		.replace(/&quot;/gi, '"');
+
+	return stripped.replace(/\s+/g, ' ').trim();
+};
