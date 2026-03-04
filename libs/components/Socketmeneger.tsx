@@ -3,17 +3,16 @@ import { useReactiveVar } from '@apollo/client';
 import { userVar, socketVar, setSocket } from '../apollo/store';
 import { getJwtToken } from '../auth';
 
-/**
- * SocketManager
- *
- * Manages the global WebSocket connection lifecycle.
- * - Creates socket when user logs in
- * - Keeps socket alive regardless of chat open/close state
- * - Auto-reconnects on disconnect (up to 5 attempts, exponential backoff)
- * - Closes socket when user logs out
- *
- * Mount this once in _app.tsx — it renders nothing (returns null).
- */
+const resolveWsBaseUrl = (): string | null => {
+	const directWsUrl = process.env.NEXT_PUBLIC_API_WS || process.env.REACT_APP_API_WS;
+	if (directWsUrl) return directWsUrl.replace(/\/$/, '');
+
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
+	if (!apiUrl) return null;
+
+	return apiUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:').replace(/\/$/, '');
+};
+
 const SocketManager = () => {
 	const user = useReactiveVar(userVar);
 	const socketRef = useRef<WebSocket | null>(null);
@@ -27,12 +26,17 @@ const SocketManager = () => {
 		if (!isMountedRef.current) return;
 
 		const token = getJwtToken();
+		const wsBaseUrl = resolveWsBaseUrl();
 		if (!token) {
 			console.warn('[SocketManager] No JWT token — skipping socket creation');
 			return;
 		}
+		if (!wsBaseUrl) {
+			console.error('[SocketManager] Missing websocket URL. Set NEXT_PUBLIC_API_WS or REACT_APP_API_WS');
+			return;
+		}
 
-		const wsUrl = `${process.env.NEXT_PUBLIC_API_WS}?token=${token}`;
+		const wsUrl = `${wsBaseUrl}?token=${encodeURIComponent(token)}`;
 		console.log('[SocketManager] Creating WebSocket...');
 
 		const ws = new WebSocket(wsUrl);
