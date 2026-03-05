@@ -8,10 +8,35 @@ import ScrollableFeed from 'react-scrollable-feed';
 import { useReactiveVar } from '@apollo/client';
 import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import { sweetErrorAlert } from '../../libs/sweetAlert';
-import { socketVar, userVar, chatOpenVar } from '../../libs/apollo/store';
+import { chatOpenVar, socketVar, userVar } from '../../libs/apollo/store';
+import { getJwtToken } from '../auth';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { UnivoLogo } from './common/UnivoLogo';
 import useDeviceDetect from '../hooks/useDeviceDetect';
+
+const NewMessage = (type: any) => {
+	if (type === 'right') {
+		return (
+			<Box
+				component={'div'}
+				flexDirection={'row'}
+				style={{ display: 'flex' }}
+				alignItems={'flex-end'}
+				justifyContent={'flex-end'}
+				sx={{ m: '10px 0px' }}
+			>
+				<div className={'msg_right'}></div>
+			</Box>
+		);
+	} else {
+		return (
+			<Box flexDirection={'row'} style={{ display: 'flex' }} sx={{ m: '10px 0px' }} component={'div'}>
+				<Avatar alt={'jonik'} src={'/img/profile/defaultUser.svg'} />
+				<div className={'msg_left'}></div>
+			</Box>
+		);
+	}
+};
 
 interface MessagePayload {
 	event: string;
@@ -27,280 +52,129 @@ interface InfoPayload {
 	action: string;
 }
 
-const extractText = (data: any): string => {
-	const raw =
-		data?.text ??
-		data?.message ??
-		data?.msg ??
-		data?.content ??
-		data?.body ??
-		data?.payload?.text ??
-		data?.payload?.message ??
-		data?.data?.text ??
-		data?.data?.message ??
-		'';
-
-	return typeof raw === 'string' ? raw : String(raw || '');
-};
-
-
-const extractMemberData = (data: any): CustomJwtPayload =>
-	data.memberData || data.author || data.user || data.sender || {};
-
-const extractEventName = (data: any): string =>
-	(data?.event || data?.type || data?.action || '').toString();
-
-
-
 
 const Chat = () => {
 	const chatContentRef = useRef<HTMLDivElement>(null);
-	const textInput = useRef<HTMLInputElement>(null);
-	const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const initialLoadDoneRef = useRef<boolean>(false);
-
 	const [messagesList, setMessagesList] = useState<MessagePayload[]>([]);
 	const [onlineUsers, setOnlineUsers] = useState<number>(0);
+	const textInput = useRef(null);
 	const [messageInput, setMessageInput] = useState<string>('');
+	const open = useReactiveVar(chatOpenVar);
 	const [isSending, setIsSending] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isConnected, setIsConnected] = useState<boolean>(false);
 	const [reconnectAttempt, setReconnectAttempt] = useState<number>(0);
-
+	const [openButton, setOpenButton] = useState(false);
 	const user = useReactiveVar(userVar);
-	const socket = useReactiveVar(socketVar);
-	const open = useReactiveVar(chatOpenVar);
+	const socket = useReactiveVar(socketVar)
 	const device = useDeviceDetect();
 
-	const checkSocketConnection = (): boolean => {
-		if (!socket) { sweetErrorAlert('WebSocket connection not established'); return false; }
-		if (socket.readyState !== WebSocket.OPEN) { sweetErrorAlert('Connection is not ready. Please wait...'); return false; }
-		return true;
+	const handleCloseChat = () => {
+		chatOpenVar(false);
 	};
-
-	const checkUserAuthentication = (): boolean => {
-		if (!user?._id) { sweetErrorAlert('Please login to send messages'); return false; }
-		return true;
-	};
-
-	const handleWebSocketMessage = useCallback((msg: MessageEvent) => {
-		try {
-			const data = JSON.parse(msg.data);
-			const eventName = extractEventName(data);
-
-			console.log('[Chat] 📩 RAW payload:', JSON.stringify(data, null, 2));
-
-			switch (eventName) {
-				case 'info': {
-					setOnlineUsers((data as InfoPayload).totalClients);
-					setIsConnected(true);
-					setReconnectAttempt(0);
-					setIsLoading(false);
-					break;
-				}
-
-				case 'getMessages': {
-					if (!initialLoadDoneRef.current) {
-						const incomingList = data?.list || data?.messages || data?.payload?.list || data?.data?.list || [];
-						const list: MessagePayload[] = (Array.isArray(incomingList) ? incomingList : []).map((item: any) => ({
-							...item,
-							text: extractText(item),
-							memberData: extractMemberData(item),
-						}));
-						console.log('[Chat] 📝 Loaded messages:', list.length);
-						setMessagesList(list);
-						initialLoadDoneRef.current = true;
-					}
-					setIsLoading(false);
-					break;
-				}
-
-				case 'message': {
-					const source = data?.payload || data?.data || data;
-					const normalized: MessagePayload = {
-						...data,
-						text: extractText(source),
-						memberData: extractMemberData(source),
-					};
-					console.log('[Chat] 💬 New message:', normalized);
-					setMessagesList((prev) => {
-						const duplicated = prev.some(
-							(item) =>
-								item.text === normalized.text &&
-								item.memberData?._id === normalized.memberData?._id &&
-								Math.abs(new Date(item.createdAt || Date.now()).getTime() - new Date(normalized.createdAt || Date.now()).getTime()) <
-								5000,
-						);
-						return duplicated ? prev : [...prev, normalized];
-					});
-					setIsSending(false);
-
-					if (messageTimeoutRef.current) {
-						clearTimeout(messageTimeoutRef.current);
-						messageTimeoutRef.current = null;
-					}
-					break;
-				}
-
-				case 'newMessage':
-				case 'chatMessage': {
-					const source = data?.payload || data?.data || data;
-					const normalized: MessagePayload = {
-						...source,
-						text: extractText(source),
-						memberData: extractMemberData(source),
-					};
-					if (normalized.text) {
-						setMessagesList((prev) => [...prev, normalized]);
-						setIsSending(false);
-					}
-					break;
-				}
-
-				default:
-					if (extractText(data)) {
-						const normalized: MessagePayload = {
-							...data,
-							text: extractText(data),
-							memberData: extractMemberData(data),
-						};
-						setMessagesList((prev) => [...prev, normalized]);
-						setIsSending(false);
-					} else {
-						console.warn('[Chat] ⚠️ Unknown event:', eventName || data.event);
-					}
-			}
-		} catch (err) {
-			console.error('[Chat] ❌ Parse error:', err);
-		}
-	}, []);
-
-	// Stable handler ref — socket listener always calls latest version
-	const handlerRef = useRef(handleWebSocketMessage);
-	useEffect(() => { handlerRef.current = handleWebSocketMessage; }, [handleWebSocketMessage]);
 
 	useEffect(() => {
-		if (!socket) {
-			setIsConnected(false);
+		if (!open) return;
+
+		const token = getJwtToken();
+		if (!token) {
 			setIsLoading(false);
+			setIsConnected(false);
 			return;
 		}
 
-		socket.onmessage = (msg) => handlerRef.current(msg);
-		socket.onerror = () => { setIsConnected(false); setIsLoading(false); };
-		socket.onopen = () => {
-			console.log('[Chat] ✅ Socket opened');
+		setIsLoading(true);
+		const wsBase = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:5007';
+		const ws = new WebSocket(`${wsBase}?token=${encodeURIComponent(token)}`);
+		socketVar(ws);
+
+		ws.onopen = () => {
 			setIsConnected(true);
+			setIsLoading(false);
 			setReconnectAttempt(0);
-			setIsLoading(false);
-			initialLoadDoneRef.current = false;
-			socket.send(JSON.stringify({ event: 'getMessages' }));
 		};
-		socket.onclose = () => {
-			console.warn('[Chat] ⚠️ Socket closed');
+
+		ws.onerror = () => {
 			setIsConnected(false);
 			setIsLoading(false);
 		};
 
-		if (socket.readyState === WebSocket.OPEN) {
-			setIsConnected(true);
-			setIsLoading(false);
-			if (!initialLoadDoneRef.current) {
-				socket.send(JSON.stringify({ event: 'getMessages' }));
-			}
-		} else if (socket.readyState === WebSocket.CONNECTING) {
-			setIsLoading(true);
-		} else {
+		ws.onclose = () => {
 			setIsConnected(false);
 			setIsLoading(false);
-		}
-	}, [socket]); 
-
-	useEffect(() => {
-		if (isConnected || !open) return;
-		if (reconnectAttempt >= 5) return;
-
-		reconnectTimeoutRef.current = setTimeout(() => {
 			setReconnectAttempt((prev) => prev + 1);
-		}, Math.min(1000 * Math.pow(2, reconnectAttempt), 30000));
-
-		return () => { if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current); };
-	}, [isConnected, open, reconnectAttempt]);
-
-	useEffect(() => {
-		return () => {
-			if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
-			if (messageTimeoutRef.current) clearTimeout(messageTimeoutRef.current);
 		};
-	}, []);
 
-	useEffect(() => {
-		if (!chatContentRef.current || messagesList.length === 0) return;
-		setTimeout(() => {
-			if (chatContentRef.current) {
-				chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+		return () => {
+			if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+				ws.close();
 			}
-		}, 100);
-	}, [messagesList]);
+			socketVar(null);
+		};
+	}, [open]);
 
 	useEffect(() => {
-		if (open && isConnected) {
-			setTimeout(() => textInput.current?.focus(), 150);
-		}
-	}, [open, isConnected]);
+		if (!socket) return;
 
-	const handleCloseChat = () => chatOpenVar(false);
+		socket.onmessage = (msg) => {
+			const data = JSON.parse(msg.data);
+			console.log('WebSocket message: ', data);
 
-	const getInputMessageHandler = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		setMessageInput(e.target.value);
+			switch(data.event) {
+				case 'info':
+					const newInfo: InfoPayload = data;
+					setOnlineUsers(newInfo.totalClients);
+					break;
+				case 'getMessages':
+					const list: MessagePayload[] = data.list;
+					setMessagesList(list);
+					break;
+				case 'message':
+					const newMessage: MessagePayload = data;
+					setMessagesList((prev) => [...prev, newMessage]);
+					break;	
+			}
+		};
+	}, [socket]);
+
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			setOpenButton(true);
+		}, 100);
+		return () => clearTimeout(timeoutId);
 	}, []);
 
-	const getKeyHandler = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter' && !e.shiftKey) {
-			e.preventDefault();
-			onClickHandler();
+	useEffect(() => {
+		setOpenButton(false);
+	}, []);
+
+
+	const getInputMessageHandler = useCallback(
+		(e: any) => {
+			const text = e.target.value;
+			setMessageInput(text);
+		},
+		[messageInput],
+	);
+
+	const getKeyHandler = (e: any) => {
+		try {
+			if (e.key == 'Enter') {
+				onClickHandler();
+			}
+		} catch (err: any) {
+			console.log(err);
 		}
 	};
 
 	const onClickHandler = () => {
-		const trimmedMessage = messageInput.trim();
-		if (!trimmedMessage) { sweetErrorAlert(Messages.error4 || 'Please enter a message'); return; }
-		if (!checkUserAuthentication()) return;
-		if (!checkSocketConnection()) return;
-		if (isSending) return;
-
-		try {
+		if(!messageInput) sweetErrorAlert(Messages.error4);
+		else if (!socket || socket.readyState !== WebSocket.OPEN) return;
+		else {
 			setIsSending(true);
-			const optimisticMessage: MessagePayload = {
-				event: 'message',
-				text: trimmedMessage,
-				memberData: { ...user },
-				createdAt: new Date().toISOString(),
-			};
-			setMessagesList((prev) => [...prev, optimisticMessage]);
-			socket!.send(JSON.stringify({
-				event: 'message',
-				text: trimmedMessage,
-				memberData: {
-					_id: user._id,
-					memberNick: user.memberNick,
-					memberImage: user.memberImage,
-					memberFullName: user.memberFullName,
-				},
-			}));
+			socket.send(JSON.stringify({ event: 'message', data: messageInput }));
 			setMessageInput('');
-
-			messageTimeoutRef.current = setTimeout(() => {
-				setIsSending(false);
-				sweetErrorAlert('Message status is pending. Please check connection.');
-			}, 10000);
-		} catch (err) {
-			console.error('[Chat] ❌ Send error:', err);
-			sweetErrorAlert('Failed to send message');
 			setIsSending(false);
-			setMessagesList((prev) => prev.slice(0, -1));
-			setMessageInput(trimmedMessage);
 		}
 	};
 
