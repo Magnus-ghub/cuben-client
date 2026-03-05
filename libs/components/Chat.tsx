@@ -84,7 +84,7 @@ const Chat = () => {
 		}
 
 		setIsLoading(true);
-		const wsBase = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:5007';
+		const wsBase = process.env.REACT_APP_API_WS || 'ws://localhost:5007';
 		const ws = new WebSocket(`${wsBase}?token=${encodeURIComponent(token)}`);
 		socketVar(ws);
 
