@@ -4,10 +4,15 @@ import { userVar, socketVar, setSocket } from '../apollo/store';
 import { getJwtToken } from '../auth';
 
 const resolveWsBaseUrl = (): string | null => {
-	const directWsUrl = process.env.REACT_APP_API_WS;
-	if (directWsUrl) return directWsUrl.replace(/\/$/, '');
+	const directWsUrl = process.env.REACT_APP_API_WS || process.env.NEXT_PUBLIC_API_WS;
+	if (directWsUrl) {
+		return directWsUrl
+			.replace(/^http:/, 'ws:')
+			.replace(/^https:/, 'wss:')
+			.replace(/\/$/, '');
+	}
 
-	const apiUrl = process.env.REACT_APP_API_WS;
+	const apiUrl = process.env.REACT_APP_API_URL || process.env.NEXT_PUBLIC_API_URL;
 	if (!apiUrl) return null;
 
 	return apiUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:').replace(/\/$/, '');
@@ -32,11 +37,12 @@ const SocketManager = () => {
 			return;
 		}
 		if (!wsBaseUrl) {
-			console.error('[SocketManager] Missing websocket URL. Set REACT_APP_API_WS or REACT_APP_API_WS');
+			console.error('[SocketManager] Missing websocket URL. Set REACT_APP_API_WS/NEXT_PUBLIC_API_WS or REACT_APP_API_URL/NEXT_PUBLIC_API_URL');
 			return;
 		}
 
-		const wsUrl = `${wsBaseUrl}?token=${encodeURIComponent(token)}`;
+		const separator = wsBaseUrl.includes('?') ? '&' : '?';
+		const wsUrl = `${wsBaseUrl}${separator}token=${encodeURIComponent(token)}`;
 		console.log('[SocketManager] Creating WebSocket...');
 
 		const ws = new WebSocket(wsUrl);

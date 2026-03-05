@@ -3,6 +3,8 @@ services:
     container_name: univo-client
     restart: always
     image: node:20.10.0
+    env_file:
+      - .env
     ports:
       - 4000:3000
     environment:
