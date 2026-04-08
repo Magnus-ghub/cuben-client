@@ -1,4 +1,4 @@
-import { Box, MenuItem, Stack, Badge, Dialog, DialogContent, DialogActions, Alert } from '@mui/material';
+import { Box, MenuItem, Stack, Badge, Dialog, DialogContent, DialogActions, Alert, IconButton, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import { useTranslation } from 'next-i18next';
@@ -8,6 +8,8 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import MarkUnreadChatAltIcon from '@mui/icons-material/MarkUnreadChatAlt';
 import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import { alpha, styled } from '@mui/material/styles';
 import { CaretDown } from 'phosphor-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -23,12 +25,14 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { GET_MY_NOTIFICATIONS } from '../apollo/user/query';
 import { NotificationStatus } from '../enums/notification.enum';
+import { useTheme } from './common/ThemeContext';
 
 const Top: React.FC = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const { t, i18n } = useTranslation('common');
 	const router = useRouter();
+	const { isDark, toggleTheme } = useTheme();
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
 	const [createMenuAnchor, setCreateMenuAnchor] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
@@ -257,6 +261,32 @@ const Top: React.FC = () => {
 						<Box component={'div'} className={'actions-box'}>
 							{/* Icons Section */}
 							<Stack className="icons-section" direction={'row'} alignItems={'center'}>
+								{/* Theme Toggle */}
+								<Tooltip title={isDark ? t('lightMode') : t('darkMode')} arrow>
+									<IconButton
+										onClick={toggleTheme}
+										className="theme-toggle-btn"
+										sx={{
+											width: 36,
+											height: 36,
+											borderRadius: '10px',
+											background: 'var(--bg-tertiary)',
+											color: 'var(--text-secondary)',
+											transition: 'all 0.2s ease',
+											'&:hover': {
+												background: 'var(--primary-light)',
+												color: 'var(--primary)',
+												transform: 'rotate(15deg)',
+											},
+										}}
+									>
+										{isDark ? (
+											<LightModeOutlinedIcon sx={{ fontSize: 20 }} />
+										) : (
+											<DarkModeOutlinedIcon sx={{ fontSize: 20 }} />
+										)}
+									</IconButton>
+								</Tooltip>
 
 								{/* ── 4. Notification Icon — dropdown bilan ── */}
 								{user?._id && (
@@ -532,6 +562,33 @@ const Top: React.FC = () => {
 
 							{/* Icons Section */}
 							<Stack className="icons-section">
+								{/* Theme Toggle */}
+								<Tooltip title={isDark ? t('lightMode') : t('darkMode')} arrow>
+									<IconButton
+										onClick={toggleTheme}
+										className="theme-toggle-btn"
+										sx={{
+											width: 38,
+											height: 38,
+											borderRadius: '10px',
+											background: 'var(--bg-tertiary)',
+											color: 'var(--text-secondary)',
+											transition: 'all 0.25s ease',
+											'&:hover': {
+												background: 'var(--primary-light)',
+												color: 'var(--primary)',
+												transform: 'rotate(20deg) scale(1.05)',
+											},
+										}}
+									>
+										{isDark ? (
+											<LightModeOutlinedIcon sx={{ fontSize: 22 }} />
+										) : (
+											<DarkModeOutlinedIcon sx={{ fontSize: 22 }} />
+										)}
+									</IconButton>
+								</Tooltip>
+
 								{/* Chat Icon */}
 								<Box
 									component="div"
@@ -542,7 +599,7 @@ const Top: React.FC = () => {
 										'&:hover': { transform: 'scale(1.1)' },
 									}}
 								>
-									<MarkUnreadChatAltIcon sx={{ fontSize: 24, color: '#6b7280' }} />
+									<MarkUnreadChatAltIcon sx={{ fontSize: 24, color: 'var(--text-secondary)' }} />
 								</Box>
 
 								{/* ── 4. Notification Icon — dropdown bilan ── */}
